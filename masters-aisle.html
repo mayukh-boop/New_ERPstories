@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aisle Master — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR (shared) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8a1 1 0 011-1h4v5H3v-4zm8-8h4a1 1 0 011 1v4h-5V4zm0 8h5v3a1 1 0 01-1 1h-4v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child active" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin Access</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-module">Masters</span>
+      <div class="topbar-right">
+        <button class="topbar-cta" onclick="openModal('addModal')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Create Aisle
+        </button>
+        <button class="topbar-icon-btn" title="Notifications">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Aisle Master</div>
+          <div class="ph-sub">Manage storage aisles and their warehouse locations</div>
+        </div>
+      </div>
+
+      <div class="card">
+
+        <!-- Toolbar — matches the reference image exactly -->
+        <div class="toolbar">
+          <div class="toolbar-field">
+            <div class="toolbar-label">Filter By</div>
+            <select class="filter-select" id="filterBy" onchange="applyFilter()">
+              <option value="name">Aisle Name</option>
+              <option value="location">Location</option>
+              <option value="type">Type</option>
+            </select>
+          </div>
+          <div class="toolbar-field" style="flex:1; max-width:520px;">
+            <div class="toolbar-label">Search Term</div>
+            <div class="search-wrap">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              <input class="search-input" id="searchInput" type="text" placeholder="Type to search..." oninput="applyFilter()">
+            </div>
+          </div>
+          <div class="toolbar-field">
+            <div class="toolbar-label">&nbsp;</div>
+            <button class="btn-search" onclick="applyFilter()">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              Search
+            </button>
+          </div>
+        </div>
+
+        <div class="entries-row">
+          SHOW <span class="entries-num" id="entriesCount">25</span> ENTRIES
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="row-icon-cell"></th>
+                <th>AISLE NAME <svg class="sort-icon" viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M5 4l3-3 3 3H5zm6 8l-3 3-3-3h6z"/></svg></th>
+                <th>LOCATION <svg class="sort-icon" viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M5 4l3-3 3 3H5zm6 8l-3 3-3-3h6z"/></svg></th>
+                <th>TYPE</th>
+                <th>CAPACITY</th>
+                <th style="text-align:right;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="aisleBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pager" id="pager"></div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modalTitle">Create Aisle</div>
+        <div class="modal-sub" id="modalSub">Add a new storage aisle</div>
+      </div>
+      <button class="modal-x" onclick="closeModal('addModal')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Aisle Name <span class="req">*</span></label>
+          <input class="form-control" id="fName" type="text" placeholder="e.g. Alpha-7 Sector">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location <span class="req">*</span></label>
+          <input class="form-control" id="fLocation" type="text" placeholder="e.g. North Wing, Bay 04">
+        </div>
+      </div>
+      <div class="form-grid-2" style="margin-top:4px;">
+        <div class="form-group">
+          <label class="form-label">Aisle Type</label>
+          <select class="form-control" id="fType">
+            <option value="Standard">Standard</option>
+            <option value="Cold Storage">Cold Storage</option>
+            <option value="High Density">High-density dry</option>
+            <option value="Automated">Automated picking</option>
+            <option value="Hazardous">Restricted / Hazardous</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Capacity (units)</label>
+          <input class="form-control" id="fCapacity" type="number" placeholder="e.g. 500">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:4px;">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="fStatus">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="maintenance">Under Maintenance</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAisle()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Save Aisle
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Delete Aisle</div><div class="modal-sub">This cannot be undone</div></div>
+      <button class="modal-x" onclick="closeModal('deleteModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-2);line-height:1.6;">
+        Are you sure you want to delete <strong id="deleteName"></strong>? This may affect inventory linked to this aisle.
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+// Aisle data — matching reference design items
+let aisles = [
+  { id:1, name:'Alpha-7 Sector',   sub:'High-density dry storage',      location:'North Wing, Bay 04',  type:'High Density', capacity:800,  status:'active' },
+  { id:2, name:'Borealis Chill',   sub:'Temperature controlled unit',   location:'Cold Storage, Zone B', type:'Cold Storage', capacity:400,  status:'active' },
+  { id:3, name:'Delta Matrix',     sub:'Automated picking zone',        location:'South Annex, Floor 2', type:'Automated',    capacity:1200, status:'inactive' },
+  { id:4, name:'Hazard Gamma',     sub:'Restricted chemical storage',   location:'Isolated Bunker 01',   type:'Hazardous',    capacity:150,  status:'active' },
+  { id:5, name:'Echo Bay',         sub:'General storage zone',          location:'East Wing, Bay 01',    type:'Standard',     capacity:600,  status:'active' },
+  { id:6, name:'Foxtrot Row',      sub:'Finished goods holding',        location:'Dispatch Area, D3',    type:'Standard',     capacity:900,  status:'active' },
+  { id:7, name:'Gravel Peak',      sub:'Raw fabric rolls',              location:'Ground Floor, Rack 7', type:'Standard',     capacity:300,  status:'maintenance' },
+  { id:8, name:'Helios Zone',      sub:'Premium garment storage',       location:'Level 2, Zone H',      type:'High Density', capacity:500,  status:'active' },
+  { id:9, name:'Indigo Stack',     sub:'Dyeing supplies aisle',        location:'Chemical Store, I-4',  type:'Hazardous',    capacity:200,  status:'active' },
+  { id:10,name:'Jupiter Bay',      sub:'Bulk thread and trims',        location:'North Wing, Bay 10',   type:'Standard',     capacity:700,  status:'active' },
+  { id:11,name:'Kappa Cold',       sub:'Washed garment temp zone',     location:'Cold Storage, Zone K', type:'Cold Storage', capacity:350,  status:'active' },
+  { id:12,name:'Lima Dispatch',    sub:'Outbound shipment staging',    location:'Dock Area, L-1',       type:'Standard',     capacity:1000, status:'active' },
+  { id:13,name:'Metro Pick',       sub:'Fast-moving items zone',       location:'Centre Floor, M-2',    type:'Automated',    capacity:650,  status:'inactive' },
+  { id:14,name:'November West',    sub:'Seasonal collection store',    location:'West Annex, N-5',      type:'Standard',     capacity:450,  status:'active' },
+  { id:15,name:'Omega Deep',       sub:'Archive and overstock',        location:'Basement, Row O-3',    type:'Standard',     capacity:1500, status:'active' },
+];
+
+let filtered = [...aisles];
+let currentPage = 1;
+const pageSize = 10;
+let deleteId = null;
+
+const statusDot = { active:'dot-blue', inactive:'dot-gray', maintenance:'dot-yellow' };
+const statusLabel = { active:'Active', inactive:'Inactive', maintenance:'Maintenance' };
+
+const typeIcons = {
+  'Standard':    `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>`,
+  'Cold Storage':`<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>`,
+  'High Density':`<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>`,
+  'Automated':   `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/></svg>`,
+  'Hazardous':   `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>`,
+};
+
+const typeIconBg = {
+  'Standard':    'var(--gray-100)',
+  'Cold Storage':'#dbeafe',
+  'High Density':'#f0fdf4',
+  'Automated':   '#fef9c3',
+  'Hazardous':   '#fee2e2',
+};
+const typeIconColor = {
+  'Standard':    'var(--gray-500)',
+  'Cold Storage':'#2563eb',
+  'High Density':'#16a34a',
+  'Automated':   '#ca8a04',
+  'Hazardous':   '#dc2626',
+};
+
+function applyFilter() {
+  const field = document.getElementById('filterBy').value;
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  filtered = aisles.filter(a => {
+    if (!q) return true;
+    const target = field === 'name' ? a.name : field === 'location' ? a.location : a.type;
+    return target.toLowerCase().includes(q);
+  });
+  currentPage = 1;
+  render();
+}
+
+function render() {
+  const start = (currentPage - 1) * pageSize;
+  const page = filtered.slice(start, start + pageSize);
+  document.getElementById('entriesCount').textContent = filtered.length;
+
+  const tbody = document.getElementById('aisleBody');
+  if (page.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"/></svg></div>
+      <div class="empty-title">No aisles found</div>
+      <div class="empty-desc">Try adjusting your search or create a new aisle</div>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = page.map(a => `
+    <tr>
+      <td class="row-icon-cell">
+        <div class="row-icon" style="background:${typeIconBg[a.type]}; color:${typeIconColor[a.type]};">
+          ${typeIcons[a.type] || typeIcons['Standard']}
+        </div>
+      </td>
+      <td>
+        <div class="row-name">${a.name}</div>
+        <div class="row-sub">${a.sub}</div>
+      </td>
+      <td>
+        <div class="status-dot">
+          <span class="dot ${statusDot[a.status]}"></span>
+          ${a.location}
+        </div>
+      </td>
+      <td>
+        <span class="badge ${a.type==='Hazardous'?'badge-red':a.type==='Cold Storage'?'badge-blue':a.type==='High Density'?'badge-green':a.type==='Automated'?'badge-yellow':'badge-gray'}">${a.type}</span>
+      </td>
+      <td style="color:var(--text-2); font-size:13px;">${a.capacity.toLocaleString()} units</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" title="View" onclick="viewAisle(${a.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </button>
+          <button class="icon-btn edit" title="Edit" onclick="editAisle(${a.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          </button>
+          <button class="icon-btn del" title="Delete" onclick="deleteAisle(${a.id}, '${a.name}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  renderPager();
+}
+
+function renderPager() {
+  const total = filtered.length;
+  const pages = Math.ceil(total / pageSize);
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, total);
+  document.getElementById('pager').innerHTML = `
+    <div style="color:var(--text-3);font-size:12.5px;">SHOWING ${total>0?start:0} – ${end} OF ${total} AISLES</div>
+    <div class="pager-pages">
+      <button class="pager-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+        Previous
+      </button>
+      ${Array.from({length:Math.min(pages,5)},(_,i)=>`<button class="pager-btn${i+1===currentPage?' active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('')}
+      <button class="pager-btn" onclick="goPage(${currentPage+1})" ${currentPage>=pages||pages===0?'disabled':''}>
+        Next
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filtered.length / pageSize);
+  if (p < 1 || p > pages) return;
+  currentPage = p;
+  render();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function resetForm() {
+  ['editId','fName','fLocation','fCapacity'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('fType').value='Standard';
+  document.getElementById('fStatus').value='active';
+  document.getElementById('modalTitle').textContent='Create Aisle';
+  document.getElementById('modalSub').textContent='Add a new storage aisle';
+}
+
+function viewAisle(id) {
+  const a = aisles.find(x=>x.id===id);
+  if(!a) return;
+  fill(a); document.getElementById('modalTitle').textContent='View Aisle';
+  document.getElementById('modalSub').textContent=a.name;
+  openModal('addModal');
+}
+function editAisle(id) {
+  const a = aisles.find(x=>x.id===id);
+  if(!a) return;
+  fill(a); document.getElementById('modalTitle').textContent='Edit Aisle';
+  document.getElementById('modalSub').textContent='Update '+a.name;
+  openModal('addModal');
+}
+function fill(a) {
+  document.getElementById('editId').value=a.id;
+  document.getElementById('fName').value=a.name;
+  document.getElementById('fLocation').value=a.location;
+  document.getElementById('fType').value=a.type;
+  document.getElementById('fCapacity').value=a.capacity;
+  document.getElementById('fStatus').value=a.status;
+}
+function saveAisle() {
+  const name=document.getElementById('fName').value.trim();
+  const location=document.getElementById('fLocation').value.trim();
+  if(!name||!location){document.getElementById('fName').focus();return;}
+  const id=document.getElementById('editId').value;
+  const obj={name,sub:document.getElementById('fType').value+' aisle',location,type:document.getElementById('fType').value,capacity:parseInt(document.getElementById('fCapacity').value)||0,status:document.getElementById('fStatus').value};
+  if(id){const a=aisles.find(x=>x.id==id);if(a)Object.assign(a,obj);toast('Aisle updated','success');}
+  else{aisles.unshift({id:Date.now(),...obj});toast('Aisle created','success');}
+  filtered=[...aisles];render();closeModal('addModal');resetForm();
+}
+function deleteAisle(id,name){deleteId=id;document.getElementById('deleteName').textContent=name;openModal('deleteModal');}
+function confirmDelete(){aisles=aisles.filter(a=>a.id!==deleteId);filtered=filtered.filter(a=>a.id!==deleteId);render();closeModal('deleteModal');toast('Aisle deleted','success');}
+
+function toast(msg,type){
+  const area=document.getElementById('toastArea');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> ${msg}`;
+  area.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+function toggleGroup(el){
+  const g=el.closest('.nav-group');const o=g.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});
+  g.classList.toggle('open',!o);el.classList.toggle('open',!o);
+}
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{bd.addEventListener('click',e=>{if(e.target===bd)closeModal(bd.id);});});
+render();
+</script>
+</body>
+</html>

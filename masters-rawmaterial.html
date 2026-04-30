@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raw Materials Master — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+  .rm-avatar {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: var(--r-full);
+    font-size: 11px; font-weight: 600;
+  }
+  .type-fabric   { background:#eff6ff; color:#1d4ed8; }
+  .type-trim     { background:#f0fdf4; color:#15803d; }
+  .type-thread   { background:#fdf4ff; color:#7e22ce; }
+  .type-lining   { background:#fff7ed; color:#c2410c; }
+  .type-accessory{ background:#fef9c3; color:#854d0e; }
+  .type-packaging{ background:#f0f9ff; color:#0369a1; }
+  .type-other    { background:var(--gray-100); color:var(--gray-700); }
+
+  .filter-tabs {
+    display: flex; gap: 4px;
+    background: var(--gray-100); border-radius: var(--r);
+    padding: 4px;
+  }
+  .tab-pill {
+    padding: 6px 14px; border-radius: 7px; border: none;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: transparent; color: var(--text-2);
+    transition: all var(--ease);
+  }
+  .tab-pill.active {
+    background: var(--surface); color: var(--brand-600);
+    box-shadow: var(--shadow-sm); font-weight: 600;
+  }
+  .tab-pill:hover:not(.active) { background: var(--gray-200); }
+
+  .stock-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 600; padding: 2px 8px;
+    border-radius: var(--r-full);
+  }
+  .stock-ok   { background: var(--success-bg); color: var(--success); }
+  .stock-low  { background: var(--warning-bg); color: var(--warning); }
+  .stock-out  { background: var(--danger-bg);  color: var(--danger); }
+
+  .price-cell { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 600; color: var(--text-1); }
+
+  .img-thumb {
+    width: 36px; height: 36px; border-radius: var(--r-sm);
+    background: var(--gray-100); display: flex; align-items: center; justify-content: center;
+    font-size: 20px; border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8a1 1 0 011-1h4v5H3v-4zm8-8h4a1 1 0 011 1v4h-5V4zm0 8h5v3a1 1 0 01-1 1h-4v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child active" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin Access</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+        </button>
+        <nav class="breadcrumb">
+          <a href="masters-list.html">Masters</a>
+          <span>›</span>
+          <span>Raw Materials</span>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        </button>
+        <div class="topbar-avatar">MG</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Raw Materials</h1>
+          <p class="page-subtitle">Manage fabric, trims, threads, linings and all input materials</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Material
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="filter-tabs">
+            <button class="tab-pill active" onclick="setType('All',this)">All</button>
+            <button class="tab-pill" onclick="setType('Fabric',this)">Fabric</button>
+            <button class="tab-pill" onclick="setType('Trim',this)">Trims</button>
+            <button class="tab-pill" onclick="setType('Thread',this)">Threads</button>
+            <button class="tab-pill" onclick="setType('Lining',this)">Lining</button>
+            <button class="tab-pill" onclick="setType('Accessory',this)">Accessories</button>
+            <button class="tab-pill" onclick="setType('Packaging',this)">Packaging</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-left:auto;">
+            <select class="filter-select" id="statusFilter" onchange="render()">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+            <select class="filter-select" id="stockFilter" onchange="render()">
+              <option value="">All Stock</option>
+              <option value="ok">In Stock</option>
+              <option value="low">Low Stock</option>
+              <option value="out">Out of Stock</option>
+            </select>
+            <div style="position:relative;">
+              <input class="search-input" id="searchInput" type="text" placeholder="Search materials…" oninput="render()">
+              <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" color="#9ca3af"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:48px"></th>
+              <th>Material Name</th>
+              <th>Code</th>
+              <th>Type</th>
+              <th>UOM</th>
+              <th>Unit Price</th>
+              <th>Stock</th>
+              <th>Re-order Level</th>
+              <th>Vendor</th>
+              <th>Status</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rmBody"></tbody>
+        </table>
+
+        <div class="pager" id="pager"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+<div class="modal" id="modal" style="max-width:600px;">
+  <div class="modal-header">
+    <h2 class="modal-title" id="modalTitle">Add Raw Material</h2>
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Material Name <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fName" type="text" placeholder="e.g. Cotton Twill Fabric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Material Code <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fCode" type="text" placeholder="e.g. FAB-COT-001">
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label class="form-label">Type <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="fType">
+          <option value="">Select type…</option>
+          <option>Fabric</option>
+          <option>Trim</option>
+          <option>Thread</option>
+          <option>Lining</option>
+          <option>Accessory</option>
+          <option>Packaging</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">UOM</label>
+        <select class="form-control" id="fUOM">
+          <option>Meter</option>
+          <option>Yard</option>
+          <option>Kilogram</option>
+          <option>Gram</option>
+          <option>Pieces</option>
+          <option>Roll</option>
+          <option>Bundle</option>
+          <option>Cone</option>
+          <option>Box</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="fStatus">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label class="form-label">Unit Price (₹)</label>
+        <input class="form-control" id="fPrice" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Stock</label>
+        <input class="form-control" id="fStock" type="number" step="0.01" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Re-order Level</label>
+        <input class="form-control" id="fReorder" type="number" step="0.01" placeholder="0">
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Preferred Vendor</label>
+        <input class="form-control" id="fVendor" type="text" placeholder="Vendor name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">HSN Code</label>
+        <input class="form-control" id="fHSN" type="text" placeholder="e.g. 5209">
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Composition / Specification</label>
+        <input class="form-control" id="fSpec" type="text" placeholder="e.g. 100% Cotton, 120 GSM">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color / Shade</label>
+        <input class="form-control" id="fColor" type="text" placeholder="e.g. Ecru, Black, Multi">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Remarks</label>
+      <input class="form-control" id="fRemarks" type="text" placeholder="Optional notes">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveMaterial()">Save Material</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const typeIcons = {
+  Fabric:'🧵', Trim:'🪢', Thread:'🧶', Lining:'🪡',
+  Accessory:'🔘', Packaging:'📦', Other:'⚙️'
+};
+const typeIconBg = {
+  Fabric:'#eff6ff', Trim:'#f0fdf4', Thread:'#fdf4ff', Lining:'#fff7ed',
+  Accessory:'#fef9c3', Packaging:'#f0f9ff', Other:'#f3f4f6'
+};
+const typeCls = {
+  Fabric:'type-fabric', Trim:'type-trim', Thread:'type-thread', Lining:'type-lining',
+  Accessory:'type-accessory', Packaging:'type-packaging', Other:'type-other'
+};
+
+let data = [
+  {id:1, name:'Cotton Poplin', code:'FAB-COT-001', type:'Fabric', uom:'Meter', price:85, stock:450, reorder:100, vendor:'Ahmedabad Textile Mills', hsn:'5210', spec:'100% Cotton, 90 GSM', color:'White', status:'Active', remarks:''},
+  {id:2, name:'Polyester Twill', code:'FAB-POL-002', type:'Fabric', uom:'Meter', price:65, stock:280, reorder:80, vendor:'Surat Weaving Co.', hsn:'5407', spec:'100% Polyester, 120 GSM', color:'Navy', status:'Active', remarks:''},
+  {id:3, name:'Rayon Crepe', code:'FAB-RAY-003', type:'Fabric', uom:'Meter', price:120, stock:25, reorder:60, vendor:'Mumbai Fabrics Ltd.', hsn:'5408', spec:'100% Viscose, 110 GSM', color:'Multi', status:'Active', remarks:'Low stock alert'},
+  {id:4, name:'Denim 12oz', code:'FAB-DEN-004', type:'Fabric', uom:'Meter', price:210, stock:0, reorder:50, vendor:'Arvind Mills', hsn:'5209', spec:'98% Cotton 2% Elastane', color:'Indigo', status:'Active', remarks:'Re-order placed'},
+  {id:5, name:'Interlock Knit', code:'FAB-KNT-005', type:'Fabric', uom:'Kilogram', price:340, stock:180, reorder:40, vendor:'Tirupur Knits', hsn:'6006', spec:'95% Cotton 5% Lycra', color:'Grey Mel', status:'Active', remarks:''},
+  {id:6, name:'YKK Metal Zipper 5#', code:'TRM-ZIP-001', type:'Trim', uom:'Pieces', price:18, stock:2400, reorder:500, vendor:'YKK India', hsn:'9607', spec:'Metal, 5# size', color:'Gold', status:'Active', remarks:''},
+  {id:7, name:'Resin Button 20L', code:'TRM-BTN-002', type:'Trim', uom:'Pieces', price:2.5, stock:8500, reorder:2000, vendor:'Gujarat Buttons', hsn:'9606', spec:'Resin, 4-hole, 12mm', color:'Brown', status:'Active', remarks:''},
+  {id:8, name:'Woven Label Main', code:'TRM-LBL-003', type:'Trim', uom:'Pieces', price:4.5, stock:5000, reorder:1000, vendor:'Label World', hsn:'5807', spec:'Woven, 45x20mm', color:'White/Gold', status:'Active', remarks:''},
+  {id:9, name:'Care Label', code:'TRM-LBL-004', type:'Trim', uom:'Pieces', price:1.2, stock:15000, reorder:3000, vendor:'Label World', hsn:'5807', spec:'Satin, 35x55mm', color:'White', status:'Active', remarks:''},
+  {id:10,name:'Poly Bag 40x60', code:'PKG-BAG-001', type:'Packaging', uom:'Pieces', price:3.8, stock:12000, reorder:3000, vendor:'Packing Solutions', hsn:'3923', spec:'LDPE, 40 micron', color:'Clear', status:'Active', remarks:''},
+  {id:11,name:'Cotton Thread 40s', code:'THR-COT-001', type:'Thread', uom:'Cone', price:85, stock:320, reorder:60, vendor:'Coats India', hsn:'5204', spec:'100% Cotton, 40/2', color:'White', status:'Active', remarks:''},
+  {id:12,name:'Polyester Thread 60s', code:'THR-POL-002', type:'Thread', uom:'Cone', price:65, stock:480, reorder:80, vendor:'Coats India', hsn:'5401', spec:'100% Polyester, 60/2', color:'Multi', status:'Active', remarks:''},
+  {id:13,name:'Acetate Lining', code:'LIN-ACE-001', type:'Lining', uom:'Meter', price:95, stock:380, reorder:60, vendor:'Mumbai Fabrics Ltd.', hsn:'5408', spec:'100% Acetate', color:'Black', status:'Active', remarks:''},
+  {id:14,name:'Nylon Buckle 1"', code:'ACC-BCK-001', type:'Accessory', uom:'Pieces', price:8, stock:3200, reorder:500, vendor:'Trim Zone India', hsn:'3926', spec:'Nylon, 25mm', color:'Black', status:'Active', remarks:''},
+  {id:15,name:'Elastic 20mm', code:'TRM-ELS-001', type:'Trim', uom:'Meter', price:12, stock:850, reorder:200, vendor:'Elastic House', hsn:'5604', spec:'Braided, 20mm width', color:'White', status:'Active', remarks:''},
+  {id:16,name:'Export Carton', code:'PKG-CTN-001', type:'Packaging', uom:'Pieces', price:45, stock:600, reorder:200, vendor:'Packing Solutions', hsn:'4819', spec:'3-ply, 55x40x35cm', color:'Brown', status:'Active', remarks:''},
+  {id:17,name:'Shoulder Pad 10mm', code:'ACC-SHP-001', type:'Accessory', uom:'Pieces', price:15, stock:1200, reorder:300, vendor:'Trim Zone India', hsn:'6217', spec:'Polyurethane foam', color:'Ivory', status:'Inactive', remarks:'Discontinued'},
+];
+
+let currentType = 'All', editId = null, page = 1;
+const PER_PAGE = 12;
+
+function setType(t, btn) {
+  currentType = t;
+  document.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  page = 1; render();
+}
+
+function stockStatus(r) {
+  if(r.stock <= 0) return 'out';
+  if(r.stock <= r.reorder) return 'low';
+  return 'ok';
+}
+
+function filtered() {
+  const q  = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const st = document.getElementById('statusFilter')?.value||'';
+  const sk = document.getElementById('stockFilter')?.value||'';
+  return data.filter(r => {
+    const tOk  = currentType==='All' || r.type===currentType;
+    const stOk = !st || r.status===st;
+    const skOk = !sk || stockStatus(r)===sk;
+    const qOk  = !q || r.name.toLowerCase().includes(q) || r.code.toLowerCase().includes(q) || r.vendor.toLowerCase().includes(q);
+    return tOk && stOk && skOk && qOk;
+  });
+}
+
+function render() {
+  const rows = filtered();
+  const totalPages = Math.max(1, Math.ceil(rows.length/PER_PAGE));
+  if(page>totalPages) page=totalPages;
+  const slice = rows.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  const tbody = document.getElementById('rmBody');
+  if(!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:48px 0;color:var(--text-3);">No materials found</td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map(r => {
+      const ss = stockStatus(r);
+      const stockLabel = ss==='out' ? 'Out of Stock' : ss==='low' ? 'Low Stock' : 'In Stock';
+      const stockCls = ss==='out' ? 'stock-out' : ss==='low' ? 'stock-low' : 'stock-ok';
+      const icon = typeIcons[r.type]||'⚙️';
+      const ibg  = typeIconBg[r.type]||'#f3f4f6';
+      return `<tr>
+        <td><div class="img-thumb" style="background:${ibg};">${icon}</div></td>
+        <td>
+          <div style="font-weight:600;color:var(--text-1);">${r.name}</div>
+          <div style="font-size:11px;color:var(--text-3);">${r.spec}</div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px;background:var(--gray-100);padding:2px 7px;border-radius:4px;">${r.code}</span></td>
+        <td><span class="type-badge ${typeCls[r.type]||'type-other'}">${r.type}</span></td>
+        <td style="color:var(--text-2);font-size:13px;">${r.uom}</td>
+        <td><span class="price-cell">₹${r.price.toFixed(2)}</span></td>
+        <td>
+          <span class="stock-pill ${stockCls}">${r.stock} ${r.uom}</span>
+        </td>
+        <td style="color:var(--text-3);font-size:12px;">${r.reorder} ${r.uom}</td>
+        <td style="color:var(--text-2);font-size:12px;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.vendor}</td>
+        <td><span class="badge ${r.status==='Active'?'badge-success':'badge-default'}">${r.status}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" title="View" onclick="viewRM(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z"/></svg>
+            </button>
+            <button class="icon-btn" title="Edit" onclick="editRM(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            </button>
+            <button class="icon-btn icon-btn-danger" title="Delete" onclick="deleteRM(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  const pager = document.getElementById('pager');
+  const total = rows.length;
+  const tp = Math.max(1, Math.ceil(total/PER_PAGE));
+  if(tp<=1){pager.innerHTML='';return;}
+  let p=`<button onclick="gotoPage(${page-1})" ${page===1?'disabled':''}>Previous</button>`;
+  for(let i=1;i<=tp;i++) p+=`<button class="${i===page?'active':''}" onclick="gotoPage(${i})">${i}</button>`;
+  p+=`<button onclick="gotoPage(${page+1})" ${page===tp?'disabled':''}>Next</button>`;
+  pager.innerHTML=p;
+}
+
+function gotoPage(p) {
+  const tp=Math.ceil(filtered().length/PER_PAGE);
+  if(p<1||p>tp)return; page=p; render();
+}
+
+function openModal(id=null) {
+  editId=id;
+  const m=id?data.find(r=>r.id===id):null;
+  document.getElementById('modalTitle').textContent=id?'Edit Raw Material':'Add Raw Material';
+  document.getElementById('fName').value   = m?.name   ||'';
+  document.getElementById('fCode').value   = m?.code   ||'';
+  document.getElementById('fType').value   = m?.type   ||'';
+  document.getElementById('fUOM').value    = m?.uom    ||'Meter';
+  document.getElementById('fStatus').value = m?.status ||'Active';
+  document.getElementById('fPrice').value  = m?.price  ||'';
+  document.getElementById('fStock').value  = m?.stock  ||'';
+  document.getElementById('fReorder').value= m?.reorder||'';
+  document.getElementById('fVendor').value = m?.vendor ||'';
+  document.getElementById('fHSN').value    = m?.hsn    ||'';
+  document.getElementById('fSpec').value   = m?.spec   ||'';
+  document.getElementById('fColor').value  = m?.color  ||'';
+  document.getElementById('fRemarks').value= m?.remarks||'';
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.getElementById('fName').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+
+function saveMaterial() {
+  const name=document.getElementById('fName').value.trim();
+  const code=document.getElementById('fCode').value.trim();
+  const type=document.getElementById('fType').value;
+  if(!name||!code||!type){showToast('Fill required fields','error');return;}
+  const obj={
+    id:editId||(Math.max(0,...data.map(r=>r.id))+1),
+    name, code, type,
+    uom:    document.getElementById('fUOM').value,
+    status: document.getElementById('fStatus').value,
+    price:  parseFloat(document.getElementById('fPrice').value)||0,
+    stock:  parseFloat(document.getElementById('fStock').value)||0,
+    reorder:parseFloat(document.getElementById('fReorder').value)||0,
+    vendor: document.getElementById('fVendor').value.trim(),
+    hsn:    document.getElementById('fHSN').value.trim(),
+    spec:   document.getElementById('fSpec').value.trim(),
+    color:  document.getElementById('fColor').value.trim(),
+    remarks:document.getElementById('fRemarks').value.trim(),
+  };
+  if(editId){const i=data.findIndex(r=>r.id===editId);data[i]=obj;}
+  else data.push(obj);
+  closeModal(); render(); showToast(editId?'Material updated':'Material added');
+}
+
+function editRM(id){openModal(id);}
+function viewRM(id){const r=data.find(u=>u.id===id);showToast(`${r.name} — ${r.type}, Stock: ${r.stock} ${r.uom}`);}
+function deleteRM(id){if(!confirm('Delete this material?'))return;data=data.filter(r=>r.id!==id);render();showToast('Material deleted','error');}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type==='error'?' toast-error':'');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function toggleGroup(el){el.closest('.nav-group').classList.toggle('open');}
+
+render();
+</script>
+</body>
+</html>

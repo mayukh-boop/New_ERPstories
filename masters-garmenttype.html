@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garment Types Master — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+  .gt-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--r);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .filter-tabs {
+    display: flex; gap: 4px;
+    background: var(--gray-100); border-radius: var(--r);
+    padding: 4px; flex-wrap: wrap;
+  }
+  .tab-pill {
+    padding: 6px 14px; border-radius: 7px; border: none;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: transparent; color: var(--text-2);
+    transition: all var(--ease);
+  }
+  .tab-pill.active {
+    background: var(--surface); color: var(--brand-600);
+    box-shadow: var(--shadow-sm); font-weight: 600;
+  }
+  .tab-pill:hover:not(.active) { background: var(--gray-200); }
+
+  .cat-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: var(--r-full);
+    font-size: 11px; font-weight: 600;
+  }
+  .cat-mens      { background:#eff6ff; color:#1d4ed8; }
+  .cat-womens    { background:#fdf2f8; color:#9d174d; }
+  .cat-kids      { background:#f0fdf4; color:#15803d; }
+  .cat-unisex    { background:#fdf4ff; color:#7e22ce; }
+  .cat-sportswear{ background:#fff7ed; color:#c2410c; }
+  .cat-ethnic    { background:#fef9c3; color:#854d0e; }
+  .cat-formal    { background:#f0f9ff; color:#0369a1; }
+  .cat-casual    { background:#f8fafc; color:#475569; }
+
+  .fabric-tag {
+    display: inline-block;
+    padding: 1px 7px; border-radius: var(--r-full);
+    font-size: 11px; background: var(--gray-100);
+    color: var(--text-2); margin: 1px;
+  }
+
+  .spec-row {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-top: 2px;
+  }
+  .season-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 3px;
+  }
+  .complexity-bar {
+    display: flex; gap: 2px; align-items: center;
+  }
+  .complexity-bar span {
+    width: 10px; height: 10px; border-radius: 2px;
+    background: var(--gray-200);
+  }
+  .complexity-bar span.filled { background: var(--brand-500); }
+
+  .expand-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-3); padding: 4px; border-radius: 4px;
+    transition: all var(--ease); display: flex; align-items: center;
+  }
+  .expand-btn:hover { background: var(--gray-100); color: var(--brand-600); }
+  .expand-btn.open svg { transform: rotate(90deg); }
+  .expand-btn svg { transition: transform var(--ease); }
+
+  /* Variant sub-table */
+  .variant-row td { padding: 0 !important; border-bottom: none !important; }
+  .variant-inner {
+    background: #fafbff;
+    border-top: 1px solid var(--border);
+    border-bottom: 2px solid var(--brand-100);
+    padding: 16px 24px;
+  }
+  .variant-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .variant-header span {
+    font-size: 12px; font-weight: 600; color: var(--brand-600);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .variant-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .variant-table th {
+    text-align: left; padding: 6px 12px;
+    color: var(--text-3); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    background: var(--gray-50); border-bottom: 1px solid var(--border);
+  }
+  .variant-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text-2);
+  }
+  .variant-table tr:last-child td { border-bottom: none; }
+  .add-variant-row {
+    margin-top: 8px; padding: 7px 12px;
+    color: var(--brand-600); font-size: 12px; font-weight: 600;
+    cursor: pointer; border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background var(--ease);
+  }
+  .add-variant-row:hover { background: var(--brand-50); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8a1 1 0 011-1h4v5H3v-4zm8-8h4a1 1 0 011 1v4h-5V4zm0 8h5v3a1 1 0 01-1 1h-4v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child active" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin Access</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+        </button>
+        <nav class="breadcrumb">
+          <a href="masters-list.html">Masters</a>
+          <span>›</span>
+          <span>Garment Types</span>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        </button>
+        <div class="topbar-avatar">MG</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Garment Types</h1>
+          <p class="page-subtitle">Define garment categories, variants, fabric suitability and seasonal applicability</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Type
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="filter-tabs">
+            <button class="tab-pill active" onclick="setCat('All',this)">All</button>
+            <button class="tab-pill" onclick="setCat('Mens',this)">Men's</button>
+            <button class="tab-pill" onclick="setCat('Womens',this)">Women's</button>
+            <button class="tab-pill" onclick="setCat('Kids',this)">Kids</button>
+            <button class="tab-pill" onclick="setCat('Unisex',this)">Unisex</button>
+            <button class="tab-pill" onclick="setCat('Sportswear',this)">Sportswear</button>
+            <button class="tab-pill" onclick="setCat('Ethnic',this)">Ethnic</button>
+            <button class="tab-pill" onclick="setCat('Formal',this)">Formal</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-left:auto;">
+            <select class="filter-select" id="statusFilter" onchange="render()">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+            <div style="position:relative;">
+              <input class="search-input" id="searchInput" type="text" placeholder="Search garment types…" oninput="render()">
+              <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" color="#9ca3af"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <table class="data-table" id="gtTable">
+          <thead>
+            <tr>
+              <th style="width:40px"></th>
+              <th style="width:44px"></th>
+              <th>Garment Type</th>
+              <th>Code</th>
+              <th>Category</th>
+              <th>Suitable Fabrics</th>
+              <th>Seasons</th>
+              <th>Complexity</th>
+              <th>Variants</th>
+              <th>Status</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="gtBody"></tbody>
+        </table>
+
+        <div class="pager" id="pager"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GARMENT TYPE MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+<div class="modal" id="modal" style="max-width:580px;">
+  <div class="modal-header">
+    <h2 class="modal-title" id="modalTitle">Add Garment Type</h2>
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Type Name <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fName" type="text" placeholder="e.g. T-Shirt, Blazer">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Code <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fCode" type="text" placeholder="e.g. TOPS-TS-001">
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Category <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="fCategory">
+          <option value="">Select…</option>
+          <option>Mens</option>
+          <option>Womens</option>
+          <option>Kids</option>
+          <option>Unisex</option>
+          <option>Sportswear</option>
+          <option>Ethnic</option>
+          <option>Formal</option>
+          <option>Casual</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Complexity Level</label>
+        <select class="form-control" id="fComplexity">
+          <option value="1">1 — Very Simple</option>
+          <option value="2">2 — Simple</option>
+          <option value="3" selected>3 — Medium</option>
+          <option value="4">4 — Complex</option>
+          <option value="5">5 — Very Complex</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Suitable Fabrics <span style="font-size:11px;color:var(--text-3);font-weight:400;">(comma separated)</span></label>
+      <input class="form-control" id="fFabrics" type="text" placeholder="e.g. Cotton, Polyester, Denim">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Applicable Seasons</label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="fSummer" value="Summer"> Summer
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="fWinter" value="Winter"> Winter
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="fMonsoon" value="Monsoon"> Monsoon
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="fAllSeason" value="All Season"> All Season
+        </label>
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Fabric Consumption (meters/pc)</label>
+        <input class="form-control" id="fFabricQty" type="number" step="0.1" placeholder="e.g. 1.8">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="fStatus">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-control" id="fDesc" type="text" placeholder="Brief description">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveGT()">Save Type</button>
+  </div>
+</div>
+
+<!-- VARIANT MODAL -->
+<div class="modal-backdrop" id="variantBackdrop" onclick="closeVariantModal()"></div>
+<div class="modal" id="variantModal" style="max-width:440px;">
+  <div class="modal-header">
+    <h2 class="modal-title" id="variantModalTitle">Add Variant</h2>
+    <button class="modal-close" onclick="closeVariantModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label">Variant Name <span style="color:var(--danger)">*</span></label>
+      <input class="form-control" id="vName" placeholder="e.g. V-Neck, Polo, Crewneck">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">SKU Suffix</label>
+        <input class="form-control" id="vSKU" placeholder="e.g. VN">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Fabric (m)</label>
+        <input class="form-control" id="vFabric" type="number" step="0.05" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-control" id="vNotes" placeholder="Optional notes">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeVariantModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveVariant()">Save Variant</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const catCls = {
+  Mens:'cat-mens', Womens:'cat-womens', Kids:'cat-kids', Unisex:'cat-unisex',
+  Sportswear:'cat-sportswear', Ethnic:'cat-ethnic', Formal:'cat-formal', Casual:'cat-casual'
+};
+const catIcons = {
+  Mens:'👔', Womens:'👗', Kids:'🧒', Unisex:'👕', Sportswear:'⚡',
+  Ethnic:'🥻', Formal:'🤵', Casual:'👖'
+};
+const catIconBg = {
+  Mens:'#eff6ff', Womens:'#fdf2f8', Kids:'#f0fdf4', Unisex:'#fdf4ff',
+  Sportswear:'#fff7ed', Ethnic:'#fef9c3', Formal:'#f0f9ff', Casual:'#f8fafc'
+};
+const seasonColors = {Summer:'#f59e0b', Winter:'#3b82f6', Monsoon:'#10b981', 'All Season':'#6366f1'};
+
+let data = [
+  {id:1, name:'T-Shirt', code:'TOPS-TS-001', cat:'Unisex', complexity:2, fabrics:['Cotton','Polyester','Bamboo'], seasons:['Summer','All Season'], fabricQty:1.5, desc:'Basic round/V-neck short sleeve top', status:'Active',
+   variants:[{id:1,name:'Round Neck',sku:'RN',fabric:0,notes:'Most common'},{id:2,name:'V-Neck',sku:'VN',fabric:0,notes:''},{id:3,name:'Polo Collar',sku:'PL',fabric:0.1,notes:'Includes placket'}]},
+  {id:2, name:'Shirt', code:'TOPS-SH-001', cat:'Mens', complexity:3, fabrics:['Cotton','Linen','Chambray'], seasons:['Summer','All Season'], fabricQty:1.8, desc:'Woven full/half sleeve shirt with collar', status:'Active',
+   variants:[{id:1,name:'Regular Fit',sku:'RF',fabric:0,notes:''},{id:2,name:'Slim Fit',sku:'SF',fabric:-0.1,notes:'Narrower cut'},{id:3,name:'Oversized',sku:'OS',fabric:0.3,notes:'Boxy silhouette'}]},
+  {id:3, name:'Trousers', code:'BTMS-TR-001', cat:'Mens', complexity:3, fabrics:['Cotton Twill','Polyester','Linen'], seasons:['All Season'], fabricQty:1.6, desc:'Formal/casual full-length trousers', status:'Active',
+   variants:[{id:1,name:'Flat Front',sku:'FF',fabric:0,notes:''},{id:2,name:'Pleated',sku:'PL',fabric:0.15,notes:'Extra pleats material'},{id:3,name:'Chinos',sku:'CH',fabric:0,notes:'Casual style'}]},
+  {id:4, name:'Kurti', code:'ETH-KU-001', cat:'Womens', complexity:3, fabrics:['Cotton','Rayon','Georgette'], seasons:['Summer','All Season'], fabricQty:2.2, desc:'Indian ethnic tunic top', status:'Active',
+   variants:[{id:1,name:'Straight',sku:'ST',fabric:0,notes:''},{id:2,name:'A-Line',sku:'AL',fabric:0.2,notes:'Flared hem'},{id:3,name:'Anarkali',sku:'AN',fabric:0.8,notes:'Heavily flared'}]},
+  {id:5, name:'Blazer', code:'FRML-BL-001', cat:'Formal', complexity:5, fabrics:['Wool','Polyester Blend','Linen'], seasons:['Winter','All Season'], fabricQty:2.8, desc:'Structured formal blazer/sport coat', status:'Active',
+   variants:[{id:1,name:'Single Breasted',sku:'SB',fabric:0,notes:'2 buttons'},{id:2,name:'Double Breasted',sku:'DB',fabric:0.3,notes:'6 buttons'}]},
+  {id:6, name:'Jeans', code:'BTMS-JN-001', cat:'Unisex', complexity:4, fabrics:['Denim','Stretch Denim'], seasons:['All Season'], fabricQty:1.7, desc:'Classic 5-pocket denim jeans', status:'Active',
+   variants:[{id:1,name:'Slim Fit',sku:'SL',fabric:0,notes:''},{id:2,name:'Skinny',sku:'SK',fabric:-0.1,notes:''},{id:3,name:'Straight Leg',sku:'ST',fabric:0,notes:''},{id:4,name:'Wide Leg',sku:'WL',fabric:0.3,notes:''}]},
+  {id:7, name:'Leggings', code:'BTMS-LG-001', cat:'Womens', complexity:2, fabrics:['Nylon','Spandex','Polyester'], seasons:['All Season'], fabricQty:1.2, desc:'Stretch form-fitting full-length leggings', status:'Active',
+   variants:[{id:1,name:'High Waist',sku:'HW',fabric:0.1,notes:''},{id:2,name:'Regular Waist',sku:'RW',fabric:0,notes:''}]},
+  {id:8, name:'Track Pants', code:'SPORT-TP-001', cat:'Sportswear', complexity:2, fabrics:['Polyester','Cotton Fleece','Terry'], seasons:['Winter','All Season'], fabricQty:1.4, desc:'Athletic/lounge track pants with elastic waist', status:'Active',
+   variants:[{id:1,name:'Standard',sku:'ST',fabric:0,notes:''},{id:2,name:'With Zip Pocket',sku:'ZP',fabric:0,notes:'Side zip pockets'}]},
+  {id:9, name:'Kids T-Shirt', code:'KIDS-TS-001', cat:'Kids', complexity:2, fabrics:['Cotton','Jersey Knit'], seasons:['Summer','All Season'], fabricQty:0.8, desc:'Children\'s round neck printed tee', status:'Active',
+   variants:[{id:1,name:'Round Neck',sku:'RN',fabric:0,notes:''},{id:2,name:'V-Neck',sku:'VN',fabric:0,notes:''}]},
+  {id:10,name:'Saree Blouse', code:'ETH-SB-001', cat:'Ethnic', complexity:4, fabrics:['Silk','Brocade','Cotton','Georgette'], seasons:['All Season'], fabricQty:0.9, desc:'Fitted ethnic blouse worn with saree', status:'Active',
+   variants:[{id:1,name:'Princess Cut',sku:'PC',fabric:0,notes:''},{id:2,name:'Back-Neck Deep',sku:'BD',fabric:0,notes:''},{id:3,name:'Padded',sku:'PA',fabric:0.1,notes:'Includes padding'}]},
+  {id:11,name:'Hoodie', code:'TOPS-HD-001', cat:'Casual', complexity:3, fabrics:['Cotton Fleece','French Terry','Polyester Blend'], seasons:['Winter'], fabricQty:2.0, desc:'Pullover/zip-up hooded sweatshirt', status:'Active',
+   variants:[{id:1,name:'Pullover',sku:'PU',fabric:0,notes:''},{id:2,name:'Zip-Up',sku:'ZU',fabric:0.05,notes:'Includes zipper'}]},
+  {id:12,name:'Shorts', code:'BTMS-SH-001', cat:'Unisex', complexity:2, fabrics:['Cotton','Polyester','Denim'], seasons:['Summer'], fabricQty:0.9, desc:'Casual/sport shorts above knee', status:'Active',
+   variants:[{id:1,name:'Drawstring',sku:'DS',fabric:0,notes:''},{id:2,name:'Cargo',sku:'CG',fabric:0.2,notes:'Extra pockets'}]},
+];
+
+let expandedRows = new Set();
+let currentCat = 'All', editId = null, variantParentId = null, variantEditId = null, page = 1;
+const PER_PAGE = 10;
+
+function setCat(c, btn) {
+  currentCat = c;
+  document.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  page=1; render();
+}
+
+function filtered() {
+  const q  = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const st = document.getElementById('statusFilter')?.value||'';
+  return data.filter(r => {
+    const cOk = currentCat==='All' || r.cat===currentCat;
+    const sOk = !st || r.status===st;
+    const qOk = !q || r.name.toLowerCase().includes(q) || r.code.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
+    return cOk && sOk && qOk;
+  });
+}
+
+function complexityBar(n) {
+  let html = '<div class="complexity-bar">';
+  for(let i=1;i<=5;i++) html+=`<span class="${i<=n?'filled':''}"></span>`;
+  html += `</div>`;
+  return html;
+}
+
+function seasonBadges(seasons) {
+  return seasons.map(s=>{
+    const c = seasonColors[s]||'#9ca3af';
+    return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:${c};font-weight:600;"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block;"></span>${s}</span>`;
+  }).join(' ');
+}
+
+function render() {
+  const rows = filtered();
+  const totalPages = Math.max(1, Math.ceil(rows.length/PER_PAGE));
+  if(page>totalPages) page=totalPages;
+  const slice = rows.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  const tbody = document.getElementById('gtBody');
+  if(!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:48px;color:var(--text-3);">No garment types found</td></tr>`;
+  } else {
+    let html = '';
+    slice.forEach(r => {
+      const isOpen = expandedRows.has(r.id);
+      const cc = catCls[r.cat]||'cat-casual';
+      const icon = catIcons[r.cat]||'👕';
+      const ibg  = catIconBg[r.cat]||'#f8fafc';
+      html += `<tr>
+        <td>
+          <button class="expand-btn ${isOpen?'open':''}" onclick="toggleExpand(${r.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+          </button>
+        </td>
+        <td><div class="gt-icon" style="background:${ibg};">${icon}</div></td>
+        <td>
+          <div style="font-weight:600;color:var(--text-1);">${r.name}</div>
+          <div style="font-size:11px;color:var(--text-3);">${r.desc}</div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px;background:var(--gray-100);padding:2px 7px;border-radius:4px;">${r.code}</span></td>
+        <td><span class="cat-badge ${cc}">${r.cat}</span></td>
+        <td>
+          <div class="spec-row">
+            ${r.fabrics.map(f=>`<span class="fabric-tag">${f}</span>`).join('')}
+          </div>
+        </td>
+        <td style="min-width:100px;">${seasonBadges(r.seasons)}</td>
+        <td>${complexityBar(r.complexity)}</td>
+        <td>
+          <span style="font-size:13px;color:var(--text-2);">${r.variants.length} variant${r.variants.length!==1?'s':''}</span>
+        </td>
+        <td><span class="badge ${r.status==='Active'?'badge-success':'badge-default'}">${r.status}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" title="View" onclick="viewGT(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z"/></svg>
+            </button>
+            <button class="icon-btn" title="Edit" onclick="editGT(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            </button>
+            <button class="icon-btn icon-btn-danger" title="Delete" onclick="deleteGT(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+
+      if(isOpen) {
+        html += `<tr class="variant-row"><td colspan="11">
+          <div class="variant-inner">
+            <div class="variant-header">
+              <span>Variants — ${r.name}</span>
+              <button class="btn btn-ghost btn-sm" onclick="openVariantModal(${r.id})">+ Add Variant</button>
+            </div>
+            <table class="variant-table">
+              <thead>
+                <tr>
+                  <th>Variant Name</th>
+                  <th>SKU Suffix</th>
+                  <th>Extra Fabric (m)</th>
+                  <th>Notes</th>
+                  <th style="width:80px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${r.variants.length ? r.variants.map(v=>`
+                  <tr>
+                    <td style="font-weight:500;color:var(--text-1);">${v.name}</td>
+                    <td><span style="font-family:monospace;font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:3px;">${v.sku}</span></td>
+                    <td style="font-family:monospace;">${v.fabric>0?'+'+v.fabric:v.fabric===0?'—':v.fabric}m</td>
+                    <td style="color:var(--text-3);">${v.notes||'—'}</td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="icon-btn" title="Edit" onclick="editVariant(${r.id},${v.id})">
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                        </button>
+                        <button class="icon-btn icon-btn-danger" title="Delete" onclick="deleteVariant(${r.id},${v.id})">
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:16px;">No variants yet</td></tr>`}
+              </tbody>
+            </table>
+            <div class="add-variant-row" onclick="openVariantModal(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              Add New Variant
+            </div>
+          </div>
+        </td></tr>`;
+      }
+    });
+    tbody.innerHTML = html;
+  }
+
+  const pager = document.getElementById('pager');
+  const tp = Math.max(1,Math.ceil(rows.length/PER_PAGE));
+  if(tp<=1){pager.innerHTML='';return;}
+  let p=`<button onclick="gotoPage(${page-1})" ${page===1?'disabled':''}>Previous</button>`;
+  for(let i=1;i<=tp;i++) p+=`<button class="${i===page?'active':''}" onclick="gotoPage(${i})">${i}</button>`;
+  p+=`<button onclick="gotoPage(${page+1})" ${page===tp?'disabled':''}>Next</button>`;
+  pager.innerHTML=p;
+}
+
+function gotoPage(p){const tp=Math.ceil(filtered().length/PER_PAGE);if(p<1||p>tp)return;page=p;render();}
+
+function toggleExpand(id) {
+  if(expandedRows.has(id)) expandedRows.delete(id);
+  else expandedRows.add(id);
+  render();
+}
+
+function openModal(id=null) {
+  editId=id;
+  const m=id?data.find(r=>r.id===id):null;
+  document.getElementById('modalTitle').textContent=id?'Edit Garment Type':'Add Garment Type';
+  document.getElementById('fName').value       = m?.name||'';
+  document.getElementById('fCode').value       = m?.code||'';
+  document.getElementById('fCategory').value   = m?.cat||'';
+  document.getElementById('fComplexity').value = m?.complexity||3;
+  document.getElementById('fFabrics').value    = m?.fabrics?.join(', ')||'';
+  document.getElementById('fFabricQty').value  = m?.fabricQty||'';
+  document.getElementById('fStatus').value     = m?.status||'Active';
+  document.getElementById('fDesc').value       = m?.desc||'';
+  ['fSummer','fWinter','fMonsoon','fAllSeason'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.checked = m?.seasons?.includes(el.value)||false;
+  });
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+
+function saveGT(){
+  const name=document.getElementById('fName').value.trim();
+  const code=document.getElementById('fCode').value.trim();
+  const cat =document.getElementById('fCategory').value;
+  if(!name||!code||!cat){showToast('Fill required fields','error');return;}
+  const seasons=[];
+  ['fSummer','fWinter','fMonsoon','fAllSeason'].forEach(id=>{
+    const el=document.getElementById(id); if(el.checked) seasons.push(el.value);
+  });
+  const obj={
+    id:editId||(Math.max(0,...data.map(r=>r.id))+1),
+    name, code, cat,
+    complexity:parseInt(document.getElementById('fComplexity').value),
+    fabrics:document.getElementById('fFabrics').value.split(',').map(s=>s.trim()).filter(Boolean),
+    seasons,
+    fabricQty:parseFloat(document.getElementById('fFabricQty').value)||0,
+    status:document.getElementById('fStatus').value,
+    desc:document.getElementById('fDesc').value.trim(),
+    variants:editId?data.find(r=>r.id===editId).variants:[],
+  };
+  if(editId){const i=data.findIndex(r=>r.id===editId);data[i]=obj;}
+  else data.push(obj);
+  closeModal(); render(); showToast(editId?'Type updated':'Type added');
+}
+
+function editGT(id){openModal(id);}
+function viewGT(id){const r=data.find(u=>u.id===id);showToast(`${r.name} — ${r.cat}, ${r.variants.length} variants`);}
+function deleteGT(id){if(!confirm('Delete this garment type?'))return;data=data.filter(r=>r.id!==id);expandedRows.delete(id);render();showToast('Type deleted','error');}
+
+// Variant management
+function openVariantModal(parentId, vId=null) {
+  variantParentId=parentId; variantEditId=vId;
+  const parent=data.find(r=>r.id===parentId);
+  const v=vId?parent.variants.find(x=>x.id===vId):null;
+  document.getElementById('variantModalTitle').textContent=`${vId?'Edit':'Add'} Variant — ${parent.name}`;
+  document.getElementById('vName').value   = v?.name  ||'';
+  document.getElementById('vSKU').value    = v?.sku   ||'';
+  document.getElementById('vFabric').value = v?.fabric||0;
+  document.getElementById('vNotes').value  = v?.notes ||'';
+  document.getElementById('variantModal').classList.add('open');
+  document.getElementById('variantBackdrop').classList.add('open');
+}
+function closeVariantModal(){
+  document.getElementById('variantModal').classList.remove('open');
+  document.getElementById('variantBackdrop').classList.remove('open');
+}
+function saveVariant(){
+  const name=document.getElementById('vName').value.trim();
+  if(!name){showToast('Enter variant name','error');return;}
+  const parent=data.find(r=>r.id===variantParentId);
+  const obj={
+    id:variantEditId||(parent.variants.length?Math.max(...parent.variants.map(v=>v.id))+1:1),
+    name,
+    sku:document.getElementById('vSKU').value.trim(),
+    fabric:parseFloat(document.getElementById('vFabric').value)||0,
+    notes:document.getElementById('vNotes').value.trim(),
+  };
+  if(variantEditId){const i=parent.variants.findIndex(v=>v.id===variantEditId);parent.variants[i]=obj;}
+  else parent.variants.push(obj);
+  closeVariantModal(); render(); showToast(variantEditId?'Variant updated':'Variant added');
+}
+function editVariant(pid,vid){openVariantModal(pid,vid);}
+function deleteVariant(pid,vid){
+  if(!confirm('Delete variant?'))return;
+  const p=data.find(r=>r.id===pid);
+  p.variants=p.variants.filter(v=>v.id!==vid);
+  render(); showToast('Variant removed','error');
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type==='error'?' toast-error':'');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function toggleGroup(el){el.closest('.nav-group').classList.toggle('open');}
+
+// Auto-expand first row
+expandedRows.add(data[0].id);
+render();
+</script>
+</body>
+</html>

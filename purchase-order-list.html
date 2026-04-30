@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Orders — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+/* ── Theme overrides (light purple design) ── */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(91,95,199,0.07);
+  --sidebar-active: rgba(91,95,199,0.12);
+  --sidebar-text: #64748b;
+  --brand-500: #5b5fc7;
+  --brand-600: #4f52b2;
+  --brand-700: #3d40a0;
+  --bg: #f5f6fa;
+  --border: #e8eaf0;
+  --border2: #f0f2f7;
+}
+/* Sidebar light theme overrides */
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #1e1f2e !important; font-weight: 800 !important; }
+.brand-sub { color: #8892a4 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #a0aec0 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #3d4462 !important; font-weight: 500 !important; }
+.nav-parent-icon { color: #8892a4 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #a0aec0 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #1e1f2e !important; }
+.sf-role { color: #8892a4 !important; }
+.sf-avatar { background: var(--brand-500) !important; }
+.topbar { border-bottom: 1px solid #dde0ea !important; box-shadow: 0 1px 4px rgba(91,95,199,0.06) !important; }
+
+/* Status pills */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-full);
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.sp-draft     { background:#f3f4f6; color:#4b5563; }
+.sp-pending   { background:#fefce8; color:#92400e; }
+.sp-approved  { background:#f0fdf4; color:#166534; }
+.sp-rejected  { background:#fef2f2; color:#991b1b; }
+.sp-received  { background:#eff6ff; color:#1e40af; }
+.sp-partial   { background:#f5f3ff; color:#5b21b6; }
+.sp-cancelled { background:#f9fafb; color:#9ca3af; }
+
+/* Stat cards */
+.stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:16px 18px;
+  box-shadow:var(--shadow-sm); cursor:pointer;
+  transition:all var(--ease-md);
+}
+.stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.stat-card.active { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+.stat-num { font-size:26px; font-weight:800; color:var(--text-1); line-height:1; margin-bottom:4px; }
+.stat-label { font-size:11.5px; color:var(--text-3); font-weight:500; }
+.stat-sub { font-size:11px; margin-top:6px; font-weight:500; }
+
+/* Vendor avatar */
+.v-av { width:34px;height:34px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0; }
+
+/* Receipt progress bar */
+.recv-bar { height:4px; background:var(--gray-100); border-radius:2px; margin-top:4px; }
+.recv-fill { height:4px; border-radius:2px; background:var(--brand-500); }
+
+/* Actions dropdown */
+.action-menu {
+  position:absolute; right:0; top:calc(100% + 4px);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--shadow-lg);
+  z-index:100; min-width:160px; padding:4px;
+  display:none;
+}
+.action-menu.open { display:block; }
+.am-item {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border-radius:var(--r-sm);
+  font-size:12.5px; color:var(--text-2); cursor:pointer;
+  transition:background var(--ease);
+}
+.am-item:hover { background:var(--gray-50); color:var(--text-1); }
+.am-item.danger:hover { background:var(--danger-bg); color:var(--danger); }
+.am-item svg { width:14px; height:14px; color:var(--text-3); }
+.am-item.danger svg { color:var(--danger); }
+.am-wrap { position:relative; }
+/* Share / download icon buttons */
+.act-icon-btn {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all var(--ease);color:var(--text-2);flex-shrink:0;
+}
+.act-icon-btn:hover { background:var(--gray-50);border-color:var(--brand-300);color:var(--brand-600); }
+.act-icon-btn svg { width:14px;height:14px; }
+.act-icon-btn.whatsapp:hover { background:#e7fce8;border-color:#4ade80;color:#16a34a; }
+.act-icon-btn.email:hover    { background:#eff6ff;border-color:#93c5fd;color:#2563eb; }
+.act-icon-btn.accounts:hover { background:#fefce8;border-color:#fde047;color:#854d0e; }
+.act-icon-btn.pdf:hover      { background:#fef2f2;border-color:#fca5a5;color:#dc2626; }
+.act-icon-btn.excel:hover    { background:#f0fdf4;border-color:#86efac;color:#15803d; }
+.act-icon-btn[disabled]      { opacity:.35;cursor:not-allowed;pointer-events:none; }
+/* separator in action menus */
+.am-sep { height:1px;background:var(--border2);margin:4px 0; }
+
+/* Tab strip */
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 20px; background:var(--surface); }
+.tab-item {
+  padding:11px 16px; font-size:12.5px; font-weight:500;
+  color:var(--text-3); cursor:pointer; border:none; background:transparent;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:all var(--ease); font-family:inherit; display:flex; align-items:center; gap:6px;
+}
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600); border-bottom-color:var(--brand-600); font-weight:600; }
+.tab-count {
+  min-width:18px; height:18px; padding:0 5px;
+  background:var(--gray-200); border-radius:var(--r-full);
+  font-size:10px; font-weight:700; color:var(--text-2);
+  display:flex; align-items:center; justify-content:center;
+}
+.tab-item.active .tab-count { background:var(--brand-100); color:var(--brand-700); }
+
+/* Approval tag */
+.appr-tag { display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--text-3); }
+.appr-tag svg { width:12px;height:12px; }
+
+/* PO amount cell */
+.po-amt { font-size:13px;font-weight:700;color:var(--text-1); }
+.po-amt-sub { font-size:11px;color:var(--text-3);margin-top:1px; }
+
+/* ── Column Configurator Panel ── */
+.col-panel-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,0.18);z-index:299;display:none;
+}
+.col-panel-overlay.open { display:block; }
+
+.col-panel {
+  position:fixed;top:0;right:-400px;bottom:0;width:380px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.10);z-index:300;
+  display:flex;flex-direction:column;transition:right 0.25s ease;
+}
+.col-panel.open { right:0; }
+
+.col-panel-head {
+  padding:18px 20px 14px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;
+}
+.col-panel-title { font-size:15px;font-weight:700;color:var(--text-1); }
+.col-panel-sub { font-size:11.5px;color:var(--text-3);margin-top:2px; }
+.col-panel-close {
+  width:28px;height:28px;border:none;background:var(--gray-100);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease);
+}
+.col-panel-close:hover{background:var(--gray-200);color:var(--text-1);}
+.col-panel-close svg{width:14px;height:14px;}
+
+.col-panel-groups { flex:1;overflow-y:auto;padding:12px 0; }
+
+.col-group-label {
+  font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-3);padding:10px 20px 4px;
+}
+
+.col-row {
+  display:flex;align-items:center;gap:10px;
+  padding:8px 20px;border-radius:0;cursor:default;
+  transition:background var(--ease);
+  user-select:none;
+}
+.col-row:hover { background:var(--gray-50); }
+.col-row.dragging { opacity:0.4; }
+.col-row.drag-over { background:var(--brand-50);border-top:2px solid var(--brand-500); }
+
+.drag-handle {
+  cursor:grab;color:var(--text-3);flex-shrink:0;display:flex;align-items:center;
+  padding:2px;border-radius:3px;transition:color var(--ease);
+}
+.drag-handle:active{cursor:grabbing;}
+.drag-handle:hover{color:var(--text-1);}
+.drag-handle svg{width:14px;height:14px;}
+
+.col-toggle {
+  width:36px;height:20px;background:var(--gray-300);border-radius:10px;
+  position:relative;cursor:pointer;transition:background var(--ease);
+  flex-shrink:0;border:none;
+}
+.col-toggle.on{background:var(--brand-500);}
+.col-toggle::after {
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;background:#fff;border-radius:50%;
+  transition:transform var(--ease);box-shadow:0 1px 3px rgba(0,0,0,0.15);
+}
+.col-toggle.on::after{transform:translateX(16px);}
+
+.col-row-label { font-size:13px;font-weight:500;color:var(--text-1);flex:1; }
+.col-row-tag {
+  font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+  padding:1px 6px;border-radius:var(--r-full);
+}
+.col-row-tag.locked { background:var(--gray-100);color:var(--text-3); }
+.col-row-tag.pinned { background:var(--brand-50);color:var(--brand-600); }
+
+.col-panel-foot {
+  padding:14px 20px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;justify-content:space-between;flex-shrink:0;
+}
+
+/* Column configurator trigger btn */
+.col-cfg-btn {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-size:12.5px;font-weight:500;
+  color:var(--text-2);background:var(--surface);cursor:pointer;
+  transition:all var(--ease);font-family:inherit;
+}
+.col-cfg-btn:hover{border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50);}
+.col-cfg-btn svg{width:14px;height:14px;}
+
+/* ── Detail / Edit slide panel (wide) ── */
+.detail-panel-overlay {
+  position:fixed;inset:0;background:rgba(15,15,35,0.22);z-index:400;display:none;
+}
+.detail-panel-overlay.open { display:block; }
+
+.detail-panel {
+  position:fixed;top:0;right:-760px;bottom:0;width:740px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-12px 0 48px rgba(0,0,0,0.12);z-index:401;
+  display:flex;flex-direction:column;transition:right 0.28s cubic-bezier(.4,0,.2,1);
+}
+.detail-panel.open { right:0; }
+
+.dp-head {
+  padding:20px 24px 16px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;
+  background:var(--surface);
+}
+.dp-head-left { display:flex;flex-direction:column;gap:4px; }
+.dp-ponum { font-size:17px;font-weight:800;color:var(--text-1);letter-spacing:-0.01em; }
+.dp-meta { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.dp-head-actions { display:flex;align-items:center;gap:8px; }
+.dp-close {
+  width:30px;height:30px;border:none;background:var(--gray-100);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease);margin-left:8px;
+}
+.dp-close:hover{background:var(--gray-200);color:var(--text-1);}
+.dp-close svg{width:15px;height:15px;}
+
+.dp-tabs {
+  display:flex;gap:0;border-bottom:1px solid var(--border2);flex-shrink:0;padding:0 24px;
+  background:var(--surface);
+}
+.dp-tab {
+  padding:10px 14px;font-size:12.5px;font-weight:500;color:var(--text-3);
+  cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:all var(--ease);font-family:inherit;
+}
+.dp-tab.active{color:var(--brand-600);border-bottom-color:var(--brand-600);font-weight:600;}
+
+.dp-body { flex:1;overflow-y:auto;padding:24px; }
+
+.dp-section { margin-bottom:24px; }
+.dp-section-title {
+  font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2);
+}
+.dp-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.dp-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px; }
+.dp-field {
+  background:var(--gray-50);border-radius:var(--r-sm);padding:10px 12px;
+}
+.dp-field-label {
+  font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:4px;
+}
+.dp-field-val { font-size:13px;font-weight:500;color:var(--text-1); }
+
+/* Line items table inside panel */
+.dp-line-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.dp-line-table th {
+  text-align:left;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--text-3);padding:6px 10px;border-bottom:1px solid var(--border2);
+}
+.dp-line-table td { padding:10px 10px;border-bottom:1px solid var(--border2);color:var(--text-1); }
+.dp-line-table tr:last-child td { border-bottom:none; }
+.dp-line-table tr:hover td { background:var(--gray-50); }
+
+/* Amounts summary bar */
+.dp-amounts { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px; }
+.dp-amt-card {
+  border-radius:var(--r-sm);padding:14px 16px;text-align:center;
+}
+.dp-amt-label { font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px; }
+.dp-amt-val { font-size:20px;font-weight:800; }
+
+/* Edit form inside panel */
+.dp-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px; }
+.dp-form-grid .form-group { margin-bottom:0; }
+.dp-form-full { margin-bottom:14px; }
+
+.dp-foot {
+  padding:16px 24px;border-top:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  background:var(--surface);
+}
+
+/* Status badge in detail head */
+.dp-status-badge {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:var(--r-full);
+  font-size:11px;font-weight:600;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-section">Procurement</div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+          <span class="nav-parent-label">Purchase Orders</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child active" href="purchase-order-list.html">PO List</a>
+          <a class="nav-child" href="purchase-order.html">Create PO</a>
+          <a class="nav-child" href="po-receipts.html">PO Receipts</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-module">Purchase Orders</span>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Export">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+        <button class="topbar-icon-btn" title="Notifications">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="topbar-cta" onclick="location.href='purchase-order.html'">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          New PO
+        </button>
+      </div>
+    </header>
+
+    <main class="page" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
+
+      <!-- Stat cards -->
+      <div style="padding:24px 28px 0;">
+        <div class="ph" style="margin-bottom:16px;">
+          <div>
+            <div class="ph-title">Purchase Orders</div>
+            <div class="ph-sub">Track all procurement — drafts, approvals, receipts</div>
+          </div>
+          <div class="ph-actions">
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div style="position:relative;">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+                <input class="form-control" id="searchInput" type="text" placeholder="Search PO#, vendor…" style="padding-left:32px;height:36px;width:220px;" oninput="applyFilter()">
+              </div>
+              <select class="filter-select" id="filterVendor" onchange="applyFilter()" style="height:36px;">
+                <option value="">All Vendors</option>
+                <option>Sunrise Fabrics Pvt. Ltd.</option>
+                <option>Horizon Trims Co.</option>
+                <option>Global Threads LLC</option>
+                <option>Apex Raw Materials</option>
+              </select>
+              <select class="filter-select" id="filterDate" onchange="applyFilter()" style="height:36px;">
+                <option value="">All Dates</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+              <button class="col-cfg-btn" onclick="openColPanel()">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+                Columns
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card" onclick="setTab('all')" id="sc-all">
+            <div class="stat-num" id="sc-all-num">0</div>
+            <div class="stat-label">Total POs</div>
+            <div class="stat-sub" style="color:var(--text-3);">All statuses</div>
+          </div>
+          <div class="stat-card" onclick="setTab('Draft')" id="sc-Draft">
+            <div class="stat-num" id="sc-Draft-num" style="color:#4b5563;">0</div>
+            <div class="stat-label">Drafts</div>
+            <div class="stat-sub" style="color:var(--text-3);">Not submitted</div>
+          </div>
+          <div class="stat-card" onclick="setTab('Pending Approval')" id="sc-Pending Approval">
+            <div class="stat-num" id="sc-Pending Approval-num" style="color:#92400e;">0</div>
+            <div class="stat-label">Awaiting Approval</div>
+            <div class="stat-sub" style="color:var(--warning);" id="sc-pend-amt"></div>
+          </div>
+          <div class="stat-card" onclick="setTab('Approved')" id="sc-Approved">
+            <div class="stat-num" id="sc-Approved-num" style="color:#166534;">0</div>
+            <div class="stat-label">Approved</div>
+            <div class="stat-sub" style="color:var(--success);" id="sc-appr-amt"></div>
+          </div>
+          <div class="stat-card" onclick="setTab('Received')" id="sc-Received">
+            <div class="stat-num" id="sc-Received-num" style="color:#1e40af;">0</div>
+            <div class="stat-label">Received / Closed</div>
+            <div class="stat-sub" style="color:var(--info);" id="sc-recv-amt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab strip -->
+      <div class="tab-strip" id="tabStrip">
+        <button class="tab-item active" onclick="setTab('all',this)" id="tab-all">
+          All <span class="tab-count" id="tc-all">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Draft',this)" id="tab-Draft">
+          Draft <span class="tab-count" id="tc-Draft">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Pending Approval',this)" id="tab-Pending Approval">
+          Pending Approval <span class="tab-count" id="tc-Pending Approval">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Approved',this)" id="tab-Approved">
+          Approved <span class="tab-count" id="tc-Approved">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Partially Received',this)" id="tab-Partially Received">
+          Partially Received <span class="tab-count" id="tc-Partially Received">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Received',this)" id="tab-Received">
+          Received <span class="tab-count" id="tc-Received">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Rejected',this)" id="tab-Rejected">
+          Rejected <span class="tab-count" id="tc-Rejected">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Cancelled',this)" id="tab-Cancelled">
+          Cancelled <span class="tab-count" id="tc-Cancelled">0</span>
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+        <div class="card" style="margin-top:16px;overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="poTable">
+              <thead>
+                <tr>
+                  <th style="width:44px;"></th>
+                  <th>PO # / Date</th>
+                  <th>Vendor</th>
+                  <th>Ship To</th>
+                  <th>Delivery Date</th>
+                  <th>Items</th>
+                  <th>Amount</th>
+                  <th>Receipt</th>
+                  <th>Status</th>
+                  <th>Approval</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="poBody"></tbody>
+            </table>
+          </div>
+          <div class="pager" id="pager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Approval Modal ── -->
+<div class="modal-backdrop" id="approvalModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <div><div class="modal-title" id="apprModalTitle">Approve Purchase Order</div><div class="modal-sub" id="apprModalSub"></div></div>
+      <button class="modal-x" onclick="closeModal('approvalModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="apprPoId">
+      <input type="hidden" id="apprAction">
+      <div class="form-group">
+        <label class="form-label">Comments <span id="apprCommentReq"></span></label>
+        <textarea class="form-control" id="apprComment" placeholder="Add approval note or reason for rejection…" style="min-height:90px;"></textarea>
+      </div>
+      <div id="apprWarning" style="display:none;margin-top:12px;padding:10px 12px;background:var(--danger-bg);border:1px solid #fca5a5;border-radius:var(--r-sm);font-size:12.5px;color:var(--danger);"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('approvalModal')">Cancel</button>
+      <button class="btn btn-primary" id="apprConfirmBtn" onclick="confirmApproval()">Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Detail Panel ── -->
+<div class="detail-panel-overlay" id="detailOverlay" onclick="closeDetailPanel()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <div class="dp-head-left">
+      <div class="dp-ponum" id="dpPoNum">—</div>
+      <div class="dp-meta" id="dpMeta"></div>
+    </div>
+    <div class="dp-head-actions">
+      <button class="btn btn-outline btn-sm" id="dpEditBtn" onclick="openEditFromDetail()">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Edit PO
+      </button>
+      <button class="dp-close" onclick="closeDetailPanel()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="dp-tabs">
+    <button class="dp-tab active" onclick="switchDpTab('overview',this)">Overview</button>
+    <button class="dp-tab" onclick="switchDpTab('lines',this)">Line Items</button>
+    <button class="dp-tab" onclick="switchDpTab('logistics',this)">Logistics &amp; Terms</button>
+    <button class="dp-tab" onclick="switchDpTab('approval',this)">Approval Trail</button>
+    <button class="dp-tab" onclick="switchDpTab('custom',this)">Custom Fields</button>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+  <div class="dp-foot">
+    <div style="font-size:12px;color:var(--text-3);" id="dpFootNote"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeDetailPanel()">Close</button>
+      <button class="btn btn-outline btn-sm" onclick="printPO(currentDetailId)">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4z" clip-rule="evenodd"/></svg>
+        Print
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Panel ── -->
+<div class="detail-panel-overlay" id="editOverlay" onclick="closeEditPanel()"></div>
+<div class="detail-panel" id="editPanel">
+  <div class="dp-head">
+    <div class="dp-head-left">
+      <div class="dp-ponum" id="epPoNum">Edit PO</div>
+      <div class="dp-meta" id="epMeta"></div>
+    </div>
+    <button class="dp-close" onclick="closeEditPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="dp-body" id="epBody"></div>
+  <div class="dp-foot">
+    <div style="font-size:12px;color:var(--text-3);" id="epNote"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeEditPanel()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEditPO()">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Column Configurator Panel ── -->
+<div class="col-panel-overlay" id="colPanelOverlay" onclick="closeColPanel()"></div>
+<div class="col-panel" id="colPanel">
+  <div class="col-panel-head">
+    <div>
+      <div class="col-panel-title">Configure Columns</div>
+      <div class="col-panel-sub">Show/hide and drag to reorder</div>
+    </div>
+    <button class="col-panel-close" onclick="closeColPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="col-panel-groups" id="colPanelGroups"></div>
+  <div class="col-panel-foot">
+    <button class="btn btn-outline btn-sm" onclick="resetColDefaults()">Reset defaults</button>
+    <button class="btn btn-primary btn-sm" onclick="closeColPanel()">Done</button>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ── Sample Data ── */
+const avatarColors=['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6'];
+function avatarBg(n){let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%avatarColors.length;return avatarColors[h];}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function fmt(v){return '₹'+parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+/* ── Vendor contact master ── */
+const VENDOR_CONTACTS = {
+  'Sunrise Fabrics Pvt. Ltd.': { phone:'919876543210', email:'orders@sunrisefabrics.in' },
+  'Horizon Trims Co.':         { phone:'919812345678', email:'purchase@horizontrims.com' },
+  'Global Threads LLC':        { phone:'919900112233', email:'supply@globalthreads.com' },
+  'Apex Raw Materials':        { phone:'919988776655', email:'procurement@apexraw.in' },
+};
+
+const POS = [
+  {id:1,  poNum:'PO-2026-0001', date:'2026-04-01', vendor:'Sunrise Fabrics Pvt. Ltd.', shipTo:'Head Office — Mumbai',    delivDate:'2026-04-20', items:4, amount:284500, received:284500, status:'Received',           approver:'Rajan Mehta',  approvedOn:'2026-04-03', note:'',               mode:'By Buyer PO'},
+  {id:2,  poNum:'PO-2026-0002', date:'2026-04-05', vendor:'Horizon Trims Co.',         shipTo:'Factory — Pune',         delivDate:'2026-04-28', items:6, amount:97800,  received:48900,  status:'Partially Received', approver:'Rajan Mehta',  approvedOn:'2026-04-07', note:'',               mode:'Bulk Order'},
+  {id:3,  poNum:'PO-2026-0003', date:'2026-04-08', vendor:'Apex Raw Materials',         shipTo:'Warehouse — Bhiwandi',  delivDate:'2026-05-05', items:3, amount:156000, received:0,      status:'Approved',           approver:'Mayukh Ghatak',approvedOn:'2026-04-10', note:'Priority order', mode:'By Style'},
+  {id:4,  poNum:'PO-2026-0004', date:'2026-04-12', vendor:'Global Threads LLC',         shipTo:'Factory — Pune',         delivDate:'2026-05-10', items:5, amount:423000, received:0,      status:'Pending Approval',   approver:'—',            approvedOn:'—',          note:'',               mode:'By Production Order'},
+  {id:5,  poNum:'PO-2026-0005', date:'2026-04-14', vendor:'Sunrise Fabrics Pvt. Ltd.', shipTo:'Warehouse — Bhiwandi',  delivDate:'2026-05-15', items:2, amount:68200,  received:0,      status:'Pending Approval',   approver:'—',            approvedOn:'—',          note:'',               mode:'Bulk Order'},
+  {id:6,  poNum:'PO-2026-0006', date:'2026-04-16', vendor:'Horizon Trims Co.',         shipTo:'Head Office — Mumbai',   delivDate:'2026-05-20', items:7, amount:312400, received:0,      status:'Draft',              approver:'—',            approvedOn:'—',          note:'',               mode:'By Style'},
+  {id:7,  poNum:'PO-2026-0007', date:'2026-04-18', vendor:'Apex Raw Materials',         shipTo:'Factory — Pune',         delivDate:'2026-05-25', items:4, amount:189500, received:0,      status:'Draft',              approver:'—',            approvedOn:'—',          note:'',               mode:'Bulk Order'},
+  {id:8,  poNum:'PO-2026-0008', date:'2026-04-20', vendor:'Global Threads LLC',         shipTo:'Warehouse — Bhiwandi',  delivDate:'2026-06-01', items:3, amount:95000,  received:0,      status:'Rejected',           approver:'Rajan Mehta',  approvedOn:'2026-04-21', note:'Pricing too high — renegotiate', mode:'By Buyer PO'},
+  {id:9,  poNum:'PO-2026-0009', date:'2026-04-22', vendor:'Sunrise Fabrics Pvt. Ltd.', shipTo:'Tirupur Unit — Global Threads', delivDate:'2026-06-05', items:8, amount:540000, received:0, status:'Approved',        approver:'Mayukh Ghatak',approvedOn:'2026-04-24', note:'',               mode:'By Buyer PO'},
+  {id:10, poNum:'PO-2026-0010', date:'2026-04-25', vendor:'Horizon Trims Co.',         shipTo:'Factory — Pune',         delivDate:'2026-06-10', items:5, amount:213000, received:0,      status:'Draft',              approver:'—',            approvedOn:'—',          note:'',               mode:'By Production Order'},
+  {id:11, poNum:'PO-2026-0011', date:'2026-04-26', vendor:'Apex Raw Materials',         shipTo:'Head Office — Mumbai',   delivDate:'2026-06-15', items:2, amount:76500,  received:0,      status:'Cancelled',          approver:'—',            approvedOn:'—',          note:'Vendor unable to supply', mode:'Bulk Order'},
+  {id:12, poNum:'PO-2026-0012', date:'2026-04-28', vendor:'Global Threads LLC',         shipTo:'Factory — Pune',         delivDate:'2026-06-20', items:6, amount:384000, received:0,      status:'Pending Approval',   approver:'—',            approvedOn:'—',          note:'',               mode:'By Style'},
+];
+
+const statusCls = {
+  'Draft':'sp-draft','Pending Approval':'sp-pending','Approved':'sp-approved',
+  'Rejected':'sp-rejected','Received':'sp-received','Partially Received':'sp-partial','Cancelled':'sp-cancelled'
+};
+
+const statusDot = {
+  'Draft':'dot-gray','Pending Approval':'dot-yellow','Approved':'dot-green',
+  'Rejected':'dot-red','Received':'dot-blue','Partially Received':'dot-blue','Cancelled':'dot-gray'
+};
+
+let currentTab = 'all';
+let filtered = [...POS];
+let currentPage = 1;
+const pageSize = 10;
+let activeMenu = null;
+
+/* ── Column config state (must be before init) ── */
+const ALL_COLUMNS = [
+  { id:'avatar',         label:'Vendor Avatar',    group:'Core',          locked:true,  default:true  },
+  { id:'ponum',          label:'PO # / Date',      group:'Core',          locked:true,  default:true  },
+  { id:'vendor',         label:'Vendor',           group:'Core',          locked:false, default:true  },
+  { id:'vendorCode',     label:'Vendor Code',      group:'Core',          locked:false, default:false },
+  { id:'mode',           label:'Order Mode',       group:'Core',          locked:false, default:false },
+  { id:'shipTo',         label:'Ship To',          group:'Core',          locked:false, default:true  },
+  { id:'poDate',         label:'PO Issue Date',    group:'Dates',         locked:false, default:false },
+  { id:'delivDate',      label:'Delivery Date',    group:'Dates',         locked:false, default:true  },
+  { id:'items',          label:'Items Count',      group:'Core',          locked:false, default:true  },
+  { id:'amount',         label:'Grand Amount',     group:'Financial',     locked:false, default:true  },
+  { id:'received',       label:'Received Amount',  group:'Financial',     locked:false, default:false },
+  { id:'recvPct',        label:'Receipt %',        group:'Financial',     locked:false, default:true  },
+  { id:'status',         label:'Status',           group:'Core',          locked:false, default:true  },
+  { id:'approver',       label:'Approver',         group:'Approval',      locked:false, default:true  },
+  { id:'approvedOn',     label:'Approved On',      group:'Approval',      locked:false, default:false },
+  { id:'shippingMethod', label:'Shipping Method',  group:'Logistics',     locked:false, default:false },
+  { id:'shippingTerms',  label:'Shipping Terms',   group:'Logistics',     locked:false, default:false },
+  { id:'paymentTerms',   label:'Payment Terms',    group:'Logistics',     locked:false, default:false },
+  { id:'notes',          label:'Notes',            group:'Core',          locked:false, default:false },
+  { id:'cf1',            label:'Custom Field 1',   group:'Custom Fields', locked:false, default:false },
+  { id:'cf2',            label:'Custom Field 2',   group:'Custom Fields', locked:false, default:false },
+  { id:'cf3',            label:'Custom Field 3',   group:'Custom Fields', locked:false, default:false },
+  { id:'cf4',            label:'Custom Field 4',   group:'Custom Fields', locked:false, default:false },
+  { id:'cf5',            label:'Custom Field 5',   group:'Custom Fields', locked:false, default:false },
+  { id:'actions',        label:'Actions',          group:'Core',          locked:true,  default:true  },
+];
+const DEFAULT_ACTIVE = ALL_COLUMNS.filter(c=>c.default).map(c=>c.id);
+let activeColumns = [...DEFAULT_ACTIVE];
+
+/* ── Init ── */
+updateStatCards();
+renderTableHead();
+applyFilter();
+
+function updateStatCards() {
+  const statuses = ['Draft','Pending Approval','Approved','Received'];
+  document.getElementById('sc-all-num').textContent = POS.length;
+  statuses.forEach(s => {
+    const rows = POS.filter(p => p.status === s);
+    const el = document.getElementById('sc-'+s+'-num');
+    if (el) el.textContent = rows.length;
+  });
+  const pendAmt = POS.filter(p=>p.status==='Pending Approval').reduce((a,b)=>a+b.amount,0);
+  const apprAmt = POS.filter(p=>p.status==='Approved').reduce((a,b)=>a+b.amount,0);
+  const recvAmt = POS.filter(p=>p.status==='Received').reduce((a,b)=>a+b.amount,0);
+  const pe = document.getElementById('sc-pend-amt'); if(pe) pe.textContent = fmt(pendAmt)+' pending';
+  const ae = document.getElementById('sc-appr-amt'); if(ae) ae.textContent = fmt(apprAmt)+' approved';
+  const re = document.getElementById('sc-recv-amt'); if(re) re.textContent = fmt(recvAmt)+' received';
+
+  // Tab counts
+  const all = ['Draft','Pending Approval','Approved','Partially Received','Received','Rejected','Cancelled','all'];
+  all.forEach(s => {
+    const cnt = s === 'all' ? POS.length : POS.filter(p=>p.status===s).length;
+    const el = document.getElementById('tc-'+s);
+    if (el) el.textContent = cnt;
+  });
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  currentPage = 1;
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const te = document.getElementById('tab-'+tab);
+    if (te) te.classList.add('active'); else document.getElementById('tab-all')?.classList.add('active');
+  }
+  const sc = document.getElementById('sc-'+tab);
+  if (sc) sc.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const vf = document.getElementById('filterVendor').value;
+  const df = document.getElementById('filterDate').value;
+  const now = new Date();
+
+  filtered = POS.filter(p => {
+    if (currentTab !== 'all' && p.status !== currentTab) return false;
+    if (vf && p.vendor !== vf) return false;
+    if (df) {
+      const days = parseInt(df);
+      const diff = (now - new Date(p.date)) / (1000*60*60*24);
+      if (diff > days) return false;
+    }
+    if (q) {
+      return p.poNum.toLowerCase().includes(q) || p.vendor.toLowerCase().includes(q) || p.shipTo.toLowerCase().includes(q);
+    }
+    return true;
+  });
+  currentPage = 1;
+  render();
+}
+
+function render() {
+  const start = (currentPage-1)*pageSize;
+  const page = filtered.slice(start, start+pageSize);
+  const tbody = document.getElementById('poBody');
+
+  if (!page.length) {
+    tbody.innerHTML = `<tr><td colspan="${activeColumns.length}"><div class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg></div>
+      <div class="empty-title">No purchase orders found</div>
+      <div class="empty-desc">Try adjusting the filters or create a new PO</div>
+      <a href="purchase-order.html" class="btn btn-primary btn-sm" style="margin-top:8px;">Create PO</a>
+    </div></td></tr>`;
+    renderPager();
+    return;
+  }
+
+  const colCount = activeColumns.length;
+  let html = '';
+  page.forEach(po => {
+    html += `<tr>${activeColumns.map(id=>getCellValue(po,id)).join('')}</tr>`;
+  });
+  tbody.innerHTML = html;
+  renderPager();
+}
+
+function renderPager() {
+  const total = filtered.length;
+  const pages = Math.ceil(total/pageSize);
+  const start = (currentPage-1)*pageSize+1;
+  const end = Math.min(currentPage*pageSize, total);
+  document.getElementById('pager').innerHTML = `
+    <div style="color:var(--text-3);font-size:12.5px;">SHOWING ${total>0?start:0}–${end} OF ${total}</div>
+    <div class="pager-pages">
+      <button class="pager-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg> Prev</button>
+      ${Array.from({length:Math.min(pages,7)},(_,i)=>`<button class="pager-btn${i+1===currentPage?' active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('')}
+      <button class="pager-btn" onclick="goPage(${currentPage+1})" ${currentPage>=pages||!pages?'disabled':''}>Next <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></button>
+    </div>`;
+}
+function goPage(p) { const pages=Math.ceil(filtered.length/pageSize); if(p<1||p>pages)return; currentPage=p; render(); }
+
+/* ── Menu ── */
+function toggleMenu(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById('menu-'+id);
+  const wasOpen = menu.classList.contains('open');
+  closeMenus();
+  if (!wasOpen) { menu.classList.add('open'); activeMenu = id; }
+}
+function closeMenus() { document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open')); activeMenu=null; }
+document.addEventListener('click', closeMenus);
+
+/* ── Actions ── */
+function openApproval(id, action) {
+  const po = POS.find(p=>p.id===id);
+  document.getElementById('apprPoId').value = id;
+  document.getElementById('apprAction').value = action;
+  document.getElementById('apprModalTitle').textContent = action==='approve' ? 'Approve Purchase Order' : 'Reject Purchase Order';
+  document.getElementById('apprModalSub').textContent = `${po.poNum} — ${po.vendor} — ${fmt(po.amount)}`;
+  document.getElementById('apprComment').value = '';
+  const warn = document.getElementById('apprWarning');
+  if (action === 'reject') {
+    warn.textContent = 'Rejecting will notify the creator. A reason is recommended.';
+    warn.style.display = 'block';
+    document.getElementById('apprCommentReq').textContent = '(Recommended)';
+    document.getElementById('apprConfirmBtn').textContent = 'Reject PO';
+    document.getElementById('apprConfirmBtn').className = 'btn btn-danger';
+  } else {
+    warn.style.display = 'none';
+    document.getElementById('apprCommentReq').textContent = '(Optional)';
+    document.getElementById('apprConfirmBtn').textContent = 'Approve PO';
+    document.getElementById('apprConfirmBtn').className = 'btn btn-primary';
+  }
+  openModal('approvalModal');
+}
+
+function confirmApproval() {
+  const id = parseInt(document.getElementById('apprPoId').value);
+  const action = document.getElementById('apprAction').value;
+  const po = POS.find(p=>p.id===id);
+  if (!po) return;
+  if (action === 'approve') {
+    po.status = 'Approved';
+    po.approver = 'Mayukh Ghatak';
+    po.approvedOn = new Date().toISOString().split('T')[0];
+    toast(`${po.poNum} approved successfully`, 'success');
+  } else {
+    po.status = 'Rejected';
+    po.note = document.getElementById('apprComment').value || 'Rejected';
+    po.approver = 'Mayukh Ghatak';
+    po.approvedOn = new Date().toISOString().split('T')[0];
+    toast(`${po.poNum} rejected`, 'error');
+  }
+  closeModal('approvalModal');
+  updateStatCards();
+  applyFilter();
+}
+
+/* ── Detail Panel ── */
+let currentDetailId = null;
+let currentDpTab = 'overview';
+
+const SAMPLE_LINES = {
+  1: [{item:'Fabric — Cotton 40s',qty:500,unit:'Mtrs',rate:120,tax:5,total:63000},{item:'Interfacing',qty:200,unit:'Mtrs',rate:45,tax:12,total:10080},{item:'Labels (Woven)',qty:5000,unit:'Pcs',rate:2.8,tax:12,total:15680},{item:'Threads (Assorted)',qty:50,unit:'Cones',rate:95,tax:5,total:4988}],
+  2: [{item:'Metal Buttons 20mm',qty:2000,unit:'Pcs',rate:4.5,tax:12,total:10080},{item:'Zippers 30cm',qty:500,unit:'Pcs',rate:18,tax:12,total:10080},{item:'Elastic Band 25mm',qty:300,unit:'Mtrs',rate:8,tax:5,total:2520},{item:'Hook & Eye Set',qty:1000,unit:'Sets',rate:3.2,tax:12,total:3584},{item:'Velcro 25mm',qty:200,unit:'Mtrs',rate:22,tax:12,total:4928},{item:'Snap Fasteners',qty:2000,unit:'Pcs',rate:2.1,tax:12,total:4704}],
+};
+function getLines(po) {
+  return SAMPLE_LINES[po.id] || [{item:'Raw Material — '+po.vendor,qty:po.items*10,unit:'Kg',rate:Math.round(po.amount/(po.items*10)),tax:5,total:po.amount}];
+}
+
+function viewPO(id) {
+  const po = POS.find(p=>p.id===id);
+  currentDetailId = id;
+  currentDpTab = 'overview';
+  const sc = statusCls[po.status]||'sp-draft';
+
+  document.getElementById('dpPoNum').textContent = po.poNum;
+  document.getElementById('dpMeta').innerHTML = `
+    <span class="status-pill ${sc}" style="font-size:11px;">${po.status}</span>
+    <span style="font-size:12px;color:var(--text-3);">${po.vendor}</span>
+    <span style="font-size:12px;color:var(--border);">|</span>
+    <span style="font-size:12px;color:var(--text-3);">${fmtDate(po.date)}</span>`;
+
+  const canEdit = !['Received','Cancelled'].includes(po.status);
+  document.getElementById('dpEditBtn').style.display = canEdit ? '' : 'none';
+
+  document.getElementById('dpFootNote').textContent = `Last updated: ${fmtDate(po.date)} · Mode: ${po.mode}`;
+
+  // reset tabs
+  document.querySelectorAll('.dp-tab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+  renderDpTab('overview', po);
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function switchDpTab(tab, el) {
+  currentDpTab = tab;
+  document.querySelectorAll('.dp-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const po = POS.find(p=>p.id===currentDetailId);
+  renderDpTab(tab, po);
+}
+
+function renderDpTab(tab, po) {
+  const recvPct = po.amount > 0 ? Math.round((po.received/po.amount)*100) : 0;
+  const lines = getLines(po);
+  const sc = statusCls[po.status]||'sp-draft';
+  let html = '';
+
+  if (tab === 'overview') {
+    html = `
+      ${po.note?`<div style="padding:10px 14px;background:var(--warning-bg);border:1px solid #fcd34d;border-radius:var(--r-sm);font-size:12.5px;color:#92400e;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+        ${po.note}
+      </div>`:''}
+      <div class="dp-section">
+        <div class="dp-section-title">PO Header</div>
+        <div class="dp-grid">
+          ${field('PO Number', po.poNum)}
+          ${field('Order Mode', po.mode)}
+          ${field('PO Date', fmtDate(po.date))}
+          ${field('Delivery Date', `<span style="color:${new Date(po.delivDate)<new Date()&&!['Received','Cancelled'].includes(po.status)?'var(--danger)':'inherit'}">${fmtDate(po.delivDate)}${new Date(po.delivDate)<new Date()&&!['Received','Cancelled'].includes(po.status)?' <span style="font-size:10px;font-weight:700;background:#fef2f2;color:var(--danger);padding:1px 6px;border-radius:4px;margin-left:4px;">Overdue</span>':''}</span>`)}
+          ${field('Vendor', po.vendor)}
+          ${field('Vendor Code', 'VND-'+String(po.id).padStart(3,'0'))}
+          ${field('Ship To', po.shipTo)}
+          ${field('Status', `<span class="status-pill ${sc}" style="font-size:11px;">${po.status}</span>`)}
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Financial Summary</div>
+        <div class="dp-amounts">
+          <div class="dp-amt-card" style="background:var(--brand-50);">
+            <div class="dp-amt-label" style="color:var(--brand-500);">Grand Total</div>
+            <div class="dp-amt-val" style="color:var(--brand-700);">${fmt(po.amount)}</div>
+          </div>
+          <div class="dp-amt-card" style="background:var(--success-bg);">
+            <div class="dp-amt-label" style="color:var(--success);">Received</div>
+            <div class="dp-amt-val" style="color:var(--success);">${fmt(po.received)}</div>
+            ${recvPct>0?`<div style="font-size:11px;color:var(--success);margin-top:4px;">${recvPct}% complete</div>`:''}
+          </div>
+          <div class="dp-amt-card" style="background:var(--warning-bg);">
+            <div class="dp-amt-label" style="color:var(--warning);">Pending</div>
+            <div class="dp-amt-val" style="color:var(--warning);">${fmt(po.amount-po.received)}</div>
+          </div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Line Items Summary</div>
+        <div class="dp-grid-3">
+          ${field('Total Line Items', po.items+' items')}
+          ${field('Shipping Method', 'Air Freight')}
+          ${field('Payment Terms', 'Net 30')}
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'lines') {
+    const subtotal = lines.reduce((s,l)=>s+l.total,0);
+    html = `
+      <div class="dp-section">
+        <div class="dp-section-title">Line Items (${lines.length})</div>
+        <div style="overflow-x:auto;border-radius:var(--r-sm);border:1px solid var(--border2);">
+          <table class="dp-line-table">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th>Item / Description</th>
+                <th style="text-align:right;">Qty</th>
+                <th>Unit</th>
+                <th style="text-align:right;">Rate (₹)</th>
+                <th style="text-align:right;">Tax %</th>
+                <th style="text-align:right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lines.map((l,i)=>`<tr>
+                <td style="color:var(--text-3);font-size:11px;">${i+1}</td>
+                <td style="font-weight:500;">${l.item}</td>
+                <td style="text-align:right;">${l.qty.toLocaleString()}</td>
+                <td style="color:var(--text-3);">${l.unit}</td>
+                <td style="text-align:right;">${l.rate.toLocaleString()}</td>
+                <td style="text-align:right;color:var(--text-3);">${l.tax}%</td>
+                <td style="text-align:right;font-weight:600;">${l.total.toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+              </tr>`).join('')}
+            </tbody>
+            <tfoot>
+              <tr style="background:var(--gray-50);">
+                <td colspan="6" style="text-align:right;font-weight:700;font-size:13px;padding:10px;">Grand Total</td>
+                <td style="text-align:right;font-weight:800;font-size:14px;color:var(--brand-700);padding:10px;">${fmt(subtotal)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'logistics') {
+    html = `
+      <div class="dp-section">
+        <div class="dp-section-title">Shipping</div>
+        <div class="dp-grid">
+          ${field('Ship To Location', po.shipTo)}
+          ${field('Shipping Method', 'Air Freight')}
+          ${field('Shipping Terms', 'FOB Origin')}
+          ${field('Expected Delivery', fmtDate(po.delivDate))}
+          ${field('Incoterms', 'EXW')}
+          ${field('Carrier / Forwarder', '—')}
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Payment &amp; Terms</div>
+        <div class="dp-grid">
+          ${field('Payment Terms', 'Net 30 days')}
+          ${field('Currency', 'INR (₹)')}
+          ${field('Advance %', '30%')}
+          ${field('Advance Amount', fmt(po.amount*0.3))}
+          ${field('Balance Due', fmt(po.amount*0.7))}
+          ${field('Due Date', fmtDate(new Date(new Date(po.date).getTime()+30*86400000).toISOString().split('T')[0]))}
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Internal Notes</div>
+        <div style="background:var(--gray-50);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;color:${po.note?'var(--text-1)':'var(--text-3)'};">${po.note||'No internal notes added.'}</div>
+      </div>`;
+  }
+
+  if (tab === 'approval') {
+    const events = [];
+    events.push({date:po.date, user:'System', action:'PO Created', note:`Order mode: ${po.mode}`, icon:'create'});
+    if (po.status !== 'Draft') events.push({date:po.date, user:'Mayukh Ghatak', action:'Submitted for Approval', note:'', icon:'submit'});
+    if (['Approved','Received','Partially Received'].includes(po.status)) events.push({date:po.approvedOn, user:po.approver, action:'Approved', note:'', icon:'approve'});
+    if (po.status === 'Rejected') events.push({date:po.approvedOn, user:po.approver, action:'Rejected', note:po.note, icon:'reject'});
+    if (po.status === 'Cancelled') events.push({date:po.date, user:'Mayukh Ghatak', action:'Cancelled', note:po.note, icon:'cancel'});
+    if (['Received','Partially Received'].includes(po.status)) events.push({date:po.delivDate, user:'Warehouse', action:po.status==='Received'?'Fully Received':'Partially Received', note:`${po.status==='Received'?'100':'50'}% of ordered quantity`, icon:'receive'});
+
+    const iconMap = {
+      create: {bg:'#e0e7ff',color:'#4338ca',svg:'<path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>'},
+      submit: {bg:'#fef9c3',color:'#92400e',svg:'<path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11h2v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>'},
+      approve:{bg:'#dcfce7',color:'#166534',svg:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>'},
+      reject: {bg:'#fee2e2',color:'#991b1b',svg:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>'},
+      cancel: {bg:'#f3f4f6',color:'#6b7280',svg:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>'},
+      receive:{bg:'#dbeafe',color:'#1e40af',svg:'<path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>'},
+    };
+
+    html = `<div class="dp-section">
+      <div class="dp-section-title">Approval &amp; Activity Trail</div>
+      <div style="position:relative;padding-left:32px;">
+        <div style="position:absolute;left:13px;top:0;bottom:0;width:2px;background:var(--border2);border-radius:1px;"></div>
+        ${events.map((ev,i)=>{
+          const ic = iconMap[ev.icon]||iconMap.create;
+          return `<div style="position:relative;margin-bottom:${i<events.length-1?'20':'0'}px;">
+            <div style="position:absolute;left:-32px;top:0;width:28px;height:28px;border-radius:50%;background:${ic.bg};display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);">
+              <svg viewBox="0 0 20 20" fill="${ic.color}" style="width:13px;height:13px;">${ic.svg}</svg>
+            </div>
+            <div style="background:var(--gray-50);border-radius:var(--r-sm);padding:10px 14px;border:1px solid var(--border2);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${ev.note?'4':'0'}px;">
+                <span style="font-size:13px;font-weight:600;color:var(--text-1);">${ev.action}</span>
+                <span style="font-size:11px;color:var(--text-3);">${ev.date&&ev.date!=='—'?fmtDate(ev.date):''}</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-3);">by <strong style="color:var(--text-2);">${ev.user}</strong>${ev.note?` &nbsp;·&nbsp; ${ev.note}`:''}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if (tab === 'custom') {
+    html = `<div class="dp-section">
+      <div class="dp-section-title">Custom Fields</div>
+      <div class="dp-grid">
+        ${['Custom Field 1','Custom Field 2','Custom Field 3','Custom Field 4','Custom Field 5'].map(f=>field(f,'—')).join('')}
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;background:var(--gray-50);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-3);">
+        Custom fields can be configured in the PO form. Open <strong>Edit PO</strong> to fill or configure them.
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('dpBody').innerHTML = html;
+}
+
+function field(label, val) {
+  return `<div class="dp-field"><div class="dp-field-label">${label}</div><div class="dp-field-val">${val}</div></div>`;
+}
+
+function closeDetailPanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+
+function openEditFromDetail() {
+  closeDetailPanel();
+  editPO(currentDetailId);
+}
+
+/* ── Edit Panel ── */
+let currentEditId = null;
+
+function editPO(id) {
+  const po = POS.find(p=>p.id===id);
+  currentEditId = id;
+  const sc = statusCls[po.status]||'sp-draft';
+  const canFullEdit = po.status === 'Draft';
+
+  document.getElementById('epPoNum').textContent = `Edit — ${po.poNum}`;
+  document.getElementById('epMeta').innerHTML = `<span class="status-pill ${sc}" style="font-size:11px;">${po.status}</span>
+    ${!canFullEdit?'<span style="font-size:11.5px;color:var(--text-3);margin-left:4px;">Some fields are locked after submission</span>':''}`;
+  document.getElementById('epNote').textContent = canFullEdit ? 'All fields editable (Draft)' : 'Locked fields cannot be changed after approval';
+
+  const lock = !canFullEdit;
+  const dis = lock ? 'disabled style="opacity:0.6;pointer-events:none;"' : '';
+
+  const recvPct = po.amount > 0 ? Math.round((po.received/po.amount)*100) : 0;
+  const lines = getLines(po);
+  const subtotal = lines.reduce((s,l)=>s+l.total,0);
+  const dueDate = new Date(new Date(po.date).getTime()+30*86400000).toISOString().split('T')[0];
+  const isOverdue = new Date(po.delivDate)<new Date() && !['Received','Cancelled'].includes(po.status);
+
+  function fg(label, inputHtml) {
+    return `<div class="form-group"><label class="form-label">${label}</label>${inputHtml}</div>`;
+  }
+  function sel(id, opts, current, disabled) {
+    const d = disabled ? 'disabled' : '';
+    const s = disabled ? 'style="opacity:0.6;"' : '';
+    return `<select class="form-control" id="${id}" ${d} ${s}>${opts.map(o=>`<option${o===current?' selected':''}>${o}</option>`).join('')}</select>`;
+  }
+  function inp(id, val, type='text', disabled=false, extra='') {
+    const d = disabled ? 'disabled' : '';
+    const s = disabled ? 'style="opacity:0.6;"' : '';
+    return `<input class="form-control" id="${id}" type="${type}" value="${val||''}" ${d} ${s} ${extra}>`;
+  }
+  function roField(label, val) {
+    return `<div class="dp-field"><div class="dp-field-label">${label}</div><div class="dp-field-val">${val}</div></div>`;
+  }
+
+  document.getElementById('epBody').innerHTML = `
+
+    <!-- ── PO Header ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">PO Header</div>
+      <div class="dp-form-grid">
+        ${fg('PO Number',   inp('ep-poNum',    po.poNum,   'text', true))}
+        ${fg('Vendor Code', inp('ep-vendorCode','VND-'+String(po.id).padStart(3,'0'), 'text', true))}
+        ${fg('Order Mode',  sel('ep-mode',['Bulk Order','By Style','By Buyer PO','By Production Order'], po.mode, lock))}
+        ${fg('Status',      `<div style="padding:8px 10px;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--border2);font-size:13px;"><span class="status-pill ${sc}">${po.status}</span></div>`)}
+        ${fg('PO Date',     inp('ep-date',     po.date,    'date', lock))}
+        ${fg('Delivery Date', `<input class="form-control${isOverdue?' border-danger':''}" id="ep-delivDate" type="date" value="${po.delivDate}">${isOverdue?'<div style="font-size:11px;color:var(--danger);margin-top:3px;">Currently overdue</div>':''}`)}
+        ${fg('Vendor',      sel('ep-vendor',['Sunrise Fabrics Pvt. Ltd.','Horizon Trims Co.','Global Threads LLC','Apex Raw Materials'], po.vendor, lock))}
+        ${fg('Ship To',     inp('ep-shipTo',   po.shipTo))}
+      </div>
+    </div>
+
+    <!-- ── Financial Summary (read-only) ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Financial Summary</div>
+      <div class="dp-amounts">
+        <div class="dp-amt-card" style="background:var(--brand-50);">
+          <div class="dp-amt-label" style="color:var(--brand-500);">Grand Total</div>
+          <div class="dp-amt-val" style="color:var(--brand-700);">${fmt(po.amount)}</div>
+        </div>
+        <div class="dp-amt-card" style="background:var(--success-bg);">
+          <div class="dp-amt-label" style="color:var(--success);">Received</div>
+          <div class="dp-amt-val" style="color:var(--success);">${fmt(po.received)}</div>
+          ${recvPct>0?`<div style="font-size:11px;color:var(--success);margin-top:4px;">${recvPct}% complete</div>`:''}
+        </div>
+        <div class="dp-amt-card" style="background:var(--warning-bg);">
+          <div class="dp-amt-label" style="color:var(--warning);">Pending</div>
+          <div class="dp-amt-val" style="color:var(--warning);">${fmt(po.amount-po.received)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Line Items ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Line Items (${lines.length})</div>
+      <div style="overflow-x:auto;border-radius:var(--r-sm);border:1px solid var(--border2);">
+        <table class="dp-line-table">
+          <thead>
+            <tr>
+              <th style="width:28px;">#</th>
+              <th>Item / Description</th>
+              <th style="text-align:right;">Qty</th>
+              <th>Unit</th>
+              <th style="text-align:right;">Rate (₹)</th>
+              <th style="text-align:right;">Tax %</th>
+              <th style="text-align:right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lines.map((l,i)=>`<tr>
+              <td style="color:var(--text-3);font-size:11px;">${i+1}</td>
+              <td><input class="form-control" id="ep-item-${i}-desc" value="${l.item}" style="min-width:160px;height:30px;font-size:12px;padding:4px 8px;"></td>
+              <td><input class="form-control" id="ep-item-${i}-qty"  value="${l.qty}"  type="number" style="width:70px;height:30px;font-size:12px;padding:4px 8px;text-align:right;" ${lock?'disabled style="opacity:0.6;"':''}></td>
+              <td><input class="form-control" id="ep-item-${i}-unit" value="${l.unit}" style="width:60px;height:30px;font-size:12px;padding:4px 8px;" ${lock?'disabled style="opacity:0.6;"':''}></td>
+              <td><input class="form-control" id="ep-item-${i}-rate" value="${l.rate}" type="number" style="width:80px;height:30px;font-size:12px;padding:4px 8px;text-align:right;" ${lock?'disabled style="opacity:0.6;"':''}></td>
+              <td style="text-align:right;color:var(--text-3);">${l.tax}%</td>
+              <td style="text-align:right;font-weight:600;">${l.total.toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--gray-50);">
+              <td colspan="6" style="text-align:right;font-weight:700;font-size:13px;padding:10px;">Grand Total</td>
+              <td style="text-align:right;font-weight:800;font-size:14px;color:var(--brand-700);padding:10px;">${fmt(subtotal)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Logistics & Terms ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Shipping</div>
+      <div class="dp-form-grid">
+        ${fg('Shipping Method', sel('ep-shippingMethod',['Air Freight','Sea Freight','Road Transport','Courier','Ex-Works'],'Air Freight'))}
+        ${fg('Shipping Terms',  sel('ep-shippingTerms', ['FOB Origin','FOB Destination','CIF','EXW','DDP'],'FOB Origin'))}
+        ${fg('Incoterms',       sel('ep-incoterms',     ['EXW','FOB','CIF','DDP','DAP'],'EXW'))}
+        ${fg('Carrier / Forwarder', inp('ep-carrier','','text',false,'placeholder="Enter carrier name…"'))}
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Payment &amp; Terms</div>
+      <div class="dp-form-grid">
+        ${fg('Payment Terms', sel('ep-paymentTerms',['Net 30','Net 60','Net 90','50% Advance','100% Advance'],'Net 30'))}
+        ${fg('Currency',      sel('ep-currency',['INR (₹)','USD ($)','EUR (€)'],'INR (₹)'))}
+        ${fg('Advance %',     inp('ep-advance','30','number',false,'min="0" max="100" placeholder="0"'))}
+        ${fg('Due Date',      inp('ep-dueDate', dueDate,'date'))}
+      </div>
+    </div>
+
+    <!-- ── Custom Fields ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Custom Fields</div>
+      <div class="dp-form-grid">
+        ${[1,2,3,4,5].map(n=>fg(`Custom Field ${n}`, inp(`ep-cf${n}`,'','text',false,`placeholder="Enter value…"`))).join('')}
+      </div>
+    </div>
+
+    <!-- ── Approval Trail (read-only) ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Approval Trail</div>
+      ${(()=>{
+        const events = [];
+        events.push({date:po.date, user:'System', action:'PO Created', note:`Mode: ${po.mode}`, icon:'create'});
+        if (po.status!=='Draft') events.push({date:po.date, user:'Mayukh Ghatak', action:'Submitted for Approval', note:'', icon:'submit'});
+        if (['Approved','Received','Partially Received'].includes(po.status)) events.push({date:po.approvedOn, user:po.approver, action:'Approved', note:'', icon:'approve'});
+        if (po.status==='Rejected') events.push({date:po.approvedOn, user:po.approver, action:'Rejected', note:po.note, icon:'reject'});
+        if (po.status==='Cancelled') events.push({date:po.date, user:'Mayukh Ghatak', action:'Cancelled', note:po.note, icon:'cancel'});
+        if (['Received','Partially Received'].includes(po.status)) events.push({date:po.delivDate, user:'Warehouse', action:po.status==='Received'?'Fully Received':'Partially Received', note:`${po.status==='Received'?'100':'50'}% received`, icon:'receive'});
+        const iconMap = {
+          create: {bg:'#e0e7ff',color:'#4338ca',svg:'<path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>'},
+          submit: {bg:'#fef9c3',color:'#92400e',svg:'<path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11h2v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>'},
+          approve:{bg:'#dcfce7',color:'#166534',svg:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>'},
+          reject: {bg:'#fee2e2',color:'#991b1b',svg:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>'},
+          cancel: {bg:'#f3f4f6',color:'#6b7280',svg:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>'},
+          receive:{bg:'#dbeafe',color:'#1e40af',svg:'<path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>'},
+        };
+        return `<div style="position:relative;padding-left:32px;">
+          <div style="position:absolute;left:13px;top:0;bottom:0;width:2px;background:var(--border2);border-radius:1px;"></div>
+          ${events.map((ev,i)=>{
+            const ic=iconMap[ev.icon]||iconMap.create;
+            return `<div style="position:relative;margin-bottom:${i<events.length-1?'16':'0'}px;">
+              <div style="position:absolute;left:-32px;top:0;width:28px;height:28px;border-radius:50%;background:${ic.bg};display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);">
+                <svg viewBox="0 0 20 20" fill="${ic.color}" style="width:13px;height:13px;">${ic.svg}</svg>
+              </div>
+              <div style="background:var(--gray-50);border-radius:var(--r-sm);padding:10px 14px;border:1px solid var(--border2);">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:13px;font-weight:600;color:var(--text-1);">${ev.action}</span>
+                  <span style="font-size:11px;color:var(--text-3);">${ev.date&&ev.date!=='—'?fmtDate(ev.date):''}</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-3);margin-top:2px;">by <strong style="color:var(--text-2);">${ev.user}</strong>${ev.note?` · ${ev.note}`:''}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      })()}
+    </div>
+
+    <!-- ── Internal Notes ── -->
+    <div class="dp-section">
+      <div class="dp-section-title">Internal Notes</div>
+      <textarea class="form-control" id="ep-notes" placeholder="Add notes or remarks…" style="min-height:90px;">${po.note||''}</textarea>
+    </div>`;
+
+  document.getElementById('editPanel').classList.add('open');
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function closeEditPanel() {
+  document.getElementById('editPanel').classList.remove('open');
+  document.getElementById('editOverlay').classList.remove('open');
+}
+
+function saveEditPO() {
+  const po = POS.find(p=>p.id===currentEditId);
+  if (!po) return;
+  const get = id => { const el=document.getElementById(id); return el?el.value:null; };
+  if (get('ep-delivDate')) po.delivDate = get('ep-delivDate');
+  if (get('ep-shipTo'))    po.shipTo    = get('ep-shipTo');
+  if (get('ep-notes') !== null) po.note = get('ep-notes');
+  if (po.status === 'Draft') {
+    if (get('ep-mode'))   po.mode   = get('ep-mode');
+    if (get('ep-date'))   po.date   = get('ep-date');
+    if (get('ep-vendor')) po.vendor = get('ep-vendor');
+  }
+  closeEditPanel();
+  updateStatCards();
+  applyFilter();
+  toast(`${po.poNum} updated successfully`, 'success');
+}
+function submitForApproval(id) {
+  const po = POS.find(p=>p.id===id);
+  po.status = 'Pending Approval';
+  updateStatCards(); applyFilter();
+  toast(`${po.poNum} submitted for approval`,'success');
+}
+function duplicatePO(id) { toast('PO duplicated as new Draft','success'); }
+function printPO(id) { toast('Generating PDF…','success'); }
+function cancelPO(id) {
+  if (!confirm('Cancel this PO? This cannot be undone.')) return;
+  const po = POS.find(p=>p.id===id);
+  po.status = 'Cancelled';
+  updateStatCards(); applyFilter();
+  toast(`${po.poNum} cancelled`,'error');
+}
+
+/* ── Column Configurator ── */
+function getColDef(id) { return ALL_COLUMNS.find(c=>c.id===id); }
+
+function openColPanel() {
+  renderColPanel();
+  document.getElementById('colPanel').classList.add('open');
+  document.getElementById('colPanelOverlay').classList.add('open');
+}
+function closeColPanel() {
+  document.getElementById('colPanel').classList.remove('open');
+  document.getElementById('colPanelOverlay').classList.remove('open');
+}
+function resetColDefaults() {
+  activeColumns = [...DEFAULT_ACTIVE];
+  renderColPanel();
+  renderTableHead();
+  render();
+  toast('Columns reset to defaults','success');
+}
+
+function toggleColumn(id) {
+  const col = getColDef(id);
+  if (col.locked) return;
+  if (activeColumns.includes(id)) {
+    if (activeColumns.filter(c=>!getColDef(c).locked).length <= 1) {
+      toast('At least one column must remain visible','error'); return;
+    }
+    activeColumns = activeColumns.filter(c=>c!==id);
+  } else {
+    // Insert before 'actions' if present
+    const actIdx = activeColumns.indexOf('actions');
+    if (actIdx > -1) activeColumns.splice(actIdx, 0, id);
+    else activeColumns.push(id);
+  }
+  renderColPanel();
+  renderTableHead();
+  render();
+}
+
+let dragSrcId = null;
+
+function renderColPanel() {
+  const groups = [...new Set(ALL_COLUMNS.map(c=>c.group))];
+  let html = '';
+  groups.forEach(grp => {
+    const cols = ALL_COLUMNS.filter(c=>c.group===grp);
+    html += `<div class="col-group-label">${grp}</div>`;
+    // Show active columns in their order first, then inactive
+    const active = activeColumns.filter(id=>cols.find(c=>c.id===id));
+    const inactive = cols.filter(c=>!activeColumns.includes(c.id)).map(c=>c.id);
+    const ordered = [...active, ...inactive];
+    ordered.forEach(id => {
+      const col = getColDef(id);
+      if (!col) return;
+      const on = activeColumns.includes(id);
+      const isLocked = col.locked;
+      const draggable = on && !isLocked ? 'draggable="true"' : '';
+      html += `<div class="col-row${on?'':' inactive'}" data-id="${id}" ${draggable}
+        ondragstart="colDragStart(event,'${id}')"
+        ondragover="colDragOver(event,'${id}')"
+        ondrop="colDrop(event,'${id}')"
+        ondragend="colDragEnd(event)">
+        <span class="drag-handle" style="${!on||isLocked?'opacity:0.25;cursor:default;':''}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a2 2 0 00-2 2v1H4a1 1 0 000 2h1v1H4a1 1 0 000 2h1v1H4a1 1 0 100 2h1v1a2 2 0 104 0v-1h1a1 1 0 100-2h-1v-1h1a1 1 0 100-2h-1V7h1a1 1 0 100-2h-1V4a2 2 0 00-2-2zm6 0a2 2 0 00-2 2v1h-1a1 1 0 000 2h1v1h-1a1 1 0 000 2h1v1h-1a1 1 0 100 2h1v1a2 2 0 104 0v-1h1a1 1 0 100-2h-1v-1h1a1 1 0 100-2h-1V7h1a1 1 0 100-2h-1V4a2 2 0 00-2-2z"/></svg>
+        </span>
+        <span class="col-row-label">${col.label}</span>
+        ${isLocked
+          ? '<span class="col-row-tag locked">Fixed</span>'
+          : `<button class="col-toggle ${on?'on':''}" onclick="toggleColumn('${id}')" title="${on?'Hide':'Show'}"></button>`
+        }
+      </div>`;
+    });
+  });
+  document.getElementById('colPanelGroups').innerHTML = html;
+}
+
+function colDragStart(e, id) {
+  dragSrcId = id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function colDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.col-row.drag-over').forEach(r=>r.classList.remove('drag-over'));
+  if (id !== dragSrcId && activeColumns.includes(id)) {
+    e.currentTarget.classList.add('drag-over');
+  }
+}
+function colDrop(e, targetId) {
+  e.preventDefault();
+  if (!dragSrcId || dragSrcId === targetId) return;
+  if (!activeColumns.includes(dragSrcId) || !activeColumns.includes(targetId)) return;
+  const srcIdx = activeColumns.indexOf(dragSrcId);
+  const tgtIdx = activeColumns.indexOf(targetId);
+  activeColumns.splice(srcIdx, 1);
+  activeColumns.splice(tgtIdx, 0, dragSrcId);
+  dragSrcId = null;
+  renderColPanel();
+  renderTableHead();
+  render();
+}
+function colDragEnd(e) {
+  document.querySelectorAll('.col-row').forEach(r=>r.classList.remove('dragging','drag-over'));
+  dragSrcId = null;
+}
+
+function renderTableHead() {
+  const thead = document.querySelector('#poTable thead tr');
+  let html = '';
+  activeColumns.forEach(id => {
+    const col = getColDef(id);
+    if (!col) return;
+    if (id === 'avatar')   html += `<th style="width:44px;"></th>`;
+    else if (id === 'actions') html += `<th style="text-align:right;">Action</th>`;
+    else if (id === 'amount' || id === 'received') html += `<th>${col.label}</th>`;
+    else html += `<th>${col.label}</th>`;
+  });
+  thead.innerHTML = html;
+}
+
+function getCellValue(po, id) {
+  const bg = avatarBg(po.vendor);
+  const ini = initials(po.vendor);
+  const sc = statusCls[po.status]||'sp-draft';
+  const recvPct = po.amount > 0 ? Math.round((po.received/po.amount)*100) : 0;
+  const isOverdue = new Date(po.delivDate)<new Date() && !['Received','Cancelled'].includes(po.status);
+  const approvalInfo = po.approver !== '—'
+    ? `<div class="appr-tag"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>${po.approver}</div>
+       <div style="font-size:10.5px;color:var(--text-3);margin-top:1px;">${fmtDate(po.approvedOn)}</div>`
+    : `<div style="font-size:11.5px;color:var(--text-3);">—</div>`;
+  const canApprove = po.status === 'Pending Approval';
+  const canEdit = po.status === 'Draft';
+  const canSubmit = po.status === 'Draft';
+  const canCancel = ['Draft','Pending Approval','Approved'].includes(po.status);
+
+  switch(id) {
+    case 'avatar':
+      return `<td><div class="v-av" style="background:${bg}20;color:${bg};">${ini}</div></td>`;
+    case 'ponum':
+      return `<td>
+        <div style="font-weight:600;font-size:13px;color:var(--brand-600);cursor:pointer;" onclick="viewPO(${po.id})">${po.poNum}</div>
+        <div class="row-sub">${fmtDate(po.date)} &nbsp;·&nbsp; <span style="color:var(--text-3);">${po.mode}</span></div>
+      </td>`;
+    case 'vendor':
+      return `<td><div class="row-name">${po.vendor}</div></td>`;
+    case 'vendorCode':
+      return `<td style="font-size:12px;color:var(--text-3);">VND-${String(po.id).padStart(3,'0')}</td>`;
+    case 'mode':
+      return `<td style="font-size:12.5px;color:var(--text-2);">${po.mode}</td>`;
+    case 'shipTo':
+      return `<td style="font-size:12.5px;color:var(--text-2);">${po.shipTo}</td>`;
+    case 'poDate':
+      return `<td style="font-size:12.5px;">${fmtDate(po.date)}</td>`;
+    case 'delivDate':
+      return `<td>
+        <div style="font-size:12.5px;font-weight:500;color:${isOverdue?'var(--danger)':'var(--text-1)'};">${fmtDate(po.delivDate)}</div>
+        ${isOverdue?'<div class="row-sub" style="color:var(--danger);">Overdue</div>':''}
+      </td>`;
+    case 'items':
+      return `<td style="text-align:center;">
+        <span style="font-size:13px;font-weight:600;color:var(--text-1);">${po.items}</span>
+        <div class="row-sub">line items</div>
+      </td>`;
+    case 'amount':
+      return `<td>
+        <div class="po-amt">${fmt(po.amount)}</div>
+        ${po.received>0?`<div class="po-amt-sub">Rcvd: ${fmt(po.received)}</div>`:''}
+      </td>`;
+    case 'received':
+      return `<td><div class="po-amt">${fmt(po.received)}</div></td>`;
+    case 'recvPct':
+      return `<td style="min-width:100px;">
+        ${po.status==='Received'
+          ?`<div style="font-size:12px;font-weight:600;color:var(--success);">Complete</div>`
+          :po.received>0
+          ?`<div style="font-size:11.5px;font-weight:600;color:var(--brand-600);">${recvPct}%</div>
+             <div class="recv-bar"><div class="recv-fill" style="width:${recvPct}%;"></div></div>`
+          :`<div style="font-size:11.5px;color:var(--text-3);">—</div>`
+        }
+      </td>`;
+    case 'status':
+      return `<td>
+        <span class="status-pill ${sc}">${po.status}</span>
+        ${po.note?`<div style="font-size:10.5px;color:var(--text-3);margin-top:3px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${po.note}">${po.note}</div>`:''}
+      </td>`;
+    case 'approver':
+      return `<td>${approvalInfo}</td>`;
+    case 'approvedOn':
+      return `<td style="font-size:12.5px;color:var(--text-2);">${po.approvedOn!=='—'?fmtDate(po.approvedOn):'—'}</td>`;
+    case 'shippingMethod':
+      return `<td style="font-size:12.5px;color:var(--text-2);">Air Freight</td>`;
+    case 'shippingTerms':
+      return `<td style="font-size:12.5px;color:var(--text-2);">FOB</td>`;
+    case 'paymentTerms':
+      return `<td style="font-size:12.5px;color:var(--text-2);">Net 30</td>`;
+    case 'notes':
+      return `<td style="font-size:12px;color:var(--text-3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${po.note||''}">${po.note||'—'}</td>`;
+    case 'cf1': case 'cf2': case 'cf3': case 'cf4': case 'cf5':
+      return `<td style="font-size:12px;color:var(--text-3);">—</td>`;
+    case 'actions': {
+      const vc = VENDOR_CONTACTS[po.vendor] || {};
+      const waUrl = vc.phone ? `https://wa.me/${vc.phone}?text=${encodeURIComponent('Hi, please find attached Purchase Order '+po.poNum+' for your reference.')}` : null;
+      const mailUrl = vc.email ? `mailto:${vc.email}?subject=${encodeURIComponent('Purchase Order '+po.poNum)}&body=${encodeURIComponent('Dear Team,\n\nPlease find Purchase Order '+po.poNum+' attached for your records.\n\nRegards,\nStitch ERP')}` : null;
+      const canPost = po.status === 'Approved' || po.status === 'Received' || po.status === 'Partially Received';
+      return `<td>
+        <div class="row-actions" style="justify-content:flex-end;gap:3px;flex-wrap:nowrap;">
+          <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:11.5px;" onclick="viewPO(${po.id})" title="View details">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            View
+          </button>
+          <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:11.5px;" onclick="editPO(${po.id})" title="Edit PO">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            Edit
+          </button>
+          <!-- WhatsApp -->
+          <button class="act-icon-btn whatsapp" title="Share via WhatsApp to ${vc.phone ? '+'+vc.phone : 'vendor'}"
+            onclick="${waUrl ? `window.open('${waUrl}','_blank')` : `toast('No WhatsApp number for this vendor','error')`}">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </button>
+          <!-- Email -->
+          <button class="act-icon-btn email" title="Send email to ${vc.email || 'vendor'}"
+            onclick="${mailUrl ? `window.location.href='${mailUrl}'` : `toast('No email address for this vendor','error')`}">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          </button>
+          <!-- Post to Accounts -->
+          <button class="act-icon-btn accounts" title="${canPost ? 'Post to Accounts Payable' : 'Only Approved POs can be posted'}"
+            ${canPost ? '' : 'disabled'}
+            onclick="postToAccounts('po',${po.id},'${po.poNum}','${po.vendor}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+          </button>
+          <!-- Download -->
+          <div class="am-wrap">
+            <button class="act-icon-btn" title="Download" onclick="toggleMenu(event,'dl-${po.id}')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="action-menu" id="menu-dl-${po.id}">
+              <div class="am-item pdf" onclick="downloadDoc('pdf','po',${po.id},'${po.poNum}');closeMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="color:#dc2626;"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+                Download PDF
+              </div>
+              <div class="am-item excel" onclick="downloadDoc('excel','po',${po.id},'${po.poNum}');closeMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="color:#15803d;"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm3 1h2v2H6V6zm2 4H6v2h2v-2zm2-4h2v2h-2V6zm2 4h-2v2h2v-2z" clip-rule="evenodd"/></svg>
+                Download Excel
+              </div>
+            </div>
+          </div>
+          <!-- More actions -->
+          <div class="am-wrap">
+            <button class="icon-btn" onclick="toggleMenu(event,${po.id})" title="More">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+            </button>
+            <div class="action-menu" id="menu-${po.id}">
+              ${canApprove?`
+                <div class="am-item" onclick="openApproval(${po.id},'approve');closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor" style="color:var(--success);"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Approve</div>
+                <div class="am-item danger" onclick="openApproval(${po.id},'reject');closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>Reject</div>
+                <div class="am-sep"></div>
+              `:''}
+              ${canSubmit?`<div class="am-item" onclick="submitForApproval(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11h2v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>Submit for Approval</div>`:''}
+              <div class="am-item" onclick="duplicatePO(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>Duplicate</div>
+              ${canCancel?`<div class="am-sep"></div><div class="am-item danger" onclick="cancelPO(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>Cancel PO</div>`:''}
+            </div>
+          </div>
+        </div>
+      </td>`;
+    }
+    default:
+      return `<td>—</td>`;
+  }
+}
+
+/* ── Share / Download / Accounts ── */
+function postToAccounts(type, id, refNum, vendor) {
+  showPostToAccountsModal(type, refNum, vendor);
+}
+
+function showPostToAccountsModal(type, refNum, vendor) {
+  const label = type === 'po' ? 'Purchase Order' : 'GRN';
+  // Build a simple confirm modal inline
+  const existing = document.getElementById('postAccModal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'postAccModal';
+  m.className = 'modal-backdrop open';
+  m.innerHTML = `<div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Post to Accounts Payable</div><div class="modal-sub">${label}: ${refNum}</div></div>
+      <button class="modal-x" onclick="document.getElementById('postAccModal').remove()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);font-size:13px;color:var(--brand-700);margin-bottom:14px;">
+        <strong>${refNum}</strong> from <strong>${vendor}</strong> will be posted to Accounts Payable as a liability entry.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Posting Date</label>
+        <input class="form-control" type="date" id="postAccDate" value="${new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Remarks</label>
+        <input class="form-control" type="text" id="postAccRemark" placeholder="Optional posting note…">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="document.getElementById('postAccModal').remove()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPostToAccounts('${refNum}')">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+        Post to Accounts
+      </button>
+    </div>
+  </div>`;
+  m.addEventListener('click', e => { if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
+}
+
+function confirmPostToAccounts(refNum) {
+  document.getElementById('postAccModal')?.remove();
+  toast(refNum + ' posted to Accounts Payable successfully', 'success');
+}
+
+function downloadDoc(format, type, id, refNum) {
+  const label = format === 'pdf' ? 'PDF' : 'Excel';
+  toast('Preparing ' + label + ' for ' + refNum + '…', 'success');
+  // Simulate download trigger
+  setTimeout(() => toast(refNum + ' ' + label + ' ready — check downloads', 'success'), 1200);
+}
+
+/* ── Utilities ── */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function toggleGroup(el){const g=el.closest('.nav-group');const o=g.classList.contains('open');document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});g.classList.toggle('open',!o);el.classList.toggle('open',!o);}
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{bd.addEventListener('click',e=>{if(e.target===bd)closeModal(bd.id);});});
+
+function toast(msg,type='success'){
+  const area=document.getElementById('toastArea');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  const icon=type==='success'
+    ?'<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>'
+    :'<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>';
+  t.innerHTML=icon+' '+msg;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+</script>
+</body>
+</html>

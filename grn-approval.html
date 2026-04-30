@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRN Excess Approval — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --excess-bg:#fef3c7; --excess-color:#92400e; --excess-border:#fcd34d;
+}
+.sidebar { background:var(--sidebar-bg)!important; border-right:1px solid var(--border)!important; }
+.brand-name { color:#1e1f2e!important; font-weight:800!important; }
+.brand-sub  { color:#8892a4!important; }
+.sidebar-brand { border-bottom:1px solid var(--border)!important; }
+.nav-section { color:#a0aec0!important; font-size:10px!important; font-weight:700!important; letter-spacing:.1em!important; text-transform:uppercase!important; padding:16px 18px 4px!important; }
+.nav-parent-label { color:#3d4462!important; font-weight:500!important; }
+.nav-parent-icon { color:#8892a4!important; }
+.nav-parent:hover .nav-parent-label { color:var(--brand-600)!important; }
+.nav-parent.active-group .nav-parent-label { color:var(--brand-600)!important; font-weight:600!important; }
+.nav-child { color:#64748b!important; font-size:12.5px!important; padding:7px 14px 7px 42px!important; border-radius:6px!important; margin:1px 8px!important; display:block!important; }
+.nav-child:hover { background:var(--sidebar-hover)!important; color:var(--brand-700)!important; }
+.nav-child.active { background:var(--sidebar-active)!important; color:var(--brand-700)!important; font-weight:600!important; }
+.nav-chevron { color:#a0aec0!important; }
+.sidebar-footer { border-top:1px solid var(--border)!important; }
+.sf-name { color:#1e1f2e!important; } .sf-role { color:#8892a4!important; } .sf-avatar { background:var(--brand-500)!important; }
+.topbar { border-bottom:1px solid #dde0ea!important; box-shadow:0 1px 4px rgba(91,95,199,0.06)!important; }
+
+.sp { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap; }
+.sp-draft    { background:#f3f4f6;color:#4b5563; }
+.sp-pending  { background:#fefce8;color:#92400e; }
+.sp-approved { background:#f0fdf4;color:#166534; }
+.sp-rejected { background:#fef2f2;color:#991b1b; }
+.sp-excess   { background:var(--excess-bg);color:var(--excess-color); }
+
+.sec { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px; }
+.sec-head { display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border2); }
+.sec-title { font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px; }
+.sec-title svg { width:15px;height:15px;color:var(--brand-500); }
+.sec-body { padding:18px 20px; }
+
+/* Approval queue list */
+.appr-list { display:flex;flex-direction:column;gap:0; }
+.appr-row {
+  display:flex;align-items:center;gap:16px;padding:14px 20px;
+  border-bottom:1px solid var(--border2);cursor:pointer;transition:background var(--ease);
+}
+.appr-row:last-child { border-bottom:none; }
+.appr-row:hover { background:var(--gray-50); }
+.appr-row.selected { background:var(--brand-50);border-left:3px solid var(--brand-500); }
+.appr-grn { font-size:13px;font-weight:700;color:var(--brand-600);min-width:130px; }
+.appr-meta { flex:1;font-size:12.5px;color:var(--text-2); }
+.appr-meta strong { color:var(--text-1); }
+.appr-excess-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--excess-bg);border:1px solid var(--excess-border);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--excess-color);white-space:nowrap; }
+.appr-age { font-size:11px;color:var(--text-3);white-space:nowrap; }
+
+/* Two-pane layout */
+.appr-layout { display:grid;grid-template-columns:360px 1fr;gap:0;flex:1;overflow:hidden; }
+.appr-queue { border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column; }
+.appr-detail { overflow-y:auto;padding:24px 28px;background:var(--bg); }
+
+/* Detail cards */
+.g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px; }
+.g2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px; }
+.kv { display:flex;flex-direction:column;gap:3px; }
+.kv-label { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3); }
+.kv-val { font-size:13.5px;font-weight:600;color:var(--text-1); }
+
+/* Excess line table */
+.exc-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.exc-table th { text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:8px 12px;background:var(--gray-50);border-bottom:2px solid var(--border2); }
+.exc-table td { padding:11px 12px;border-bottom:1px solid var(--border2);vertical-align:middle; }
+.exc-table tr:last-child td { border-bottom:none; }
+.exc-pct { display:inline-block;padding:2px 8px;border-radius:var(--r-full);font-size:11px;font-weight:700; }
+.exc-pct.warn { background:var(--excess-bg);color:var(--excess-color); }
+.exc-pct.over { background:#fef2f2;color:#dc2626; }
+
+/* Per-line approve decision */
+.line-decision { display:flex;align-items:center;gap:8px; }
+.dec-btn { padding:4px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:600;border:1.5px solid;cursor:pointer;font-family:inherit;transition:all var(--ease); }
+.dec-btn.accept { border-color:#86efac;color:#166534;background:#f0fdf4; }
+.dec-btn.accept:hover { background:#dcfce7; }
+.dec-btn.accept.active { background:#16a34a;color:#fff;border-color:#16a34a; }
+.dec-btn.reject-line { border-color:#fca5a5;color:#991b1b;background:#fef2f2; }
+.dec-btn.reject-line:hover { background:#fee2e2; }
+.dec-btn.reject-line.active { background:#dc2626;color:#fff;border-color:#dc2626; }
+
+/* Approval trail */
+.trail { display:flex;flex-direction:column;gap:0; }
+.trail-item { display:flex;gap:14px;padding:10px 0; }
+.trail-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px; }
+.trail-dot.submitted { background:var(--brand-500); }
+.trail-dot.pending   { background:#f59e0b; }
+.trail-connector { width:2px;background:var(--border2);flex-shrink:0;margin-left:4px; }
+
+/* Sticky action bar */
+.appr-bar { background:var(--surface);border-top:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 -4px 12px rgba(0,0,0,.06); }
+
+/* Empty state */
+.empty-appr { display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:48px 24px;text-align:center; }
+.empty-appr svg { width:48px;height:48px;color:var(--gray-300);margin-bottom:16px; }
+.empty-appr-title { font-size:16px;font-weight:700;color:var(--text-1);margin-bottom:6px; }
+.empty-appr-sub { font-size:13px;color:var(--text-3); }
+
+/* Stat strip */
+.stat-strip { display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border2);flex-shrink:0; }
+.stat-strip-item { flex:1;padding:12px 16px;text-align:center;border-right:1px solid var(--border2); }
+.stat-strip-item:last-child { border-right:none; }
+.stat-strip-num { font-size:20px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:2px; }
+.stat-strip-label { font-size:10.5px;color:var(--text-3);font-weight:500; }
+
+/* Override allow-qty input */
+.allow-input { width:80px;border:1.5px solid var(--brand-300);border-radius:var(--r-sm);padding:4px 8px;font-size:13px;text-align:right;font-family:inherit;background:var(--brand-50);color:var(--brand-700);font-weight:600; }
+.allow-input:focus { outline:none;border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(91,95,199,.1); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Enterprise Garment Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child active" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">GRN Excess Approval</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page header -->
+  <div style="padding:20px 28px 0;flex-shrink:0;">
+    <div class="ph" style="margin-bottom:0;">
+      <div>
+        <div class="ph-title">GRN Excess Receipt Approvals</div>
+        <div class="ph-sub">Review and approve GRNs where received quantity exceeds the allowed tolerance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat strip -->
+  <div class="stat-strip" style="margin:14px 28px 0;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);">
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="st-pending" style="color:#92400e;">0</div>
+      <div class="stat-strip-label">Pending Approval</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="st-approved" style="color:#166534;">0</div>
+      <div class="stat-strip-label">Approved Today</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="st-rejected" style="color:#991b1b;">0</div>
+      <div class="stat-strip-label">Rejected Today</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="st-excess-qty" style="color:#f59e0b;">0</div>
+      <div class="stat-strip-label">Total Excess Units Pending</div>
+    </div>
+  </div>
+
+  <!-- Two-pane body -->
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin-top:14px;">
+    <div class="appr-layout" style="flex:1;overflow:hidden;">
+
+      <!-- LEFT: queue -->
+      <div class="appr-queue">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border2);background:var(--gray-50);flex-shrink:0;">
+          <div style="position:relative;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+            <input class="form-control" type="text" id="queueSearch" placeholder="Search GRN, vendor…" style="padding-left:30px;height:34px;font-size:12.5px;" oninput="filterQueue()">
+          </div>
+        </div>
+        <div class="appr-list" id="approvalQueue"></div>
+      </div>
+
+      <!-- RIGHT: detail -->
+      <div class="appr-detail" id="approvalDetail">
+        <div class="empty-appr">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <div class="empty-appr-title">Select a GRN to review</div>
+          <div class="empty-appr-sub">Choose a pending approval from the queue on the left</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky approval action bar (hidden until GRN selected) -->
+    <div class="appr-bar" id="apprActionBar" style="display:none;">
+      <div style="font-size:13px;color:var(--text-3);" id="apprBarInfo"></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="form-group" style="margin-bottom:0;display:flex;align-items:center;gap:8px;">
+          <label class="form-label" style="margin-bottom:0;white-space:nowrap;">Decision remarks</label>
+          <input class="form-control" type="text" id="apprDecisionRemark" placeholder="Optional note for this decision…" style="width:280px;height:36px;">
+        </div>
+        <button class="btn btn-danger" onclick="submitDecision('reject')">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          Reject GRN
+        </button>
+        <button class="btn btn-primary" style="background:#16a34a;border-color:#16a34a;" onclick="submitDecision('approve')">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+          Approve &amp; Post to Inventory
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Confirm decision modal -->
+<div class="modal-backdrop" id="confirmDecisionModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <div><div class="modal-title" id="cdmTitle">Confirm Decision</div><div class="modal-sub" id="cdmSub"></div></div>
+      <button class="modal-x" onclick="closeModal('confirmDecisionModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body" id="cdmBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('confirmDecisionModal')">Cancel</button>
+      <button class="btn btn-primary" id="cdmConfirmBtn" onclick="finaliseDecision()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════
+   DATA — pending GRN approvals
+══════════════════════════════ */
+const PENDING_APPROVALS = [
+  {
+    id: 3,
+    grnNum: 'GRN-2026-0003', date: '2026-04-26', submittedBy: 'Priya Sharma', submittedAt: '2026-04-26 14:22',
+    tolerancePct: 5, mode: 'single',
+    po: { poNum:'PO-2026-0004', vendor:'Global Threads LLC', vendorCode:'VND-004', date:'2026-04-12', shipTo:'Factory — Pune', delivDate:'2026-05-10', currency:'INR', grandTotal:423000 },
+    dcNum: 'DC-55210', invoiceNum: '—', internalRef: 'RECV-2026-003', warehouse: 'Factory Store — Pune',
+    reason: 'Vendor shipped extra stock as buffer for the season. We have storage space and prefer to accept to avoid re-ordering.',
+    lines: [
+      { id:'l1', item:'Elastic Webbing 25mm', uom:'Mtrs', poQty:500,  prevRcvd:0, rcvQty:525, excessQty:25,  excessPct:5.0,  withinTolerance:true  },
+      { id:'l2', item:'Hook & Eye Set',       uom:'Sets', poQty:1000, prevRcvd:0, rcvQty:1120, excessQty:120, excessPct:12.0, withinTolerance:false },
+      { id:'l3', item:'Velcro Strip 2.5cm',   uom:'Mtrs', poQty:300,  prevRcvd:0, rcvQty:350,  excessQty:50,  excessPct:16.7, withinTolerance:false },
+    ],
+    trail: [
+      { action:'GRN Created',         by:'Priya Sharma',  at:'2026-04-26 13:45', note:'Single PO GRN raised against PO-2026-0004' },
+      { action:'Submitted for Approval', by:'Priya Sharma', at:'2026-04-26 14:22', note:'Excess detected on 2 lines. Reason provided.' },
+    ]
+  },
+  {
+    id: 6,
+    grnNum: 'GRN-2026-0006', date: '2026-04-29', submittedBy: 'Ajay Nair', submittedAt: '2026-04-29 09:15',
+    tolerancePct: 5, mode: 'multi',
+    po: { poNum:'PO-2026-0005 + PO-2026-0009', vendor:'Sunrise Fabrics Pvt. Ltd.', vendorCode:'VND-002', date:'2026-04-14', shipTo:'Main Warehouse — Bhiwandi', delivDate:'2026-05-15', currency:'INR', grandTotal:608200 },
+    dcNum: 'DC-77010', invoiceNum: 'INV-9450', internalRef: 'RECV-2026-006', warehouse: 'Main Warehouse — Bhiwandi',
+    reason: 'Vendor mentioned the extra roll cannot be split; accepting full roll to avoid wastage in transit.',
+    lines: [
+      { id:'l4', item:'Polyester Blended Fabric', uom:'Mtrs', poQty:800, prevRcvd:0, rcvQty:860, excessQty:60, excessPct:7.5,  withinTolerance:false },
+      { id:'l5', item:'Cotton Knit 180GSM',       uom:'Kg',  poQty:2000,prevRcvd:0, rcvQty:2000,excessQty:0,  excessPct:0,    withinTolerance:true  },
+    ],
+    trail: [
+      { action:'GRN Created',         by:'Ajay Nair', at:'2026-04-29 08:50', note:'Multi-PO GRN: PO-2026-0005 + PO-2026-0009' },
+      { action:'Submitted for Approval', by:'Ajay Nair', at:'2026-04-29 09:15', note:'Excess on fabric roll — vendor cannot split.' },
+    ]
+  }
+];
+
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let filteredQueue = [...PENDING_APPROVALS];
+let selectedId    = null;
+let pendingDecision = null; // 'approve' | 'reject'
+const lineDecisions = {}; // lineId → 'accept' | 'reject' | null
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+updateStats();
+renderQueue();
+
+function updateStats() {
+  document.getElementById('st-pending').textContent   = PENDING_APPROVALS.length;
+  document.getElementById('st-approved').textContent  = 2;
+  document.getElementById('st-rejected').textContent  = 0;
+  const totalExcess = PENDING_APPROVALS.reduce((s,a)=>s+a.lines.reduce((ls,l)=>ls+l.excessQty,0),0);
+  document.getElementById('st-excess-qty').textContent = totalExcess.toLocaleString();
+}
+
+/* ══════════════════════════════
+   QUEUE
+══════════════════════════════ */
+function filterQueue() {
+  const q = document.getElementById('queueSearch').value.trim().toLowerCase();
+  filteredQueue = PENDING_APPROVALS.filter(a =>
+    a.grnNum.toLowerCase().includes(q) || a.po.vendor.toLowerCase().includes(q) || a.po.poNum.toLowerCase().includes(q)
+  );
+  renderQueue();
+}
+
+function renderQueue() {
+  const container = document.getElementById('approvalQueue');
+  if (!filteredQueue.length) {
+    container.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-3);font-size:13px;">No pending approvals</div>`;
+    return;
+  }
+  container.innerHTML = filteredQueue.map(a => {
+    const totalExcess = a.lines.reduce((s,l)=>s+l.excessQty,0);
+    const excessLines = a.lines.filter(l=>l.excessQty>0).length;
+    const age = ageStr(a.submittedAt);
+    return `<div class="appr-row${selectedId===a.id?' selected':''}" onclick="selectApproval(${a.id})">
+      <div>
+        <div class="appr-grn">${a.grnNum}</div>
+        <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">${fmtDate(a.date)}</div>
+      </div>
+      <div class="appr-meta">
+        <div><strong>${a.po.vendor}</strong></div>
+        <div style="margin-top:2px;">${a.po.poNum}</div>
+        <div style="margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span class="appr-excess-badge">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:10px;height:10px;"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92z"/></svg>
+            +${totalExcess} excess · ${excessLines} line${excessLines>1?'s':''}
+          </span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="appr-age">${age}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;">by ${a.submittedBy.split(' ')[0]}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════
+   DETAIL PANEL
+══════════════════════════════ */
+function selectApproval(id) {
+  selectedId = id;
+  renderQueue();
+  const a = PENDING_APPROVALS.find(x=>x.id===id);
+  if (!a) return;
+
+  // init line decisions
+  a.lines.forEach(l => { if (!lineDecisions[l.id]) lineDecisions[l.id] = l.excessQty > 0 ? null : 'accept'; });
+
+  const totalExcess    = a.lines.reduce((s,l)=>s+l.excessQty,0);
+  const exceedLines    = a.lines.filter(l=>!l.withinTolerance && l.excessQty>0);
+  const withinLines    = a.lines.filter(l=>l.withinTolerance && l.excessQty>0);
+
+  document.getElementById('approvalDetail').innerHTML = `
+    <!-- Breadcrumb -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">
+      <a href="po-receipts.html" style="font-size:12.5px;color:var(--brand-600);text-decoration:none;">GRN List</a>
+      <span style="color:var(--text-3);">›</span>
+      <span style="font-size:12.5px;font-weight:600;color:var(--text-1);">${a.grnNum}</span>
+      <span class="sp sp-pending">Pending Approval</span>
+      ${a.mode==='multi'?'<span style="font-size:11px;padding:2px 8px;background:#ede9fe;color:#5b21b6;border-radius:var(--r-full);font-weight:600;">Multi-PO</span>':''}
+    </div>
+
+    <!-- Alert banner -->
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--excess-bg);border:1px solid var(--excess-border);border-radius:var(--r-sm);margin-bottom:16px;">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;color:var(--excess-color);flex-shrink:0;margin-top:1px;"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+      <div>
+        <div style="font-weight:700;color:var(--excess-color);margin-bottom:4px;">Excess Receipt Requires Approval</div>
+        <div style="font-size:12.5px;color:var(--excess-color);">
+          Total excess: <strong>+${totalExcess} units</strong> across ${a.lines.filter(l=>l.excessQty>0).length} lines.
+          Tolerance set at <strong>${a.tolerancePct}%</strong>.
+          ${exceedLines.length} line(s) exceed tolerance threshold.
+        </div>
+      </div>
+    </div>
+
+    <!-- Submitter's reason -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>Reason Provided by Requestor</div>
+        <span style="font-size:12px;color:var(--text-3);">Submitted by ${a.submittedBy} · ${fmtDate(a.submittedAt.split(' ')[0])}</span>
+      </div>
+      <div class="sec-body">
+        <div style="font-size:13.5px;color:var(--text-1);line-height:1.6;padding:8px 14px;background:var(--gray-50);border-radius:var(--r-sm);border-left:3px solid var(--brand-300);">"${a.reason}"</div>
+      </div>
+    </div>
+
+    <!-- GRN Header details -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4z" clip-rule="evenodd"/></svg>GRN Details</div></div>
+      <div class="sec-body">
+        <div class="g3" style="margin-bottom:14px;">
+          <div class="kv"><div class="kv-label">GRN Number</div><div class="kv-val" style="color:var(--brand-700);">${a.grnNum}</div></div>
+          <div class="kv"><div class="kv-label">Receipt Date</div><div class="kv-val">${fmtDate(a.date)}</div></div>
+          <div class="kv"><div class="kv-label">Warehouse</div><div class="kv-val">${a.warehouse}</div></div>
+        </div>
+        <div class="g3" style="margin-bottom:0;">
+          <div class="kv"><div class="kv-label">DC / Challan #</div><div class="kv-val">${a.dcNum}</div></div>
+          <div class="kv"><div class="kv-label">Vendor Invoice #</div><div class="kv-val">${a.invoiceNum}</div></div>
+          <div class="kv"><div class="kv-label">Internal Ref</div><div class="kv-val">${a.internalRef}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PO details -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>PO Reference</div></div>
+      <div class="sec-body">
+        <div class="g3" style="margin-bottom:14px;">
+          <div class="kv"><div class="kv-label">PO Number(s)</div><div class="kv-val" style="color:var(--brand-700);">${a.po.poNum}</div></div>
+          <div class="kv"><div class="kv-label">Vendor</div><div class="kv-val">${a.po.vendor}</div></div>
+          <div class="kv"><div class="kv-label">Vendor Code</div><div class="kv-val">${a.po.vendorCode}</div></div>
+        </div>
+        <div class="g3" style="margin-bottom:0;">
+          <div class="kv"><div class="kv-label">Ship To</div><div class="kv-val">${a.po.shipTo}</div></div>
+          <div class="kv"><div class="kv-label">Expected Delivery</div><div class="kv-val">${fmtDate(a.po.delivDate)}</div></div>
+          <div class="kv"><div class="kv-label">PO Grand Total</div><div class="kv-val">₹${a.po.grandTotal.toLocaleString('en-IN')}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line-by-line excess review -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>Receipt Lines — Excess Review</div>
+        <div style="font-size:12px;color:var(--text-3);">Set per-line decision or use global approve/reject below</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="exc-table" id="excLineTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th>UOM</th>
+              <th style="text-align:right;">PO Qty</th>
+              <th style="text-align:right;">Prev. Rcvd</th>
+              <th style="text-align:right;">Received</th>
+              <th style="text-align:right;">Excess</th>
+              <th style="text-align:right;">Excess %</th>
+              <th style="text-align:right;">Tolerance</th>
+              <th style="min-width:120px;">Override Qty</th>
+              <th style="min-width:150px;">Line Decision</th>
+            </tr>
+          </thead>
+          <tbody id="excLineBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Approval trail -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>Approval Trail</div></div>
+      <div class="sec-body" style="padding:14px 20px;">
+        <div class="trail">
+          ${a.trail.map((t,i) => `
+            <div style="display:flex;gap:14px;">
+              <div style="display:flex;flex-direction:column;align-items:center;width:20px;flex-shrink:0;">
+                <div class="trail-dot submitted"></div>
+                ${i < a.trail.length-1 ? `<div style="width:2px;flex:1;background:var(--border2);margin:3px 0;"></div>` : ''}
+              </div>
+              <div style="padding-bottom:${i < a.trail.length-1 ? '12px' : '0'};">
+                <div style="font-size:13px;font-weight:600;color:var(--text-1);">${t.action}</div>
+                <div style="font-size:12px;color:var(--text-3);margin-top:2px;">${t.by} · ${t.at}</div>
+                ${t.note?`<div style="font-size:12px;color:var(--text-2);margin-top:4px;">${t.note}</div>`:''}
+              </div>
+            </div>`).join('')}
+          <!-- Pending decision -->
+          <div style="display:flex;gap:14px;margin-top:4px;">
+            <div style="width:20px;display:flex;justify-content:center;flex-shrink:0;">
+              <div style="width:10px;height:10px;border-radius:50%;border:2px dashed #f59e0b;margin-top:2px;"></div>
+            </div>
+            <div><div style="font-size:13px;font-weight:600;color:#f59e0b;">Awaiting Approver Decision</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Pending · You are reviewing now</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  renderExcessLines(a);
+  document.getElementById('apprActionBar').style.display = 'flex';
+  document.getElementById('apprBarInfo').innerHTML =
+    `<strong>${a.grnNum}</strong> — ${a.po.vendor} &nbsp;·&nbsp; <span style="color:#f59e0b;font-weight:600;">+${totalExcess} excess units</span>`;
+}
+
+function renderExcessLines(a) {
+  const tbody = document.getElementById('excLineBody');
+  if (!tbody) return;
+  tbody.innerHTML = a.lines.map((l, idx) => {
+    const dec = lineDecisions[l.id];
+    const hasExcess = l.excessQty > 0;
+    const rowBg = !hasExcess ? '' : (!l.withinTolerance ? 'background:#fef2f2;' : 'background:var(--excess-bg);');
+    return `<tr style="${rowBg}">
+      <td style="color:var(--text-3);font-size:11px;">${idx+1}</td>
+      <td style="font-weight:500;">${l.item}</td>
+      <td style="color:var(--text-3);font-size:12px;">${l.uom}</td>
+      <td style="text-align:right;">${l.poQty.toLocaleString()}</td>
+      <td style="text-align:right;color:var(--text-3);">${l.prevRcvd}</td>
+      <td style="text-align:right;font-weight:600;">${l.rcvQty.toLocaleString()}</td>
+      <td style="text-align:right;font-weight:700;color:${hasExcess?'#f59e0b':'var(--text-3)'};">${hasExcess?'+'+l.excessQty:'—'}</td>
+      <td style="text-align:right;">
+        ${hasExcess ? `<span class="exc-pct ${l.withinTolerance?'warn':'over'}">+${l.excessPct.toFixed(1)}%</span>` : '<span style="color:var(--text-3);">—</span>'}
+      </td>
+      <td style="text-align:right;font-size:12px;color:var(--text-3);">${a.tolerancePct}%</td>
+      <td>
+        ${hasExcess
+          ? `<input class="allow-input" id="override_${l.id}" type="number" min="${l.poQty - l.prevRcvd}" max="${l.rcvQty}" value="${l.rcvQty}" title="Qty to accept (reduce to partially accept)">
+             <div style="font-size:10.5px;color:var(--text-3);margin-top:2px;">max ${l.rcvQty}</div>`
+          : '<span style="color:var(--text-3);font-size:12px;">—</span>'}
+      </td>
+      <td>
+        ${hasExcess
+          ? `<div class="line-decision">
+              <button class="dec-btn accept ${dec==='accept'?'active':''}" onclick="setLineDec('${l.id}','accept',${a.id})">Accept</button>
+              <button class="dec-btn reject-line ${dec==='reject'?'active':''}" onclick="setLineDec('${l.id}','reject',${a.id})">Reject excess</button>
+            </div>`
+          : '<span style="font-size:12px;color:var(--success);font-weight:600;">✓ Within PO</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setLineDec(lineId, dec, apprId) {
+  lineDecisions[lineId] = dec;
+  const a = PENDING_APPROVALS.find(x=>x.id===apprId);
+  if (a) renderExcessLines(a);
+}
+
+/* ══════════════════════════════
+   DECISION SUBMISSION
+══════════════════════════════ */
+function submitDecision(action) {
+  pendingDecision = action;
+  const a = PENDING_APPROVALS.find(x=>x.id===selectedId);
+  if (!a) return;
+  const remark = document.getElementById('apprDecisionRemark').value.trim();
+  const totalExcess = a.lines.reduce((s,l)=>s+l.excessQty,0);
+
+  if (action === 'approve') {
+    const acceptedExcess = a.lines
+      .filter(l => l.excessQty > 0 && lineDecisions[l.id] !== 'reject')
+      .reduce((s,l) => {
+        const ov = parseFloat(document.getElementById('override_'+l.id)?.value || l.rcvQty);
+        return s + Math.max(0, ov - (l.poQty - l.prevRcvd));
+      }, 0);
+    document.getElementById('cdmTitle').textContent = 'Approve Excess Receipt';
+    document.getElementById('cdmSub').textContent   = a.grnNum + ' — ' + a.po.vendor;
+    document.getElementById('cdmBody').innerHTML = `
+      <div style="padding:12px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:var(--r-sm);margin-bottom:14px;font-size:13px;color:#166534;">
+        <strong>${a.grnNum}</strong> will be <strong>approved and posted to inventory</strong>.<br>
+        Accepted excess: <strong>+${acceptedExcess.toFixed(0)} units</strong> across lines where decision = Accept.
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Approval note (optional)</label>
+        <div style="font-size:13px;color:var(--text-1);padding:10px 12px;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--border2);">${remark || '(no remarks)'}</div>
+      </div>`;
+    document.getElementById('cdmConfirmBtn').textContent = 'Confirm Approval';
+    document.getElementById('cdmConfirmBtn').style.background = '#16a34a';
+    document.getElementById('cdmConfirmBtn').style.borderColor = '#16a34a';
+  } else {
+    document.getElementById('cdmTitle').textContent = 'Reject GRN';
+    document.getElementById('cdmSub').textContent   = a.grnNum + ' — ' + a.po.vendor;
+    document.getElementById('cdmBody').innerHTML = `
+      <div style="padding:12px 14px;background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--r-sm);margin-bottom:14px;font-size:13px;color:#991b1b;">
+        <strong>${a.grnNum}</strong> will be <strong>rejected</strong>. The GRN will be returned to Draft status for correction.
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Rejection reason <span class="req">*</span></label>
+        <textarea class="form-control" id="rejectReasonModal" placeholder="Explain why this excess cannot be accepted…" style="min-height:80px;">${remark}</textarea>
+      </div>`;
+    document.getElementById('cdmConfirmBtn').textContent = 'Confirm Rejection';
+    document.getElementById('cdmConfirmBtn').style.background = 'var(--danger)';
+    document.getElementById('cdmConfirmBtn').style.borderColor = 'var(--danger)';
+  }
+  openModal('confirmDecisionModal');
+}
+
+function finaliseDecision() {
+  if (pendingDecision === 'reject') {
+    const reason = document.getElementById('rejectReasonModal')?.value.trim();
+    if (!reason) { toast('Please enter a rejection reason','error'); return; }
+  }
+  closeModal('confirmDecisionModal');
+  const a = PENDING_APPROVALS.find(x=>x.id===selectedId);
+  const action = pendingDecision;
+  // Remove from queue
+  const idx = PENDING_APPROVALS.findIndex(x=>x.id===selectedId);
+  if (idx > -1) PENDING_APPROVALS.splice(idx,1);
+  filteredQueue = [...PENDING_APPROVALS];
+  selectedId = null;
+  document.getElementById('apprActionBar').style.display = 'none';
+  document.getElementById('approvalDetail').innerHTML = `<div class="empty-appr">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    <div class="empty-appr-title">Decision recorded</div>
+    <div class="empty-appr-sub">Select another GRN from the queue to continue reviewing</div>
+  </div>`;
+  updateStats();
+  renderQueue();
+  toast(a.grnNum + (action==='approve' ? ' approved and posted to inventory' : ' rejected — returned to draft'), action==='approve'?'success':'error');
+}
+
+/* ══════════════════════════════
+   UTILS
+══════════════════════════════ */
+function fmtDate(d) {
+  try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch(e){ return d; }
+}
+function ageStr(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const h = Math.floor(diff/3600000);
+  if (h < 1) return 'Just now';
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h/24) + 'd ago';
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if(e.target===bd) closeModal(bd.id); });
+});
+function toggleGroup(el){const g=el.closest('.nav-group');const o=g.classList.contains('open');document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});g.classList.toggle('open',!o);el.classList.toggle('open',!o);}
+function toast(msg, type='success') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type==='success'?'success':'error');
+  const icon = type==='success'
+    ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>';
+  t.innerHTML = icon + ' ' + msg;
+  area.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Master — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+  .op-icon {
+    width: 38px; height: 38px;
+    border-radius: var(--r);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .filter-tabs {
+    display: flex; gap: 4px;
+    background: var(--gray-100); border-radius: var(--r);
+    padding: 4px; flex-wrap: wrap;
+  }
+  .tab-pill {
+    padding: 6px 14px; border-radius: 7px; border: none;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: transparent; color: var(--text-2);
+    transition: all var(--ease);
+  }
+  .tab-pill.active {
+    background: var(--surface); color: var(--brand-600);
+    box-shadow: var(--shadow-sm); font-weight: 600;
+  }
+  .tab-pill:hover:not(.active) { background: var(--gray-200); }
+
+  .dept-badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: var(--r-full);
+    font-size: 11px; font-weight: 600;
+  }
+  .dept-cutting   { background:#eff6ff; color:#1d4ed8; }
+  .dept-sewing    { background:#f0fdf4; color:#15803d; }
+  .dept-finishing { background:#fdf4ff; color:#7e22ce; }
+  .dept-embroidery{ background:#fff7ed; color:#c2410c; }
+  .dept-printing  { background:#fef9c3; color:#854d0e; }
+  .dept-washing   { background:#f0f9ff; color:#0369a1; }
+  .dept-packing   { background:#fdf2f8; color:#9d174d; }
+  .dept-quality   { background:#f0fdf4; color:#166534; }
+  .dept-other     { background:var(--gray-100); color:var(--gray-700); }
+
+  .skill-badge {
+    display: inline-flex;
+    padding: 2px 8px; border-radius: var(--r-full);
+    font-size: 11px; font-weight: 600;
+  }
+  .skill-basic    { background:#f0fdf4; color:#16a34a; }
+  .skill-intermediate { background:#fef9c3; color:#ca8a04; }
+  .skill-advanced { background:#fef2f2; color:#dc2626; }
+  .skill-expert   { background:#fdf4ff; color:#9333ea; }
+
+  .sam-value {
+    font-family: 'Courier New', monospace;
+    font-size: 13px; font-weight: 700;
+    color: var(--brand-600);
+  }
+  .rate-value {
+    font-family: 'Courier New', monospace;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .machine-tag {
+    display: inline-block;
+    padding: 1px 7px; border-radius: var(--r-full);
+    font-size: 11px; background: var(--gray-100);
+    color: var(--text-2); margin: 1px;
+  }
+
+  .op-step {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border2);
+  }
+  .op-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand-100); color: var(--brand-700);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* Sub-step expand pattern */
+  .expand-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-3); padding: 4px; border-radius: 4px;
+    transition: all var(--ease); display: flex; align-items: center;
+  }
+  .expand-btn:hover { background: var(--gray-100); color: var(--brand-600); }
+  .expand-btn.open svg { transform: rotate(90deg); }
+  .expand-btn svg { transition: transform var(--ease); }
+
+  .substep-row td { padding: 0 !important; border-bottom: none !important; }
+  .substep-inner {
+    background: #fafbff;
+    border-top: 1px solid var(--border);
+    border-bottom: 2px solid var(--brand-100);
+    padding: 16px 24px;
+  }
+  .substep-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .substep-header span {
+    font-size: 12px; font-weight: 600; color: var(--brand-600);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .substep-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .substep-table th {
+    text-align: left; padding: 6px 12px;
+    color: var(--text-3); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    background: var(--gray-50); border-bottom: 1px solid var(--border);
+  }
+  .substep-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text-2);
+  }
+  .substep-table tr:last-child td { border-bottom: none; }
+  .add-substep-row {
+    margin-top: 8px; padding: 7px 12px;
+    color: var(--brand-600); font-size: 12px; font-weight: 600;
+    cursor: pointer; border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background var(--ease);
+  }
+  .add-substep-row:hover { background: var(--brand-50); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8a1 1 0 011-1h4v5H3v-4zm8-8h4a1 1 0 011 1v4h-5V4zm0 8h5v3a1 1 0 01-1 1h-4v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child active" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin Access</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+        </button>
+        <nav class="breadcrumb">
+          <a href="masters-list.html">Masters</a>
+          <span>›</span>
+          <span>Operations</span>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        </button>
+        <div class="topbar-avatar">MG</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Operations Master</h1>
+          <p class="page-subtitle">Define production operations with SAM values, department, skill level and sub-steps</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Operation
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="filter-tabs">
+            <button class="tab-pill active" onclick="setDept('All',this)">All</button>
+            <button class="tab-pill" onclick="setDept('Cutting',this)">Cutting</button>
+            <button class="tab-pill" onclick="setDept('Sewing',this)">Sewing</button>
+            <button class="tab-pill" onclick="setDept('Finishing',this)">Finishing</button>
+            <button class="tab-pill" onclick="setDept('Embroidery',this)">Embroidery</button>
+            <button class="tab-pill" onclick="setDept('Printing',this)">Printing</button>
+            <button class="tab-pill" onclick="setDept('Packing',this)">Packing</button>
+            <button class="tab-pill" onclick="setDept('Quality',this)">Quality</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-left:auto;">
+            <select class="filter-select" id="skillFilter" onchange="render()">
+              <option value="">All Skills</option>
+              <option>Basic</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+              <option>Expert</option>
+            </select>
+            <select class="filter-select" id="statusFilter" onchange="render()">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+            <div style="position:relative;">
+              <input class="search-input" id="searchInput" type="text" placeholder="Search operations…" oninput="render()">
+              <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" color="#9ca3af"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px"></th>
+              <th style="width:44px"></th>
+              <th>Operation Name</th>
+              <th>Code</th>
+              <th>Department</th>
+              <th>SAM (min)</th>
+              <th>Rate / Min (₹)</th>
+              <th>Skill Level</th>
+              <th>Machine / Tool</th>
+              <th>Sub-steps</th>
+              <th>Status</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="opBody"></tbody>
+        </table>
+
+        <div class="pager" id="pager"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPERATION MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+<div class="modal" id="modal" style="max-width:600px;">
+  <div class="modal-header">
+    <h2 class="modal-title" id="modalTitle">Add Operation</h2>
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Operation Name <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fName" type="text" placeholder="e.g. Front Panel Seam">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Operation Code <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="fCode" type="text" placeholder="e.g. SEW-FPS-001">
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Department <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="fDept">
+          <option value="">Select…</option>
+          <option>Cutting</option>
+          <option>Sewing</option>
+          <option>Finishing</option>
+          <option>Embroidery</option>
+          <option>Printing</option>
+          <option>Washing</option>
+          <option>Packing</option>
+          <option>Quality</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Skill Level</label>
+        <select class="form-control" id="fSkill">
+          <option>Basic</option>
+          <option selected>Intermediate</option>
+          <option>Advanced</option>
+          <option>Expert</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label class="form-label">SAM (minutes)</label>
+        <input class="form-control" id="fSAM" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rate / Min (₹)</label>
+        <input class="form-control" id="fRate" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order</label>
+        <input class="form-control" id="fSort" type="number" placeholder="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Machine / Equipment <span style="font-size:11px;color:var(--text-3);font-weight:400;">(comma separated)</span></label>
+      <input class="form-control" id="fMachine" type="text" placeholder="e.g. Single Needle, Overlock Machine">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-control" id="fDesc" type="text" placeholder="Brief description of the operation">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Applicable Garment Types <span style="font-size:11px;color:var(--text-3);font-weight:400;">(comma separated)</span></label>
+        <input class="form-control" id="fGarments" type="text" placeholder="e.g. T-Shirt, Shirt, Trousers">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="fStatus">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveOp()">Save Operation</button>
+  </div>
+</div>
+
+<!-- SUB-STEP MODAL -->
+<div class="modal-backdrop" id="stepBackdrop" onclick="closeStepModal()"></div>
+<div class="modal" id="stepModal" style="max-width:440px;">
+  <div class="modal-header">
+    <h2 class="modal-title" id="stepModalTitle">Add Sub-step</h2>
+    <button class="modal-close" onclick="closeStepModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label">Step Name <span style="color:var(--danger)">*</span></label>
+      <input class="form-control" id="sName" placeholder="e.g. Mark fabric, Align panels">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">SAM Contribution (min)</label>
+        <input class="form-control" id="sSAM" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sequence No.</label>
+        <input class="form-control" id="sSeq" type="number" placeholder="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-control" id="sNotes" placeholder="Quality check point or special instruction">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeStepModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveStep()">Save Sub-step</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const deptCls = {
+  Cutting:'dept-cutting', Sewing:'dept-sewing', Finishing:'dept-finishing',
+  Embroidery:'dept-embroidery', Printing:'dept-printing', Washing:'dept-washing',
+  Packing:'dept-packing', Quality:'dept-quality', Other:'dept-other'
+};
+const deptIcons = {
+  Cutting:'✂️', Sewing:'🪡', Finishing:'✨', Embroidery:'🧵',
+  Printing:'🖨️', Washing:'🫧', Packing:'📦', Quality:'🔍', Other:'⚙️'
+};
+const deptIconBg = {
+  Cutting:'#eff6ff', Sewing:'#f0fdf4', Finishing:'#fdf4ff', Embroidery:'#fff7ed',
+  Printing:'#fef9c3', Washing:'#f0f9ff', Packing:'#fdf2f8', Quality:'#f0fdf4', Other:'#f3f4f6'
+};
+const skillCls = {
+  Basic:'skill-basic', Intermediate:'skill-intermediate', Advanced:'skill-advanced', Expert:'skill-expert'
+};
+
+let data = [
+  {id:1, name:'Marker Making', code:'CUT-MK-001', dept:'Cutting', skill:'Advanced', sam:8.50, rate:0.80, sort:1, machines:['CAD Software','Marker Plotter'], garments:['All'], desc:'Prepare marker layout to minimize fabric wastage', status:'Active',
+   steps:[{id:1,seq:1,name:'Load pattern pieces in CAD',sam:1.5,notes:''},{id:2,seq:2,name:'Optimize layout for minimum waste',sam:5.0,notes:'Target <15% wastage'},{id:3,seq:3,name:'Print and verify marker',sam:2.0,notes:'QC check required'}]},
+  {id:2, name:'Fabric Spreading', code:'CUT-SP-001', dept:'Cutting', skill:'Basic', sam:3.20, rate:0.60, sort:2, machines:['Spreading Machine','Spreading Table'], garments:['All'], desc:'Spread fabric plies evenly on cutting table', status:'Active',
+   steps:[{id:1,seq:1,name:'Set ply height',sam:0.5,notes:'Max 8cm height'},{id:2,seq:2,name:'Spread fabric even tension',sam:2.0,notes:'No wrinkles allowed'},{id:3,seq:3,name:'Align selvage and ends',sam:0.7,notes:''}]},
+  {id:3, name:'Panel Cutting', code:'CUT-PC-001', dept:'Cutting', skill:'Intermediate', sam:5.00, rate:0.70, sort:3, machines:['Band Knife','Straight Knife','Die Cutting Press'], garments:['All'], desc:'Cut fabric panels as per marker', status:'Active',
+   steps:[{id:1,seq:1,name:'Place marker on fabric',sam:0.5,notes:''},{id:2,seq:2,name:'Cut along marker lines',sam:3.5,notes:'±2mm tolerance'},{id:3,seq:3,name:'Bundle cut panels',sam:1.0,notes:'Attach ticket'}]},
+  {id:4, name:'Front Panel Seam', code:'SEW-FPS-001', dept:'Sewing', skill:'Intermediate', sam:1.80, rate:0.90, sort:10, machines:['Single Needle Lockstitch'], garments:['T-Shirt','Shirt','Polo'], desc:'Join front body panels with plain seam', status:'Active',
+   steps:[{id:1,seq:1,name:'Align panel edges',sam:0.3,notes:''},{id:2,seq:2,name:'Sew seam at 1cm SWA',sam:1.2,notes:'SPI: 12-14'},{id:3,seq:3,name:'Press seam open',sam:0.3,notes:''}]},
+  {id:5, name:'Side Seam Joining', code:'SEW-SSJ-001', dept:'Sewing', skill:'Intermediate', sam:2.10, rate:0.90, sort:11, machines:['Single Needle Lockstitch','Overlock'], garments:['T-Shirt','Shirt','Kurti'], desc:'Join front and back panels at side seams', status:'Active',
+   steps:[{id:1,seq:1,name:'Match side seam notches',sam:0.3,notes:''},{id:2,seq:2,name:'Sew side seam',sam:1.2,notes:''},{id:3,seq:3,name:'Overlock raw edge',sam:0.6,notes:''}]},
+  {id:6, name:'Sleeve Attachment', code:'SEW-SLA-001', dept:'Sewing', skill:'Advanced', sam:3.50, rate:1.00, sort:12, machines:['Single Needle Lockstitch'], garments:['Shirt','Blazer','T-Shirt'], desc:'Set sleeve into armhole with correct pitch', status:'Active',
+   steps:[{id:1,seq:1,name:'Baste sleeve crown ease',sam:0.8,notes:'Check pitch marks'},{id:2,seq:2,name:'Pin sleeve into armhole',sam:0.7,notes:''},{id:3,seq:3,name:'Sew armhole seam',sam:1.5,notes:'Two passes required'},{id:4,seq:4,name:'Trim and press seam',sam:0.5,notes:''}]},
+  {id:7, name:'Collar Attach', code:'SEW-COL-001', dept:'Sewing', skill:'Expert', sam:4.20, rate:1.10, sort:13, machines:['Single Needle Lockstitch','Profile Machine'], garments:['Shirt','Polo','Blazer'], desc:'Attach collar to neckline with precise alignment', status:'Active',
+   steps:[{id:1,seq:1,name:'Prepare collar stand',sam:1.0,notes:''},{id:2,seq:2,name:'Attach collar to stand',sam:1.0,notes:'Match center front'},{id:3,seq:3,name:'Sew to neckline',sam:1.5,notes:''},{id:4,seq:4,name:'Under-stitch and press',sam:0.7,notes:''}]},
+  {id:8, name:'Waistband Attach', code:'SEW-WBD-001', dept:'Sewing', skill:'Advanced', sam:3.80, rate:1.00, sort:14, machines:['Single Needle Lockstitch','Blind Stitch'], garments:['Trousers','Jeans','Skirt'], desc:'Attach waistband with belt loops', status:'Active',
+   steps:[{id:1,seq:1,name:'Prepare waistband pieces',sam:0.8,notes:''},{id:2,seq:2,name:'Attach belt loops',sam:1.0,notes:'7 loops standard'},{id:3,seq:3,name:'Join waistband to trouser',sam:1.5,notes:''},{id:4,seq:4,name:'Topstitch waistband',sam:0.5,notes:''}]},
+  {id:9, name:'Embroidery — Logo', code:'EMB-LG-001', dept:'Embroidery', skill:'Advanced', sam:12.00, rate:1.50, sort:20, machines:['Multi-head Embroidery Machine'], garments:['T-Shirt','Polo','Cap'], desc:'Machine embroidery of brand logo on chest', status:'Active',
+   steps:[{id:1,seq:1,name:'Hoop garment',sam:1.0,notes:'Stabilizer backing required'},{id:2,seq:2,name:'Load design file',sam:0.5,notes:''},{id:3,seq:3,name:'Run embroidery',sam:9.0,notes:'8,000 stitches avg'},{id:4,seq:4,name:'Trim threads, unhoop',sam:1.5,notes:''}]},
+  {id:10,name:'Screen Printing', code:'PRT-SP-001', dept:'Printing', skill:'Intermediate', sam:6.00, rate:1.20, sort:25, machines:['Screen Printing Carousel','Flash Cure'], garments:['T-Shirt','Hoodie','Sweatshirt'], desc:'Water-based / plastisol screen print on fabric', status:'Active',
+   steps:[{id:1,seq:1,name:'Prepare screens',sam:1.0,notes:'Expose at 400W 2min'},{id:2,seq:2,name:'Register print position',sam:0.5,notes:''},{id:3,seq:3,name:'Print and flash cure',sam:3.5,notes:'Flash at 120°C'},{id:4,seq:4,name:'Final cure at tunnel dryer',sam:1.0,notes:'160°C for 90s'}]},
+  {id:11,name:'Thread Trimming', code:'FIN-TT-001', dept:'Finishing', skill:'Basic', sam:2.50, rate:0.50, sort:30, machines:['Thread Trimmer','Manual Scissors'], garments:['All'], desc:'Remove all loose threads and ends from garment', status:'Active',
+   steps:[{id:1,seq:1,name:'Inspect seams for threads',sam:1.5,notes:'Check all seam allowances'},{id:2,seq:2,name:'Trim and remove threads',sam:0.8,notes:''},{id:3,seq:3,name:'Blow off lint',sam:0.2,notes:'Use air gun'}]},
+  {id:12,name:'Ironing / Pressing', code:'FIN-IR-001', dept:'Finishing', skill:'Intermediate', sam:4.00, rate:0.70, sort:31, machines:['Steam Iron','Pressing Table','Tunnel Press'], garments:['All'], desc:'Press garment to correct shape and remove wrinkles', status:'Active',
+   steps:[{id:1,seq:1,name:'Set iron temp per fabric',sam:0.3,notes:'Check fabric type'},{id:2,seq:2,name:'Press body panels',sam:1.5,notes:''},{id:3,seq:3,name:'Press collar and cuffs',sam:1.0,notes:''},{id:4,seq:4,name:'Final shape and hang',sam:1.2,notes:''}]},
+  {id:13,name:'Final QC Inspection', code:'QC-FI-001', dept:'Quality', skill:'Advanced', sam:5.00, rate:1.00, sort:40, machines:['Inspection Table','Light Box','Measurement Tools'], garments:['All'], desc:'100% final inspection before packing — measurements, appearance, defects', status:'Active',
+   steps:[{id:1,seq:1,name:'Measurements check',sam:1.5,notes:'3 key measurements'},{id:2,seq:2,name:'Visual appearance check',sam:1.5,notes:'Shade, print, emb quality'},{id:3,seq:3,name:'Count accessories',sam:0.5,notes:'Buttons, zippers, labels'},{id:4,seq:4,name:'Tag and sort pass/fail',sam:1.5,notes:''}]},
+  {id:14,name:'Poly Bag & Fold', code:'PKG-PB-001', dept:'Packing', skill:'Basic', sam:1.80, rate:0.50, sort:50, machines:['Folding Board','Heat Sealer'], garments:['All'], desc:'Fold garment to specification and insert in poly bag', status:'Active',
+   steps:[{id:1,seq:1,name:'Fold to spec',sam:0.8,notes:'Use folding board'},{id:2,seq:2,name:'Insert size sticker',sam:0.2,notes:''},{id:3,seq:3,name:'Pack in poly bag',sam:0.5,notes:''},{id:4,seq:4,name:'Seal and label',sam:0.3,notes:''}]},
+  {id:15,name:'Carton Packing', code:'PKG-CP-001', dept:'Packing', skill:'Basic', sam:0.50, rate:0.50, sort:51, machines:['Tape Gun','Weighing Scale'], garments:['All'], desc:'Pack finished poly-bagged garments into export carton', status:'Active',
+   steps:[{id:1,seq:1,name:'Check carton count (12/24)',sam:0.2,notes:''},{id:2,seq:2,name:'Arrange by size/color',sam:0.2,notes:''},{id:3,seq:3,name:'Tape and label carton',sam:0.1,notes:''}]},
+];
+
+let expandedRows = new Set();
+let currentDept = 'All', editId = null, stepParentId = null, stepEditId = null, page = 1;
+const PER_PAGE = 10;
+
+function setDept(d, btn) {
+  currentDept = d;
+  document.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  page=1; render();
+}
+
+function filtered() {
+  const q  = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const st = document.getElementById('statusFilter')?.value||'';
+  const sk = document.getElementById('skillFilter')?.value||'';
+  return data.filter(r => {
+    const dOk = currentDept==='All' || r.dept===currentDept;
+    const sOk = !st || r.status===st;
+    const skOk= !sk || r.skill===sk;
+    const qOk = !q || r.name.toLowerCase().includes(q) || r.code.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
+    return dOk && sOk && skOk && qOk;
+  });
+}
+
+function render() {
+  const rows = filtered();
+  const totalPages = Math.max(1, Math.ceil(rows.length/PER_PAGE));
+  if(page>totalPages) page=totalPages;
+  const slice = rows.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  const tbody = document.getElementById('opBody');
+  if(!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:48px;color:var(--text-3);">No operations found</td></tr>`;
+  } else {
+    let html='';
+    slice.forEach(r => {
+      const isOpen = expandedRows.has(r.id);
+      const dc  = deptCls[r.dept]||'dept-other';
+      const icon= deptIcons[r.dept]||'⚙️';
+      const ibg = deptIconBg[r.dept]||'#f3f4f6';
+      const sc  = skillCls[r.skill]||'skill-basic';
+      html += `<tr>
+        <td>
+          <button class="expand-btn ${isOpen?'open':''}" onclick="toggleExpand(${r.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+          </button>
+        </td>
+        <td><div class="op-icon" style="background:${ibg};">${icon}</div></td>
+        <td>
+          <div style="font-weight:600;color:var(--text-1);">${r.name}</div>
+          <div style="font-size:11px;color:var(--text-3);">${r.desc}</div>
+        </td>
+        <td><span style="font-family:monospace;font-size:12px;background:var(--gray-100);padding:2px 7px;border-radius:4px;">${r.code}</span></td>
+        <td><span class="dept-badge ${dc}">${r.dept}</span></td>
+        <td><span class="sam-value">${r.sam.toFixed(2)}</span></td>
+        <td><span class="rate-value">₹${r.rate.toFixed(2)}</span></td>
+        <td><span class="skill-badge ${sc}">${r.skill}</span></td>
+        <td>
+          <div style="display:flex;flex-wrap:wrap;gap:2px;">
+            ${r.machines.map(m=>`<span class="machine-tag">${m}</span>`).join('')}
+          </div>
+        </td>
+        <td style="font-size:13px;color:var(--text-2);">${r.steps.length} step${r.steps.length!==1?'s':''}</td>
+        <td><span class="badge ${r.status==='Active'?'badge-success':'badge-default'}">${r.status}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" title="View" onclick="viewOp(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z"/></svg>
+            </button>
+            <button class="icon-btn" title="Edit" onclick="editOp(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            </button>
+            <button class="icon-btn icon-btn-danger" title="Delete" onclick="deleteOp(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+
+      if(isOpen) {
+        const totalSAM = r.steps.reduce((s,x)=>s+x.sam,0);
+        html += `<tr class="substep-row"><td colspan="12">
+          <div class="substep-inner">
+            <div class="substep-header">
+              <span>Sub-steps — ${r.name} &nbsp;·&nbsp; Total SAM: ${totalSAM.toFixed(2)} min</span>
+              <button class="btn btn-ghost btn-sm" onclick="openStepModal(${r.id})">+ Add Sub-step</button>
+            </div>
+            <table class="substep-table">
+              <thead>
+                <tr>
+                  <th style="width:50px;">Seq</th>
+                  <th>Step Name</th>
+                  <th>SAM (min)</th>
+                  <th>Notes / QC Point</th>
+                  <th style="width:80px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${r.steps.length ? r.steps.sort((a,b)=>a.seq-b.seq).map(s=>`
+                  <tr>
+                    <td>
+                      <div class="step-num">${s.seq}</div>
+                    </td>
+                    <td style="font-weight:500;color:var(--text-1);">${s.name}</td>
+                    <td style="font-family:monospace;font-size:12px;color:var(--brand-600);font-weight:700;">${s.sam.toFixed(2)}</td>
+                    <td style="color:var(--text-3);font-size:12px;">${s.notes||'—'}</td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="icon-btn" title="Edit" onclick="editStep(${r.id},${s.id})">
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                        </button>
+                        <button class="icon-btn icon-btn-danger" title="Delete" onclick="deleteStep(${r.id},${s.id})">
+                          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:16px;">No sub-steps yet</td></tr>`}
+              </tbody>
+            </table>
+            <div class="add-substep-row" onclick="openStepModal(${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              Add New Sub-step
+            </div>
+          </div>
+        </td></tr>`;
+      }
+    });
+    tbody.innerHTML=html;
+  }
+
+  const pager=document.getElementById('pager');
+  const tp=Math.max(1,Math.ceil(rows.length/PER_PAGE));
+  if(tp<=1){pager.innerHTML='';return;}
+  let p=`<button onclick="gotoPage(${page-1})" ${page===1?'disabled':''}>Previous</button>`;
+  for(let i=1;i<=tp;i++) p+=`<button class="${i===page?'active':''}" onclick="gotoPage(${i})">${i}</button>`;
+  p+=`<button onclick="gotoPage(${page+1})" ${page===tp?'disabled':''}>Next</button>`;
+  pager.innerHTML=p;
+}
+
+function gotoPage(p){const tp=Math.ceil(filtered().length/PER_PAGE);if(p<1||p>tp)return;page=p;render();}
+
+function toggleExpand(id){
+  if(expandedRows.has(id)) expandedRows.delete(id);
+  else expandedRows.add(id);
+  render();
+}
+
+function openModal(id=null){
+  editId=id;
+  const m=id?data.find(r=>r.id===id):null;
+  document.getElementById('modalTitle').textContent=id?'Edit Operation':'Add Operation';
+  document.getElementById('fName').value    = m?.name    ||'';
+  document.getElementById('fCode').value    = m?.code    ||'';
+  document.getElementById('fDept').value    = m?.dept    ||'';
+  document.getElementById('fSkill').value   = m?.skill   ||'Intermediate';
+  document.getElementById('fSAM').value     = m?.sam     ||'';
+  document.getElementById('fRate').value    = m?.rate    ||'';
+  document.getElementById('fSort').value    = m?.sort    ||'';
+  document.getElementById('fMachine').value = m?.machines?.join(', ')||'';
+  document.getElementById('fGarments').value= m?.garments?.join(', ')||'';
+  document.getElementById('fDesc').value    = m?.desc    ||'';
+  document.getElementById('fStatus').value  = m?.status  ||'Active';
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+function saveOp(){
+  const name=document.getElementById('fName').value.trim();
+  const code=document.getElementById('fCode').value.trim();
+  const dept=document.getElementById('fDept').value;
+  if(!name||!code||!dept){showToast('Fill required fields','error');return;}
+  const obj={
+    id:editId||(Math.max(0,...data.map(r=>r.id))+1),
+    name, code, dept,
+    skill:   document.getElementById('fSkill').value,
+    sam:     parseFloat(document.getElementById('fSAM').value)||0,
+    rate:    parseFloat(document.getElementById('fRate').value)||0,
+    sort:    parseInt(document.getElementById('fSort').value)||99,
+    machines:document.getElementById('fMachine').value.split(',').map(s=>s.trim()).filter(Boolean),
+    garments:document.getElementById('fGarments').value.split(',').map(s=>s.trim()).filter(Boolean),
+    desc:    document.getElementById('fDesc').value.trim(),
+    status:  document.getElementById('fStatus').value,
+    steps:   editId?data.find(r=>r.id===editId).steps:[],
+  };
+  if(editId){const i=data.findIndex(r=>r.id===editId);data[i]=obj;}
+  else data.push(obj);
+  closeModal(); render(); showToast(editId?'Operation updated':'Operation added');
+}
+function editOp(id){openModal(id);}
+function viewOp(id){const r=data.find(u=>u.id===id);showToast(`${r.name} — ${r.dept}, SAM: ${r.sam}min, ${r.steps.length} steps`);}
+function deleteOp(id){if(!confirm('Delete this operation?'))return;data=data.filter(r=>r.id!==id);expandedRows.delete(id);render();showToast('Operation deleted','error');}
+
+// Sub-step management
+function openStepModal(pid, sid=null){
+  stepParentId=pid; stepEditId=sid;
+  const parent=data.find(r=>r.id===pid);
+  const s=sid?parent.steps.find(x=>x.id===sid):null;
+  document.getElementById('stepModalTitle').textContent=`${sid?'Edit':'Add'} Sub-step — ${parent.name}`;
+  document.getElementById('sName').value  = s?.name ||'';
+  document.getElementById('sSAM').value   = s?.sam  ||'';
+  document.getElementById('sSeq').value   = s?.seq  ||(parent.steps.length+1);
+  document.getElementById('sNotes').value = s?.notes||'';
+  document.getElementById('stepModal').classList.add('open');
+  document.getElementById('stepBackdrop').classList.add('open');
+}
+function closeStepModal(){
+  document.getElementById('stepModal').classList.remove('open');
+  document.getElementById('stepBackdrop').classList.remove('open');
+}
+function saveStep(){
+  const name=document.getElementById('sName').value.trim();
+  if(!name){showToast('Enter step name','error');return;}
+  const parent=data.find(r=>r.id===stepParentId);
+  const obj={
+    id:stepEditId||(parent.steps.length?Math.max(...parent.steps.map(s=>s.id))+1:1),
+    name,
+    sam:parseFloat(document.getElementById('sSAM').value)||0,
+    seq:parseInt(document.getElementById('sSeq').value)||1,
+    notes:document.getElementById('sNotes').value.trim(),
+  };
+  if(stepEditId){const i=parent.steps.findIndex(s=>s.id===stepEditId);parent.steps[i]=obj;}
+  else parent.steps.push(obj);
+  // Update parent SAM to sum of steps
+  parent.sam=parseFloat(parent.steps.reduce((s,x)=>s+x.sam,0).toFixed(2));
+  closeStepModal(); render(); showToast(stepEditId?'Sub-step updated':'Sub-step added');
+}
+function editStep(pid,sid){openStepModal(pid,sid);}
+function deleteStep(pid,sid){
+  if(!confirm('Delete sub-step?'))return;
+  const p=data.find(r=>r.id===pid);
+  p.steps=p.steps.filter(s=>s.id!==sid);
+  p.sam=parseFloat(p.steps.reduce((s,x)=>s+x.sam,0).toFixed(2));
+  render(); showToast('Sub-step removed','error');
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type==='error'?' toast-error':'');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function toggleGroup(el){el.closest('.nav-group').classList.toggle('open');}
+
+// Auto-expand first row
+expandedRows.add(data[0].id);
+render();
+</script>
+</body>
+</html>

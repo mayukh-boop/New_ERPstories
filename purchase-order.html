@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Order — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+/* ── Theme overrides (light purple design) ── */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(91,95,199,0.07);
+  --sidebar-active: rgba(91,95,199,0.12);
+  --sidebar-text: #64748b;
+  --brand-500: #5b5fc7;
+  --brand-600: #4f52b2;
+  --brand-700: #3d40a0;
+  --bg: #f5f6fa;
+  --border: #e8eaf0;
+  --border2: #f0f2f7;
+}
+/* Sidebar light theme overrides */
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #1e1f2e !important; font-weight: 800 !important; }
+.brand-sub { color: #8892a4 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #a0aec0 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #3d4462 !important; font-weight: 500 !important; }
+.nav-parent-icon { color: #8892a4 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #a0aec0 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #1e1f2e !important; }
+.sf-role { color: #8892a4 !important; }
+.sf-avatar { background: var(--brand-500) !important; }
+.topbar { border-bottom: 1px solid #dde0ea !important; box-shadow: 0 1px 4px rgba(91,95,199,0.06) !important; }
+
+/* ── PO-specific styles ── */
+.po-header-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.po-header-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.section-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.section-head-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-head-title svg { width: 15px; height: 15px; color: var(--brand-500); }
+.section-body { padding: 20px; }
+
+/* Item search bar */
+.item-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--gray-50);
+}
+
+/* Line items table */
+.line-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.line-table thead th {
+  padding: 8px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  text-align: left;
+}
+.line-table tbody tr { border-bottom: 1px solid var(--border2); }
+.line-table tbody tr:last-child { border-bottom: none; }
+.line-table tbody tr:hover { background: #fafbff; }
+.line-table tbody td { padding: 7px 8px; vertical-align: middle; }
+
+.line-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-1);
+  background: var(--surface);
+  outline: none;
+  transition: border-color var(--ease);
+}
+.line-input:focus { border-color: var(--brand-500); box-shadow: 0 0 0 2px rgba(99,102,241,0.1); }
+.line-input.readonly { background: var(--gray-50); color: var(--text-3); cursor: default; }
+select.line-input { padding-right: 24px; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center; cursor: pointer;
+}
+
+.line-num {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--text-3);
+}
+
+/* Totals panel */
+.totals-panel {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border2);
+  background: var(--gray-50);
+}
+.totals-table { width: 100%; border-collapse: collapse; }
+.totals-table tr td { padding: 5px 0; font-size: 13px; }
+.totals-table tr td:first-child { color: var(--text-3); }
+.totals-table tr td:last-child { text-align: right; font-weight: 500; color: var(--text-1); }
+.totals-table tr.grand td { font-size: 15px; font-weight: 700; color: var(--brand-600); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
+
+/* Order mode chips */
+.mode-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.mode-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-full);
+  font-size: 12.5px; font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--ease);
+  background: var(--surface);
+}
+.mode-chip:hover { border-color: var(--brand-400); color: var(--brand-600); }
+.mode-chip.active { border-color: var(--brand-600); background: var(--brand-50); color: var(--brand-700); }
+.mode-chip svg { width: 14px; height: 14px; }
+
+/* Configurable field badge */
+.cfg-badge {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--warning);
+  background: var(--warning-bg); border-radius: var(--r-full);
+  padding: 1px 6px; margin-left: 4px;
+}
+
+/* ── Custom Fields Side Panel ── */
+.cf-panel-trigger {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; color: var(--text-2);
+  background: var(--surface); cursor: pointer;
+  transition: all var(--ease); font-family: inherit;
+}
+.cf-panel-trigger:hover { border-color: var(--warning); color: var(--warning); background: var(--warning-bg); }
+.cf-panel-trigger.has-data { border-color: var(--warning); color: var(--warning); background: var(--warning-bg); }
+.cf-panel-trigger svg { width: 14px; height: 14px; }
+
+.cf-side-panel {
+  position: fixed; top: 0; right: -360px; bottom: 0;
+  width: 340px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 30px rgba(0,0,0,0.10);
+  z-index: 300;
+  display: flex; flex-direction: column;
+  transition: right 0.25s ease;
+}
+.cf-side-panel.open { right: 0; }
+
+.cf-panel-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.cf-panel-title { font-size: 15px; font-weight: 700; color: var(--text-1); }
+.cf-panel-sub { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+.cf-panel-close {
+  width: 28px; height: 28px; border: none; background: var(--gray-100);
+  border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-3); flex-shrink: 0; transition: all var(--ease);
+}
+.cf-panel-close:hover { background: var(--gray-200); color: var(--text-1); }
+.cf-panel-close svg { width: 14px; height: 14px; }
+
+.cf-panel-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+.cf-panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 299;
+  display: none;
+}
+.cf-panel-overlay.open { display: block; }
+
+/* Vendor dropdown */
+.dropdown-wrap { position: relative; }
+.vendor-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  max-height: 240px;
+  overflow-y: auto;
+  display: none;
+}
+.vendor-dropdown.open { display: block; }
+.vd-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border2);
+  transition: background var(--ease);
+  display: flex; align-items: center; gap: 10px;
+}
+.vd-item:last-child { border-bottom: none; }
+.vd-item:hover { background: var(--brand-50); }
+.vd-item-name { font-size: 13px; font-weight: 500; color: var(--text-1); }
+.vd-item-code { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.vd-avatar { width: 30px; height: 30px; border-radius: var(--r-full); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.vd-new { color: var(--brand-600); font-size: 13px; font-weight: 600; padding: 10px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; border-top: 1px solid var(--border2); }
+.vd-new:hover { background: var(--brand-50); }
+.vd-new svg { width: 14px; height: 14px; }
+
+/* Summary bar */
+.po-summary-bar {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  padding: 12px 20px;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-200);
+  border-radius: var(--r);
+  margin-bottom: 16px;
+  align-items: center;
+}
+.po-summary-item { display: flex; flex-direction: column; gap: 1px; }
+.po-summary-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--brand-500); }
+.po-summary-value { font-size: 14px; font-weight: 700; color: var(--brand-800); }
+
+/* Sticky action bar */
+.sticky-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+}
+
+/* Inline placed custom fields */
+.cf-inline-zone {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border2);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.cf-inline-zone:empty { display: none; }
+.cf-inline-field { }
+.cf-inline-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--brand-500); background: var(--brand-50); border: 1px solid var(--brand-200);
+  padding: 1px 6px; border-radius: var(--r-full); margin-left: 6px; vertical-align: middle;
+}
+
+/* Placement selector row in configure mode */
+.cf-placement-row {
+  margin-top: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.cf-placement-row label { font-size: 11px; color: var(--text-3); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.cf-placement-row select { flex: 1; height: 30px; font-size: 12px; }
+
+/* Add row button */
+.add-row-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r-sm);
+  font-size: 12.5px; font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--ease);
+  font-family: inherit;
+}
+.add-row-btn:hover { border-color: var(--brand-400); color: var(--brand-600); background: var(--brand-50); }
+.add-row-btn svg { width: 14px; height: 14px; }
+
+.del-row-btn {
+  width: 26px; height: 26px;
+  border: none; background: transparent;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3); cursor: pointer;
+  transition: all var(--ease);
+}
+.del-row-btn:hover { background: var(--danger-bg); color: var(--danger); }
+.del-row-btn svg { width: 13px; height: 13px; }
+
+.po-status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-full);
+  font-size: 11px; font-weight: 600;
+}
+
+/* Item type tabs */
+.item-type-tabs { display: flex; gap: 4px; background: var(--gray-100); padding: 3px; border-radius: var(--r-sm); }
+.item-type-tab { padding: 4px 12px; border: none; background: transparent; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-3); font-family: inherit; transition: all var(--ease); }
+.item-type-tab.active { background: white; color: var(--brand-600); box-shadow: var(--shadow-sm); }
+
+/* ── CF Mode Toggle ── */
+.cf-mode-toggle {
+  display: flex; align-items: center;
+  background: var(--gray-100); border-radius: 8px; padding: 3px;
+  gap: 2px; margin-bottom: 14px;
+}
+.cf-mode-btn {
+  flex: 1; padding: 7px 10px; border: none; background: transparent;
+  border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;
+  color: var(--text-3); font-family: inherit; transition: all 150ms ease;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.cf-mode-btn.active {
+  background: #ffffff; color: var(--brand-600); font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+.cf-mode-btn svg { width: 13px; height: 13px; }
+
+/* Configure mode field row */
+.cf-config-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cf-config-row-header {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.cf-type-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.cf-options-area {
+  display: none; margin-top: 2px;
+}
+.cf-options-area textarea {
+  width: 100%; min-height: 64px; padding: 7px 10px;
+  border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  font-size: 11.5px; font-family: inherit; color: var(--text-1);
+  background: var(--surface); resize: vertical; box-sizing: border-box;
+}
+.cf-options-area textarea:focus { outline: none; border-color: var(--brand-500); }
+
+/* Fill mode checkbox toggle */
+.cf-checkbox-wrap {
+  display: flex; align-items: center; gap: 10px; padding: 4px 0;
+}
+.cf-checkbox-wrap input[type=checkbox] {
+  width: 18px; height: 18px; accent-color: var(--brand-500); cursor: pointer;
+}
+.cf-checkbox-label { font-size: 13px; color: var(--text-1); cursor: pointer; user-select: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-section">Procurement</div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+          <span class="nav-parent-label">Purchase Orders</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="purchase-order-list.html">PO List</a>
+          <a class="nav-child active" href="#">Create PO</a>
+          <a class="nav-child" href="#">PO Receipts</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-module">Purchase Orders</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:12px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:var(--text-3);"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        <span style="font-size:13px;color:var(--text-3);">Create PO</span>
+        <span class="po-status-badge badge-yellow" style="margin-left:4px;">Draft</span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Notifications">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page" style="padding-bottom: 80px;">
+
+      <!-- Page header -->
+      <div class="ph">
+        <div>
+          <div class="ph-title">New Purchase Order</div>
+          <div class="ph-sub">Create a PO for Raw Materials, Fabrics, Trim Fabrics or Finished Goods</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-outline" onclick="saveDraft()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+            Save Draft
+          </button>
+          <button class="btn btn-primary" onclick="submitPO()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            Submit PO
+          </button>
+        </div>
+      </div>
+
+      <!-- ① Vendor & Header Details -->
+      <div class="section-block">
+        <div class="section-head">
+          <div class="section-head-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+            Vendor & Header
+          </div>
+          <div style="font-size:12px;color:var(--text-3);">PO# will be auto-generated on submit</div>
+        </div>
+        <div class="section-body">
+          <div class="po-header-grid" style="margin-bottom:18px;">
+
+            <!-- Vendor Search -->
+            <div class="form-group">
+              <label class="form-label">Vendor <span class="req">*</span></label>
+              <div class="dropdown-wrap">
+                <div style="position:relative;">
+                  <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+                  <input class="form-control" id="vendorSearch" type="text" placeholder="Search by name or code…" style="padding-left:34px;" oninput="filterVendors(this.value)" onfocus="showVendorDD()" autocomplete="off">
+                </div>
+                <div class="vendor-dropdown" id="vendorDD">
+                  <!-- populated by JS -->
+                </div>
+              </div>
+              <input type="hidden" id="selectedVendorId">
+              <div id="vendorSelected" style="display:none;margin-top:6px;display:none;align-items:center;gap:8px;padding:8px 10px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);">
+                <div id="vendorSelectedAvatar" class="vd-avatar" style="width:28px;height:28px;font-size:10px;"></div>
+                <div><div id="vendorSelectedName" style="font-size:13px;font-weight:600;color:var(--brand-800);"></div><div id="vendorSelectedCode" style="font-size:11px;color:var(--brand-500);"></div></div>
+                <button onclick="clearVendor()" style="margin-left:auto;border:none;background:transparent;cursor:pointer;color:var(--text-3);font-size:12px;" title="Change vendor">✕</button>
+              </div>
+            </div>
+
+            <!-- Ship To -->
+            <div class="form-group">
+              <label class="form-label">Ship To <span class="req">*</span></label>
+              <select class="form-control" id="shipTo" onchange="onShipToChange()">
+                <option value="">— Select destination —</option>
+                <optgroup label="Company Locations">
+                  <option value="co_hq">Head Office — Mumbai</option>
+                  <option value="co_factory">Factory — Pune</option>
+                  <option value="co_warehouse">Warehouse — Bhiwandi</option>
+                </optgroup>
+                <optgroup label="Other Vendor Locations" id="vendorLocGroup">
+                  <option value="" disabled style="color:var(--text-3);">Select a vendor first to see other vendor locations</option>
+                </optgroup>
+              </select>
+              <div class="form-hint" id="shipToHint" style="display:none;"></div>
+            </div>
+
+            <!-- PO Issue Date -->
+            <div class="form-group">
+              <label class="form-label">PO Issue Date <span class="req">*</span></label>
+              <input class="form-control" id="poDate" type="date">
+            </div>
+          </div>
+
+          <div class="po-header-grid" style="margin-bottom:18px;">
+            <!-- Shipping Method -->
+            <div class="form-group">
+              <label class="form-label">Shipping Method</label>
+              <select class="form-control" id="shippingMethod">
+                <option value="">— Auto from vendor master —</option>
+                <option value="road">Road</option>
+                <option value="rail">Rail</option>
+                <option value="air">Air</option>
+                <option value="sea">Sea</option>
+                <option value="courier">Courier</option>
+              </select>
+            </div>
+
+            <!-- Shipping Terms -->
+            <div class="form-group">
+              <label class="form-label">Shipping Terms</label>
+              <select class="form-control" id="shippingTerms">
+                <option value="">— Auto from vendor master —</option>
+                <option value="exw">EXW — Ex Works</option>
+                <option value="fob">FOB — Free on Board</option>
+                <option value="cif">CIF — Cost, Insurance & Freight</option>
+                <option value="ddp">DDP — Delivered Duty Paid</option>
+              </select>
+            </div>
+
+            <!-- Payment Terms -->
+            <div class="form-group">
+              <label class="form-label">Terms of Payment</label>
+              <select class="form-control" id="paymentTerms">
+                <option value="">— Auto from vendor master —</option>
+                <option value="advance">100% Advance</option>
+                <option value="net30">Net 30 Days</option>
+                <option value="net45">Net 45 Days</option>
+                <option value="net60">Net 60 Days</option>
+                <option value="lc">Letter of Credit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="po-header-grid-2" style="margin-bottom:18px;">
+            <!-- Delivery Date -->
+            <div class="form-group">
+              <label class="form-label">Delivery Date <span class="req">*</span></label>
+              <input class="form-control" id="deliveryDate" type="date">
+            </div>
+
+            <!-- Comments -->
+            <div class="form-group">
+              <label class="form-label">Comments / Notes</label>
+              <textarea class="form-control" id="poNotes" placeholder="Any special instructions or notes for this PO…" style="min-height:70px;"></textarea>
+            </div>
+          </div>
+
+          <!-- Inline CF zone: Vendor & Header section -->
+          <div class="cf-inline-zone" id="cf-zone-vendor_header" style="display:none;"></div>
+
+          <!-- Configurable Fields Trigger -->
+          <div style="padding-top:14px;border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:12px;color:var(--text-3);">
+              <span id="cfSummary">No custom fields filled</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="cf-panel-trigger" id="cfConfigBtn" onclick="openCFPanelMode('configure')" title="Configure custom field types & labels" style="font-size:11.5px;padding:5px 10px;">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                Configure
+              </button>
+              <button class="cf-panel-trigger" id="cfTriggerBtn" onclick="openCFPanelMode('fill')">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                <span id="cfTriggerLabel">Custom Fields</span>
+                <span class="cfg-badge" style="margin-left:0;">5 Fields</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② Order Mode & Item Lines -->
+      <div class="section-block">
+        <div class="section-head">
+          <div class="section-head-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"/></svg>
+            Order Items
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="item-type-tabs" id="itemTypeTabs">
+              <button class="item-type-tab active" onclick="setItemType('all',this)">All Items</button>
+              <button class="item-type-tab" onclick="setItemType('fabric',this)">Fabric</button>
+              <button class="item-type-tab" onclick="setItemType('trim',this)">Trim Fabric</button>
+              <button class="item-type-tab" onclick="setItemType('rm',this)">Raw Material</button>
+              <button class="item-type-tab" onclick="setItemType('fg',this)">Style FG</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Mode -->
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border2);background:var(--gray-50);">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Order Mode</div>
+          <div class="mode-chips">
+            <button class="mode-chip active" id="mode-bulk" onclick="setMode('bulk')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+              Bulk Order
+            </button>
+            <button class="mode-chip" id="mode-style" onclick="setMode('style')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              By Style
+            </button>
+            <button class="mode-chip" id="mode-buyer" onclick="setMode('buyer')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+              By Buyer PO
+            </button>
+            <button class="mode-chip" id="mode-prod" onclick="setMode('prod')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/><path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"/></svg>
+              By Production Order
+            </button>
+          </div>
+          <!-- Mode-specific filter row -->
+          <div id="modeFilterRow" style="display:none;margin-top:12px;">
+            <div class="po-header-grid-2">
+              <div class="form-group" id="modeFilterField1" style="display:none;">
+                <label class="form-label" id="modeFilterLabel1">Style</label>
+                <select class="form-control" id="modeFilter1" onchange="autoPopulateFromMode()">
+                  <option value="">— Select —</option>
+                  <option value="ST-001">ST-001 — Men's Polo Shirt</option>
+                  <option value="ST-002">ST-002 — Women's Kurti</option>
+                  <option value="ST-003">ST-003 — Kids Jogger</option>
+                </select>
+              </div>
+              <div class="form-group" id="modeFilterField2" style="display:none;">
+                <label class="form-label" id="modeFilterLabel2">Buyer PO</label>
+                <select class="form-control" id="modeFilter2" onchange="autoPopulateFromMode()">
+                  <option value="">— Select —</option>
+                  <option value="BPO-001">BPO-001 — H&M Spring 2026</option>
+                  <option value="BPO-002">BPO-002 — Zara Winter 2026</option>
+                  <option value="BPO-003">BPO-003 — Marks & Spencer</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" id="modeFilterField3" style="display:none;margin-top:12px;">
+              <label class="form-label" id="modeFilterLabel3">Production Order</label>
+              <select class="form-control" id="modeFilter3" onchange="autoPopulateFromMode()">
+                <option value="">— Select —</option>
+                <option value="PRD-001">PRD-001 — 5000 Pcs Polo Shirt</option>
+                <option value="PRD-002">PRD-002 — 3000 Pcs Kurti</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line items table -->
+        <div style="overflow-x:auto;">
+          <table class="line-table" id="lineTable">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th style="min-width:140px;">RM / Item Name</th>
+                <th style="min-width:80px;">Item Code</th>
+                <th style="min-width:80px;">Type</th>
+                <th style="min-width:60px;">HSN</th>
+                <th style="min-width:90px;">Description</th>
+                <th style="min-width:80px;">Style Mapped</th>
+                <th style="min-width:80px;">Buyer PO</th>
+                <th style="min-width:90px;">Prod Order</th>
+                <th style="min-width:60px;">Scale</th>
+                <th style="min-width:70px;">Qty <span class="req">*</span></th>
+                <th style="min-width:60px;">UOM</th>
+                <th style="min-width:80px;">Unit Price <span class="req">*</span></th>
+                <th style="min-width:70px;">Discount %</th>
+                <th style="min-width:80px;">Net Amt</th>
+                <th style="min-width:60px;">GST %</th>
+                <th style="min-width:70px;">GST Amt</th>
+                <th style="min-width:80px;">Transport</th>
+                <th style="min-width:90px;">Total</th>
+                <th style="width:52px;">
+                  <button onclick="openCFPanel()" title="Custom fields" style="border:none;background:transparent;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;color:var(--warning);font-size:10px;font-weight:700;white-space:nowrap;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                    CF
+                  </button>
+                </th>
+                <th style="width:36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="lineBody">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="padding:12px 20px;border-top:1px solid var(--border2);">
+          <button class="add-row-btn" onclick="addLine()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            Add Line Item
+          </button>
+          <!-- Inline CF zone: Order Details section -->
+          <div class="cf-inline-zone" id="cf-zone-order_details" style="display:none;margin-top:12px;border-top:1px dashed var(--border2);padding-top:12px;"></div>
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-panel">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-3);">Summary</div>
+            <div id="poSummaryBar" class="po-summary-bar" style="margin-bottom:0;">
+              <div class="po-summary-item"><div class="po-summary-label">Items</div><div class="po-summary-value" id="sumItems">0</div></div>
+              <div class="po-summary-item"><div class="po-summary-label">Total Qty</div><div class="po-summary-value" id="sumQty">0</div></div>
+              <div class="po-summary-item"><div class="po-summary-label">Net Amount</div><div class="po-summary-value" id="sumNet">₹0.00</div></div>
+              <div class="po-summary-item"><div class="po-summary-label">Total GST</div><div class="po-summary-value" id="sumGst">₹0.00</div></div>
+              <div class="po-summary-item"><div class="po-summary-label">Transport</div><div class="po-summary-value" id="sumTransport">₹0.00</div></div>
+            </div>
+          </div>
+          <div>
+            <table class="totals-table">
+              <tr><td>Subtotal</td><td id="ttSubtotal">₹0.00</td></tr>
+              <tr><td>Total Discount</td><td id="ttDiscount" style="color:var(--danger);">-₹0.00</td></tr>
+              <tr><td>Net Amount</td><td id="ttNet">₹0.00</td></tr>
+              <tr><td>CGST</td><td id="ttCgst">₹0.00</td></tr>
+              <tr><td>SGST / IGST</td><td id="ttSgst">₹0.00</td></tr>
+              <tr><td>Transport</td><td id="ttTransport">₹0.00</td></tr>
+              <tr class="grand"><td>Grand Total</td><td id="ttGrand">₹0.00</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline CF zone: Shipping & Terms section (only shows when fields are placed here) -->
+      <div id="cf-zone-shipping-wrap" style="display:none;">
+        <div class="section-block">
+          <div class="section-head">
+            <div class="section-head-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1V8a1 1 0 00-.293-.707l-2-2A1 1 0 0017 5h-3V4a1 1 0 00-1-1H3z"/></svg>
+              Shipping &amp; Terms
+              <span class="cf-inline-badge">Custom Fields</span>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="cf-inline-zone" id="cf-zone-shipping" style="margin-top:0;padding-top:0;border-top:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline CF zone: Footer / Notes section (only shows when fields are placed here) -->
+      <div id="cf-zone-footer-wrap" style="display:none;">
+        <div class="section-block">
+          <div class="section-head">
+            <div class="section-head-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+              Additional Fields
+              <span class="cf-inline-badge">Custom Fields</span>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="cf-inline-zone" id="cf-zone-footer" style="margin-top:0;padding-top:0;border-top:none;"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Sticky bottom bar -->
+    <div class="sticky-bar">
+      <div style="font-size:13px;color:var(--text-3);" id="stickyInfo">0 line items · Grand Total: <strong style="color:var(--text-1);">₹0.00</strong></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="resetForm()">Discard</button>
+        <button class="btn btn-outline" onclick="previewPO()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          Preview
+        </button>
+        <button class="btn btn-outline" onclick="saveDraft()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Draft
+        </button>
+        <button class="btn btn-primary" onclick="submitPO()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+          Submit PO
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Area ── -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- ── CF Panel Overlay ── -->
+<div class="cf-panel-overlay" id="cfOverlay" onclick="closeCFPanel()"></div>
+
+<!-- ── Custom Fields Side Panel ── -->
+<div class="cf-side-panel" id="cfSidePanel">
+  <div class="cf-panel-head">
+    <div style="flex:1;min-width:0;">
+      <div class="cf-panel-title" id="cfPanelTitle">Custom Fields</div>
+      <div class="cf-panel-sub" id="cfPanelSub">Company-level configurable fields</div>
+    </div>
+    <button class="cf-panel-close" onclick="closeCFPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <!-- Mode toggle -->
+  <div style="padding:12px 20px 0;">
+    <div class="cf-mode-toggle">
+      <button class="cf-mode-btn" id="cfModeConfigBtn" onclick="switchCFMode('configure')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        Configure Fields
+      </button>
+      <button class="cf-mode-btn" id="cfModeFillBtn" onclick="switchCFMode('fill')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Fill Values
+      </button>
+    </div>
+  </div>
+  <div class="cf-panel-body" id="cfPanelBody">
+    <!-- populated by JS depending on mode & context -->
+  </div>
+  <div style="padding:14px 20px;border-top:1px solid var(--border2);display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline btn-sm" onclick="closeCFPanel()">Close</button>
+    <button class="btn btn-primary btn-sm" id="cfApplyBtn" onclick="saveCFPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+      Apply
+    </button>
+  </div>
+</div>
+
+<!-- ── Preview Modal ── -->
+<div class="modal-backdrop" id="previewModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-head">
+      <div><div class="modal-title">PO Preview</div><div class="modal-sub">Review before submitting</div></div>
+      <button class="modal-x" onclick="closeModal('previewModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body" id="previewBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('previewModal')">Close</button>
+      <button class="btn btn-primary" onclick="submitPO()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Confirm & Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Data ── */
+const VENDORS = [
+  {id:1, name:'Sunrise Fabrics Pvt. Ltd.', code:'VND-001', shippingMethod:'road', shippingTerms:'fob', paymentTerms:'net30',
+   locations:['Boisar Warehouse','Surat Factory']},
+  {id:2, name:'Horizon Trims Co.', code:'VND-002', shippingMethod:'courier', shippingTerms:'exw', paymentTerms:'net45',
+   locations:['Surat Factory','Mumbai Office']},
+  {id:3, name:'Global Threads LLC', code:'BTH-001', shippingMethod:'road', shippingTerms:'ddp', paymentTerms:'net60',
+   locations:['Chennai HQ','Tirupur Unit']},
+  {id:4, name:'Apex Raw Materials', code:'VND-003', shippingMethod:'road', shippingTerms:'fob', paymentTerms:'advance',
+   locations:['Delhi Warehouse']},
+];
+
+const ITEMS = [
+  {code:'RM-001', name:'Cotton Interlock 240GSM', type:'fabric', hsn:'5208', uom:'KG'},
+  {code:'RM-002', name:'Polyester Trim Tape 25mm', type:'trim', hsn:'5806', uom:'MTR'},
+  {code:'RM-003', name:'Elastane Yarn 70D', type:'rm', hsn:'5402', uom:'KG'},
+  {code:'RM-004', name:'Metal Zipper YKK #5', type:'trim', hsn:'9607', uom:'PCS'},
+  {code:'RM-005', name:'Cotton Canvas 12oz', type:'fabric', hsn:'5208', uom:'MTR'},
+  {code:'FG-001', name:'Men\'s Polo Shirt ST-001', type:'fg', hsn:'6105', uom:'PCS'},
+  {code:'FG-002', name:'Women\'s Kurti ST-002', type:'fg', hsn:'6104', uom:'PCS'},
+];
+
+const avatarColors=['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6'];
+function avatarBg(n){let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%avatarColors.length;return avatarColors[h];}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function fmt(v){return '₹'+parseFloat(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+
+/* ── State ── */
+let lines = [];
+let lineCounter = 0;
+let currentMode = 'bulk';
+let currentItemType = 'all';
+let selectedVendor = null;
+
+/* ── Init ── */
+document.getElementById('poDate').value = new Date().toISOString().split('T')[0];
+const dd = new Date(); dd.setDate(dd.getDate()+30);
+document.getElementById('deliveryDate').value = dd.toISOString().split('T')[0];
+addLine();
+
+/* ── Vendor Search ── */
+function filterVendors(q) {
+  const dd = document.getElementById('vendorDD');
+  const hits = VENDORS.filter(v => v.name.toLowerCase().includes(q.toLowerCase()) || v.code.toLowerCase().includes(q.toLowerCase()));
+  renderVendorDD(hits, q);
+}
+
+function showVendorDD() {
+  renderVendorDD(VENDORS, '');
+  document.getElementById('vendorDD').classList.add('open');
+}
+
+function renderVendorDD(list, q) {
+  const dd = document.getElementById('vendorDD');
+  let html = list.map(v => {
+    const bg = avatarBg(v.name);
+    return `<div class="vd-item" onclick="selectVendor(${v.id})">
+      <div class="vd-avatar" style="background:${bg}20;color:${bg};">${initials(v.name)}</div>
+      <div><div class="vd-item-name">${v.name}</div><div class="vd-item-code">${v.code}</div></div>
+    </div>`;
+  }).join('');
+  html += `<div class="vd-new" onclick="openNewVendor()">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+    Create New Vendor
+  </div>`;
+  dd.innerHTML = html;
+  dd.classList.add('open');
+}
+
+function selectVendor(id) {
+  selectedVendor = VENDORS.find(v => v.id === id);
+  document.getElementById('vendorSearch').value = selectedVendor.name;
+  document.getElementById('selectedVendorId').value = id;
+  document.getElementById('vendorDD').classList.remove('open');
+
+  // Show selected badge
+  const sel = document.getElementById('vendorSelected');
+  sel.style.display = 'flex';
+  const bg = avatarBg(selectedVendor.name);
+  document.getElementById('vendorSelectedAvatar').style.background = bg+'20';
+  document.getElementById('vendorSelectedAvatar').style.color = bg;
+  document.getElementById('vendorSelectedAvatar').textContent = initials(selectedVendor.name);
+  document.getElementById('vendorSelectedName').textContent = selectedVendor.name;
+  document.getElementById('vendorSelectedCode').textContent = selectedVendor.code;
+
+  // Auto-fill from vendor master
+  if (selectedVendor.shippingMethod) document.getElementById('shippingMethod').value = selectedVendor.shippingMethod;
+  if (selectedVendor.shippingTerms) document.getElementById('shippingTerms').value = selectedVendor.shippingTerms;
+  if (selectedVendor.paymentTerms) document.getElementById('paymentTerms').value = selectedVendor.paymentTerms;
+
+  // Populate OTHER vendors' locations (exclude the PO vendor itself)
+  const vndGrp = document.getElementById('vendorLocGroup');
+  const otherVendors = VENDORS.filter(v => v.id !== selectedVendor.id);
+  if (otherVendors.length) {
+    vndGrp.innerHTML = otherVendors.flatMap(v =>
+      v.locations.map(loc =>
+        `<option value="ovnd_${v.id}_${loc.replace(/\s/g,'_')}">${loc} — ${v.name}</option>`
+      )
+    ).join('');
+  } else {
+    vndGrp.innerHTML = '<option value="" disabled>No other vendor locations available</option>';
+  }
+
+  toast(`${selectedVendor.name} selected. Shipping fields auto-filled from vendor master.`, 'success');
+}
+
+function clearVendor() {
+  selectedVendor = null;
+  document.getElementById('vendorSearch').value = '';
+  document.getElementById('selectedVendorId').value = '';
+  document.getElementById('vendorSelected').style.display = 'none';
+  document.getElementById('vendorDD').classList.remove('open');
+  const vndGrp = document.getElementById('vendorLocGroup');
+  vndGrp.innerHTML = '<option value="" disabled>Select a vendor first to see other vendor locations</option>';
+  document.getElementById('shipTo').value = '';
+}
+
+function openNewVendor() {
+  document.getElementById('vendorDD').classList.remove('open');
+  toast('Redirecting to Vendor Master to create new vendor…', 'success');
+  setTimeout(() => window.open('masters-vendor.html','_blank'), 800);
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown-wrap')) document.getElementById('vendorDD').classList.remove('open');
+});
+
+function onShipToChange() {
+  const val = document.getElementById('shipTo').value;
+  const hint = document.getElementById('shipToHint');
+  if (val.startsWith('co_')) {
+    hint.textContent = 'Inventory will be tracked at the selected company location.';
+    hint.style.display = 'block';
+  } else if (val.startsWith('vnd_')) {
+    hint.textContent = 'Inventory will be tracked at the vendor location.';
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+/* ── Order Mode ── */
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  const row = document.getElementById('modeFilterRow');
+  const f1 = document.getElementById('modeFilterField1');
+  const f2 = document.getElementById('modeFilterField2');
+  const f3 = document.getElementById('modeFilterField3');
+  if (m === 'bulk') {
+    row.style.display = 'none';
+    f1.style.display = f2.style.display = f3.style.display = 'none';
+  } else if (m === 'style') {
+    row.style.display = 'block';
+    f1.style.display = 'block'; f2.style.display = 'none'; f3.style.display = 'none';
+    document.getElementById('modeFilterLabel1').textContent = 'Style';
+  } else if (m === 'buyer') {
+    row.style.display = 'block';
+    f1.style.display = 'block'; f2.style.display = 'block'; f3.style.display = 'none';
+    document.getElementById('modeFilterLabel1').textContent = 'Style';
+    document.getElementById('modeFilterLabel2').textContent = 'Buyer PO';
+  } else if (m === 'prod') {
+    row.style.display = 'block';
+    f1.style.display = 'block'; f2.style.display = 'block'; f3.style.display = 'block';
+    document.getElementById('modeFilterLabel1').textContent = 'Style';
+    document.getElementById('modeFilterLabel2').textContent = 'Buyer PO';
+    document.getElementById('modeFilterLabel3').textContent = 'Production Order';
+  }
+}
+
+function autoPopulateFromMode() {
+  if (currentMode === 'bulk') return;
+  const style = document.getElementById('modeFilter1').value;
+  const buyer = document.getElementById('modeFilter2') ? document.getElementById('modeFilter2').value : '';
+  const prod = document.getElementById('modeFilter3') ? document.getElementById('modeFilter3').value : '';
+  if (!style) return;
+
+  // Simulate auto-populate based on style selection
+  const sampleItems = {
+    'ST-001': [{code:'RM-001', name:'Cotton Interlock 240GSM', type:'fabric', qty:150, uom:'KG'},
+               {code:'RM-003', name:'Elastane Yarn 70D', type:'rm', qty:10, uom:'KG'}],
+    'ST-002': [{code:'RM-005', name:'Cotton Canvas 12oz', type:'fabric', qty:200, uom:'MTR'},
+               {code:'RM-002', name:'Polyester Trim Tape 25mm', type:'trim', qty:500, uom:'MTR'}],
+    'ST-003': [{code:'RM-001', name:'Cotton Interlock 240GSM', type:'fabric', qty:100, uom:'KG'},
+               {code:'RM-004', name:'Metal Zipper YKK #5', type:'trim', qty:300, uom:'PCS'}],
+  };
+
+  const populated = sampleItems[style];
+  if (!populated) return;
+
+  lines = [];
+  lineCounter = 0;
+  populated.forEach(item => {
+    lineCounter++;
+    lines.push({
+      id: lineCounter,
+      code: item.code, name: item.name, type: item.type,
+      hsn: ITEMS.find(i=>i.code===item.code)?.hsn||'',
+      desc:'', style: style, buyerPO: buyer, prodOrder: prod,
+      scale:'', qty: item.qty, uom: item.uom,
+      unitPrice:0, discount:0, gst:5, transport:0,
+      cf1:'',cf2:'',cf3:'',cf4:'',cf5:''
+    });
+  });
+  renderLines();
+  toast(`${populated.length} items auto-populated from ${style}`, 'success');
+}
+
+/* ── Item Type filter ── */
+function setItemType(t, el) {
+  currentItemType = t;
+  document.querySelectorAll('.item-type-tab').forEach(tab => tab.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── Line Items ── */
+function addLine() {
+  lineCounter++;
+  lines.push({
+    id: lineCounter,
+    code:'', name:'', type:'fabric',
+    hsn:'', desc:'', style:'', buyerPO:'', prodOrder:'',
+    scale:'', qty:0, uom:'KG',
+    unitPrice:0, discount:0, gst:5, transport:0,
+    cf1:'',cf2:'',cf3:'',cf4:'',cf5:''
+  });
+  renderLines();
+}
+
+function removeLine(id) {
+  if (lines.length === 1) { toast('At least one line item is required','error'); return; }
+  lines = lines.filter(l => l.id !== id);
+  renderLines();
+}
+
+function onLineChange(id, field, value) {
+  const line = lines.find(l => l.id === id);
+  if (!line) return;
+  if (['qty','unitPrice','discount','gst','transport'].includes(field)) {
+    line[field] = parseFloat(value) || 0;
+  } else {
+    line[field] = value;
+  }
+  if (field === 'code') {
+    const item = ITEMS.find(i => i.code === value);
+    if (item) {
+      line.name = item.name;
+      line.type = item.type;
+      line.hsn = item.hsn;
+      line.uom = item.uom;
+    }
+  }
+  renderLines();
+}
+
+function calcLine(l) {
+  const gross = l.qty * l.unitPrice;
+  const disc = gross * (l.discount / 100);
+  const net = gross - disc;
+  const gstAmt = net * (l.gst / 100);
+  const total = net + gstAmt + l.transport;
+  return { gross, disc, net, gstAmt, total };
+}
+
+function renderLines() {
+  const tbody = document.getElementById('lineBody');
+  if (!lines.length) {
+    tbody.innerHTML = `<tr><td colspan="25"><div class="empty-state" style="padding:40px 24px;">
+      <div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4z"/></svg></div>
+      <div class="empty-title">No items added</div><div class="empty-desc">Click "Add Line Item" to start</div>
+    </div></td></tr>`;
+    updateTotals();
+    return;
+  }
+
+  let html = '';
+  lines.forEach((l, idx) => {
+    const c = calcLine(l);
+    const itemOpts = ITEMS.map(i => `<option value="${i.code}" ${l.code===i.code?'selected':''}>${i.code} — ${i.name}</option>`).join('');
+    const typeOpts = ['fabric','trim','rm','fg'].map(t => `<option value="${t}" ${l.type===t?'selected':''}>${t.toUpperCase()}</option>`).join('');
+    const uomOpts = ['KG','MTR','PCS','SET','BOX','RLL'].map(u => `<option value="${u}" ${l.uom===u?'selected':''}>${u}</option>`).join('');
+    const gstOpts = [0,5,12,18,28].map(g => `<option value="${g}" ${l.gst===g?'selected':''}>${g}%</option>`).join('');
+
+    html += `<tr>
+      <td><div class="line-num">${idx+1}</div></td>
+      <td>
+        <select class="line-input" onchange="onLineChange(${l.id},'code',this.value)" style="min-width:160px;">
+          <option value="">— Search item —</option>${itemOpts}
+        </select>
+        <input class="line-input" value="${l.name}" placeholder="Item name" style="margin-top:3px;font-size:11px;color:var(--text-3);" oninput="onLineChange(${l.id},'name',this.value)">
+      </td>
+      <td><input class="line-input readonly" value="${l.code}" readonly placeholder="Auto"></td>
+      <td><select class="line-input" onchange="onLineChange(${l.id},'type',this.value)">${typeOpts}</select></td>
+      <td><input class="line-input" value="${l.hsn}" placeholder="HSN" oninput="onLineChange(${l.id},'hsn',this.value)"></td>
+      <td><input class="line-input" value="${l.desc}" placeholder="Description" oninput="onLineChange(${l.id},'desc',this.value)"></td>
+      <td><input class="line-input" value="${l.style}" placeholder="Style" oninput="onLineChange(${l.id},'style',this.value)"></td>
+      <td><input class="line-input" value="${l.buyerPO}" placeholder="BPO#" oninput="onLineChange(${l.id},'buyerPO',this.value)"></td>
+      <td><input class="line-input" value="${l.prodOrder}" placeholder="PRD#" oninput="onLineChange(${l.id},'prodOrder',this.value)"></td>
+      <td><input class="line-input" value="${l.scale}" placeholder="Scale" oninput="onLineChange(${l.id},'scale',this.value)"></td>
+      <td><input class="line-input" type="number" min="0" value="${l.qty||''}" placeholder="0" oninput="onLineChange(${l.id},'qty',this.value)" style="text-align:right;"></td>
+      <td><select class="line-input" onchange="onLineChange(${l.id},'uom',this.value)">${uomOpts}</select></td>
+      <td><input class="line-input" type="number" min="0" step="0.01" value="${l.unitPrice||''}" placeholder="0.00" oninput="onLineChange(${l.id},'unitPrice',this.value)" style="text-align:right;"></td>
+      <td><input class="line-input" type="number" min="0" max="100" step="0.01" value="${l.discount||''}" placeholder="0" oninput="onLineChange(${l.id},'discount',this.value)" style="text-align:right;"></td>
+      <td style="text-align:right;font-weight:500;color:var(--text-1);white-space:nowrap;">${fmt(c.net)}</td>
+      <td><select class="line-input" onchange="onLineChange(${l.id},'gst',this.value)">${gstOpts}</select></td>
+      <td style="text-align:right;font-size:12px;color:var(--text-2);white-space:nowrap;">${fmt(c.gstAmt)}</td>
+      <td><input class="line-input" type="number" min="0" step="0.01" value="${l.transport||''}" placeholder="0.00" oninput="onLineChange(${l.id},'transport',this.value)" style="text-align:right;"></td>
+      <td style="text-align:right;font-weight:700;color:var(--brand-600);white-space:nowrap;">${fmt(c.total)}</td>
+      <td style="text-align:center;">
+        <button onclick="openLineCFPanel(${l.id})" title="Line custom fields" style="border:none;background:transparent;cursor:pointer;padding:3px 6px;border-radius:4px;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:${(l.cf1||l.cf2||l.cf3||l.cf4||l.cf5)?'var(--warning)':'var(--text-3)'};background:${(l.cf1||l.cf2||l.cf3||l.cf4||l.cf5)?'var(--warning-bg)':'transparent'};transition:all 150ms ease;">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          CF
+        </button>
+      </td>
+      <td>
+        <button class="del-row-btn" onclick="removeLine(${l.id})" title="Remove line">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+  updateTotals();
+}
+
+function updateTotals() {
+  let subtotal=0, totalDisc=0, totalNet=0, totalGst=0, totalTransport=0;
+  let totalQty = 0;
+  lines.forEach(l => {
+    const c = calcLine(l);
+    subtotal += l.qty * l.unitPrice;
+    totalDisc += c.disc;
+    totalNet += c.net;
+    totalGst += c.gstAmt;
+    totalTransport += l.transport;
+    totalQty += l.qty;
+  });
+  const grand = totalNet + totalGst + totalTransport;
+
+  document.getElementById('ttSubtotal').textContent = fmt(subtotal);
+  document.getElementById('ttDiscount').textContent = '-'+fmt(totalDisc);
+  document.getElementById('ttNet').textContent = fmt(totalNet);
+  document.getElementById('ttCgst').textContent = fmt(totalGst/2);
+  document.getElementById('ttSgst').textContent = fmt(totalGst/2);
+  document.getElementById('ttTransport').textContent = fmt(totalTransport);
+  document.getElementById('ttGrand').textContent = fmt(grand);
+
+  document.getElementById('sumItems').textContent = lines.length;
+  document.getElementById('sumQty').textContent = totalQty.toFixed(2).replace(/\.00$/,'');
+  document.getElementById('sumNet').textContent = fmt(totalNet);
+  document.getElementById('sumGst').textContent = fmt(totalGst);
+  document.getElementById('sumTransport').textContent = fmt(totalTransport);
+
+  document.getElementById('stickyInfo').innerHTML =
+    `${lines.length} line item${lines.length!==1?'s':''} &nbsp;·&nbsp; Grand Total: <strong style="color:var(--text-1);">${fmt(grand)}</strong>`;
+}
+
+/* ── Actions ── */
+function saveDraft() {
+  toast('PO saved as Draft', 'success');
+}
+
+function submitPO() {
+  const vendor = document.getElementById('selectedVendorId').value;
+  const shipTo = document.getElementById('shipTo').value;
+  if (!vendor) { toast('Please select a vendor before submitting','error'); return; }
+  if (!shipTo) { toast('Please select a Ship To location','error'); return; }
+  const hasQty = lines.some(l => l.qty > 0 && l.unitPrice > 0);
+  if (!hasQty) { toast('Add at least one item with quantity and unit price','error'); return; }
+  closeModal('previewModal');
+  toast('PO submitted successfully! PO# PO-2026-0042 generated.', 'success');
+}
+
+function previewPO() {
+  const vendor = selectedVendor ? selectedVendor.name : '—';
+  const shipTo = document.getElementById('shipTo').options[document.getElementById('shipTo').selectedIndex]?.text || '—';
+  const poDate = document.getElementById('poDate').value;
+  const delivDate = document.getElementById('deliveryDate').value;
+  let grand=0; lines.forEach(l=>{const c=calcLine(l);grand+=c.total;});
+
+  let lineRows = lines.map((l,i) => {
+    const c = calcLine(l);
+    return `<tr style="border-bottom:1px solid #f3f4f6;">
+      <td style="padding:6px 8px;font-size:12px;">${i+1}</td>
+      <td style="padding:6px 8px;font-size:12px;font-weight:500;">${l.name||'—'}</td>
+      <td style="padding:6px 8px;font-size:12px;">${l.qty} ${l.uom}</td>
+      <td style="padding:6px 8px;font-size:12px;text-align:right;">${fmt(l.unitPrice)}</td>
+      <td style="padding:6px 8px;font-size:12px;text-align:right;font-weight:600;color:#4f46e5;">${fmt(c.total)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('previewBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;">Vendor</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;">${vendor}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;">Ship To</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;">${shipTo}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;">PO Date</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;">${poDate}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;">Delivery Date</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;">${delivDate}</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
+      <thead><tr style="background:#f3f4f6;">
+        <th style="padding:7px 8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;text-align:left;">#</th>
+        <th style="padding:7px 8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;text-align:left;">Item</th>
+        <th style="padding:7px 8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;text-align:left;">Qty</th>
+        <th style="padding:7px 8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;text-align:right;">Unit Price</th>
+        <th style="padding:7px 8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;text-align:right;">Total</th>
+      </tr></thead>
+      <tbody>${lineRows}</tbody>
+    </table>
+    <div style="text-align:right;padding:12px;background:#eef2ff;border-radius:8px;">
+      <span style="font-size:12px;color:#6366f1;">Grand Total</span>
+      <span style="font-size:20px;font-weight:700;color:#4338ca;margin-left:12px;">${fmt(grand)}</span>
+    </div>`;
+  openModal('previewModal');
+}
+
+function resetForm() {
+  if (!confirm('Discard all changes and reset the form?')) return;
+  clearVendor();
+  document.getElementById('shipTo').value = '';
+  document.getElementById('poNotes').value = '';
+  document.getElementById('shippingMethod').value = '';
+  document.getElementById('shippingTerms').value = '';
+  document.getElementById('paymentTerms').value = '';
+  document.getElementById('poDate').value = new Date().toISOString().split('T')[0];
+  const dd2 = new Date(); dd2.setDate(dd2.getDate()+30);
+  document.getElementById('deliveryDate').value = dd2.toISOString().split('T')[0];
+  lines = []; lineCounter = 0;
+  addLine();
+  toast('Form reset','success');
+}
+
+/* ── Utilities ── */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function toggleGroup(el){const g=el.closest('.nav-group');const o=g.classList.contains('open');document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});g.classList.toggle('open',!o);el.classList.toggle('open',!o);}
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{bd.addEventListener('click',e=>{if(e.target===bd)closeModal(bd.id);});});
+
+function toast(msg, type='success') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icon = type==='success'
+    ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>';
+  t.innerHTML = icon + ' ' + msg;
+  area.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ── Custom Fields Panel ── */
+
+// cfConfigs: master field definitions (shared across header & all lines)
+// placement: 'panel' | 'vendor_header' | 'order_details' | 'shipping' | 'footer'
+let cfConfigs = [
+  {label:'Custom Field 1', type:'text', options:[], placement:'panel'},
+  {label:'Custom Field 2', type:'text', options:[], placement:'panel'},
+  {label:'Custom Field 3', type:'text', options:[], placement:'panel'},
+  {label:'Custom Field 4', type:'text', options:[], placement:'panel'},
+  {label:'Custom Field 5', type:'text', options:[], placement:'panel'},
+];
+
+const CF_PLACEMENTS = [
+  {value:'panel',          label:'Side Panel only (default)'},
+  {value:'vendor_header',  label:'Vendor & Header section'},
+  {value:'order_details',  label:'Order Details section'},
+  {value:'shipping',       label:'Shipping & Terms section'},
+  {value:'footer',         label:'Footer / Notes section'},
+];
+
+// Header-level CF filled values
+const headerCF = { cf1:'', cf2:'', cf3:'', cf4:'', cf5:'' };
+
+const CF_KEYS = ['cf1','cf2','cf3','cf4','cf5'];
+
+let cfContext = null;  // 'header' or line id (number)
+let cfPanelMode = 'fill'; // 'configure' or 'fill'
+
+/* Open header CF panel in fill mode */
+function openCFPanel() { openCFPanelMode('fill'); }
+
+function openCFPanelMode(mode) {
+  cfContext = 'header';
+  cfPanelMode = mode;
+  document.getElementById('cfPanelTitle').textContent = 'Header Custom Fields';
+  document.getElementById('cfPanelSub').textContent = 'Company-level configurable fields for this PO';
+  _openCFPanel();
+}
+
+function openLineCFPanel(lineId) {
+  const line = lines.find(l => l.id === lineId);
+  if (!line) return;
+  cfContext = lineId;
+  cfPanelMode = 'fill';
+  const itemLabel = line.name || `Line #${lines.indexOf(line)+1}`;
+  document.getElementById('cfPanelTitle').textContent = 'Line Custom Fields';
+  document.getElementById('cfPanelSub').textContent = itemLabel;
+  _openCFPanel();
+}
+
+function _openCFPanel() {
+  // Update mode toggle UI
+  document.getElementById('cfModeConfigBtn').classList.toggle('active', cfPanelMode === 'configure');
+  document.getElementById('cfModeFillBtn').classList.toggle('active', cfPanelMode === 'fill');
+  // Update apply button label
+  document.getElementById('cfApplyBtn').textContent = cfPanelMode === 'configure' ? 'Save Config' : 'Apply';
+  // Render body
+  if (cfPanelMode === 'configure') {
+    renderCFConfigureBody();
+  } else {
+    const isHeader = cfContext === 'header';
+    const values = isHeader
+      ? CF_KEYS.map(k => headerCF[k] || '')
+      : (() => { const l = lines.find(l => l.id === cfContext); return CF_KEYS.map(k => l ? (l[k]||'') : ''); })();
+    renderCFFillBody(values);
+  }
+  document.getElementById('cfSidePanel').classList.add('open');
+  document.getElementById('cfOverlay').classList.add('open');
+}
+
+function switchCFMode(mode) {
+  // Save any partially-entered configure data before switching
+  if (cfPanelMode === 'configure') _readConfigureFormIntoConfigs();
+  cfPanelMode = mode;
+  document.getElementById('cfModeConfigBtn').classList.toggle('active', mode === 'configure');
+  document.getElementById('cfModeFillBtn').classList.toggle('active', mode === 'fill');
+  document.getElementById('cfApplyBtn').textContent = mode === 'configure' ? 'Save Config' : 'Apply';
+  if (mode === 'configure') {
+    renderCFConfigureBody();
+  } else {
+    const isHeader = cfContext === 'header';
+    const values = isHeader
+      ? CF_KEYS.map(k => headerCF[k] || '')
+      : (() => { const l = lines.find(l => l.id === cfContext); return CF_KEYS.map(k => l ? (l[k]||'') : ''); })();
+    renderCFFillBody(values);
+  }
+}
+
+/* ── Configure Mode ── */
+function renderCFConfigureBody() {
+  let html = `<div style="font-size:11.5px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">
+    Set the label, type, and <strong>where the field appears</strong> in the PO layout.
+  </div>`;
+  cfConfigs.forEach((cfg, i) => {
+    const key = CF_KEYS[i];
+    const typeOptions = ['text','number','date','dropdown','checkbox']
+      .map(t => `<option value="${t}" ${cfg.type===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');
+    const placementOptions = CF_PLACEMENTS
+      .map(p => `<option value="${p.value}" ${cfg.placement===p.value?'selected':''}>${p.label}</option>`).join('');
+    const optsVisible = cfg.type === 'dropdown' ? 'block' : 'none';
+    const optsText = cfg.options.join('\n');
+    html += `<div class="cf-config-row">
+      <div class="cf-config-row-header">Field ${i+1}</div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" style="font-size:11px;">Label</label>
+        <input class="form-control" id="cfcfg_label_${key}" type="text" value="${escHtml(cfg.label)}" placeholder="Custom Field ${i+1}" style="height:32px;font-size:12.5px;">
+      </div>
+      <div class="cf-type-row">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11px;">Type</label>
+          <select class="form-control" id="cfcfg_type_${key}" style="height:32px;font-size:12.5px;" onchange="onCFTypeChange('${key}',this.value)">${typeOptions}</select>
+        </div>
+      </div>
+      <div class="cf-options-area" id="cfcfg_opts_wrap_${key}" style="display:${optsVisible};">
+        <label class="form-label" style="font-size:11px;">Options (one per line)</label>
+        <textarea id="cfcfg_opts_${key}" placeholder="Option A&#10;Option B&#10;Option C">${escHtml(optsText)}</textarea>
+      </div>
+      <div class="cf-placement-row">
+        <label>Placement</label>
+        <select class="form-control" id="cfcfg_placement_${key}" style="height:30px;font-size:12px;">
+          ${placementOptions}
+        </select>
+      </div>
+    </div>`;
+  });
+  document.getElementById('cfPanelBody').innerHTML = html;
+}
+
+function onCFTypeChange(key, type) {
+  const wrap = document.getElementById('cfcfg_opts_wrap_'+key);
+  if (wrap) wrap.style.display = type === 'dropdown' ? 'block' : 'none';
+}
+
+function _readConfigureFormIntoConfigs() {
+  CF_KEYS.forEach((key, i) => {
+    const labelEl     = document.getElementById('cfcfg_label_'+key);
+    const typeEl      = document.getElementById('cfcfg_type_'+key);
+    const optsEl      = document.getElementById('cfcfg_opts_'+key);
+    const placementEl = document.getElementById('cfcfg_placement_'+key);
+    if (labelEl)     cfConfigs[i].label     = labelEl.value.trim() || `Custom Field ${i+1}`;
+    if (typeEl)      cfConfigs[i].type      = typeEl.value;
+    if (optsEl)      cfConfigs[i].options   = optsEl.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if (placementEl) cfConfigs[i].placement = placementEl.value;
+  });
+  renderInlineCF();
+}
+
+/* ── Inline CF rendering (for placed fields) ── */
+function renderInlineCF() {
+  const zones = ['vendor_header','order_details','shipping','footer'];
+  zones.forEach(zone => {
+    const el = document.getElementById('cf-zone-'+zone);
+    if (!el) return;
+    el.innerHTML = '';
+    const placed = cfConfigs.filter(c => c.placement === zone);
+
+    // Show/hide standalone wrapper cards (shipping & footer have their own section-block)
+    const wrap = document.getElementById('cf-zone-'+zone+'-wrap');
+    if (wrap) wrap.style.display = placed.length ? 'block' : 'none';
+
+    if (!placed.length) { el.style.display = 'none'; return; }
+    el.style.display = 'grid';
+
+    placed.forEach(cfg => {
+      const key = CF_KEYS[cfConfigs.indexOf(cfg)];
+      const val = headerCF[key] || '';
+      const inputHtml = buildCFInput(cfg, key, val, 'inline');
+      el.innerHTML += `<div class="cf-inline-field">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px;">
+            ${escHtml(cfg.label)}<span class="cf-inline-badge">CF</span>
+          </label>
+          ${inputHtml}
+        </div>
+      </div>`;
+    });
+  });
+}
+
+function buildCFInput(cfg, key, val, context) {
+  const idAttr = context === 'inline' ? `cfinline_${key}` : `cfp_${key}`;
+  switch (cfg.type) {
+    case 'number':
+      return `<input class="form-control" id="${idAttr}" type="number" value="${escHtml(val)}" placeholder="0" style="height:34px;">`;
+    case 'date':
+      return `<input class="form-control" id="${idAttr}" type="date" value="${escHtml(val)}" style="height:34px;">`;
+    case 'dropdown': {
+      const opts = cfg.options.map(o => `<option value="${escHtml(o)}" ${val===o?'selected':''}>${escHtml(o)}</option>`).join('');
+      return `<select class="form-control" id="${idAttr}" style="height:34px;"><option value="">— Select —</option>${opts}</select>`;
+    }
+    case 'checkbox':
+      return `<div class="cf-checkbox-wrap"><input type="checkbox" id="${idAttr}" ${val==='true'?'checked':''}><label class="cf-checkbox-label" for="${idAttr}">${escHtml(cfg.label)}</label></div>`;
+    default:
+      return `<input class="form-control" id="${idAttr}" type="text" value="${escHtml(val)}" placeholder="Enter value…" style="height:34px;">`;
+  }
+}
+
+/* ── Fill Mode ── */
+function renderCFFillBody(values) {
+  const isHeader = cfContext === 'header';
+  let html = '';
+  let placedCount = 0;
+  cfConfigs.forEach((cfg, i) => {
+    const key = CF_KEYS[i];
+    const val = values[i] || '';
+    // If field is placed inline and we're in header context, show a note instead
+    if (isHeader && cfg.placement !== 'panel') {
+      placedCount++;
+      const placementLabel = CF_PLACEMENTS.find(p=>p.value===cfg.placement)?.label || cfg.placement;
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;color:var(--brand-500);flex-shrink:0;"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--brand-700);">${escHtml(cfg.label)}</div>
+          <div style="font-size:11px;color:var(--brand-500);">Placed in: ${placementLabel}</div>
+        </div>
+      </div>`;
+      return;
+    }
+    const inputHtml = buildCFInput(cfg, key, val, 'panel');
+    const labelRow = cfg.type !== 'checkbox' ? `<label class="form-label">${escHtml(cfg.label)}</label>` : '';
+    html += `<div class="form-group">${labelRow}${inputHtml}</div>`;
+  });
+  if (!html) html = '<div style="color:var(--text-3);font-size:12.5px;">No custom fields configured.</div>';
+  document.getElementById('cfPanelBody').innerHTML = html;
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function saveCFPanel() {
+  if (cfPanelMode === 'configure') {
+    _readConfigureFormIntoConfigs();
+    updateCFTriggerLabel();
+    toast('Custom field configuration saved', 'success');
+    // Switch to fill mode after saving config
+    switchCFMode('fill');
+    return;
+  }
+
+  // Fill mode save
+  const keys = CF_KEYS;
+  if (cfContext === 'header') {
+    keys.forEach((k, i) => {
+      const cfg = cfConfigs[i];
+      const el = document.getElementById('cfp_'+k);
+      if (!el) return;
+      headerCF[k] = cfg.type === 'checkbox' ? String(el.checked) : (el.value || '');
+    });
+    updateCFSummary();
+    toast('Header custom fields saved', 'success');
+  } else {
+    const line = lines.find(l => l.id === cfContext);
+    if (line) {
+      keys.forEach((k, i) => {
+        const cfg = cfConfigs[i];
+        const el = document.getElementById('cfp_'+k);
+        if (!el) return;
+        line[k] = cfg.type === 'checkbox' ? String(el.checked) : (el.value || '');
+      });
+      renderLines();
+      toast('Line custom fields saved', 'success');
+    }
+  }
+  closeCFPanel();
+}
+
+function closeCFPanel() {
+  document.getElementById('cfSidePanel').classList.remove('open');
+  document.getElementById('cfOverlay').classList.remove('open');
+  cfContext = null;
+}
+
+function updateCFSummary() {
+  const filled = CF_KEYS.filter(k => { const v = headerCF[k]; return v && String(v).trim() && v !== 'false'; }).length;
+  const btn = document.getElementById('cfTriggerBtn');
+  if (filled > 0) {
+    document.getElementById('cfSummary').textContent = `${filled} of 5 custom field${filled>1?'s':''} filled`;
+    btn.classList.add('has-data');
+  } else {
+    document.getElementById('cfSummary').textContent = 'No custom fields filled';
+    btn.classList.remove('has-data');
+  }
+}
+
+function updateCFTriggerLabel() {
+  // Show first non-default label as hint on the trigger button, else "Custom Fields"
+  const firstCustom = cfConfigs.find((c,i) => c.label && c.label !== `Custom Field ${i+1}`);
+  const labelEl = document.getElementById('cfTriggerLabel');
+  if (labelEl) labelEl.textContent = firstCustom ? firstCustom.label + '…' : 'Custom Fields';
+}
+
+// Initial render
+renderLines();
+</script>
+</body>
+</html>

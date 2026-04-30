@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Receipts (GRN) — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --excess-bg:#fef3c7; --excess-color:#92400e; --excess-border:#fcd34d;
+}
+.sidebar { background:var(--sidebar-bg)!important; border-right:1px solid var(--border)!important; }
+.brand-name { color:#1e1f2e!important; font-weight:800!important; }
+.brand-sub { color:#8892a4!important; }
+.sidebar-brand { border-bottom:1px solid var(--border)!important; }
+.nav-section { color:#a0aec0!important; font-size:10px!important; font-weight:700!important; letter-spacing:.1em!important; text-transform:uppercase!important; padding:16px 18px 4px!important; }
+.nav-parent-label { color:#3d4462!important; font-weight:500!important; }
+.nav-parent-icon { color:#8892a4!important; }
+.nav-parent:hover .nav-parent-label { color:var(--brand-600)!important; }
+.nav-parent.active-group .nav-parent-label { color:var(--brand-600)!important; font-weight:600!important; }
+.nav-child { color:#64748b!important; font-size:12.5px!important; padding:7px 14px 7px 42px!important; border-radius:6px!important; margin:1px 8px!important; display:block!important; }
+.nav-child:hover { background:var(--sidebar-hover)!important; color:var(--brand-700)!important; }
+.nav-child.active { background:var(--sidebar-active)!important; color:var(--brand-700)!important; font-weight:600!important; }
+.nav-chevron { color:#a0aec0!important; }
+.sidebar-footer { border-top:1px solid var(--border)!important; }
+.sf-name { color:#1e1f2e!important; } .sf-role { color:#8892a4!important; } .sf-avatar { background:var(--brand-500)!important; }
+.topbar { border-bottom:1px solid #dde0ea!important; box-shadow:0 1px 4px rgba(91,95,199,0.06)!important; }
+
+/* ── Status pills ── */
+.sp { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap; }
+.sp-draft    { background:#f3f4f6;color:#4b5563; }
+.sp-pending  { background:#fefce8;color:#92400e; }
+.sp-posted   { background:#f0fdf4;color:#166534; }
+.sp-rejected { background:#fef2f2;color:#991b1b; }
+.sp-partial  { background:#f5f3ff;color:#5b21b6; }
+
+/* ── Section block ── */
+.sec { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px; }
+.sec-head { display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border2); }
+.sec-title { font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px; }
+.sec-title svg { width:15px;height:15px;color:var(--brand-500); }
+.sec-body { padding:18px 20px; }
+
+/* ── Grids ── */
+.g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px; }
+.g2 { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px; }
+.g4 { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px; }
+
+/* ── GRN Receipt table ── */
+.grn-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.grn-table th { text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:8px 10px;border-bottom:2px solid var(--border2);background:var(--gray-50);white-space:nowrap; }
+.grn-table td { padding:9px 10px;border-bottom:1px solid var(--border2);vertical-align:middle; }
+.grn-table tr:last-child td { border-bottom:none; }
+.grn-table tr:hover td { background:rgba(91,95,199,0.02); }
+.grn-table tr.excess-row td { background:var(--excess-bg); }
+
+/* PO group header row in multi-PO table */
+.po-group-head td {
+  background:linear-gradient(to right,var(--brand-50),transparent);
+  border-top:2px solid var(--brand-200);
+  padding:8px 10px;font-size:11.5px;font-weight:700;color:var(--brand-700);
+}
+
+/* ── Balance bar ── */
+.bal-bar { height:5px;background:var(--gray-100);border-radius:3px;margin-top:4px;overflow:hidden; }
+.bal-fill { height:5px;border-radius:3px; }
+.bal-ok { background:var(--brand-500); } .bal-excess { background:#f59e0b; } .bal-over { background:var(--danger); }
+
+/* ── Qty / LOT inputs ── */
+.qty-input { width:80px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:5px 8px;font-size:13px;font-family:inherit;text-align:right;background:var(--surface);color:var(--text-1);transition:border-color var(--ease); }
+.qty-input:focus { outline:none;border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(91,95,199,.1); }
+.qty-input.excess { border-color:#f59e0b;background:var(--excess-bg); }
+.qty-input.over   { border-color:var(--danger);background:#fef2f2; }
+.lot-input { width:115px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:5px 8px;font-size:12px;font-family:inherit;background:var(--surface);color:var(--text-1); }
+.lot-input:focus { outline:none;border-color:var(--brand-500); }
+.lot-badge { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd; }
+
+/* ── QC select ── */
+.qc-select { border:1.5px solid var(--border);border-radius:var(--r-sm);padding:5px 8px;font-size:12px;font-family:inherit;background:var(--surface);cursor:pointer; }
+.qc-select:focus { outline:none;border-color:var(--brand-500); }
+.qc-pass    { border-color:#86efac;background:#f0fdf4;color:#166534; }
+.qc-fail    { border-color:#fca5a5;background:#fef2f2;color:#991b1b; }
+.qc-partial { border-color:#fcd34d;background:#fefce8;color:#92400e; }
+
+/* ── Reject row ── */
+.reject-row { display:none;margin-top:5px;gap:5px;align-items:center; }
+.reject-row.show { display:flex; }
+
+/* ── Excess warning banner ── */
+.excess-banner { display:none;padding:12px 16px;background:var(--excess-bg);border:1px solid var(--excess-border);border-radius:var(--r-sm);font-size:12.5px;color:var(--excess-color);margin:12px 20px;align-items:flex-start;gap:10px; }
+.excess-banner.show { display:flex; }
+.excess-banner svg { width:16px;height:16px;flex-shrink:0;margin-top:1px; }
+
+/* ── LOT notice ── */
+.lot-notice { display:flex;align-items:center;gap:8px;padding:10px 14px;background:#ede9fe;border:1px solid #c4b5fd;border-radius:var(--r-sm);font-size:12px;color:#5b21b6;margin-bottom:14px; }
+.lot-notice svg { width:14px;height:14px;flex-shrink:0; }
+
+/* ── Stat cards ── */
+.stat-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px; }
+.stat-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all var(--ease); }
+.stat-card:hover { box-shadow:var(--shadow-md);transform:translateY(-1px); }
+.stat-card.active { border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+.stat-num { font-size:24px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:3px; }
+.stat-label { font-size:11px;color:var(--text-3);font-weight:500; }
+
+/* ── PO context card ── */
+.po-ctx { display:flex;gap:0;align-items:stretch;padding:0;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);margin-bottom:14px;overflow:hidden; }
+.po-ctx-item { display:flex;flex-direction:column;gap:3px;flex:1;padding:12px 16px; }
+.po-ctx-badge { font-size:10px;font-weight:700;color:var(--brand-500);text-transform:uppercase;letter-spacing:.06em; }
+.po-ctx-val { font-size:13px;color:var(--text-1);font-weight:600; }
+.po-ctx-sub { font-size:11px;color:var(--text-3); }
+.po-ctx-divider { width:1px;background:var(--brand-200);flex-shrink:0; }
+
+/* ── Multi-PO tag ── */
+.po-tag { display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);font-size:12.5px;font-weight:600;color:var(--brand-700); }
+.po-tag button { background:none;border:none;cursor:pointer;color:var(--text-3);padding:0;line-height:1;display:flex; }
+.po-tag button:hover { color:var(--danger); }
+.po-tags-wrap { display:flex;flex-wrap:wrap;gap:6px;margin-top:10px; }
+
+/* ── Mode selector ── */
+.mode-strip { display:flex;gap:0;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content; }
+.mode-btn { padding:8px 18px;font-size:12.5px;font-weight:500;color:var(--text-2);background:var(--surface);border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all var(--ease); }
+.mode-btn:not(:last-child) { border-right:1.5px solid var(--border); }
+.mode-btn:hover { background:var(--gray-50);color:var(--text-1); }
+.mode-btn.active { background:var(--brand-500);color:#fff;font-weight:600; }
+.mode-btn svg { width:14px;height:14px; }
+
+/* ── PO selector chip list (multi mode) ── */
+.po-add-row { display:flex;align-items:center;gap:8px; }
+.po-chips { display:flex;flex-wrap:wrap;gap:6px;margin-top:10px; }
+.po-chip { display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:var(--brand-50);border:1.5px solid var(--brand-200);border-radius:var(--r-sm);font-size:12.5px;color:var(--brand-700); }
+.po-chip strong { font-weight:700; }
+.po-chip .chip-remove { background:none;border:none;cursor:pointer;color:var(--text-3);display:flex;padding:0;margin-left:2px; }
+.po-chip .chip-remove:hover { color:var(--danger); }
+
+/* ── Previous receipts ── */
+.rcpt-timeline { display:flex;flex-direction:column;gap:10px; }
+.rcpt-entry { display:flex;gap:12px;padding:12px 14px;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--border2); }
+.rcpt-entry-dot { width:30px;height:30px;border-radius:50%;background:var(--brand-50);border:2px solid var(--brand-200);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand-500); }
+.rcpt-entry-dot svg { width:13px;height:13px; }
+
+/* ── Tolerance row ── */
+.tolerance-row { display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--border2);font-size:12.5px;color:var(--text-2); }
+.tolerance-row input { width:52px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:3px 6px;font-size:13px;text-align:center;font-family:inherit; }
+
+/* ── Summary bar ── */
+.summary-bar { padding:14px 20px;border-top:1px solid var(--border2);background:var(--gray-50);display:flex;align-items:center;justify-content:space-between; }
+.sum-item { display:flex;flex-direction:column;gap:2px; }
+.sum-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3); }
+.sum-val { font-size:16px;font-weight:700;color:var(--text-1); }
+
+/* ── Sticky action bar ── */
+.sticky-bar { position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:50;box-shadow:0 -4px 12px rgba(0,0,0,.06);flex-shrink:0; }
+
+/* ── Tab strip ── */
+.tab-strip { display:flex;gap:2px;border-bottom:1px solid var(--border2);padding:0 24px;background:var(--surface);flex-shrink:0; }
+.tab-item { padding:11px 16px;font-size:12.5px;font-weight:500;color:var(--text-3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--ease);font-family:inherit;display:flex;align-items:center;gap:6px; }
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600);border-bottom-color:var(--brand-600);font-weight:600; }
+.tab-count { min-width:18px;height:18px;padding:0 5px;background:var(--gray-200);border-radius:var(--r-full);font-size:10px;font-weight:700;color:var(--text-2);display:flex;align-items:center;justify-content:center; }
+.tab-item.active .tab-count { background:var(--brand-100);color:var(--brand-700); }
+
+/* ── Action menu ── */
+.am-wrap { position:relative; }
+.action-menu { position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:100;min-width:160px;padding:4px;display:none; }
+.action-menu.open { display:block; }
+.am-item { display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2);cursor:pointer;transition:background var(--ease); }
+.am-item:hover { background:var(--gray-50);color:var(--text-1); }
+.am-item.danger:hover { background:#fef2f2;color:var(--danger); }
+.am-item svg { width:14px;height:14px;color:var(--text-3); }
+
+/* ── Info callout ── */
+.info-callout { display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);font-size:12.5px;color:var(--brand-700);margin-bottom:14px; }
+.info-callout svg { width:15px;height:15px;flex-shrink:0;margin-top:1px; }
+
+/* ── Column Configurator Panel ── */
+.col-panel-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.18);z-index:299;display:none; }
+.col-panel-overlay.open { display:block; }
+.col-panel {
+  position:fixed;top:0;right:-400px;bottom:0;width:380px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-8px 0 32px rgba(0,0,0,.10);z-index:300;
+  display:flex;flex-direction:column;transition:right 0.25s ease;
+}
+.col-panel.open { right:0; }
+.col-panel-head { padding:18px 20px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0; }
+.col-panel-title { font-size:15px;font-weight:700;color:var(--text-1); }
+.col-panel-sub { font-size:11.5px;color:var(--text-3);margin-top:2px; }
+.col-panel-close { width:28px;height:28px;border:none;background:var(--gray-100);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease); }
+.col-panel-close:hover { background:var(--gray-200);color:var(--text-1); }
+.col-panel-close svg { width:14px;height:14px; }
+.col-panel-groups { flex:1;overflow-y:auto;padding:12px 0; }
+.col-group-label { font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);padding:10px 20px 4px; }
+.col-row { display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:default;transition:background var(--ease);user-select:none; }
+.col-row:hover { background:var(--gray-50); }
+.col-row.dragging { opacity:.4; }
+.col-row.drag-over { background:var(--brand-50);border-top:2px solid var(--brand-500); }
+.drag-handle { cursor:grab;color:var(--text-3);flex-shrink:0;display:flex;align-items:center;padding:2px;border-radius:3px;transition:color var(--ease); }
+.drag-handle:active { cursor:grabbing; }
+.drag-handle:hover { color:var(--text-1); }
+.drag-handle svg { width:14px;height:14px; }
+.col-toggle { width:36px;height:20px;background:var(--gray-300);border-radius:10px;position:relative;cursor:pointer;transition:background var(--ease);flex-shrink:0;border:none; }
+.col-toggle.on { background:var(--brand-500); }
+.col-toggle::after { content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform var(--ease);box-shadow:0 1px 3px rgba(0,0,0,.15); }
+.col-toggle.on::after { transform:translateX(16px); }
+.col-row-label { font-size:13px;font-weight:500;color:var(--text-1);flex:1; }
+.col-row-tag { font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:var(--r-full); }
+.col-row-tag.locked { background:var(--gray-100);color:var(--text-3); }
+.col-panel-foot { padding:14px 20px;border-top:1px solid var(--border2);display:flex;gap:8px;justify-content:space-between;flex-shrink:0; }
+.col-cfg-btn { display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12.5px;font-weight:500;color:var(--text-2);background:var(--surface);cursor:pointer;transition:all var(--ease);font-family:inherit; }
+.col-cfg-btn:hover { border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50); }
+.col-cfg-btn svg { width:14px;height:14px; }
+
+/* ── Action icon buttons ── */
+.act-icon-btn {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all var(--ease);color:var(--text-2);flex-shrink:0;
+}
+.act-icon-btn:hover { background:var(--gray-50);border-color:var(--brand-300);color:var(--brand-600); }
+.act-icon-btn svg { width:14px;height:14px; }
+.act-icon-btn.whatsapp:hover { background:#e7fce8;border-color:#4ade80;color:#16a34a; }
+.act-icon-btn.email:hover    { background:#eff6ff;border-color:#93c5fd;color:#2563eb; }
+.act-icon-btn.accounts:hover { background:#fefce8;border-color:#fde047;color:#854d0e; }
+.act-icon-btn.pdf:hover      { background:#fef2f2;border-color:#fca5a5;color:#dc2626; }
+.act-icon-btn.excel:hover    { background:#f0fdf4;border-color:#86efac;color:#15803d; }
+.act-icon-btn[disabled]      { opacity:.35;cursor:not-allowed;pointer-events:none; }
+.am-sep { height:1px;background:var(--border2);margin:4px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Enterprise Garment Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child active" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">PO Receipts — GRN</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Export">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <button class="topbar-cta" onclick="openNewGRN()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New GRN
+      </button>
+    </div>
+  </header>
+
+  <!-- ════════ LIST VIEW ════════ -->
+  <main class="page" style="padding:0;display:flex;flex-direction:column;overflow:hidden;" id="viewList">
+    <div style="padding:22px 28px 0;">
+      <div class="ph" style="margin-bottom:16px;">
+        <div>
+          <div class="ph-title">Goods Receipt Notes</div>
+          <div class="ph-sub">All inventory inward receipts against purchase orders</div>
+        </div>
+        <div class="ph-actions">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="position:relative;">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              <input class="form-control" id="grnSearch" type="text" placeholder="Search GRN#, PO#, vendor…" style="padding-left:32px;height:36px;width:230px;" oninput="applyGrnFilter()">
+            </div>
+            <select class="filter-select" id="grnFilterStatus" onchange="applyGrnFilter()" style="height:36px;">
+              <option value="">All Statuses</option>
+              <option>Draft</option><option>Posted</option>
+              <option>Pending Approval</option><option>Rejected</option>
+            </select>
+            <select class="filter-select" id="grnFilterVendor" onchange="applyGrnFilter()" style="height:36px;">
+              <option value="">All Vendors</option>
+              <option>Sunrise Fabrics Pvt. Ltd.</option>
+              <option>Horizon Trims Co.</option>
+              <option>Global Threads LLC</option>
+              <option>Apex Raw Materials</option>
+            </select>
+            <button class="col-cfg-btn" onclick="openGrnColPanel()">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+              Columns
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card active" onclick="filterGrnTab('all',this,null)"><div class="stat-num" id="sc-all">0</div><div class="stat-label">Total GRNs</div></div>
+        <div class="stat-card" onclick="filterGrnTab('Draft',this,null)"><div class="stat-num" style="color:#4b5563;" id="sc-draft">0</div><div class="stat-label">Drafts</div></div>
+        <div class="stat-card" onclick="filterGrnTab('Pending Approval',this,null)"><div class="stat-num" style="color:#92400e;" id="sc-pending">0</div><div class="stat-label">Pending Approval</div></div>
+        <div class="stat-card" onclick="filterGrnTab('Posted',this,null)"><div class="stat-num" style="color:#166534;" id="sc-posted">0</div><div class="stat-label">Posted</div></div>
+        <div class="stat-card" onclick="filterGrnTab('Rejected',this,null)"><div class="stat-num" style="color:#991b1b;" id="sc-rejected">0</div><div class="stat-label">Rejected</div></div>
+      </div>
+    </div>
+    <!-- Tab strip -->
+    <div class="tab-strip">
+      <button class="tab-item active" onclick="filterGrnTab('all',null,this)">All <span class="tab-count" id="tc-all">0</span></button>
+      <button class="tab-item" onclick="filterGrnTab('Draft',null,this)">Draft <span class="tab-count" id="tc-Draft">0</span></button>
+      <button class="tab-item" onclick="filterGrnTab('Pending Approval',null,this)">Pending Approval <span class="tab-count" id="tc-PendingApproval">0</span></button>
+      <button class="tab-item" onclick="filterGrnTab('Posted',null,this)">Posted <span class="tab-count" id="tc-Posted">0</span></button>
+      <button class="tab-item" onclick="filterGrnTab('Rejected',null,this)">Rejected <span class="tab-count" id="tc-Rejected">0</span></button>
+    </div>
+    <!-- Table -->
+    <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+      <div class="card" style="margin-top:16px;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="grnListTable">
+            <thead><tr id="grnTableHead"></tr></thead>
+            <tbody id="grnBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ════════ GRN ENTRY VIEW ════════ -->
+  <main class="page" style="padding:0;display:none;flex-direction:column;overflow:hidden;" id="viewGrn">
+
+    <!-- Top breadcrumb bar -->
+    <div style="padding:14px 28px 0;flex-shrink:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="showList()" style="display:flex;align-items:center;gap:5px;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+            Back to List
+          </button>
+          <span style="color:var(--text-3);">/</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text-1);" id="grnFormTitle">New GRN</span>
+          <span class="sp sp-draft" id="grnFormStatus">Draft</span>
+        </div>
+        <!-- Mode toggle -->
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:12px;color:var(--text-3);font-weight:500;">Receipt Mode:</span>
+          <div class="mode-strip">
+            <button class="mode-btn active" id="modeBtnSingle" onclick="setMode('single')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4z" clip-rule="evenodd"/></svg>
+              Single PO
+            </button>
+            <button class="mode-btn" id="modeBtnMulti" onclick="setMode('multi')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+              Multi-PO
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- LOT notice -->
+      <div class="lot-notice" id="lotNotice" style="display:none;">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+        <strong>LOT Tracking is ON</strong> — Assign a LOT number to each received line. LOTs will be created in inventory on posting.
+      </div>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:0 28px 16px;" id="grnScrollArea">
+
+      <!-- ① GRN Header (common to both modes) -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/></svg>
+            GRN Header
+          </div>
+          <div class="tolerance-row">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;color:var(--text-3);"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+            Over-receipt tolerance:
+            <input type="number" id="tolerance" value="5" min="0" max="100" onchange="recomputeAll()">
+            %
+            <span style="font-size:11px;color:var(--text-3);">(excess beyond this needs approval)</span>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div class="g3" style="margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">GRN Number</label>
+              <input class="form-control" id="grnNum" value="GRN-2026-0006" readonly style="background:var(--gray-50);font-weight:600;color:var(--brand-700);">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Receipt Date <span class="req">*</span></label>
+              <input class="form-control" type="date" id="grnDate">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Warehouse / Location <span class="req">*</span></label>
+              <select class="form-control" id="warehouse">
+                <option>Main Warehouse — Bhiwandi</option>
+                <option>Factory Store — Pune</option>
+                <option>Head Office — Mumbai</option>
+                <option>Tirupur Unit</option>
+              </select>
+            </div>
+          </div>
+          <div class="g4">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Internal Reference #</label>
+              <input class="form-control" type="text" id="internalRef" placeholder="e.g. RECV-2026-041">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Vendor DC / Challan #</label>
+              <input class="form-control" type="text" id="dcNum" placeholder="e.g. DC-54321">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Vendor Invoice #</label>
+              <input class="form-control" type="text" id="invoiceNum" placeholder="e.g. INV-2026-8812">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Transporter / Carrier</label>
+              <input class="form-control" type="text" id="carrier" placeholder="e.g. BlueDart, FedEx">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② SINGLE PO SECTION -->
+      <div id="singlePOSection">
+        <div class="sec">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+              PO Reference
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="g2" style="margin-bottom:0;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Select PO <span class="req">*</span></label>
+                <select class="form-control" id="singlePoRef" onchange="loadSinglePO()">
+                  <option value="">— Select a Purchase Order —</option>
+                  <option value="1">PO-2026-0003 — Apex Raw Materials (Approved)</option>
+                  <option value="2">PO-2026-0005 — Sunrise Fabrics Pvt. Ltd. (Approved)</option>
+                  <option value="3">PO-2026-0009 — Sunrise Fabrics Pvt. Ltd. (Approved)</option>
+                  <option value="4">PO-2026-0002 — Horizon Trims Co. (Partially Received)</option>
+                </select>
+              </div>
+            </div>
+            <!-- PO Context card -->
+            <div id="singlePoCtx" style="display:none;margin-top:14px;">
+              <div class="po-ctx" id="singlePoCtxInner"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Previous receipts for single PO -->
+        <div class="sec" id="prevReceiptsSection" style="display:none;">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+              Previous Receipts for this PO
+            </div>
+            <span style="font-size:12px;color:var(--text-3);" id="prevReceiptCount"></span>
+          </div>
+          <div class="sec-body" style="padding:14px 20px;">
+            <div class="rcpt-timeline" id="prevReceiptsBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ MULTI-PO SECTION -->
+      <div id="multiPOSection" style="display:none;">
+        <div class="sec">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+              Select POs to Receive Against
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="info-callout">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+              Use this mode when a single delivery challan or invoice covers goods from multiple POs. Add all relevant POs, then enter receipt quantities per line below.
+            </div>
+            <div class="po-add-row">
+              <select class="form-control" id="multiPoSelect" style="max-width:380px;">
+                <option value="">— Add a PO —</option>
+                <option value="1">PO-2026-0003 — Apex Raw Materials (Approved)</option>
+                <option value="2">PO-2026-0005 — Sunrise Fabrics Pvt. Ltd. (Approved)</option>
+                <option value="3">PO-2026-0009 — Sunrise Fabrics Pvt. Ltd. (Approved)</option>
+                <option value="4">PO-2026-0002 — Horizon Trims Co. (Partially Received)</option>
+              </select>
+              <button class="btn btn-outline" onclick="addMultiPO()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                Add PO
+              </button>
+            </div>
+            <!-- Selected PO chips -->
+            <div class="po-chips" id="multiPoChips"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ Receipt Lines (shared, rendered dynamically) -->
+      <div class="sec" id="receiptLinesSection" style="display:none;">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            Receipt Lines
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);cursor:pointer;">
+            <input type="checkbox" id="receiveAllCheck" onchange="receiveAll(this.checked)">
+            Receive all at full balance qty
+          </label>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="grn-table" id="receiptTable">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th>Item / Description</th>
+                <th>UOM</th>
+                <th style="text-align:right;">PO Qty</th>
+                <th style="text-align:right;">Prev. Rcvd</th>
+                <th style="text-align:right;">Balance</th>
+                <th style="text-align:right;min-width:105px;">Receive Qty <span style="color:var(--danger);">*</span></th>
+                <th id="lotColHead" style="min-width:130px;">LOT Number</th>
+                <th style="min-width:120px;">QC Status</th>
+                <th style="min-width:80px;">Reject Qty</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="receiptBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Excess warning -->
+        <div class="excess-banner" id="excessBanner">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+          <div>
+            <strong>Excess Receipt Detected</strong> — <span id="excessDetail"></span><br>
+            This GRN will be saved as <em>Pending Approval</em> until reviewed.
+          </div>
+        </div>
+
+        <!-- Summary bar -->
+        <div class="summary-bar" id="receiptSummaryBar" style="display:none;">
+          <div style="display:flex;gap:32px;">
+            <div class="sum-item"><div class="sum-label">Total Lines</div><div class="sum-val" id="sumLines">0</div></div>
+            <div class="sum-item"><div class="sum-label">Receiving Qty</div><div class="sum-val" style="color:var(--brand-700);" id="sumQtyRcv">0</div></div>
+            <div class="sum-item"><div class="sum-label">Excess Qty</div><div class="sum-val" style="color:#f59e0b;" id="sumExcess">0</div></div>
+            <div class="sum-item"><div class="sum-label">QC Rejected</div><div class="sum-val" style="color:var(--danger);" id="sumReject">0</div></div>
+          </div>
+          <div id="grnStatusLabel"></div>
+        </div>
+      </div>
+
+      <!-- ⑤ Notes -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+            Notes &amp; Remarks
+          </div>
+        </div>
+        <div class="sec-body">
+          <textarea class="form-control" id="grnNotes" placeholder="Condition of goods, discrepancies, carrier info, special instructions…" style="min-height:72px;"></textarea>
+        </div>
+      </div>
+
+    </div><!-- end scroll area -->
+
+    <!-- Sticky action bar -->
+    <div class="sticky-bar">
+      <div style="font-size:13px;color:var(--text-3);" id="stickyGrnInfo">Select a PO to begin</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="showList()">Cancel</button>
+        <button class="btn btn-outline" onclick="saveGRN('draft')">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Draft
+        </button>
+        <button class="btn btn-primary" id="postGrnBtn" onclick="saveGRN('post')" disabled>
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+          <span id="postBtnLabel">Post GRN</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+</div><!-- /.main -->
+</div><!-- /.app -->
+
+<!-- ── Approval Modal ── -->
+<div class="modal-backdrop" id="approvalModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Excess Receipt — Approval Required</div><div class="modal-sub" id="apprModalSub"></div></div>
+      <button class="modal-x" onclick="closeModal('approvalModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:var(--excess-bg);border:1px solid var(--excess-border);border-radius:var(--r-sm);font-size:12.5px;color:var(--excess-color);margin-bottom:14px;" id="apprExcessDetail"></div>
+      <div class="form-group">
+        <label class="form-label">Reason for excess receipt <span class="req">*</span></label>
+        <textarea class="form-control" id="apprReason" placeholder="Explain why excess quantity is being received…" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('approvalModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitForApproval()">Submit for Approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Inventory Preview Modal ── -->
+<div class="modal-backdrop" id="invModal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Inventory Impact Preview</div><div class="modal-sub">Lines that will be posted to inventory on confirmation</div></div>
+      <button class="modal-x" onclick="closeModal('invModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body" id="invModalBody" style="max-height:420px;overflow-y:auto;"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('invModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPost()">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Confirm &amp; Post to Inventory
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GRN Column Configurator Panel ── -->
+<div class="col-panel-overlay" id="grnColPanelOverlay" onclick="closeGrnColPanel()"></div>
+<div class="col-panel" id="grnColPanel">
+  <div class="col-panel-head">
+    <div>
+      <div class="col-panel-title">Configure Columns</div>
+      <div class="col-panel-sub">Show/hide and drag to reorder</div>
+    </div>
+    <button class="col-panel-close" onclick="closeGrnColPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="col-panel-groups" id="grnColPanelGroups"></div>
+  <div class="col-panel-foot">
+    <button class="btn btn-outline btn-sm" onclick="resetGrnColDefaults()">Reset defaults</button>
+    <button class="btn btn-primary btn-sm" onclick="closeGrnColPanel()">Done</button>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ═══════════════════
+   COMPANY SETTINGS
+═══════════════════ */
+const COMPANY = { lotTracking: true, overReceiptTolerance: 5, requireQC: true };
+
+/* ═══════════════════
+   PO DATA
+═══════════════════ */
+const PO_DATA = {
+  '1': {
+    poNum:'PO-2026-0003', vendor:'Apex Raw Materials', date:'2026-04-08',
+    delivDate:'2026-05-05', shipTo:'Main Warehouse — Bhiwandi', status:'Approved',
+    previousReceipts:[],
+    lines:[
+      {id:'1-1', item:'Fabric — Cotton 40s',   uom:'Mtrs',  ordQty:500,  prevRcvd:0},
+      {id:'1-2', item:'Interfacing — Woven',   uom:'Mtrs',  ordQty:200,  prevRcvd:0},
+      {id:'1-3', item:'Labels (Woven)',          uom:'Pcs',   ordQty:5000, prevRcvd:0},
+    ]
+  },
+  '2': {
+    poNum:'PO-2026-0005', vendor:'Sunrise Fabrics Pvt. Ltd.', date:'2026-04-14',
+    delivDate:'2026-05-15', shipTo:'Main Warehouse — Bhiwandi', status:'Approved',
+    previousReceipts:[],
+    lines:[
+      {id:'2-1', item:'Polyester Blended Fabric', uom:'Mtrs', ordQty:800, prevRcvd:0},
+      {id:'2-2', item:'Lining Fabric',             uom:'Mtrs', ordQty:300, prevRcvd:0},
+    ]
+  },
+  '3': {
+    poNum:'PO-2026-0009', vendor:'Sunrise Fabrics Pvt. Ltd.', date:'2026-04-22',
+    delivDate:'2026-06-05', shipTo:'Tirupur Unit', status:'Approved',
+    previousReceipts:[],
+    lines:[
+      {id:'3-1', item:'Cotton Knit Fabric — 180 GSM', uom:'Kg',    ordQty:2000, prevRcvd:0},
+      {id:'3-2', item:'Rib Fabric — 1x1',              uom:'Kg',    ordQty:400,  prevRcvd:0},
+      {id:'3-3', item:'Tape — Twill 12mm',              uom:'Mtrs',  ordQty:5000, prevRcvd:0},
+      {id:'3-4', item:'Thread — Spun Poly 40s',         uom:'Cones', ordQty:100,  prevRcvd:0},
+      {id:'3-5', item:'Labels (Printed)',                uom:'Pcs',   ordQty:10000,prevRcvd:0},
+      {id:'3-6', item:'Hangtag Set',                     uom:'Sets',  ordQty:5000, prevRcvd:0},
+      {id:'3-7', item:'Poly Bag — Garment',              uom:'Pcs',   ordQty:5000, prevRcvd:0},
+      {id:'3-8', item:'Carton Box (Export Quality)',     uom:'Pcs',   ordQty:200,  prevRcvd:0},
+    ]
+  },
+  '4': {
+    poNum:'PO-2026-0002', vendor:'Horizon Trims Co.', date:'2026-04-05',
+    delivDate:'2026-04-28', shipTo:'Factory Store — Pune', status:'Partially Received',
+    previousReceipts:[
+      {grnNum:'GRN-2026-0001', date:'2026-04-20', internalRef:'RECV-2026-001', dcNum:'DC-45001', invoiceNum:'INV-8801', qty:1500, postedBy:'Rajan Mehta'},
+    ],
+    lines:[
+      {id:'4-1', item:'Metal Buttons 20mm', uom:'Pcs',  ordQty:2000, prevRcvd:1000},
+      {id:'4-2', item:'Zippers 30cm',       uom:'Pcs',  ordQty:500,  prevRcvd:500},
+      {id:'4-3', item:'Elastic Band 25mm',  uom:'Mtrs', ordQty:300,  prevRcvd:0},
+      {id:'4-4', item:'Hook & Eye Set',     uom:'Sets', ordQty:1000, prevRcvd:500},
+      {id:'4-5', item:'Velcro 25mm',        uom:'Mtrs', ordQty:200,  prevRcvd:0},
+      {id:'4-6', item:'Snap Fasteners',     uom:'Pcs',  ordQty:2000, prevRcvd:0},
+    ]
+  }
+};
+
+/* ═══════════════════
+   GRN LIST DATA
+═══════════════════ */
+const GRNS = [
+  {id:1, grnNum:'GRN-2026-0001', date:'2026-04-20', mode:'single', poNums:['PO-2026-0002'], vendor:'Horizon Trims Co.',         dcNum:'DC-45001', invoiceNum:'INV-8801', internalRef:'RECV-2026-001', items:4, totalQty:1500,  excessQty:0,  lotTracked:true,  status:'Posted'},
+  {id:2, grnNum:'GRN-2026-0002', date:'2026-04-22', mode:'multi',  poNums:['PO-2026-0001','PO-2026-0006'], vendor:'Sunrise Fabrics Pvt. Ltd.', dcNum:'DC-45100', invoiceNum:'INV-9001', internalRef:'RECV-2026-002', items:6, totalQty:14270, excessQty:0,  lotTracked:true,  status:'Posted'},
+  {id:3, grnNum:'GRN-2026-0003', date:'2026-04-26', mode:'single', poNums:['PO-2026-0004'], vendor:'Global Threads LLC',         dcNum:'DC-55210', invoiceNum:'—',         internalRef:'RECV-2026-003', items:3, totalQty:820,   excessQty:50, lotTracked:false, status:'Pending Approval'},
+  {id:4, grnNum:'GRN-2026-0004', date:'2026-04-27', mode:'single', poNums:['PO-2026-0007'], vendor:'Apex Raw Materials',         dcNum:'—',         invoiceNum:'—',         internalRef:'',              items:2, totalQty:300,   excessQty:0,  lotTracked:false, status:'Draft'},
+  {id:5, grnNum:'GRN-2026-0005', date:'2026-04-28', mode:'multi',  poNums:['PO-2026-0008','PO-2026-0010'], vendor:'Global Threads LLC',        dcNum:'DC-55300', invoiceNum:'INV-9900', internalRef:'RECV-2026-005', items:3, totalQty:100,   excessQty:0,  lotTracked:false, status:'Rejected'},
+];
+
+/* ═══════════════════
+   VENDOR CONTACTS
+═══════════════════ */
+const VENDOR_CONTACTS = {
+  'Sunrise Fabrics Pvt. Ltd.': { phone:'919876543210', email:'orders@sunrisefabrics.in' },
+  'Horizon Trims Co.':         { phone:'919812345678', email:'purchase@horizontrims.com' },
+  'Global Threads LLC':        { phone:'919900112233', email:'supply@globalthreads.com' },
+  'Apex Raw Materials':        { phone:'919988776655', email:'procurement@apexraw.in' },
+};
+
+/* ═══════════════════
+   COLUMN CONFIG
+═══════════════════ */
+const GRN_ALL_COLUMNS = [
+  { id:'grnnum',      label:'GRN # / Date',      group:'Core',       locked:true,  default:true  },
+  { id:'mode',        label:'Receipt Mode',       group:'Core',       locked:false, default:true  },
+  { id:'ponums',      label:'PO Reference(s)',    group:'Core',       locked:false, default:true  },
+  { id:'vendor',      label:'Vendor(s)',          group:'Core',       locked:false, default:true  },
+  { id:'status',      label:'Status',             group:'Core',       locked:false, default:true  },
+  { id:'dcinvoice',   label:'DC / Invoice #',     group:'Reference',  locked:false, default:true  },
+  { id:'internalref', label:'Internal Ref',       group:'Reference',  locked:false, default:true  },
+  { id:'warehouse',   label:'Warehouse',          group:'Reference',  locked:false, default:false },
+  { id:'carrier',     label:'Carrier',            group:'Reference',  locked:false, default:false },
+  { id:'items',       label:'Items',              group:'Quantities', locked:false, default:true  },
+  { id:'totalqty',    label:'Total Qty Received', group:'Quantities', locked:false, default:true  },
+  { id:'excessqty',   label:'Excess Qty',         group:'Quantities', locked:false, default:true  },
+  { id:'netqty',      label:'Net to Inventory',   group:'Quantities', locked:false, default:false },
+  { id:'lottracked',  label:'LOT Tracked',        group:'Status',     locked:false, default:true  },
+  { id:'actions',     label:'Actions',            group:'Core',       locked:true,  default:true  },
+];
+const GRN_DEFAULT_ACTIVE = GRN_ALL_COLUMNS.filter(c=>c.default).map(c=>c.id);
+let grnActiveColumns = [...GRN_DEFAULT_ACTIVE];
+
+/* ═══════════════════
+   STATE
+═══════════════════ */
+let grnMode       = 'single';  // 'single' | 'multi'
+let singlePO      = null;      // PO_DATA entry for single mode
+let multiPOIds    = [];        // array of PO keys for multi mode
+let grnFilterTab  = 'all';
+let filteredGRNs  = [...GRNS];
+const lotEnabled  = COMPANY.lotTracking;
+
+/* ═══════════════════
+   INIT
+═══════════════════ */
+document.getElementById('grnDate').value = new Date().toISOString().split('T')[0];
+document.getElementById('tolerance').value = COMPANY.overReceiptTolerance;
+if (!lotEnabled) document.getElementById('lotColHead').style.display = 'none';
+renderGrnTableHead();
+updateGrnStats();
+applyGrnFilter();
+
+/* ═══════════════════
+   LIST VIEW
+═══════════════════ */
+function updateGrnStats() {
+  document.getElementById('sc-all').textContent     = GRNS.length;
+  document.getElementById('sc-draft').textContent   = GRNS.filter(g=>g.status==='Draft').length;
+  document.getElementById('sc-pending').textContent = GRNS.filter(g=>g.status==='Pending Approval').length;
+  document.getElementById('sc-posted').textContent  = GRNS.filter(g=>g.status==='Posted').length;
+  document.getElementById('sc-rejected').textContent= GRNS.filter(g=>g.status==='Rejected').length;
+  document.getElementById('tc-all').textContent              = GRNS.length;
+  document.getElementById('tc-Draft').textContent            = GRNS.filter(g=>g.status==='Draft').length;
+  document.getElementById('tc-PendingApproval').textContent  = GRNS.filter(g=>g.status==='Pending Approval').length;
+  document.getElementById('tc-Posted').textContent           = GRNS.filter(g=>g.status==='Posted').length;
+  document.getElementById('tc-Rejected').textContent         = GRNS.filter(g=>g.status==='Rejected').length;
+}
+
+function filterGrnTab(tab, cardEl, tabEl) {
+  grnFilterTab = tab;
+  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  if (cardEl) cardEl.classList.add('active');
+  if (tabEl)  tabEl.classList.add('active');
+  else {
+    document.querySelectorAll('.tab-item').forEach(t => {
+      if (t.textContent.trim().startsWith(tab === 'all' ? 'All' : tab.charAt(0).toUpperCase()+tab.slice(1)))
+        t.classList.add('active');
+    });
+  }
+  applyGrnFilter();
+}
+
+function applyGrnFilter() {
+  const q  = document.getElementById('grnSearch').value.trim().toLowerCase();
+  const sf = document.getElementById('grnFilterStatus').value;
+  const vf = document.getElementById('grnFilterVendor').value;
+  filteredGRNs = GRNS.filter(g => {
+    if (grnFilterTab !== 'all' && g.status !== grnFilterTab) return false;
+    if (sf && g.status !== sf) return false;
+    if (vf && g.vendor !== vf) return false;
+    if (q) return g.grnNum.toLowerCase().includes(q)
+              || g.poNums.join(' ').toLowerCase().includes(q)
+              || g.vendor.toLowerCase().includes(q)
+              || (g.internalRef||'').toLowerCase().includes(q);
+    return true;
+  });
+  renderGRNList();
+}
+
+function renderGrnTableHead() {
+  const tr = document.getElementById('grnTableHead');
+  if (!tr) return;
+  tr.innerHTML = grnActiveColumns.map(id => {
+    const col = GRN_ALL_COLUMNS.find(c=>c.id===id);
+    if (!col) return '';
+    if (id === 'actions')   return `<th style="text-align:right;">Actions</th>`;
+    if (id === 'totalqty' || id === 'excessqty' || id === 'netqty') return `<th style="text-align:right;">${col.label}</th>`;
+    if (id === 'items')     return `<th style="text-align:center;">${col.label}</th>`;
+    if (id === 'lottracked') return `<th style="text-align:center;">${col.label}</th>`;
+    return `<th>${col.label}</th>`;
+  }).join('');
+}
+
+function getGrnCellValue(g, id) {
+  const spMap = {Posted:'sp-posted',Draft:'sp-draft','Pending Approval':'sp-pending',Rejected:'sp-rejected'};
+  switch(id) {
+    case 'grnnum':
+      return `<td>
+        <div style="font-weight:600;font-size:13px;color:var(--brand-600);cursor:pointer;" onclick="editGRN(${g.id})">${g.grnNum}</div>
+        <div class="row-sub">${fmtDate(g.date)}</div>
+      </td>`;
+    case 'mode':
+      return `<td>${g.mode==='multi'
+        ? '<span style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);background:#ede9fe;color:#5b21b6;">Multi-PO</span>'
+        : '<span style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);background:var(--brand-50);color:var(--brand-700);">Single PO</span>'}</td>`;
+    case 'ponums':
+      return `<td style="font-size:12.5px;">${g.poNums.map(p=>`<div style="font-weight:500;color:var(--text-1);">${p}</div>`).join('')}</td>`;
+    case 'vendor':
+      return `<td><div class="row-name">${g.vendor}</div></td>`;
+    case 'status':
+      return `<td><span class="sp ${spMap[g.status]||'sp-draft'}">${g.status}</span></td>`;
+    case 'dcinvoice':
+      return `<td style="font-size:12.5px;color:var(--text-2);">
+        ${g.dcNum!=='—'?g.dcNum:'<span style="color:var(--text-3);">—</span>'}
+        ${g.invoiceNum&&g.invoiceNum!=='—'?`<div style="font-size:11px;color:var(--text-3);">${g.invoiceNum}</div>`:''}
+      </td>`;
+    case 'internalref':
+      return `<td style="font-size:12.5px;color:var(--text-2);">${g.internalRef||'<span style="color:var(--text-3);">—</span>'}</td>`;
+    case 'warehouse':
+      return `<td style="font-size:12.5px;color:var(--text-2);">${g.warehouse||'Main Warehouse'}</td>`;
+    case 'carrier':
+      return `<td style="font-size:12.5px;color:var(--text-3);">${g.carrier||'—'}</td>`;
+    case 'items':
+      return `<td style="text-align:center;font-weight:600;">${g.items}</td>`;
+    case 'totalqty':
+      return `<td style="text-align:right;font-weight:600;">${g.totalQty.toLocaleString()}</td>`;
+    case 'excessqty':
+      return `<td style="text-align:right;">${g.excessQty>0?`<span style="color:#f59e0b;font-weight:700;">+${g.excessQty}</span>`:'<span style="color:var(--text-3);">—</span>'}</td>`;
+    case 'netqty':
+      return `<td style="text-align:right;font-weight:600;color:var(--brand-700);">${(g.totalQty-(g.excessQty||0)).toLocaleString()}</td>`;
+    case 'lottracked':
+      return `<td style="text-align:center;">${g.lotTracked?'<span class="lot-badge">LOT</span>':'<span style="color:var(--text-3);font-size:12px;">—</span>'}</td>`;
+    case 'actions':
+      return `<td>
+        <div class="row-actions" style="justify-content:flex-end;gap:3px;flex-wrap:nowrap;">
+          <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:11.5px;" onclick="editGRN(${g.id})" title="View GRN">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            View
+          </button>
+          ${g.status==='Draft'?`<button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:11.5px;" onclick="editGRN(${g.id})" title="Edit GRN">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg> Edit</button>`:''}
+          ${g.status==='Pending Approval'?`
+            <button class="btn btn-sm" style="background:var(--success-bg);color:var(--success);border:1px solid #bbf7d0;padding:4px 10px;font-size:11.5px;" onclick="approveGRN(${g.id})">Approve</button>
+            <button class="btn btn-sm btn-danger" style="padding:4px 10px;font-size:11.5px;" onclick="rejectGRN(${g.id})">Reject</button>`:''}
+          <button class="act-icon-btn whatsapp" title="Share via WhatsApp" onclick="grnShareWhatsApp(${g.id})">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </button>
+          <button class="act-icon-btn email" title="Send email to vendor" onclick="grnShareEmail(${g.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          </button>
+          <button class="act-icon-btn accounts" title="${g.status==='Posted'?'Post to Accounts Payable':'Only Posted GRNs'}" ${g.status==='Posted'?'':'disabled'} onclick="postToAccounts('grn',${g.id},'${g.grnNum}','${g.vendor}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+          </button>
+          <div class="am-wrap">
+            <button class="act-icon-btn" title="Download" onclick="grnToggleMenu(event,'dl-${g.id}')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="action-menu" id="grn-menu-dl-${g.id}">
+              <div class="am-item" onclick="downloadDoc('pdf','grn',${g.id},'${g.grnNum}');grnCloseMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="color:#dc2626;width:14px;height:14px;"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+                Download PDF
+              </div>
+              <div class="am-item" onclick="downloadDoc('excel','grn',${g.id},'${g.grnNum}');grnCloseMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="color:#15803d;width:14px;height:14px;"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm3 1h2v2H6V6zm2 4H6v2h2v-2zm2-4h2v2h-2V6zm2 4h-2v2h2v-2z" clip-rule="evenodd"/></svg>
+                Download Excel
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>`;
+    default: return `<td>—</td>`;
+  }
+}
+
+function renderGRNList() {
+  const tbody = document.getElementById('grnBody');
+  if (!filteredGRNs.length) {
+    tbody.innerHTML = `<tr><td colspan="${grnActiveColumns.length}"><div class="empty-state">
+      <div class="empty-title">No GRNs found</div>
+      <div class="empty-desc">Create a new GRN to record an inventory receipt</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="openNewGRN()">New GRN</button>
+    </div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filteredGRNs.map(g =>
+    `<tr>${grnActiveColumns.map(id => getGrnCellValue(g, id)).join('')}</tr>`
+  ).join('');
+}
+
+/* ═══════════════════
+   MODE TOGGLE
+═══════════════════ */
+function setMode(mode) {
+  grnMode = mode;
+  document.getElementById('modeBtnSingle').classList.toggle('active', mode==='single');
+  document.getElementById('modeBtnMulti').classList.toggle('active',  mode==='multi');
+  document.getElementById('singlePOSection').style.display = mode==='single' ? 'block' : 'none';
+  document.getElementById('multiPOSection').style.display  = mode==='multi'  ? 'block' : 'none';
+  // Reset lines
+  singlePO   = null;
+  multiPOIds = [];
+  document.getElementById('singlePoRef').value = '';
+  document.getElementById('multiPoChips').innerHTML = '';
+  document.getElementById('singlePoCtx').style.display = 'none';
+  document.getElementById('prevReceiptsSection').style.display = 'none';
+  document.getElementById('receiptLinesSection').style.display = 'none';
+  document.getElementById('postGrnBtn').disabled = true;
+  document.getElementById('stickyGrnInfo').textContent = mode==='single' ? 'Select a PO to begin' : 'Add one or more POs to begin';
+  document.getElementById('receiveAllCheck').checked = false;
+  document.getElementById('excessBanner').classList.remove('show');
+  document.getElementById('receiptSummaryBar').style.display = 'none';
+}
+
+/* ═══════════════════
+   OPEN / CLOSE FORM
+═══════════════════ */
+function openNewGRN(mode) {
+  singlePO   = null;
+  multiPOIds = [];
+  document.getElementById('singlePoRef').value = '';
+  document.getElementById('internalRef').value = '';
+  document.getElementById('dcNum').value = '';
+  document.getElementById('invoiceNum').value = '';
+  document.getElementById('carrier').value = '';
+  document.getElementById('grnNotes').value = '';
+  document.getElementById('singlePoCtx').style.display = 'none';
+  document.getElementById('prevReceiptsSection').style.display = 'none';
+  document.getElementById('receiptLinesSection').style.display = 'none';
+  document.getElementById('multiPoChips').innerHTML = '';
+  document.getElementById('grnFormTitle').textContent = 'New GRN';
+  document.getElementById('grnFormStatus').textContent = 'Draft';
+  document.getElementById('grnFormStatus').className = 'sp sp-draft';
+  document.getElementById('postGrnBtn').disabled = true;
+  document.getElementById('excessBanner').classList.remove('show');
+  document.getElementById('receiptSummaryBar').style.display = 'none';
+  document.getElementById('receiveAllCheck').checked = false;
+  document.getElementById('lotNotice').style.display = lotEnabled ? 'flex' : 'none';
+
+  // Set mode (default single unless specified)
+  setMode(mode || 'single');
+
+  document.getElementById('viewList').style.display = 'none';
+  document.getElementById('viewGrn').style.display  = 'flex';
+}
+
+function showList() {
+  document.getElementById('viewGrn').style.display  = 'none';
+  document.getElementById('viewList').style.display = 'flex';
+}
+
+function editGRN(id) {
+  const g = GRNS.find(x=>x.id===id);
+  openNewGRN(g ? g.mode : 'single');
+  toast('Loaded GRN #' + (g ? g.grnNum : id), 'success');
+}
+
+/* ═══════════════════
+   SINGLE PO MODE
+═══════════════════ */
+function loadSinglePO() {
+  const poId = document.getElementById('singlePoRef').value;
+  if (!poId) {
+    singlePO = null;
+    document.getElementById('singlePoCtx').style.display = 'none';
+    document.getElementById('prevReceiptsSection').style.display = 'none';
+    document.getElementById('receiptLinesSection').style.display = 'none';
+    document.getElementById('postGrnBtn').disabled = true;
+    document.getElementById('stickyGrnInfo').textContent = 'Select a PO to begin';
+    return;
+  }
+  singlePO = PO_DATA[poId];
+  if (!singlePO) return;
+
+  // PO context bar
+  const totalOrd  = singlePO.lines.reduce((s,l)=>s+l.ordQty,0);
+  const totalRcvd = singlePO.lines.reduce((s,l)=>s+l.prevRcvd,0);
+  document.getElementById('singlePoCtxInner').innerHTML = buildPoCtxHtml(singlePO, totalOrd, totalRcvd);
+  document.getElementById('singlePoCtx').style.display = 'block';
+
+  // Previous receipts
+  renderPrevReceipts(singlePO.previousReceipts);
+
+  // Receipt lines
+  renderReceiptLines(buildLinesFromSingle(singlePO));
+  document.getElementById('receiptLinesSection').style.display = 'block';
+  document.getElementById('postGrnBtn').disabled = false;
+  document.getElementById('receiveAllCheck').checked = false;
+  recomputeAll();
+}
+
+function buildPoCtxHtml(po, totalOrd, totalRcvd) {
+  const balance = totalOrd - totalRcvd;
+  return `
+    <div class="po-ctx-item"><div class="po-ctx-badge">PO #</div><div class="po-ctx-val">${po.poNum}</div><div class="po-ctx-sub">${fmtDate(po.date)}</div></div>
+    <div class="po-ctx-divider"></div>
+    <div class="po-ctx-item"><div class="po-ctx-badge">Vendor</div><div class="po-ctx-val">${po.vendor}</div><div class="po-ctx-sub">Status: ${po.status}</div></div>
+    <div class="po-ctx-divider"></div>
+    <div class="po-ctx-item"><div class="po-ctx-badge">Ship To</div><div class="po-ctx-val">${po.shipTo}</div><div class="po-ctx-sub">Delivery: ${fmtDate(po.delivDate)}</div></div>
+    <div class="po-ctx-divider"></div>
+    <div class="po-ctx-item"><div class="po-ctx-badge">Ordered</div><div class="po-ctx-val">${totalOrd.toLocaleString()}</div><div class="po-ctx-sub">${po.lines.length} line items</div></div>
+    <div class="po-ctx-divider"></div>
+    <div class="po-ctx-item"><div class="po-ctx-badge">Prev. Received</div><div class="po-ctx-val" style="color:${totalRcvd>0?'var(--success)':'var(--text-1)'};">${totalRcvd.toLocaleString()}</div><div class="po-ctx-sub">Balance: ${balance.toLocaleString()}</div></div>`;
+}
+
+function renderPrevReceipts(receipts) {
+  if (receipts.length) {
+    document.getElementById('prevReceiptCount').textContent = receipts.length + ' receipt(s) recorded';
+    document.getElementById('prevReceiptsBody').innerHTML = receipts.map(r=>`
+      <div class="rcpt-entry">
+        <div class="rcpt-entry-dot"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg></div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-weight:700;color:var(--brand-700);">${r.grnNum}</span>
+            <span class="sp sp-posted" style="font-size:10px;">Posted</span>
+            <span style="font-size:11.5px;color:var(--text-3);">${fmtDate(r.date)}</span>
+          </div>
+          <div style="margin-top:5px;display:flex;gap:18px;flex-wrap:wrap;">
+            ${r.internalRef ? `<span style="font-size:12px;color:var(--text-2);"><strong>Ref:</strong> ${r.internalRef}</span>` : ''}
+            ${r.dcNum && r.dcNum!=='—' ? `<span style="font-size:12px;color:var(--text-2);"><strong>DC:</strong> ${r.dcNum}</span>` : ''}
+            ${r.invoiceNum && r.invoiceNum!=='—' ? `<span style="font-size:12px;color:var(--text-2);"><strong>Inv:</strong> ${r.invoiceNum}</span>` : ''}
+            <span style="font-size:12px;color:var(--text-2);"><strong>Qty:</strong> ${r.qty.toLocaleString()}</span>
+            <span style="font-size:12px;color:var(--text-3);">by ${r.postedBy}</span>
+          </div>
+        </div>
+      </div>`).join('');
+    document.getElementById('prevReceiptsSection').style.display = 'block';
+  } else {
+    document.getElementById('prevReceiptsSection').style.display = 'none';
+  }
+}
+
+function buildLinesFromSingle(po) {
+  return po.lines.map(l => ({ ...l, poNum: po.poNum, vendor: po.vendor }));
+}
+
+/* ═══════════════════
+   MULTI-PO MODE
+═══════════════════ */
+function addMultiPO() {
+  const sel = document.getElementById('multiPoSelect');
+  const poId = sel.value;
+  if (!poId) { toast('Select a PO to add', 'error'); return; }
+  if (multiPOIds.includes(poId)) { toast('This PO is already added', 'error'); return; }
+  multiPOIds.push(poId);
+  sel.value = '';
+  renderMultiPoChips();
+  rebuildMultiLines();
+}
+
+function removeMultiPO(poId) {
+  multiPOIds = multiPOIds.filter(id => id !== poId);
+  renderMultiPoChips();
+  rebuildMultiLines();
+}
+
+function renderMultiPoChips() {
+  const wrap = document.getElementById('multiPoChips');
+  if (!multiPOIds.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = multiPOIds.map(id => {
+    const po = PO_DATA[id];
+    if (!po) return '';
+    return `<div class="po-chip">
+      <strong>${po.poNum}</strong>
+      <span style="color:var(--text-3);">${po.vendor}</span>
+      <span style="color:var(--text-3);font-size:11px;">(${po.lines.length} lines)</span>
+      <button class="chip-remove" onclick="removeMultiPO('${id}')" title="Remove">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function rebuildMultiLines() {
+  if (!multiPOIds.length) {
+    document.getElementById('receiptLinesSection').style.display = 'none';
+    document.getElementById('postGrnBtn').disabled = true;
+    document.getElementById('stickyGrnInfo').textContent = 'Add one or more POs to begin';
+    document.getElementById('receiptSummaryBar').style.display = 'none';
+    document.getElementById('excessBanner').classList.remove('show');
+    return;
+  }
+  // Build combined lines from all selected POs
+  const allLines = [];
+  multiPOIds.forEach(id => {
+    const po = PO_DATA[id];
+    if (po) po.lines.forEach(l => allLines.push({ ...l, poNum: po.poNum, vendor: po.vendor }));
+  });
+  renderReceiptLines(allLines, true);
+  document.getElementById('receiptLinesSection').style.display = 'block';
+  document.getElementById('postGrnBtn').disabled = false;
+  document.getElementById('receiveAllCheck').checked = false;
+  recomputeAll();
+}
+
+/* ═══════════════════
+   RENDER RECEIPT TABLE
+═══════════════════ */
+function renderReceiptLines(lines, showPoGroup) {
+  if (!lotEnabled) document.getElementById('lotColHead').style.display = 'none';
+  else document.getElementById('lotColHead').style.display = '';
+
+  const tbody = document.getElementById('receiptBody');
+  let html = '';
+  let lineNum = 0;
+  let lastPoNum = null;
+
+  lines.forEach((line) => {
+    lineNum++;
+    const balance = Math.max(0, line.ordQty - line.prevRcvd);
+    const pct     = line.ordQty > 0 ? Math.round((line.prevRcvd / line.ordQty) * 100) : 0;
+    const barColor = pct >= 100 ? 'bal-over' : pct > 80 ? 'bal-excess' : 'bal-ok';
+    const fullyReceived = line.prevRcvd >= line.ordQty;
+
+    // Group header row for multi-PO
+    if (showPoGroup && line.poNum !== lastPoNum) {
+      lastPoNum = line.poNum;
+      const colspan = lotEnabled ? 11 : 10;
+      html += `<tr class="po-group-head">
+        <td colspan="${colspan}">
+          <span style="margin-right:10px;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+            ${line.poNum}
+          </span>
+          <span style="font-weight:400;color:var(--brand-600);font-size:11.5px;">${line.vendor}</span>
+        </td>
+      </tr>`;
+    }
+
+    html += `<tr id="line-row-${line.id}">
+      <td style="color:var(--text-3);font-size:11px;">${lineNum}</td>
+      <td>
+        <div style="font-weight:500;color:var(--text-1);font-size:13px;">${line.item}</div>
+        ${fullyReceived ? '<div style="font-size:10.5px;color:var(--success);margin-top:2px;font-weight:600;">✓ Fully received</div>' : ''}
+      </td>
+      <td style="color:var(--text-3);font-size:12px;">${line.uom}</td>
+      <td style="text-align:right;font-weight:600;">${line.ordQty.toLocaleString()}</td>
+      <td style="text-align:right;">
+        <span style="font-size:13px;font-weight:500;color:${line.prevRcvd>0?'var(--success)':'var(--text-3)'};">${line.prevRcvd.toLocaleString()}</span>
+        ${line.prevRcvd>0 ? `<div class="bal-bar"><div class="bal-fill ${barColor}" style="width:${Math.min(pct,100)}%;"></div></div>` : ''}
+      </td>
+      <td style="text-align:right;">
+        <span style="font-size:13px;font-weight:700;color:${balance<=0?'var(--text-3)':'var(--text-1)'};">${balance.toLocaleString()}</span>
+      </td>
+      <td style="text-align:right;">
+        <input class="qty-input" id="rcvQty_${line.id}" type="number" min="0"
+          value="${fullyReceived ? 0 : balance}"
+          placeholder="0"
+          onchange="onQtyChange('${line.id}')" oninput="onQtyChange('${line.id}')"
+          ${fullyReceived ? 'style="opacity:.45;" title="Already fully received"' : ''}>
+        <div id="qty-status-${line.id}" style="font-size:10.5px;margin-top:2px;text-align:right;"></div>
+      </td>
+      <td ${lotEnabled ? '' : 'style="display:none;"'}>
+        ${lotEnabled
+          ? `<input class="lot-input" id="lot_${line.id}" type="text" placeholder="LOT-${String(lineNum).padStart(3,'0')}">`
+          : ''}
+      </td>
+      <td>
+        <select class="qc-select qc-pass" id="qc_${line.id}" onchange="onQCChange('${line.id}')">
+          <option value="pass">✓ Pass</option>
+          <option value="partial">⚠ Partial</option>
+          <option value="fail">✗ Fail</option>
+        </select>
+      </td>
+      <td>
+        <div class="reject-row" id="rejectRow_${line.id}">
+          <input class="qty-input" id="rejectQty_${line.id}" type="number" min="0" value="0"
+            style="width:65px;" oninput="recomputeAll()">
+        </div>
+        <span id="rejectNA_${line.id}" style="font-size:11.5px;color:var(--text-3);">—</span>
+      </td>
+      <td>
+        <input type="text" class="form-control" id="rmk_${line.id}"
+          style="font-size:12px;padding:5px 8px;width:130px;" placeholder="Optional…">
+      </td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+}
+
+/* ═══════════════════
+   GET ALL ACTIVE LINES
+═══════════════════ */
+function getActiveLines() {
+  if (grnMode === 'single' && singlePO) return buildLinesFromSingle(singlePO);
+  if (grnMode === 'multi') {
+    const lines = [];
+    multiPOIds.forEach(id => {
+      const po = PO_DATA[id];
+      if (po) po.lines.forEach(l => lines.push({ ...l, poNum: po.poNum, vendor: po.vendor }));
+    });
+    return lines;
+  }
+  return [];
+}
+
+/* ═══════════════════
+   QTY / QC HANDLERS
+═══════════════════ */
+function onQtyChange(lineId) {
+  const lines = getActiveLines();
+  const line  = lines.find(l => String(l.id) === String(lineId));
+  if (!line) return;
+  const val      = parseFloat(document.getElementById('rcvQty_'+lineId)?.value) || 0;
+  const balance  = Math.max(0, line.ordQty - line.prevRcvd);
+  const tolerance = parseFloat(document.getElementById('tolerance').value) || 0;
+  const maxAllowed = (line.ordQty * (1 + tolerance/100)) - line.prevRcvd;
+  const totalAfter = line.prevRcvd + val;
+  const qtyEl    = document.getElementById('rcvQty_'+lineId);
+  const statusEl = document.getElementById('qty-status-'+lineId);
+
+  qtyEl.classList.remove('excess','over');
+  statusEl.textContent = '';
+
+  if (val > maxAllowed) {
+    qtyEl.classList.add('over');
+    statusEl.textContent = `Exceeds tolerance (max ${maxAllowed.toFixed(0)})`;
+    statusEl.style.color = 'var(--danger)';
+  } else if (val > balance && balance > 0) {
+    qtyEl.classList.add('excess');
+    statusEl.textContent = `+${(val-balance)} over balance`;
+    statusEl.style.color = '#f59e0b';
+  } else if (val > 0) {
+    statusEl.textContent = `Total after: ${totalAfter.toLocaleString()} / ${line.ordQty.toLocaleString()}`;
+    statusEl.style.color = 'var(--text-3)';
+  }
+  recomputeAll();
+}
+
+function onQCChange(lineId) {
+  const qc = document.getElementById('qc_'+lineId).value;
+  const showReject = qc === 'partial' || qc === 'fail';
+  document.getElementById('rejectRow_'+lineId)?.classList.toggle('show', showReject);
+  const naEl = document.getElementById('rejectNA_'+lineId);
+  if (naEl) naEl.style.display = showReject ? 'none' : '';
+  const qcEl = document.getElementById('qc_'+lineId);
+  qcEl.className = 'qc-select qc-' + (qc==='pass'?'pass':qc==='fail'?'fail':'partial');
+  recomputeAll();
+}
+
+function receiveAll(checked) {
+  const lines = getActiveLines();
+  lines.forEach(line => {
+    const balance = Math.max(0, line.ordQty - line.prevRcvd);
+    const el = document.getElementById('rcvQty_'+line.id);
+    if (el) { el.value = checked ? balance : 0; onQtyChange(String(line.id)); }
+  });
+}
+
+/* ═══════════════════
+   RECOMPUTE TOTALS
+═══════════════════ */
+function recomputeAll() {
+  const lines = getActiveLines();
+  if (!lines.length) return;
+  const tolerance  = parseFloat(document.getElementById('tolerance').value) || 0;
+  let totalRcv=0, totalExcess=0, totalReject=0, excessLines=[];
+
+  lines.forEach(line => {
+    const val      = parseFloat(document.getElementById('rcvQty_'+line.id)?.value) || 0;
+    const balance  = Math.max(0, line.ordQty - line.prevRcvd);
+    const maxAllowed = (line.ordQty * (1 + tolerance/100)) - line.prevRcvd;
+    totalRcv += val;
+
+    if (val > maxAllowed) {
+      excessLines.push({ item: line.item, val, maxAllowed });
+      totalExcess += val - maxAllowed;
+    } else if (val > balance) {
+      totalExcess += val - balance;
+    }
+
+    const qc = document.getElementById('qc_'+line.id)?.value;
+    if (qc === 'partial' || qc === 'fail') {
+      totalReject += parseFloat(document.getElementById('rejectQty_'+line.id)?.value) || 0;
+    }
+  });
+
+  document.getElementById('sumLines').textContent  = lines.length;
+  document.getElementById('sumQtyRcv').textContent = totalRcv.toLocaleString();
+  document.getElementById('sumExcess').textContent = totalExcess > 0 ? '+'+Math.ceil(totalExcess).toLocaleString() : '0';
+  document.getElementById('sumReject').textContent = totalReject.toLocaleString();
+  document.getElementById('receiptSummaryBar').style.display = 'flex';
+
+  const needsApproval = excessLines.length > 0;
+  const banner = document.getElementById('excessBanner');
+  if (needsApproval) {
+    banner.classList.add('show');
+    document.getElementById('excessDetail').textContent =
+      excessLines.map(e=>`${e.item}: ${e.val} received vs max ${e.maxAllowed.toFixed(0)}`).join('; ') + '. ';
+    document.getElementById('postBtnLabel').textContent  = 'Submit for Approval';
+    document.getElementById('grnStatusLabel').innerHTML  = '<span class="sp sp-pending">Needs approval</span>';
+  } else {
+    banner.classList.remove('show');
+    document.getElementById('postBtnLabel').textContent = 'Post GRN';
+    document.getElementById('grnStatusLabel').innerHTML = totalRcv > 0 ? '<span class="sp sp-posted">Ready to post</span>' : '';
+  }
+
+  const poLabel = grnMode === 'multi'
+    ? `${multiPOIds.length} PO(s) · ${lines.length} lines`
+    : (singlePO ? singlePO.poNum : '');
+  document.getElementById('stickyGrnInfo').innerHTML =
+    `<span style="color:var(--text-3);">${poLabel}</span>` +
+    (totalRcv>0 ? ` &nbsp;·&nbsp; Receiving: <strong style="color:var(--brand-700);">${totalRcv.toLocaleString()} units</strong>` : '') +
+    (totalExcess>0 ? ` &nbsp;·&nbsp; <span style="color:#f59e0b;">+${Math.ceil(totalExcess)} excess</span>` : '') +
+    (totalReject>0 ? ` &nbsp;·&nbsp; <span style="color:var(--danger);">${totalReject} rejected</span>` : '');
+}
+
+/* ═══════════════════
+   SAVE / POST
+═══════════════════ */
+function saveGRN(action) {
+  const lines = getActiveLines();
+  if (!lines.length) { toast('Add a PO and select lines before saving', 'error'); return; }
+  if (action === 'draft') { toast('GRN saved as Draft', 'success'); setTimeout(showList, 800); return; }
+
+  const tolerance = parseFloat(document.getElementById('tolerance').value) || 0;
+  const excessLines = lines.filter(line => {
+    const val = parseFloat(document.getElementById('rcvQty_'+line.id)?.value) || 0;
+    const maxAllowed = (line.ordQty * (1 + tolerance/100)) - line.prevRcvd;
+    return val > maxAllowed;
+  });
+
+  if (excessLines.length) {
+    const label = grnMode==='multi'
+      ? multiPOIds.map(id=>PO_DATA[id]?.poNum).filter(Boolean).join(', ')
+      : (singlePO?.poNum || '');
+    document.getElementById('apprModalSub').textContent = `GRN covers: ${label}`;
+    document.getElementById('apprExcessDetail').innerHTML =
+      document.getElementById('excessDetail').textContent +
+      `<br><strong>Tolerance set:</strong> ${tolerance}% over-receipt allowed.`;
+    document.getElementById('apprReason').value = '';
+    openModal('approvalModal');
+    return;
+  }
+
+  buildInventoryPreview();
+  openModal('invModal');
+}
+
+function submitForApproval() {
+  const reason = document.getElementById('apprReason').value.trim();
+  if (!reason) { toast('Please provide a reason for the excess receipt', 'error'); return; }
+  closeModal('approvalModal');
+  toast('GRN submitted for approval — excess receipt pending review', 'success');
+  setTimeout(showList, 1000);
+}
+
+function buildInventoryPreview() {
+  const lines    = getActiveLines();
+  const warehouse = document.getElementById('warehouse').value;
+  const poLabel  = grnMode==='multi'
+    ? multiPOIds.map(id=>PO_DATA[id]?.poNum).filter(Boolean).join(', ')
+    : (singlePO?.poNum || '');
+
+  let html = `<div style="padding:10px 14px;background:var(--brand-50);border-radius:var(--r-sm);font-size:12.5px;color:var(--brand-700);margin-bottom:14px;">
+    Warehouse: <strong>${warehouse}</strong> &nbsp;|&nbsp; PO(s): <strong>${poLabel}</strong>
+  </div>
+  <div style="overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+    <thead><tr style="background:var(--gray-50);">
+      <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);">Item</th>
+      ${grnMode==='multi'?'<th style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">PO</th>':''}
+      <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Recv Qty</th>
+      <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">QC Reject</th>
+      <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Net to Inventory</th>
+      ${lotEnabled?'<th style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">LOT</th>':''}
+      <th style="padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">QC</th>
+    </tr></thead><tbody>`;
+
+  let anyLine = false;
+  lines.forEach(line => {
+    const rcv = parseFloat(document.getElementById('rcvQty_'+line.id)?.value) || 0;
+    if (rcv <= 0) return;
+    anyLine = true;
+    const qc  = document.getElementById('qc_'+line.id)?.value || 'pass';
+    const rj  = (qc==='partial'||qc==='fail') ? (parseFloat(document.getElementById('rejectQty_'+line.id)?.value)||0) : 0;
+    const net = Math.max(0, rcv - rj);
+    const lot = lotEnabled ? (document.getElementById('lot_'+line.id)?.value || '—') : '';
+    const qcLabel = qc==='pass'?'<span style="color:var(--success);font-weight:600;">✓ Pass</span>':qc==='fail'?'<span style="color:var(--danger);font-weight:600;">✗ Fail</span>':'<span style="color:#92400e;font-weight:600;">⚠ Partial</span>';
+    html += `<tr style="border-bottom:1px solid var(--border2);">
+      <td style="padding:10px 10px;font-weight:500;">${line.item}</td>
+      ${grnMode==='multi'?`<td style="padding:10px 10px;font-size:11.5px;color:var(--brand-700);font-weight:600;">${line.poNum}</td>`:''}
+      <td style="padding:10px 10px;text-align:right;">${rcv.toLocaleString()} ${line.uom}</td>
+      <td style="padding:10px 10px;text-align:right;color:${rj>0?'var(--danger)':'var(--text-3)'};">${rj>0?'-'+rj:'—'}</td>
+      <td style="padding:10px 10px;text-align:right;font-weight:700;color:var(--brand-700);">${net.toLocaleString()} ${line.uom}</td>
+      ${lotEnabled?`<td style="padding:10px 10px;"><span class="lot-badge">${lot}</span></td>`:''}
+      <td style="padding:10px 10px;">${qcLabel}</td>
+    </tr>`;
+  });
+
+  if (!anyLine) html += `<tr><td colspan="10" style="padding:20px;text-align:center;color:var(--text-3);">No lines with quantity entered.</td></tr>`;
+  html += `</tbody></table></div>`;
+  document.getElementById('invModalBody').innerHTML = html;
+}
+
+function confirmPost() {
+  closeModal('invModal');
+  toast('GRN posted to inventory successfully', 'success');
+  setTimeout(showList, 1000);
+}
+
+/* ═══════════════════
+   LIST ACTIONS
+═══════════════════ */
+function approveGRN(id) {
+  const g = GRNS.find(x=>x.id===id); if (!g) return;
+  g.status = 'Posted'; updateGrnStats(); applyGrnFilter();
+  toast('GRN approved and posted to inventory', 'success');
+}
+function rejectGRN(id) {
+  const g = GRNS.find(x=>x.id===id); if (!g) return;
+  g.status = 'Rejected'; updateGrnStats(); applyGrnFilter();
+  toast('GRN rejected', 'error');
+}
+
+/* ═══════════════════
+   COLUMN CONFIGURATOR
+═══════════════════ */
+function getGrnColDef(id) { return GRN_ALL_COLUMNS.find(c=>c.id===id); }
+
+function openGrnColPanel() {
+  renderGrnColPanel();
+  document.getElementById('grnColPanel').classList.add('open');
+  document.getElementById('grnColPanelOverlay').classList.add('open');
+}
+function closeGrnColPanel() {
+  document.getElementById('grnColPanel').classList.remove('open');
+  document.getElementById('grnColPanelOverlay').classList.remove('open');
+}
+function resetGrnColDefaults() {
+  grnActiveColumns = [...GRN_DEFAULT_ACTIVE];
+  renderGrnColPanel();
+  renderGrnTableHead();
+  applyGrnFilter();
+  toast('Columns reset to defaults', 'success');
+}
+function toggleGrnColumn(id) {
+  const col = getGrnColDef(id);
+  if (col.locked) return;
+  if (grnActiveColumns.includes(id)) {
+    if (grnActiveColumns.filter(c=>!getGrnColDef(c).locked).length <= 1) {
+      toast('At least one column must remain visible', 'error'); return;
+    }
+    grnActiveColumns = grnActiveColumns.filter(c=>c!==id);
+  } else {
+    const actIdx = grnActiveColumns.indexOf('actions');
+    if (actIdx > -1) grnActiveColumns.splice(actIdx, 0, id);
+    else grnActiveColumns.push(id);
+  }
+  renderGrnColPanel();
+  renderGrnTableHead();
+  applyGrnFilter();
+}
+
+let grnDragSrcId = null;
+
+function renderGrnColPanel() {
+  const groups = [...new Set(GRN_ALL_COLUMNS.map(c=>c.group))];
+  let html = '';
+  groups.forEach(grp => {
+    const cols = GRN_ALL_COLUMNS.filter(c=>c.group===grp);
+    html += `<div class="col-group-label">${grp}</div>`;
+    const active   = grnActiveColumns.filter(id=>cols.find(c=>c.id===id));
+    const inactive = cols.filter(c=>!grnActiveColumns.includes(c.id)).map(c=>c.id);
+    [...active, ...inactive].forEach(id => {
+      const col = getGrnColDef(id);
+      if (!col) return;
+      const on = grnActiveColumns.includes(id);
+      const isLocked = col.locked;
+      const draggable = on && !isLocked ? 'draggable="true"' : '';
+      html += `<div class="col-row${on?'':' inactive'}" data-id="${id}" ${draggable}
+        ondragstart="grnColDragStart(event,'${id}')"
+        ondragover="grnColDragOver(event,'${id}')"
+        ondrop="grnColDrop(event,'${id}')"
+        ondragend="grnColDragEnd(event)">
+        <span class="drag-handle" style="${!on||isLocked?'opacity:.25;cursor:default;':''}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a2 2 0 00-2 2v1H4a1 1 0 000 2h1v1H4a1 1 0 000 2h1v1H4a1 1 0 100 2h1v1a2 2 0 104 0v-1h1a1 1 0 100-2h-1v-1h1a1 1 0 100-2h-1V7h1a1 1 0 100-2h-1V4a2 2 0 00-2-2zm6 0a2 2 0 00-2 2v1h-1a1 1 0 000 2h1v1h-1a1 1 0 000 2h1v1h-1a1 1 0 100 2h1v1a2 2 0 104 0v-1h1a1 1 0 100-2h-1v-1h1a1 1 0 100-2h-1V7h1a1 1 0 100-2h-1V4a2 2 0 00-2-2z"/></svg>
+        </span>
+        <span class="col-row-label">${col.label}</span>
+        ${isLocked
+          ? '<span class="col-row-tag locked">Fixed</span>'
+          : `<button class="col-toggle ${on?'on':''}" onclick="toggleGrnColumn('${id}')" title="${on?'Hide':'Show'}"></button>`}
+      </div>`;
+    });
+  });
+  document.getElementById('grnColPanelGroups').innerHTML = html;
+}
+
+function grnColDragStart(e, id) {
+  grnDragSrcId = id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function grnColDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('#grnColPanel .col-row.drag-over').forEach(r=>r.classList.remove('drag-over'));
+  if (id !== grnDragSrcId && grnActiveColumns.includes(id)) e.currentTarget.classList.add('drag-over');
+}
+function grnColDrop(e, targetId) {
+  e.preventDefault();
+  if (!grnDragSrcId || grnDragSrcId === targetId) return;
+  if (!grnActiveColumns.includes(grnDragSrcId) || !grnActiveColumns.includes(targetId)) return;
+  const srcIdx = grnActiveColumns.indexOf(grnDragSrcId);
+  const tgtIdx = grnActiveColumns.indexOf(targetId);
+  grnActiveColumns.splice(srcIdx, 1);
+  grnActiveColumns.splice(tgtIdx, 0, grnDragSrcId);
+  grnDragSrcId = null;
+  renderGrnColPanel();
+  renderGrnTableHead();
+  applyGrnFilter();
+}
+function grnColDragEnd(e) {
+  document.querySelectorAll('#grnColPanel .col-row').forEach(r=>r.classList.remove('dragging','drag-over'));
+  grnDragSrcId = null;
+}
+
+/* ═══════════════════
+   SHARE / DOWNLOAD / ACCOUNTS
+═══════════════════ */
+function grnShareWhatsApp(id) {
+  const g = GRNS.find(x=>x.id===id);
+  if (!g) return;
+  const vc = VENDOR_CONTACTS[g.vendor] || {};
+  if (!vc.phone) { toast('No WhatsApp number for ' + g.vendor, 'error'); return; }
+  const poRef = g.poNums.join(', ');
+  const msg = `Hi, please find attached GRN ${g.grnNum} for PO(s): ${poRef}. Please acknowledge receipt.`;
+  window.open('https://wa.me/' + vc.phone + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function grnShareEmail(id) {
+  const g = GRNS.find(x=>x.id===id);
+  if (!g) return;
+  const vc = VENDOR_CONTACTS[g.vendor] || {};
+  if (!vc.email) { toast('No email address for ' + g.vendor, 'error'); return; }
+  const poRef = g.poNums.join(', ');
+  const subject = 'GRN ' + g.grnNum + ' — ' + poRef;
+  const body = `Dear Team,\n\nPlease find GRN ${g.grnNum} for PO(s): ${poRef} attached for your records.\n\nDC/Invoice: ${g.dcNum} / ${g.invoiceNum}\nTotal Qty Received: ${g.totalQty.toLocaleString()}\n\nRegards,\nStitch ERP`;
+  window.location.href = 'mailto:' + vc.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+function postToAccounts(type, id, refNum, vendor) {
+  const label = type === 'grn' ? 'GRN' : 'Purchase Order';
+  const existing = document.getElementById('postAccModal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'postAccModal';
+  m.className = 'modal-backdrop open';
+  m.innerHTML = `<div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Post to Accounts Payable</div><div class="modal-sub">${label}: ${refNum}</div></div>
+      <button class="modal-x" onclick="document.getElementById('postAccModal').remove()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);font-size:13px;color:var(--brand-700);margin-bottom:14px;">
+        <strong>${refNum}</strong> from <strong>${vendor}</strong> will be posted to Accounts Payable as a supplier invoice / liability entry.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Posting Date</label>
+        <input class="form-control" type="date" id="postAccDate" value="${new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Remarks</label>
+        <input class="form-control" type="text" id="postAccRemark" placeholder="Optional posting note…">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="document.getElementById('postAccModal').remove()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPostToAccounts('${refNum}')">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+        Post to Accounts
+      </button>
+    </div>
+  </div>`;
+  m.addEventListener('click', e => { if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
+}
+
+function confirmPostToAccounts(refNum) {
+  document.getElementById('postAccModal')?.remove();
+  toast(refNum + ' posted to Accounts Payable successfully', 'success');
+}
+
+function downloadDoc(format, type, id, refNum) {
+  const label = format === 'pdf' ? 'PDF' : 'Excel';
+  toast('Preparing ' + label + ' for ' + refNum + '…', 'success');
+  setTimeout(() => toast(refNum + ' ' + label + ' ready — check downloads', 'success'), 1200);
+}
+
+let grnActiveMenu = null;
+function grnToggleMenu(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById('grn-menu-' + id);
+  if (!menu) return;
+  const wasOpen = menu.classList.contains('open');
+  grnCloseMenus();
+  if (!wasOpen) { menu.classList.add('open'); grnActiveMenu = id; }
+}
+function grnCloseMenus() {
+  document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open'));
+  grnActiveMenu = null;
+}
+document.addEventListener('click', grnCloseMenus);
+
+/* ═══════════════════
+   UTILITIES
+═══════════════════ */
+function fmtDate(d) {
+  if (!d || d==='—') return '—';
+  try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{
+  bd.addEventListener('click', e => { if(e.target===bd) closeModal(bd.id); });
+});
+function toggleGroup(el) {
+  const g=el.closest('.nav-group');
+  const o=g.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(x=>{
+    if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}
+  });
+  g.classList.toggle('open',!o); el.classList.toggle('open',!o);
+}
+function toast(msg, type='success') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast '+(type==='success'?'success':'error');
+  const icon = type==='success'
+    ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>';
+  t.innerHTML = icon + ' ' + msg;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QC Inspection — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --pass-bg:#f0fdf4; --pass-color:#166534; --pass-border:#86efac;
+  --fail-bg:#fef2f2; --fail-color:#991b1b; --fail-border:#fca5a5;
+  --hold-bg:#fefce8; --hold-color:#92400e; --hold-border:#fcd34d;
+}
+.sidebar { background:var(--sidebar-bg)!important; border-right:1px solid var(--border)!important; }
+.brand-name { color:#1e1f2e!important; font-weight:800!important; }
+.brand-sub  { color:#8892a4!important; }
+.sidebar-brand { border-bottom:1px solid var(--border)!important; }
+.nav-section { color:#a0aec0!important; font-size:10px!important; font-weight:700!important; letter-spacing:.1em!important; text-transform:uppercase!important; padding:16px 18px 4px!important; }
+.nav-parent-label { color:#3d4462!important; font-weight:500!important; }
+.nav-parent-icon { color:#8892a4!important; }
+.nav-parent:hover .nav-parent-label { color:var(--brand-600)!important; }
+.nav-parent.active-group .nav-parent-label { color:var(--brand-600)!important; font-weight:600!important; }
+.nav-child { color:#64748b!important; font-size:12.5px!important; padding:7px 14px 7px 42px!important; border-radius:6px!important; margin:1px 8px!important; display:block!important; }
+.nav-child:hover { background:var(--sidebar-hover)!important; color:var(--brand-700)!important; }
+.nav-child.active { background:var(--sidebar-active)!important; color:var(--brand-700)!important; font-weight:600!important; }
+.nav-chevron { color:#a0aec0!important; }
+.sidebar-footer { border-top:1px solid var(--border)!important; }
+.sf-name { color:#1e1f2e!important; } .sf-role { color:#8892a4!important; } .sf-avatar { background:var(--brand-500)!important; }
+.topbar { border-bottom:1px solid #dde0ea!important; box-shadow:0 1px 4px rgba(91,95,199,0.06)!important; }
+
+.sp { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap; }
+.sp-draft    { background:#f3f4f6;color:#4b5563; }
+.sp-pending  { background:#fefce8;color:#92400e; }
+.sp-approved { background:#f0fdf4;color:#166534; }
+.sp-rejected { background:#fef2f2;color:#991b1b; }
+.sp-qchold   { background:#ede9fe;color:#5b21b6; }
+.sp-partial  { background:#fff7ed;color:#9a3412; }
+
+.sec { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px; }
+.sec-head { display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border2); }
+.sec-title { font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px; }
+.sec-title svg { width:15px;height:15px;color:var(--brand-500); }
+.sec-body { padding:18px 20px; }
+
+/* Two-pane layout */
+.qc-layout { display:grid;grid-template-columns:380px 1fr;gap:0;flex:1;overflow:hidden; }
+.qc-queue  { border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column; }
+.qc-detail { overflow-y:auto;padding:24px 28px;background:var(--bg);display:flex;flex-direction:column; }
+
+/* Queue list */
+.qc-row {
+  display:flex;align-items:flex-start;gap:14px;padding:14px 20px;
+  border-bottom:1px solid var(--border2);cursor:pointer;transition:background var(--ease);
+}
+.qc-row:last-child { border-bottom:none; }
+.qc-row:hover { background:var(--gray-50); }
+.qc-row.selected { background:var(--brand-50);border-left:3px solid var(--brand-500); }
+.qc-grn { font-size:13px;font-weight:700;color:var(--brand-600); }
+.qc-meta { flex:1;font-size:12.5px;color:var(--text-2); }
+.qc-meta strong { color:var(--text-1);display:block;margin-bottom:2px; }
+.qc-age { font-size:11px;color:var(--text-3);white-space:nowrap;text-align:right; }
+.qc-qty-badge { display:inline-flex;align-items:center;gap:4px;padding:2px 9px;background:var(--hold-bg);border:1px solid var(--hold-border);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--hold-color); }
+
+/* Stat strip */
+.stat-strip { display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border2);flex-shrink:0; }
+.stat-strip-item { flex:1;padding:12px 16px;text-align:center;border-right:1px solid var(--border2); }
+.stat-strip-item:last-child { border-right:none; }
+.stat-strip-num { font-size:20px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:2px; }
+.stat-strip-label { font-size:10.5px;color:var(--text-3);font-weight:500; }
+
+/* Queue header / search */
+.queue-head { padding:14px 16px;border-bottom:1px solid var(--border2);flex-shrink:0; }
+.queue-title { font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:10px; }
+.q-search { width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:13px;font-family:inherit;outline:none;background:var(--gray-50); }
+.q-search:focus { border-color:var(--brand-500);background:#fff; }
+
+/* Detail info grid */
+.g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px; }
+.g2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px; }
+.kv { display:flex;flex-direction:column;gap:3px; }
+.kv-label { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3); }
+.kv-val { font-size:13.5px;font-weight:600;color:var(--text-1); }
+
+/* QC entry table */
+.qct { width:100%;border-collapse:collapse;font-size:12.5px; }
+.qct th { text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:8px 10px;background:var(--gray-50);border-bottom:2px solid var(--border2); }
+.qct td { padding:10px 10px;border-bottom:1px solid var(--border2);vertical-align:middle; }
+.qct tr:last-child td { border-bottom:none; }
+.qct tr.qc-entered { background:#f8fff8; }
+.qct-item { font-weight:600;color:var(--text-1); }
+.qct-sub  { font-size:11px;color:var(--text-3); }
+
+/* QC qty inputs */
+.qc-inp-wrap { display:flex;align-items:center;gap:6px; }
+.qc-inp { width:72px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:5px 7px;font-size:13px;text-align:right;font-family:inherit;font-weight:600; }
+.qc-inp.pass  { border-color:var(--pass-border);background:var(--pass-bg);color:var(--pass-color); }
+.qc-inp.fail  { border-color:var(--fail-border);background:var(--fail-bg);color:var(--fail-color); }
+.qc-inp.hold  { border-color:var(--hold-border);background:var(--hold-bg);color:var(--hold-color); }
+.qc-inp:focus { outline:none;box-shadow:0 0 0 3px rgba(91,95,199,.12); }
+.qc-inp:disabled { background:var(--gray-100);color:var(--text-3);border-color:var(--border); }
+.inp-label { font-size:11px;font-weight:600;color:var(--text-3); }
+
+/* QC result chip */
+.qc-result { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700; }
+.qc-result.pass    { background:var(--pass-bg);color:var(--pass-color);border:1px solid var(--pass-border); }
+.qc-result.partial { background:#fff7ed;color:#9a3412;border:1px solid #fdba74; }
+.qc-result.fail    { background:var(--fail-bg);color:var(--fail-color);border:1px solid var(--fail-border); }
+.qc-result.pending { background:var(--gray-100);color:var(--text-3);border:1px solid var(--border); }
+
+/* LOT input */
+.lot-inp { width:130px;border:1.5px solid var(--brand-300);border-radius:var(--r-sm);padding:5px 8px;font-size:12.5px;font-family:inherit;background:var(--brand-50);color:var(--brand-700);font-weight:600; }
+.lot-inp:focus { outline:none;border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(91,95,199,.1); }
+.lot-inp:disabled { background:var(--gray-100);color:var(--text-3);border-color:var(--border); }
+
+/* Reject reason row */
+.reject-row { background:#fff9f9;border-left:3px solid #fca5a5; }
+.reject-row td { padding:8px 10px; }
+.reject-inp { width:100%;border:1.5px solid var(--fail-border);border-radius:var(--r-sm);padding:5px 8px;font-size:12.5px;font-family:inherit;background:var(--fail-bg);color:var(--fail-color); }
+.reject-inp:focus { outline:none;border-color:#dc2626; }
+
+/* Info banner */
+.info-banner { display:flex;align-items:flex-start;gap:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-md);padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1e3a5f; }
+.info-banner svg { width:18px;height:18px;flex-shrink:0;color:#3b82f6;margin-top:1px; }
+
+/* Return to vendor summary */
+.return-summary { background:#fff5f5;border:1px solid #fecaca;border-radius:var(--r-md);padding:14px 16px;margin-top:14px; }
+.return-summary-title { font-size:12px;font-weight:700;color:#991b1b;margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+.return-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.return-table th { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#991b1b;padding:6px 10px;border-bottom:1px solid #fecaca;text-align:left; }
+.return-table td { padding:8px 10px;border-bottom:1px solid #fee2e2;color:var(--text-1); }
+.return-table tr:last-child td { border-bottom:none; }
+
+/* Debit note preview */
+.dn-preview { background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r-md);padding:14px 16px;margin-top:14px; }
+.dn-preview-title { font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+.dn-row { display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #fde68a;font-size:12.5px; }
+.dn-row:last-child { border-bottom:none;font-weight:700;font-size:13px; }
+
+/* Sticky action bar */
+.qc-bar { background:var(--surface);border-top:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 -4px 12px rgba(0,0,0,.06); }
+
+/* Empty state */
+.empty-qc { display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:48px 24px;text-align:center; }
+.empty-qc svg { width:52px;height:52px;color:var(--gray-300);margin-bottom:16px; }
+.empty-qc-title { font-size:16px;font-weight:700;color:var(--text-1);margin-bottom:6px; }
+.empty-qc-sub { font-size:13px;color:var(--text-3); }
+
+/* Progress bar */
+.qc-progress { display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin-top:6px; }
+.qc-prog-pass { background:#22c55e; }
+.qc-prog-fail { background:#ef4444; }
+.qc-prog-hold { background:#f59e0b; }
+.qc-prog-bg   { background:var(--border2);flex:1; }
+
+/* QC trail */
+.trail { display:flex;flex-direction:column;gap:0; }
+.trail-item { display:flex;gap:14px;padding:10px 0; }
+.trail-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px; }
+.trail-dot.received { background:var(--brand-500); }
+.trail-dot.qchold   { background:#a855f7; }
+.trail-dot.passed   { background:#22c55e; }
+.trail-dot.pending  { background:#f59e0b; }
+.trail-connector { width:2px;background:var(--border2);flex-shrink:0;margin-left:4px; }
+
+/* Modal */
+.modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadein .15s; }
+@keyframes fadein { from{opacity:0} to{opacity:1} }
+.modal-box { background:var(--surface);border-radius:var(--r-xl);box-shadow:0 20px 60px rgba(0,0,0,.2);width:520px;max-width:95vw;max-height:92vh;overflow-y:auto; }
+.modal-head { padding:20px 24px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between; }
+.modal-title { font-size:16px;font-weight:700;color:var(--text-1); }
+.modal-close { cursor:pointer;background:none;border:none;color:var(--text-3);font-size:20px;line-height:1;padding:2px 6px; }
+.modal-body { padding:20px 24px; }
+.modal-foot { padding:16px 24px;border-top:1px solid var(--border2);display:flex;gap:10px;justify-content:flex-end; }
+.sum-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);font-size:13px; }
+.sum-row:last-child { border-bottom:none; }
+.sum-label { color:var(--text-2); }
+.sum-val { font-weight:600;color:var(--text-1); }
+.sum-pass-val { color:var(--pass-color); }
+.sum-fail-val { color:var(--fail-color); }
+.sum-hold-val { color:var(--hold-color); }
+
+/* Toast */
+.toast { position:fixed;bottom:28px;right:28px;background:#1e1f2e;color:#fff;border-radius:var(--r-lg);padding:14px 20px;font-size:13.5px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:9999;animation:slideup .2s ease; }
+@keyframes slideup { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* Section tag */
+.sec-tag { font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:var(--r-full);border:1px solid var(--border);color:var(--text-3);background:var(--gray-50); }
+
+.act-row { display:flex;align-items:center;gap:8px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Enterprise Garment Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 011 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="nav-chevron">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="#">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child active" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">QI</div>
+    <div class="sf-info"><div class="sf-name">Quality Inspector</div><div class="sf-role">QC Team</div></div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main-content" style="display:flex;flex-direction:column;overflow:hidden;padding:0;">
+
+  <!-- Topbar -->
+  <div class="topbar" style="flex-shrink:0;">
+    <div class="topbar-left">
+      <div class="topbar-title">QC Inspection</div>
+      <div class="topbar-sub">Quality control for goods in hold — pass to inventory, reject to vendor</div>
+    </div>
+    <div class="topbar-right" style="gap:10px;">
+      <span class="sp sp-qchold" id="qcHoldCount">4 in QC Hold</span>
+    </div>
+  </div>
+
+  <!-- Stat strip -->
+  <div class="stat-strip">
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="statHold">4</div>
+      <div class="stat-strip-label">In QC Hold</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="statInspected">2</div>
+      <div class="stat-strip-label">Inspected Today</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="statPassed">1,840</div>
+      <div class="stat-strip-label">Units Passed Today</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="statFailed">120</div>
+      <div class="stat-strip-label">Units Failed / Returned</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-num" id="statDebitNotes">1</div>
+      <div class="stat-strip-label">Debit Notes Raised</div>
+    </div>
+  </div>
+
+  <!-- Two-pane -->
+  <div class="qc-layout" style="flex:1;overflow:hidden;">
+
+    <!-- Left queue -->
+    <div class="qc-queue">
+      <div class="queue-head">
+        <div class="queue-title">GRNs in QC Hold</div>
+        <input class="q-search" id="qcSearch" type="text" placeholder="Search GRN, vendor, PO…" oninput="renderQcQueue()">
+      </div>
+      <div id="qcQueueList" style="flex:1;overflow-y:auto;"></div>
+    </div>
+
+    <!-- Right detail -->
+    <div class="qc-detail" id="qcDetail">
+      <!-- empty state -->
+      <div class="empty-qc" id="qcEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.075m.75-.075a48.11 48.11 0 0112 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.075M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1 .03 2.703-1.352 2.703H4.15c-1.38 0-2.351-1.703-1.351-2.703L4.2 15.3"/></svg>
+        <div class="empty-qc-title">Select a GRN to Inspect</div>
+        <div class="empty-qc-sub">Choose a GRN from the queue on the left to begin QC entry and disposition.</div>
+      </div>
+
+      <!-- detail content (hidden until selection) -->
+      <div id="qcContent" style="display:none;flex:1;display:none;flex-direction:column;gap:0;">
+
+        <!-- GRN + PO info -->
+        <div class="sec" id="secGrnInfo">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+              GRN &amp; PO Details
+            </div>
+            <span class="sp sp-qchold">QC Hold</span>
+          </div>
+          <div class="sec-body">
+            <div class="g3" id="grnInfoGrid"></div>
+          </div>
+        </div>
+
+        <!-- Info banner -->
+        <div class="info-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01"/></svg>
+          <div>
+            Full quantity was received into <strong>QC Hold</strong> at GRN stage. Enter Pass / Fail / Hold quantities per line below.
+            Passed quantities will be posted to inventory. Failed quantities will trigger a vendor return and auto-generate a Debit Note on the original invoice.
+          </div>
+        </div>
+
+        <!-- QC entry table -->
+        <div class="sec">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              QC Inspection Entry
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="sec-tag" id="qcEntryProgress">0 / 0 lines done</span>
+              <button class="btn btn-sm btn-outline" onclick="autoFillPass()">Pass All</button>
+            </div>
+          </div>
+          <div class="sec-body" style="padding:0;">
+            <table class="qct">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>UOM</th>
+                  <th>Rcvd Qty</th>
+                  <th style="color:#166534;">
+                    <svg style="width:11px;height:11px;display:inline;vertical-align:middle;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Pass Qty
+                  </th>
+                  <th style="color:#991b1b;">
+                    <svg style="width:11px;height:11px;display:inline;vertical-align:middle;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm4.293-5.707a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 15.586l3.293-3.293a1 1 0 011.414 0z" clip-rule="evenodd" style="display:none"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                    Fail Qty
+                  </th>
+                  <th style="color:#92400e;">Hold Qty</th>
+                  <th id="lotColHead" style="display:none;color:var(--brand-600);">LOT #</th>
+                  <th>Fail Reason</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="qcLinesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Failed items: return to vendor summary -->
+        <div id="returnSection" style="display:none;">
+          <div class="return-summary">
+            <div class="return-summary-title">
+              <svg style="width:16px;height:16px;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Return to Vendor — Items Requiring Dispatch
+            </div>
+            <table class="return-table">
+              <thead>
+                <tr><th>Item</th><th>UOM</th><th>Qty to Return</th><th>Reason</th><th>PO Ref</th></tr>
+              </thead>
+              <tbody id="returnTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Debit note preview -->
+          <div class="dn-preview">
+            <div class="dn-preview-title">
+              <svg style="width:16px;height:16px;" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Auto-Generated Debit Note Preview
+            </div>
+            <div id="dnPreviewRows"></div>
+          </div>
+        </div>
+
+        <!-- Audit trail -->
+        <div class="sec">
+          <div class="sec-head">
+            <div class="sec-title">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+              Audit Trail
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="trail" id="qcTrail"></div>
+          </div>
+        </div>
+
+      </div><!-- /qcContent -->
+    </div><!-- /qc-detail -->
+
+  </div><!-- /qc-layout -->
+
+  <!-- Sticky action bar -->
+  <div class="qc-bar" id="qcBar" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;flex:1;">
+      <label style="font-size:12px;font-weight:600;color:var(--text-2);">Inspector Remarks</label>
+      <input id="qcRemarks" type="text" class="form-input" style="max-width:360px;" placeholder="Optional notes on inspection…">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="saveAsDraft()">Save Draft</button>
+      <button class="btn btn-primary" onclick="submitQcInspection()" id="btnSubmitQc">Submit Inspection</button>
+    </div>
+  </div>
+
+</main>
+</div><!-- /app -->
+
+<!-- Confirm modal -->
+<div id="confirmModal" style="display:none;"></div>
+
+<script>
+/* ── CONFIG ──────────────────────────────────────────── */
+const COMPANY = { name:'Stitch ERP', lotTracking: true };
+
+/* ── SAMPLE DATA ─────────────────────────────────────── */
+const QC_HOLD_GRNS = [
+  {
+    id: 101,
+    grnNum: 'GRN-2026-0101',
+    poNum:  'PO-2026-0042',
+    vendor: 'Sunrise Fabrics Pvt. Ltd.',
+    receivedBy: 'Ravi Kumar',
+    receivedDate: '28 Apr 2026',
+    invoiceNum: 'INV-SF-2026-1193',
+    invoiceDate: '27 Apr 2026',
+    totalQty: 2500,
+    lines: [
+      { id:'l1', item:'Cotton Poplin 44"', sku:'FAB-CP-44W', uom:'Metres', rcvQty:1000, unitRate:85, poRef:'PO-2026-0042' },
+      { id:'l2', item:'Cotton Twill 58"',  sku:'FAB-CT-58W', uom:'Metres', rcvQty:800,  unitRate:110, poRef:'PO-2026-0042' },
+      { id:'l3', item:'Poly Lining Grey',  sku:'FAB-PL-GR',  uom:'Metres', rcvQty:700,  unitRate:55,  poRef:'PO-2026-0042' },
+    ],
+    trail: [
+      { dot:'received', label:'GRN Created', actor:'Ravi Kumar', time:'28 Apr 2026, 09:15' },
+      { dot:'qchold',   label:'Moved to QC Hold', actor:'System (Auto)',  time:'28 Apr 2026, 09:16' },
+    ]
+  },
+  {
+    id: 102,
+    grnNum: 'GRN-2026-0099',
+    poNum:  'PO-2026-0038',
+    vendor: 'Horizon Trims Co.',
+    receivedBy: 'Sania Mehta',
+    receivedDate: '27 Apr 2026',
+    invoiceNum: 'INV-HT-2026-0887',
+    invoiceDate: '26 Apr 2026',
+    totalQty: 3200,
+    lines: [
+      { id:'l4', item:'Elastic Webbing 25mm', sku:'TRIM-EW-25', uom:'Metres', rcvQty:1000, unitRate:12, poRef:'PO-2026-0038' },
+      { id:'l5', item:'Hook & Eye Set',        sku:'TRIM-HE-01', uom:'Sets',   rcvQty:1200, unitRate:8,  poRef:'PO-2026-0038' },
+      { id:'l6', item:'Velcro Strip 2.5cm',    sku:'TRIM-VC-25', uom:'Metres', rcvQty:1000, unitRate:18, poRef:'PO-2026-0038' },
+    ],
+    trail: [
+      { dot:'received', label:'GRN Created', actor:'Sania Mehta', time:'27 Apr 2026, 14:30' },
+      { dot:'qchold',   label:'Moved to QC Hold', actor:'System (Auto)',  time:'27 Apr 2026, 14:31' },
+    ]
+  },
+  {
+    id: 103,
+    grnNum: 'GRN-2026-0097',
+    poNum:  'PO-2026-0035',
+    vendor: 'Global Threads LLC',
+    receivedBy: 'Deepak Singh',
+    receivedDate: '26 Apr 2026',
+    invoiceNum: 'INV-GT-2026-0554',
+    invoiceDate: '25 Apr 2026',
+    totalQty: 1500,
+    lines: [
+      { id:'l7', item:'Polyester Thread 100m',  sku:'THR-PT-100', uom:'Cones', rcvQty:500, unitRate:45, poRef:'PO-2026-0035' },
+      { id:'l8', item:'Nylon Thread 100m',       sku:'THR-NY-100', uom:'Cones', rcvQty:500, unitRate:52, poRef:'PO-2026-0035' },
+      { id:'l9', item:'Cotton Thread Black 50m', sku:'THR-CB-050', uom:'Cones', rcvQty:500, unitRate:38, poRef:'PO-2026-0035' },
+    ],
+    trail: [
+      { dot:'received', label:'GRN Created', actor:'Deepak Singh', time:'26 Apr 2026, 11:00' },
+      { dot:'qchold',   label:'Moved to QC Hold', actor:'System (Auto)',  time:'26 Apr 2026, 11:01' },
+    ]
+  },
+  {
+    id: 104,
+    grnNum: 'GRN-2026-0094',
+    poNum:  'PO-2026-0031',
+    vendor: 'Apex Raw Materials',
+    receivedBy: 'Priya Sharma',
+    receivedDate: '25 Apr 2026',
+    invoiceNum: 'INV-AR-2026-0221',
+    invoiceDate: '24 Apr 2026',
+    totalQty: 2000,
+    lines: [
+      { id:'l10', item:'Fusible Interlining',  sku:'INT-FU-01', uom:'Metres', rcvQty:1000, unitRate:30, poRef:'PO-2026-0031' },
+      { id:'l11', item:'Woven Interfacing',    sku:'INT-WO-02', uom:'Metres', rcvQty:1000, unitRate:35, poRef:'PO-2026-0031' },
+    ],
+    trail: [
+      { dot:'received', label:'GRN Created', actor:'Priya Sharma', time:'25 Apr 2026, 16:45' },
+      { dot:'qchold',   label:'Moved to QC Hold', actor:'System (Auto)',  time:'25 Apr 2026, 16:46' },
+    ]
+  },
+];
+
+/* ── STATE ────────────────────────────────────────────── */
+let selectedGrnId = null;
+// lineQc[lineId] = { pass, fail, hold, lot, reason }
+let lineQc = {};
+
+/* ── HELPERS ─────────────────────────────────────────── */
+function getGrn(id) { return QC_HOLD_GRNS.find(g => g.id === id); }
+function fmtNum(n)  { return (n||0).toLocaleString('en-IN'); }
+
+/* ── QUEUE ────────────────────────────────────────────── */
+function renderQcQueue() {
+  const q   = (document.getElementById('qcSearch').value||'').toLowerCase();
+  const el  = document.getElementById('qcQueueList');
+  const list = QC_HOLD_GRNS.filter(g =>
+    !q || g.grnNum.toLowerCase().includes(q) ||
+          g.vendor.toLowerCase().includes(q) ||
+          g.poNum.toLowerCase().includes(q)
+  );
+  if (!list.length) {
+    el.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-3);font-size:13px;">No items match your search.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(g => {
+    const sel = g.id === selectedGrnId;
+    const lqc = g.lines.reduce((a,l) => {
+      const q = lineQc[l.id];
+      if (q) { a.pass += (q.pass||0); a.fail += (q.fail||0); }
+      return a;
+    }, { pass:0, fail:0 });
+    const done = g.lines.every(l => {
+      const q = lineQc[l.id];
+      return q && ((q.pass||0)+(q.fail||0)+(q.hold||0)) === l.rcvQty;
+    });
+    return `
+    <div class="qc-row${sel?' selected':''}" onclick="selectGrn(${g.id})">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span class="qc-grn">${g.grnNum}</span>
+          ${done ? `<span class="sp sp-approved">Ready</span>` : `<span class="sp sp-qchold">In Progress</span>`}
+        </div>
+        <div class="qc-meta"><strong>${g.vendor}</strong>${g.poNum} · ${g.receivedDate}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <span class="qc-qty-badge">${fmtNum(g.totalQty)} units in hold</span>
+          ${lqc.pass ? `<span style="font-size:11px;color:var(--pass-color);font-weight:600;">✓ ${fmtNum(lqc.pass)} passed</span>` : ''}
+          ${lqc.fail ? `<span style="font-size:11px;color:var(--fail-color);font-weight:600;">✗ ${fmtNum(lqc.fail)} failed</span>` : ''}
+        </div>
+        <div class="qc-progress" style="margin-top:6px;">
+          ${g.lines.map(l => {
+            const q = lineQc[l.id];
+            const p = q?.pass||0, f = q?.fail||0, h = q?.hold||0;
+            const tot = l.rcvQty;
+            return `<div class="qc-prog-pass" style="flex:${p}"></div>
+                    <div class="qc-prog-fail" style="flex:${f}"></div>
+                    <div class="qc-prog-hold" style="flex:${h}"></div>
+                    <div class="qc-prog-bg"   style="flex:${Math.max(0,tot-p-f-h)}"></div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="qc-age">${g.receivedDate.split(' ')[0]}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── SELECT GRN ──────────────────────────────────────── */
+function selectGrn(id) {
+  selectedGrnId = id;
+  const g = getGrn(id);
+  if (!g) return;
+
+  // init lineQc for lines not yet started
+  g.lines.forEach(l => { if (!lineQc[l.id]) lineQc[l.id] = { pass:'', fail:'', hold:'', lot:'', reason:'' }; });
+
+  renderQcQueue();
+  renderGrnInfo(g);
+  renderQcLines(g);
+  renderTrail(g);
+
+  document.getElementById('qcEmpty').style.display   = 'none';
+  document.getElementById('qcContent').style.display = 'flex';
+  document.getElementById('qcBar').style.display     = 'flex';
+  updateReturnSection(g);
+}
+
+/* ── GRN INFO ─────────────────────────────────────────── */
+function renderGrnInfo(g) {
+  document.getElementById('grnInfoGrid').innerHTML = `
+    <div class="kv"><span class="kv-label">GRN Number</span><span class="kv-val">${g.grnNum}</span></div>
+    <div class="kv"><span class="kv-label">PO Number</span><span class="kv-val">${g.poNum}</span></div>
+    <div class="kv"><span class="kv-label">Vendor</span><span class="kv-val">${g.vendor}</span></div>
+    <div class="kv"><span class="kv-label">Received By</span><span class="kv-val">${g.receivedBy}</span></div>
+    <div class="kv"><span class="kv-label">Received Date</span><span class="kv-val">${g.receivedDate}</span></div>
+    <div class="kv"><span class="kv-label">Invoice No.</span><span class="kv-val">${g.invoiceNum}</span></div>
+    <div class="kv"><span class="kv-label">Invoice Date</span><span class="kv-val">${g.invoiceDate}</span></div>
+    <div class="kv"><span class="kv-label">Total Qty in Hold</span><span class="kv-val">${fmtNum(g.totalQty)}</span></div>
+    <div class="kv"><span class="kv-label">Lines</span><span class="kv-val">${g.lines.length}</span></div>
+  `;
+}
+
+/* ── QC LINES TABLE ──────────────────────────────────── */
+function renderQcLines(g) {
+  if (COMPANY.lotTracking) document.getElementById('lotColHead').style.display = '';
+
+  let doneCount = 0;
+  const rows = g.lines.map(l => {
+    const q   = lineQc[l.id] || {};
+    const p   = parseFloat(q.pass)||0;
+    const f   = parseFloat(q.fail)||0;
+    const h   = parseFloat(q.hold)||0;
+    const tot = p + f + h;
+    const done = tot === l.rcvQty && l.rcvQty > 0;
+    if (done) doneCount++;
+
+    let resultChip = `<span class="qc-result pending">Pending</span>`;
+    if (done) {
+      if (f === 0 && h === 0)   resultChip = `<span class="qc-result pass">All Pass</span>`;
+      else if (p === 0 && h === 0) resultChip = `<span class="qc-result fail">All Fail</span>`;
+      else                         resultChip = `<span class="qc-result partial">Partial</span>`;
+    }
+
+    const lotCell = COMPANY.lotTracking
+      ? `<td><input class="lot-inp" id="lot_${l.id}" value="${q.lot||''}"
+              ${p > 0 ? '' : 'disabled'}
+              placeholder="LOT-XXXX"
+              onchange="updateLot('${l.id}',this.value)"
+              title="${p > 0 ? 'Assign LOT for passed qty' : 'No passed qty — LOT not needed'}"></td>`
+      : '';
+
+    return `
+    <tr class="${done ? 'qc-entered' : ''}">
+      <td>
+        <div class="qct-item">${l.item}</div>
+        <div class="qct-sub">${l.sku}</div>
+      </td>
+      <td>${l.uom}</td>
+      <td><strong>${fmtNum(l.rcvQty)}</strong></td>
+      <td>
+        <input class="qc-inp pass" id="pass_${l.id}" type="number" min="0" max="${l.rcvQty}"
+          value="${q.pass}" placeholder="0"
+          oninput="updateQcLine('${l.id}', '${l.rcvQty}')">
+      </td>
+      <td>
+        <input class="qc-inp fail" id="fail_${l.id}" type="number" min="0" max="${l.rcvQty}"
+          value="${q.fail}" placeholder="0"
+          oninput="updateQcLine('${l.id}', '${l.rcvQty}')">
+      </td>
+      <td>
+        <input class="qc-inp hold" id="hold_${l.id}" type="number" min="0" max="${l.rcvQty}"
+          value="${q.hold}" placeholder="0"
+          oninput="updateQcLine('${l.id}', '${l.rcvQty}')">
+      </td>
+      ${lotCell}
+      <td>
+        <input class="reject-inp" style="width:160px;" id="reason_${l.id}"
+          placeholder="${f > 0 ? 'Describe defect…' : '—'}"
+          ${f > 0 ? '' : 'disabled'}
+          value="${q.reason||''}"
+          onchange="updateReason('${l.id}',this.value)">
+      </td>
+      <td id="result_${l.id}">${resultChip}</td>
+    </tr>
+    <tr id="balrow_${l.id}" style="background:#fafbff;">
+      <td colspan="${COMPANY.lotTracking ? 9 : 8}" style="padding:4px 10px 8px;">
+        <span style="font-size:11px;color:var(--text-3);">
+          Balance unaccounted: <strong id="bal_${l.id}" style="color:${tot === l.rcvQty ? 'var(--pass-color)' : '#f59e0b'};">${fmtNum(Math.max(0, l.rcvQty - tot))}</strong>
+          &nbsp;/&nbsp; Total accounted: <strong>${fmtNum(tot)}</strong> of <strong>${fmtNum(l.rcvQty)}</strong>
+        </span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('qcLinesBody').innerHTML = rows;
+  document.getElementById('qcEntryProgress').textContent = `${doneCount} / ${g.lines.length} lines done`;
+}
+
+/* ── LINE QC UPDATE ──────────────────────────────────── */
+function updateQcLine(lineId, rcvQty) {
+  const p = parseFloat(document.getElementById(`pass_${lineId}`)?.value)||0;
+  const f = parseFloat(document.getElementById(`fail_${lineId}`)?.value)||0;
+  const h = parseFloat(document.getElementById(`hold_${lineId}`)?.value)||0;
+
+  lineQc[lineId] = { ...lineQc[lineId], pass:p, fail:f, hold:h };
+
+  const tot = p + f + h;
+  const done = tot === parseFloat(rcvQty);
+
+  // Update balance row
+  const balEl = document.getElementById(`bal_${lineId}`);
+  if (balEl) {
+    balEl.textContent = fmtNum(Math.max(0, rcvQty - tot));
+    balEl.style.color = done ? 'var(--pass-color)' : '#f59e0b';
+  }
+
+  // Update result chip
+  const resultEl = document.getElementById(`result_${lineId}`);
+  if (resultEl) {
+    let chip = `<span class="qc-result pending">Pending</span>`;
+    if (done) {
+      if (f === 0 && h === 0)   chip = `<span class="qc-result pass">All Pass</span>`;
+      else if (p === 0 && h === 0) chip = `<span class="qc-result fail">All Fail</span>`;
+      else                         chip = `<span class="qc-result partial">Partial</span>`;
+    }
+    resultEl.innerHTML = chip;
+  }
+
+  // Enable/disable LOT input
+  if (COMPANY.lotTracking) {
+    const lotEl = document.getElementById(`lot_${lineId}`);
+    if (lotEl) { lotEl.disabled = p <= 0; if (p <= 0) lotEl.value = ''; }
+  }
+
+  // Enable/disable reject reason
+  const reasonEl = document.getElementById(`reason_${lineId}`);
+  if (reasonEl) {
+    reasonEl.disabled = f <= 0;
+    if (f <= 0) { reasonEl.value = ''; lineQc[lineId].reason = ''; }
+    reasonEl.placeholder = f > 0 ? 'Describe defect…' : '—';
+  }
+
+  const g = getGrn(selectedGrnId);
+  if (g) {
+    updateReturnSection(g);
+    const doneCount = g.lines.filter(l => {
+      const q = lineQc[l.id];
+      return q && ((q.pass||0)+(q.fail||0)+(q.hold||0)) === l.rcvQty;
+    }).length;
+    document.getElementById('qcEntryProgress').textContent = `${doneCount} / ${g.lines.length} lines done`;
+  }
+  renderQcQueue();
+}
+
+function updateLot(lineId, val)    { if (lineQc[lineId]) lineQc[lineId].lot    = val; }
+function updateReason(lineId, val) { if (lineQc[lineId]) lineQc[lineId].reason = val; }
+
+/* ── AUTO FILL PASS ──────────────────────────────────── */
+function autoFillPass() {
+  const g = getGrn(selectedGrnId);
+  if (!g) return;
+  g.lines.forEach(l => {
+    lineQc[l.id] = { pass: l.rcvQty, fail: 0, hold: 0, lot: lineQc[l.id]?.lot||'', reason:'' };
+  });
+  renderQcLines(g);
+  updateReturnSection(g);
+  renderQcQueue();
+}
+
+/* ── RETURN / DEBIT NOTE SECTION ─────────────────────── */
+function updateReturnSection(g) {
+  const failLines = g.lines.filter(l => (lineQc[l.id]?.fail||0) > 0);
+  const sec = document.getElementById('returnSection');
+  if (!failLines.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+
+  // Return table
+  document.getElementById('returnTableBody').innerHTML = failLines.map(l => {
+    const q = lineQc[l.id];
+    return `<tr>
+      <td><strong>${l.item}</strong><br><span style="font-size:11px;color:var(--text-3);">${l.sku}</span></td>
+      <td>${l.uom}</td>
+      <td><strong>${fmtNum(q.fail)}</strong></td>
+      <td style="color:#991b1b;">${q.reason || '<em style="color:var(--text-3);">Reason not provided</em>'}</td>
+      <td>${l.poRef}</td>
+    </tr>`;
+  }).join('');
+
+  // Debit note
+  const rows = failLines.map(l => {
+    const q   = lineQc[l.id];
+    const amt = (q.fail||0) * l.unitRate;
+    return `<div class="dn-row">
+      <span>${l.item} × ${fmtNum(q.fail)} ${l.uom} @ ₹${l.unitRate}</span>
+      <span>₹${fmtNum(amt)}</span>
+    </div>`;
+  });
+  const total = failLines.reduce((s,l) => s + (lineQc[l.id]?.fail||0)*l.unitRate, 0);
+  rows.push(`<div class="dn-row"><span>Total Debit Note Value</span><span>₹${fmtNum(total)}</span></div>`);
+  document.getElementById('dnPreviewRows').innerHTML = rows.join('');
+}
+
+/* ── AUDIT TRAIL ─────────────────────────────────────── */
+function renderTrail(g) {
+  const steps = [...g.trail];
+  // Add a "pending inspection" entry at end
+  steps.push({ dot:'pending', label:'QC Inspection', actor:'Pending', time:'—' });
+
+  document.getElementById('qcTrail').innerHTML = steps.map((s, i) => `
+    <div class="trail-item">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="trail-dot ${s.dot}"></div>
+        ${i < steps.length-1 ? '<div class="trail-connector" style="flex:1;min-height:24px;"></div>' : ''}
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-1);">${s.label}</div>
+        <div style="font-size:12px;color:var(--text-3);">${s.actor} · ${s.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── SAVE DRAFT ──────────────────────────────────────── */
+function saveAsDraft() {
+  showToast('Draft saved — you can continue inspection later.');
+}
+
+/* ── SUBMIT INSPECTION ───────────────────────────────── */
+function submitQcInspection() {
+  const g = getGrn(selectedGrnId);
+  if (!g) return;
+
+  // Validate all lines are accounted for
+  const incomplete = g.lines.filter(l => {
+    const q = lineQc[l.id];
+    return !q || ((q.pass||0)+(q.fail||0)+(q.hold||0)) !== l.rcvQty;
+  });
+  if (incomplete.length) {
+    showToast(`⚠ ${incomplete.length} line(s) not fully accounted. Pass + Fail + Hold must equal Received Qty.`, true);
+    return;
+  }
+
+  // Validate fail lines have reasons
+  const missingReason = g.lines.filter(l => {
+    const q = lineQc[l.id];
+    return (q.fail||0) > 0 && !q.reason?.trim();
+  });
+  if (missingReason.length) {
+    showToast(`⚠ Please provide a failure reason for ${missingReason.length} line(s).`, true);
+    return;
+  }
+
+  // Build summary
+  const totPass = g.lines.reduce((s,l) => s + (lineQc[l.id]?.pass||0), 0);
+  const totFail = g.lines.reduce((s,l) => s + (lineQc[l.id]?.fail||0), 0);
+  const totHold = g.lines.reduce((s,l) => s + (lineQc[l.id]?.hold||0), 0);
+  const debitAmt= g.lines.reduce((s,l) => s + (lineQc[l.id]?.fail||0)*l.unitRate, 0);
+
+  const remarks = document.getElementById('qcRemarks').value;
+
+  const lotRows = COMPANY.lotTracking
+    ? g.lines.filter(l => (lineQc[l.id]?.pass||0)>0).map(l =>
+        `<div class="sum-row"><span class="sum-label">${l.item} LOT</span><span class="sum-val">${lineQc[l.id].lot||'<em>not assigned</em>'}</span></div>`
+      ).join('')
+    : '';
+
+  const html = `
+  <div class="modal-overlay" onclick="if(event.target===this) closeConfirmModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">Confirm QC Inspection Submission</div>
+        <button class="modal-close" onclick="closeConfirmModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="sum-row"><span class="sum-label">GRN</span><span class="sum-val">${g.grnNum}</span></div>
+        <div class="sum-row"><span class="sum-label">Vendor</span><span class="sum-val">${g.vendor}</span></div>
+        <div class="sum-row"><span class="sum-label">Invoice</span><span class="sum-val">${g.invoiceNum}</span></div>
+        <div style="height:12px;"></div>
+        <div class="sum-row">
+          <span class="sum-label">✓ Passed → Posted to Inventory</span>
+          <span class="sum-val sum-pass-val">${fmtNum(totPass)} units</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-label">✗ Failed → Return to Vendor</span>
+          <span class="sum-val sum-fail-val">${fmtNum(totFail)} units</span>
+        </div>
+        ${totHold ? `<div class="sum-row"><span class="sum-label">⏸ On Hold (further inspection)</span><span class="sum-val sum-hold-val">${fmtNum(totHold)} units</span></div>` : ''}
+        ${debitAmt ? `<div class="sum-row"><span class="sum-label">Debit Note Value</span><span class="sum-val sum-fail-val">₹${fmtNum(debitAmt)}</span></div>` : ''}
+        ${lotRows ? `<div style="height:12px;"></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;">LOT Assignments</div>${lotRows}` : ''}
+        ${remarks ? `<div style="height:12px;"></div><div class="sum-row"><span class="sum-label">Inspector Remarks</span><span class="sum-val" style="max-width:260px;text-align:right;">${remarks}</span></div>` : ''}
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="finaliseQc()">Confirm &amp; Submit</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('confirmModal').innerHTML = html;
+  document.getElementById('confirmModal').style.display = 'block';
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').style.display = 'none';
+  document.getElementById('confirmModal').innerHTML = '';
+}
+
+/* ── FINALISE QC ─────────────────────────────────────── */
+function finaliseQc() {
+  closeConfirmModal();
+
+  const g = getGrn(selectedGrnId);
+  const totPass = g.lines.reduce((s,l) => s + (lineQc[l.id]?.pass||0), 0);
+  const totFail = g.lines.reduce((s,l) => s + (lineQc[l.id]?.fail||0), 0);
+
+  // Remove from QC hold list
+  const idx = QC_HOLD_GRNS.findIndex(x => x.id === selectedGrnId);
+  if (idx > -1) QC_HOLD_GRNS.splice(idx, 1);
+
+  // Reset state
+  selectedGrnId = null;
+  document.getElementById('qcEmpty').style.display   = 'flex';
+  document.getElementById('qcContent').style.display = 'none';
+  document.getElementById('qcBar').style.display     = 'none';
+  document.getElementById('qcRemarks').value         = '';
+
+  // Update stats
+  const holdEl = document.getElementById('statHold');
+  if (holdEl) holdEl.textContent = QC_HOLD_GRNS.length;
+  document.getElementById('qcHoldCount').textContent = `${QC_HOLD_GRNS.length} in QC Hold`;
+
+  renderQcQueue();
+
+  let msg = `QC submitted. ${fmtNum(totPass)} units posted to inventory.`;
+  if (totFail) msg += ` ${fmtNum(totFail)} units queued for return & debit note raised.`;
+  showToast(msg);
+}
+
+/* ── TOAST ───────────────────────────────────────────── */
+function showToast(msg, isWarn) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.background = isWarn ? '#b91c1c' : '#1e1f2e';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ── NAV TOGGLE ──────────────────────────────────────── */
+function toggleGroup(el) {
+  el.parentElement.classList.toggle('open');
+}
+
+/* ── INIT ────────────────────────────────────────────── */
+renderQcQueue();
+</script>
+</body>
+</html>
