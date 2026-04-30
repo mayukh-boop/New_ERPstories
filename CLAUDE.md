@@ -112,3 +112,5 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 ├── purchase-order-list.html            # PO list view
 └── masters-*.html (9 files)            # Master data screens: color, UOM, vendor, fabric, process, etc.
 ```
+
+
