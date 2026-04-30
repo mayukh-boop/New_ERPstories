@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buyer PO — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}
+.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}
+.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,0.06)!important;}
+
+/* ── Status badges ── */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-draft{background:#f3f4f6;color:#4b5563;}
+.sp-open{background:#eff6ff;color:#1e40af;}
+.sp-approved{background:#f0fdf4;color:#166534;}
+.sp-closed{background:#f0fdfa;color:#0f766e;}
+.sp-cancelled{background:#fef2f2;color:#991b1b;}
+
+/* ── Section blocks ── */
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px;}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border2);}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:7px;}
+.sec-title svg{width:14px;height:14px;color:var(--brand-500);}
+.sec-body{padding:16px 18px;}
+
+/* ── Form fields ── */
+.fl{display:flex;flex-direction:column;gap:4px;}
+.fl label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.03em;}
+.fl label .req{color:var(--danger);margin-left:2px;}
+.fi{height:34px;border:1.5px solid transparent;border-bottom-color:var(--border);background:transparent;border-radius:0;font-size:13px;color:var(--text-1);padding:0 6px;width:100%;outline:none;font-family:inherit;transition:border-color .15s;}
+.fi:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px;}
+.fi-area{border:1.5px solid var(--border);border-radius:var(--r-sm);background:transparent;font-size:13px;color:var(--text-1);padding:8px 10px;width:100%;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s;min-height:60px;}
+.fi-area:focus{border-color:var(--brand-500);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+.g5{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:14px;}
+
+/* ── Radio groups ── */
+.radio-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.radio-group label{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-1);cursor:pointer;font-weight:500;}
+.radio-group input[type=radio]{accent-color:var(--brand-500);width:14px;height:14px;}
+
+/* ── Address block ── */
+.addr-card{background:var(--gray-50);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px;}
+.addr-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;}
+.addr-name{font-size:12.5px;font-weight:700;color:var(--text-1);margin-bottom:2px;}
+.addr-line{font-size:12px;color:var(--text-2);line-height:1.6;}
+
+/* ── Lines view toggle ── */
+.view-toggle{display:flex;background:var(--gray-100);border-radius:var(--r-sm);padding:2px;gap:2px;}
+.vt-btn{padding:5px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;color:var(--text-3);background:transparent;display:flex;align-items:center;gap:5px;transition:all .15s;}
+.vt-btn.active{background:var(--surface);color:var(--brand-600);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.vt-btn svg{width:13px;height:13px;}
+
+/* ── Lines table ── */
+.bpo-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.bpo-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:7px 8px;border-bottom:2px solid var(--border2);white-space:nowrap;background:var(--gray-50);}
+.bpo-table td{padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.bpo-table tr:hover td{background:var(--brand-50);}
+.bpo-table tfoot td{font-size:11.5px;font-weight:700;color:var(--text-1);padding:8px 8px;background:var(--gray-50);border-top:2px solid var(--border2);}
+.bpo-table .num{text-align:right;}
+.bpo-table input.cell-input{width:100%;border:none;border-bottom:1.5px solid transparent;background:transparent;font-size:12.5px;color:var(--text-1);outline:none;padding:2px 4px;font-family:inherit;min-width:60px;}
+.bpo-table input.cell-input:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+.bpo-table select.cell-input{appearance:none;padding-right:16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;}
+
+/* Group header row */
+.bpo-table tr.grp-head td{background:#f0f4ff;color:var(--brand-700);font-weight:700;font-size:11.5px;padding:5px 8px;border-top:2px solid var(--brand-200);}
+
+/* Ratio pack row */
+.bpo-table tr.ratio-row td{background:#fffbeb;}
+
+/* ── Summary bar ── */
+.sum-bar{display:flex;align-items:center;gap:24px;padding:10px 18px;background:var(--gray-50);border-top:2px solid var(--border2);font-size:12px;}
+.sum-item{display:flex;flex-direction:column;gap:1px;}
+.sum-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);}
+.sum-val{font-size:15px;font-weight:800;color:var(--text-1);}
+.sum-val.accent{color:var(--brand-600);}
+
+/* ── Totals panel ── */
+.totals-panel{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;min-width:320px;}
+.tot-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border2);font-size:13px;}
+.tot-row:last-child{border-bottom:none;}
+.tot-row.grand{background:var(--brand-50);font-weight:800;font-size:14px;color:var(--brand-700);}
+.tot-label{color:var(--text-2);}
+.tot-val{font-weight:600;color:var(--text-1);}
+
+/* ── Action bar ── */
+.action-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+
+/* ── Style search pill ── */
+.style-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-full);font-size:12px;font-weight:600;color:var(--brand-700);cursor:default;}
+.style-pill button{width:16px;height:16px;border:none;background:none;cursor:pointer;color:var(--brand-500);padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;}
+.style-pill button:hover{color:var(--danger);}
+
+/* ── Badges ── */
+.solid-badge{display:inline-flex;align-items:center;padding:1px 7px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;background:#e0f2fe;color:#0369a1;}
+.ratio-badge{display:inline-flex;align-items:center;padding:1px 7px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;background:#fef9c3;color:#854d0e;}
+
+/* ── Modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,15,35,.35);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-backdrop.open{opacity:1;pointer-events:auto;}
+.modal{background:var(--surface);border-radius:var(--r-xl);box-shadow:0 20px 60px rgba(0,0,0,.18);width:100%;transform:scale(.97) translateY(8px);transition:transform .2s;}
+.modal-backdrop.open .modal{transform:scale(1) translateY(0);}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border2);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.modal-sub{font-size:12px;color:var(--text-3);margin-top:3px;}
+.modal-body{padding:18px 22px;}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--border2);}
+.modal-x{width:28px;height:28px;border:none;background:var(--gray-100);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);}
+.modal-x:hover{background:var(--gray-200);color:var(--text-1);}
+.modal-x svg{width:14px;height:14px;}
+
+/* ── Toast ── */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ── View mode (read-only) ── */
+.view-field{display:flex;flex-direction:column;gap:3px;}
+.view-field-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.view-field-val{font-size:13px;font-weight:500;color:var(--text-1);}
+
+/* ── Info callout ── */
+.info-callout{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-sm);font-size:12.5px;color:#1d4ed8;margin-bottom:14px;}
+.info-callout svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">S</div>
+    <div><div class="brand-name">Stitch ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-parent" onclick="location.href='#'">
+      <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+      <span class="nav-parent-label">Dashboard</span>
+    </div>
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+      <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg></span>
+      <span class="nav-parent-label">Buyer Orders</span>
+      <span class="nav-chevron"><svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg></span>
+    </div>
+    <div class="nav-children">
+      <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+      <a class="nav-child active" href="buyer-po.html">Create Buyer PO</a>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-parent" onclick="toggleGroup(this)">
+      <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+      <span class="nav-parent-label">Purchase Orders</span>
+      <span class="nav-chevron"><svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg></span>
+    </div>
+    <div class="nav-children" style="display:none;">
+      <a class="nav-child" href="purchase-order-list.html">PO List</a>
+      <a class="nav-child" href="purchase-order.html">Create PO</a>
+      <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+      <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+      <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+      <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-parent" onclick="toggleGroup(this)">
+      <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+      <span class="nav-parent-label">Masters</span>
+      <span class="nav-chevron"><svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg></span>
+    </div>
+    <div class="nav-children" style="display:none;">
+      <a class="nav-child" href="masters-list.html">All Masters</a>
+      <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+      <a class="nav-child" href="masters-company.html">Company Settings</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Org Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" id="topbarTitle">Create Buyer PO</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ════ FORM VIEW ════ -->
+  <main class="page" id="viewForm" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- Breadcrumb bar -->
+    <div style="padding:12px 28px 0;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-outline btn-sm" onclick="goList()" style="display:flex;align-items:center;gap:5px;">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+          Back
+        </button>
+        <span style="color:var(--text-3);">/</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text-1);" id="formHeading">New Buyer PO</span>
+        <span class="sp sp-draft" id="formStatusBadge">Draft</span>
+      </div>
+      <!-- Lines view toggle -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;color:var(--text-3);font-weight:500;">Lines View:</span>
+        <div class="view-toggle">
+          <button class="vt-btn active" id="vtStyle" onclick="setView('style')" title="One row per style×color×size">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+            By Style
+          </button>
+          <button class="vt-btn" id="vtLocation" onclick="setView('location')" title="Lines grouped by ship-to location">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            By Location
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:14px 28px 0;">
+
+      <!-- ① Header: Parties -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            Parties &amp; Addresses
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="clearParties()">Clear</button>
+        </div>
+        <div class="sec-body">
+          <div class="g3" style="margin-bottom:16px;">
+            <div class="fl">
+              <label>On Behalf of Customer</label>
+              <select class="fi" id="onBehalfCustomer" onchange="fillOnBehalf()">
+                <option value="">— Select Customer —</option>
+                <option value="ARYAN">ARYAN CLOTHING COMPANY (SALES)</option>
+                <option value="DELTA">DELTA FASHIONS LTD</option>
+                <option value="ZARA_INDIA">ZARA INDIA SOURCING</option>
+              </select>
+            </div>
+            <div class="fl">
+              <label>Vendor / Customer <span class="req">*</span></label>
+              <select class="fi" id="vendorCustomer" onchange="fillVendor()">
+                <option value="">— Select Vendor/Customer —</option>
+                <option value="ARYAN">ARYAN CLOTHING COMPANY (SALES)</option>
+                <option value="CODEVERSE">CODEVERSE TECHNOLOGIES</option>
+                <option value="DELTA">DELTA FASHIONS LTD</option>
+              </select>
+            </div>
+            <div class="fl">
+              <label>Bill To</label>
+              <select class="fi" id="billToSel" onchange="fillBillTo()">
+                <option value="">— Select Bill To —</option>
+                <option value="MAIN">Main Branch — Tirupur</option>
+                <option value="ARYAN_BLR">ARYAN CLOTHING — Bangalore</option>
+              </select>
+            </div>
+          </div>
+          <!-- Address cards -->
+          <div class="g3">
+            <div class="addr-card">
+              <div class="addr-label">Name / Address</div>
+              <div id="addrName" class="addr-name" style="color:var(--text-3);font-weight:400;">—</div>
+              <div id="addrBody" class="addr-line"></div>
+            </div>
+            <div class="addr-card">
+              <div class="addr-label">Ship To</div>
+              <div id="addrShipName" class="addr-name" style="color:var(--text-3);font-weight:400;">—</div>
+              <div id="addrShipBody" class="addr-line"></div>
+            </div>
+            <div class="addr-card">
+              <div class="addr-label">Bill To</div>
+              <div id="addrBillName" class="addr-name" style="color:var(--text-3);font-weight:400;">—</div>
+              <div id="addrBillBody" class="addr-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② PO Header Details -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+            Order Header
+          </div>
+          <div class="radio-group">
+            <span style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;">Type:</span>
+            <label><input type="radio" name="poType" value="domestic" checked onchange="poTypeChange()"> Domestic</label>
+            <label><input type="radio" name="poType" value="export" onchange="poTypeChange()"> Export</label>
+          </div>
+        </div>
+        <div class="sec-body">
+          <!-- Row 1 -->
+          <div class="g4" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>Buyer PO #</label>
+              <div class="radio-group" style="margin-bottom:6px;">
+                <label><input type="radio" name="buyerPoNoFlag" value="yes" checked onchange="toggleBuyerPoNo(true)"> Yes</label>
+                <label><input type="radio" name="buyerPoNoFlag" value="no" onchange="toggleBuyerPoNo(false)"> No</label>
+              </div>
+              <input class="fi" type="text" id="buyerPoNo" placeholder="Buyer PO #">
+            </div>
+            <div class="fl">
+              <label>PI No</label>
+              <input class="fi" type="text" id="piNo" placeholder="Proforma Invoice #">
+            </div>
+            <div class="fl">
+              <label>PO No# <span class="req">*</span></label>
+              <input class="fi" type="text" id="poNo" placeholder="e.g. APRJC2801" value="APRJC2801">
+            </div>
+            <div class="fl">
+              <label>Transaction Date</label>
+              <input class="fi" type="date" id="txnDate">
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div class="g4" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>Delivery Date <span class="req">*</span></label>
+              <input class="fi" type="date" id="delivDate" value="2026-06-30">
+            </div>
+            <div class="fl">
+              <label>Ex Location</label>
+              <input class="fi" type="text" id="exLocation" placeholder="Factory / Export location">
+            </div>
+            <div class="fl">
+              <label>Shipping Method</label>
+              <select class="fi" id="shippingMethod">
+                <option value="">— Select —</option>
+                <option selected>Road</option><option>Air</option><option>Sea</option><option>Courier</option>
+              </select>
+            </div>
+            <div class="fl">
+              <label>Shipping Terms</label>
+              <select class="fi" id="shippingTerms">
+                <option value="">— Select —</option>
+                <option>FOB</option><option>CIF</option><option>EXW</option><option>DDP</option>
+              </select>
+            </div>
+          </div>
+          <!-- Row 3 -->
+          <div class="g5" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>PO Receive Date</label>
+              <input class="fi" type="date" id="poReceiveDate">
+            </div>
+            <div class="fl">
+              <label>PR Receive Date</label>
+              <input class="fi" type="date" id="prReceiveDate">
+            </div>
+            <div class="fl">
+              <label>Ex Date</label>
+              <input class="fi" type="date" id="exDate">
+            </div>
+            <div class="fl">
+              <label>Net Weight (kg)</label>
+              <input class="fi" type="number" id="netWeight" placeholder="0.00" step="0.01">
+            </div>
+            <div class="fl">
+              <label>Gross Weight (kg)</label>
+              <input class="fi" type="number" id="grossWeight" placeholder="0.00" step="0.01">
+            </div>
+          </div>
+          <!-- Row 4 -->
+          <div class="g3" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>Dimensions (cm)</label>
+              <input class="fi" type="text" id="dimensions" placeholder="L × W × H">
+            </div>
+            <div class="fl">
+              <label>Manufactured Date</label>
+              <input class="fi" type="date" id="mfgDate">
+            </div>
+            <div class="fl">
+              <label>Invoice Format</label>
+              <div class="radio-group" style="padding-top:8px;">
+                <label><input type="radio" name="invoiceFormat" value="FOB" checked> FOB</label>
+                <label><input type="radio" name="invoiceFormat" value="JW"> JW</label>
+              </div>
+            </div>
+          </div>
+          <!-- Row 5 -->
+          <div class="g2">
+            <div class="fl">
+              <label>Bill To</label>
+              <div class="radio-group" style="padding-top:8px;">
+                <label><input type="radio" name="billToType" value="main" checked> Main Branch</label>
+                <label><input type="radio" name="billToType" value="location"> Location</label>
+              </div>
+            </div>
+            <div class="fl">
+              <label>EAN Required</label>
+              <div class="radio-group" style="padding-top:8px;">
+                <label><input type="radio" name="eanRequired" value="no" checked> No</label>
+                <label><input type="radio" name="eanRequired" value="yes"> Yes</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ Notes -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+            Notes / Comments
+          </div>
+        </div>
+        <div class="sec-body">
+          <textarea class="fi-area" id="notes" placeholder="Special instructions, packaging notes, brand guidelines…" style="min-height:54px;"></textarea>
+        </div>
+      </div>
+
+      <!-- ④ Order Lines -->
+      <div class="sec" id="linesSection">
+        <div class="sec-head" style="gap:12px;">
+          <div class="sec-title">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            Order Lines
+          </div>
+          <!-- Style search + add -->
+          <div style="display:flex;align-items:center;gap:8px;flex:1;">
+            <input class="fi" type="text" id="styleSearch" placeholder="Search Style#…" style="max-width:220px;height:30px;" oninput="filterStyles()">
+            <div style="display:flex;align-items:center;gap:6px;" id="styleChips"></div>
+          </div>
+          <!-- Solid / Ratio toggle -->
+          <div class="radio-group">
+            <label><input type="radio" name="lineType" value="solid" checked onchange="lineTypeChange('solid')"> Solid</label>
+            <label><input type="radio" name="lineType" value="ratio" onchange="lineTypeChange('ratio')"> Ratio</label>
+          </div>
+          <!-- Location dropdown -->
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:12px;color:var(--text-3);font-weight:500;">Location:</span>
+            <select class="fi" id="lineLocation" style="height:30px;min-width:160px;">
+              <option value="">— Select Location —</option>
+              <option value="L1">Location 1 — Bangalore</option>
+              <option value="L2">Location 2 — Mumbai</option>
+              <option value="L3">Location 3 — Delhi</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openStyleModal()">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            Add Style
+          </button>
+        </div>
+
+        <!-- Lines Table -->
+        <div style="overflow-x:auto;">
+          <table class="bpo-table" id="linesTable">
+            <thead id="linesTableHead"></thead>
+            <tbody id="linesBody"></tbody>
+            <tfoot id="linesFoot"></tfoot>
+          </table>
+        </div>
+
+        <!-- Summary bar -->
+        <div class="sum-bar">
+          <div class="sum-item"><div class="sum-label">Styles</div><div class="sum-val accent" id="sumStyles">0</div></div>
+          <div class="sum-item"><div class="sum-label">Total Qty</div><div class="sum-val accent" id="sumQty">0</div></div>
+          <div class="sum-item"><div class="sum-label">Total Pcs</div><div class="sum-val" id="sumPcs">0</div></div>
+          <div style="flex:1;"></div>
+          <!-- Totals -->
+          <div class="totals-panel" style="min-width:280px;">
+            <div class="tot-row"><span class="tot-label">Sub Total</span><span class="tot-val" id="totSub">₹0.00</span></div>
+            <div class="tot-row"><span class="tot-label">Discount</span><span class="tot-val" id="totDisc">₹0.00</span></div>
+            <div class="tot-row"><span class="tot-label">GST</span><span class="tot-val" id="totGst">₹0.00</span></div>
+            <div class="tot-row"><span class="tot-label">Adjustment</span><span class="tot-val"><input type="number" id="adjustment" value="0" style="width:80px;border:none;border-bottom:1.5px solid var(--border);text-align:right;font-size:13px;font-weight:600;outline:none;font-family:inherit;" oninput="recalc()"></span></div>
+            <div class="tot-row grand"><span class="tot-label">Net Total</span><span class="tot-val" id="totNet">₹0.00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:100px;"></div><!-- spacer for action bar -->
+    </div><!-- /scroll area -->
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div style="font-size:12px;color:var(--text-3);" id="formMeta">New — not yet saved</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="goList()">Cancel</button>
+        <button class="btn btn-outline" onclick="saveDraft()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M5 4a2 2 0 00-2 2v6H1l4 4 4-4H7V6h6v2h2V6a2 2 0 00-2-2H5z"/></svg>
+          Save as Draft
+        </button>
+        <button class="btn btn-primary" onclick="saveAndFinalize()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+          Save &amp; Finalise
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ════ VIEW MODE ════ (for approved/read-only POs) -->
+  <main class="page" id="viewReadOnly" style="padding:0;display:none;flex-direction:column;overflow:hidden;">
+    <div style="padding:14px 28px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-outline btn-sm" onclick="goList()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+          Back
+        </button>
+        <span style="color:var(--text-3);">/</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text-1);" id="viewPoNum">BPO-2026-0301</span>
+        <span class="sp sp-approved">Approved / Open</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="editMode()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          Edit
+        </button>
+        <button class="btn btn-outline btn-sm">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+    <div id="viewBody" style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+      <!-- dynamically filled -->
+    </div>
+  </main>
+
+</div><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- ── Style Search Modal ── -->
+<div class="modal-backdrop" id="styleModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Add Style to Order</div>
+        <div class="modal-sub">Search and select a style. Then enter sizes and quantities.</div>
+      </div>
+      <button class="modal-x" onclick="closeStyleModal()"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="position:relative;margin-bottom:14px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input class="fi" id="styleSearchModal" type="text" placeholder="Search by style code or name…" style="padding-left:32px;border:1.5px solid var(--border);border-radius:var(--r-sm);height:36px;" oninput="filterModalStyles()">
+      </div>
+      <div id="styleResultsList" style="max-height:200px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--r-sm);margin-bottom:14px;"></div>
+
+      <!-- Selected style config -->
+      <div id="styleConfig" style="display:none;">
+        <div style="padding:10px 12px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);margin-bottom:12px;font-size:13px;font-weight:600;color:var(--brand-700);" id="selectedStyleLabel"></div>
+        <div class="g3" style="margin-bottom:12px;">
+          <div class="fl">
+            <label>Color <span class="req">*</span></label>
+            <select class="fi" id="modalColor">
+              <option value="">— Color —</option>
+              <option>sakshi Blue</option><option>Jet Black</option><option>Pure White</option><option>Olive Green</option><option>Coral Red</option>
+            </select>
+          </div>
+          <div class="fl">
+            <label>Location <span class="req">*</span></label>
+            <select class="fi" id="modalLoc">
+              <option value="">— Location —</option>
+              <option value="L1">Location 1 — Bangalore</option>
+              <option value="L2">Location 2 — Mumbai</option>
+              <option value="L3">Location 3 — Delhi</option>
+            </select>
+          </div>
+          <div class="fl">
+            <label>GS Code</label>
+            <input class="fi" type="text" id="modalGsCode" placeholder="HSN/GS Code">
+          </div>
+        </div>
+        <!-- Size qty inputs -->
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Size Quantities</div>
+        <div id="sizeQtyGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:14px;"></div>
+        <div class="g3">
+          <div class="fl">
+            <label>Unit Price (₹) <span class="req">*</span></label>
+            <input class="fi" type="number" id="modalUnitPrice" placeholder="0.00" step="0.01" value="1000" oninput="calcModalTotal()">
+          </div>
+          <div class="fl">
+            <label>Discount (%)</label>
+            <input class="fi" type="number" id="modalDiscount" placeholder="0.00" step="0.01" value="0" oninput="calcModalTotal()">
+          </div>
+          <div class="fl">
+            <label>GST (%)</label>
+            <input class="fi" type="number" id="modalGst" placeholder="5" step="0.1" value="5" oninput="calcModalTotal()">
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:var(--gray-50);border-radius:var(--r-sm);display:flex;gap:20px;font-size:12.5px;">
+          <span>Total Qty: <strong id="modalTotQty">0</strong></span>
+          <span>Sub Total: <strong id="modalSubTot">₹0.00</strong></span>
+          <span>GST Amt: <strong id="modalGstAmt">₹0.00</strong></span>
+          <span>Line Total: <strong id="modalLineTot" style="color:var(--brand-600);">₹0.00</strong></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeStyleModal()">Cancel</button>
+      <button class="btn btn-primary" id="btnAddToOrder" onclick="addLineToOrder()" disabled>
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Add to Order
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   MASTER DATA (sample)
+══════════════════════════════════════════════════ */
+const ADDRESSES = {
+  ARYAN:   { name:'ARYAN CLOTHING COMPANY (SALES)', line:'NEW NO 54. (OLD NO. 48)\n1ST, 2ND, 3RD & 4TH FLOOR,\nSUDHAMANAGAR, LALBAGH MAIN ROAD\nBANGALORE', phone:'9844016169' },
+  CODEVERSE:{ name:'CODEVERSE TECHNOLOGIES', line:'2/666A, Mangalam Rd, SR Nagar South,\nHare Rama Hare Krishna Nagar,\nPeriyandipalayam, Tirupur\nTamil Nadu-641687', phone:'8012345678' },
+  DELTA:   { name:'DELTA FASHIONS LTD', line:'Plot 22, Export Promotion Zone\nMumbai, Maharashtra 400001', phone:'9022334455' },
+  MAIN:    { name:'CODEVERSE TECHNOLOGIES', line:'2/666A, Mangalam Rd, SR Nagar South,\nHare Rama Hare Krishna Nagar,\nPeriyandipalayam, Tirupur\nTamil Nadu-641687', phone:'8012345678' },
+  ARYAN_BLR:{ name:'ARYAN CLOTHING COMPANY (SALES)', line:'NEW NO 54. (OLD NO. 48) 1ST, 2ND, 3RD &\n4TH FLOOR, SUDHAMANAGAR,\nLALBAGH MAIN ROAD\nBANGALORE', phone:'9844016169' },
+};
+
+const STYLES = [
+  { code:'AP2801 ST002', name:'Basic Round Neck Tee', sizes:['XS','S','M','L','XL','XXL','3XL'], gsCode:'89075362686' },
+  { code:'AP2801 ST003', name:'V-Neck Polo', sizes:['S','M','L','XL','XXL'], gsCode:'89075362700' },
+  { code:'DL3002 BT001', name:'Cargo Shorts', sizes:['28','30','32','34','36','38'], gsCode:'62034200' },
+  { code:'ZI1001 KT005', name:'Knit Jogger', sizes:['S','M','L','XL','XXL'], gsCode:'61091000' },
+  { code:'AP2801 JK010', name:'Bomber Jacket', sizes:['S','M','L','XL','XXL'], gsCode:'62019300' },
+];
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let currentPoId   = null;
+let poStatus      = 'Draft';
+let viewMode      = 'style';   // 'style' | 'location'
+let lineType      = 'solid';   // 'solid' | 'ratio'
+let orderLines    = [];        // array of line objects
+let nextLineId    = 1;
+let selectedStyle = null;
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+document.getElementById('txnDate').value = new Date().toISOString().split('T')[0];
+renderLines();
+renderStyleChips();
+
+/* ══════════════════════════════════════════════════
+   ADDRESS FILL
+══════════════════════════════════════════════════ */
+function fillAddr(elName, elBody, key) {
+  const a = ADDRESSES[key];
+  if (!a) { document.getElementById(elName).textContent='—'; document.getElementById(elBody).textContent=''; return; }
+  document.getElementById(elName).textContent = a.name;
+  document.getElementById(elName).style.color = 'var(--text-1)';
+  document.getElementById(elName).style.fontWeight = '700';
+  document.getElementById(elBody).innerHTML = a.line.replace(/\n/g,'<br>') + (a.phone?`<br>${a.phone}`:'');
+}
+function fillVendor() {
+  const v = document.getElementById('vendorCustomer').value;
+  fillAddr('addrName','addrBody',v);
+  fillAddr('addrShipName','addrShipBody',v);
+}
+function fillOnBehalf() {}
+function fillBillTo() {
+  const b = document.getElementById('billToSel').value;
+  fillAddr('addrBillName','addrBillBody',b);
+}
+function clearParties() {
+  ['vendorCustomer','onBehalfCustomer','billToSel'].forEach(id=>document.getElementById(id).value='');
+  ['addrName','addrShipName','addrBillName'].forEach(id=>{document.getElementById(id).textContent='—';document.getElementById(id).style.color='var(--text-3)';document.getElementById(id).style.fontWeight='400';});
+  ['addrBody','addrShipBody','addrBillBody'].forEach(id=>document.getElementById(id).innerHTML='');
+}
+
+/* ══════════════════════════════════════════════════
+   RADIO TOGGLES
+══════════════════════════════════════════════════ */
+function toggleBuyerPoNo(show) { document.getElementById('buyerPoNo').style.display = show ? '' : 'none'; }
+function poTypeChange() {}
+function lineTypeChange(t) { lineType = t; renderLines(); }
+
+/* ══════════════════════════════════════════════════
+   VIEW TOGGLE (By Style / By Location)
+══════════════════════════════════════════════════ */
+function setView(v) {
+  viewMode = v;
+  document.getElementById('vtStyle').classList.toggle('active', v==='style');
+  document.getElementById('vtLocation').classList.toggle('active', v==='location');
+  renderLines();
+}
+
+/* ══════════════════════════════════════════════════
+   LINES RENDER
+══════════════════════════════════════════════════ */
+function renderLines() {
+  const head = document.getElementById('linesTableHead');
+  const body = document.getElementById('linesBody');
+  const foot = document.getElementById('linesFoot');
+
+  if (viewMode === 'style') {
+    head.innerHTML = `<tr>
+      <th style="width:30px;">#</th>
+      <th>Solid/Pack</th>
+      <th>Style</th>
+      <th>Color</th>
+      <th>Location</th>
+      <th>GS Code</th>
+      <th>Size</th>
+      <th class="num">Qty</th>
+      <th class="num">A.Qty</th>
+      <th class="num">Unit Price</th>
+      <th class="num">Disc(%)</th>
+      <th class="num">Disc Amt</th>
+      <th class="num">GST%</th>
+      <th class="num">Sub Total</th>
+      <th class="num">GST</th>
+      <th class="num">Total</th>
+      <th></th>
+    </tr>`;
+    if (!orderLines.length) {
+      body.innerHTML = `<tr><td colspan="17"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
+    } else {
+      body.innerHTML = orderLines.map((l,i) => buildStyleRow(l,i)).join('');
+    }
+  } else {
+    // Group by location
+    const groups = {};
+    orderLines.forEach(l => {
+      const loc = l.locationLabel || l.location || 'Unassigned';
+      if (!groups[loc]) groups[loc] = [];
+      groups[loc].push(l);
+    });
+    head.innerHTML = `<tr>
+      <th style="width:30px;">#</th>
+      <th>Solid/Pack</th>
+      <th>Style</th>
+      <th>Color</th>
+      <th>GS Code</th>
+      <th>Size</th>
+      <th class="num">Qty</th>
+      <th class="num">Unit Price</th>
+      <th class="num">Disc(%)</th>
+      <th class="num">GST%</th>
+      <th class="num">Sub Total</th>
+      <th class="num">GST</th>
+      <th class="num">Total</th>
+      <th></th>
+    </tr>`;
+    if (!orderLines.length) {
+      body.innerHTML = `<tr><td colspan="14"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
+    } else {
+      let rows = '';
+      Object.entries(groups).forEach(([loc, lines]) => {
+        const locQty = lines.reduce((a,b)=>a+(+b.qty||0),0);
+        rows += `<tr class="grp-head"><td colspan="14">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;display:inline;margin-right:5px;vertical-align:-2px;"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+          ${loc} <span style="font-weight:400;color:var(--brand-600);margin-left:8px;">${lines.length} line(s) · ${locQty.toLocaleString()} pcs</span>
+        </td></tr>`;
+        rows += lines.map((l,i) => buildLocationRow(l,i)).join('');
+      });
+      body.innerHTML = rows;
+    }
+  }
+
+  // Footer totals row
+  const totals = calcTotals();
+  if (orderLines.length) {
+    const cols = viewMode==='style' ? 17 : 14;
+    foot.innerHTML = `<tr>
+      <td colspan="${cols-5}" style="font-weight:700;font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;">Tot Qty</td>
+      <td class="num" colspan="1" style="font-size:13px;">${totals.qty.toLocaleString()}</td>
+      <td class="num" colspan="1"></td>
+      <td class="num" colspan="1"></td>
+      <td class="num" colspan="1" style="font-size:13px;">${fmt(totals.sub)}</td>
+      <td class="num" colspan="1" style="font-size:13px;">${fmt(totals.gst)}</td>
+      <td class="num" colspan="1" style="font-size:13px;color:var(--brand-600);">${fmt(totals.total)}</td>
+      ${viewMode==='style'?'<td></td>':''}
+    </tr>`;
+  } else {
+    foot.innerHTML = '';
+  }
+
+  updateSummary(totals);
+}
+
+function buildStyleRow(l, i) {
+  const sub = l.qty * l.unitPrice * (1 - (l.discount||0)/100);
+  const gstAmt = sub * (l.gst||0)/100;
+  const total = sub + gstAmt;
+  const discAmt = l.qty * l.unitPrice * (l.discount||0)/100;
+  return `<tr class="${l.type==='ratio'?'ratio-row':''}">
+    <td style="color:var(--text-3);font-size:11px;">${i+1}</td>
+    <td><span class="${l.type==='ratio'?'ratio-badge':'solid-badge'}">${l.type==='ratio'?'Ratio':'Solid'}</span></td>
+    <td style="font-weight:600;font-size:12.5px;">${l.styleCode}</td>
+    <td style="font-size:12.5px;">${l.color}</td>
+    <td style="font-size:12px;color:var(--text-2);">${l.locationLabel||l.location||'—'}</td>
+    <td style="font-size:11.5px;color:var(--text-3);">${l.gsCode||'—'}</td>
+    <td style="font-weight:600;">${l.size}</td>
+    <td class="num"><input class="cell-input" type="number" value="${l.qty}" min="0" style="width:70px;text-align:right;" onchange="updateLine(${l.id},'qty',this.value)"></td>
+    <td class="num" style="color:var(--text-3);">${l.approvedQty||l.qty}</td>
+    <td class="num"><input class="cell-input" type="number" value="${l.unitPrice}" min="0" step="0.01" style="width:80px;text-align:right;" onchange="updateLine(${l.id},'unitPrice',this.value)"></td>
+    <td class="num"><input class="cell-input" type="number" value="${l.discount||0}" min="0" max="100" step="0.01" style="width:55px;text-align:right;" onchange="updateLine(${l.id},'discount',this.value)"></td>
+    <td class="num" style="color:var(--text-3);">${fmt(discAmt)}</td>
+    <td class="num"><input class="cell-input" type="number" value="${l.gst||5}" min="0" step="0.1" style="width:45px;text-align:right;" onchange="updateLine(${l.id},'gst',this.value)"></td>
+    <td class="num">${fmt(sub)}</td>
+    <td class="num">${fmt(gstAmt)}</td>
+    <td class="num" style="font-weight:700;color:var(--brand-700);">${fmt(total)}</td>
+    <td><button style="border:none;background:none;cursor:pointer;color:var(--text-3);padding:2px;" title="Remove line" onclick="removeLine(${l.id})">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button></td>
+  </tr>`;
+}
+
+function buildLocationRow(l, i) {
+  const sub = l.qty * l.unitPrice * (1 - (l.discount||0)/100);
+  const gstAmt = sub * (l.gst||0)/100;
+  const total = sub + gstAmt;
+  return `<tr class="${l.type==='ratio'?'ratio-row':''}">
+    <td style="color:var(--text-3);font-size:11px;">${i+1}</td>
+    <td><span class="${l.type==='ratio'?'ratio-badge':'solid-badge'}">${l.type==='ratio'?'Ratio':'Solid'}</span></td>
+    <td style="font-weight:600;font-size:12.5px;">${l.styleCode}</td>
+    <td style="font-size:12.5px;">${l.color}</td>
+    <td style="font-size:11.5px;color:var(--text-3);">${l.gsCode||'—'}</td>
+    <td style="font-weight:600;">${l.size}</td>
+    <td class="num"><input class="cell-input" type="number" value="${l.qty}" min="0" style="width:70px;text-align:right;" onchange="updateLine(${l.id},'qty',this.value)"></td>
+    <td class="num"><input class="cell-input" type="number" value="${l.unitPrice}" min="0" step="0.01" style="width:80px;text-align:right;" onchange="updateLine(${l.id},'unitPrice',this.value)"></td>
+    <td class="num"><input class="cell-input" type="number" value="${l.discount||0}" min="0" max="100" style="width:55px;text-align:right;" onchange="updateLine(${l.id},'discount',this.value)"></td>
+    <td class="num"><input class="cell-input" type="number" value="${l.gst||5}" min="0" style="width:45px;text-align:right;" onchange="updateLine(${l.id},'gst',this.value)"></td>
+    <td class="num">${fmt(sub)}</td>
+    <td class="num">${fmt(gstAmt)}</td>
+    <td class="num" style="font-weight:700;color:var(--brand-700);">${fmt(total)}</td>
+    <td><button style="border:none;background:none;cursor:pointer;color:var(--text-3);padding:2px;" title="Remove line" onclick="removeLine(${l.id})">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button></td>
+  </tr>`;
+}
+
+function updateLine(id, field, val) {
+  const l = orderLines.find(x=>x.id===id);
+  if (l) { l[field] = parseFloat(val)||0; renderLines(); }
+}
+function removeLine(id) {
+  orderLines = orderLines.filter(x=>x.id!==id);
+  renderLines(); renderStyleChips();
+  toast('Line removed','info');
+}
+
+/* ══════════════════════════════════════════════════
+   STYLE CHIPS (header)
+══════════════════════════════════════════════════ */
+function renderStyleChips() {
+  const styles = [...new Set(orderLines.map(l=>l.styleCode))];
+  const el = document.getElementById('styleChips');
+  el.innerHTML = styles.map(s=>`<span class="style-pill">
+    <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;"><path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+    ${s}
+    <button onclick="removeAllByStyle('${s}')" title="Remove all lines for this style">×</button>
+  </span>`).join('');
+}
+function removeAllByStyle(code) {
+  orderLines = orderLines.filter(l=>l.styleCode!==code);
+  renderLines(); renderStyleChips();
+}
+function filterStyles() {
+  const q = document.getElementById('styleSearch').value.trim().toLowerCase();
+  // highlight chips
+}
+
+/* ══════════════════════════════════════════════════
+   STYLE MODAL
+══════════════════════════════════════════════════ */
+function openStyleModal() {
+  selectedStyle = null;
+  document.getElementById('styleSearchModal').value='';
+  document.getElementById('styleConfig').style.display='none';
+  document.getElementById('btnAddToOrder').disabled=true;
+  filterModalStyles();
+  document.getElementById('styleModal').classList.add('open');
+}
+function closeStyleModal() {
+  document.getElementById('styleModal').classList.remove('open');
+}
+function filterModalStyles() {
+  const q = document.getElementById('styleSearchModal').value.trim().toLowerCase();
+  const el = document.getElementById('styleResultsList');
+  const filtered = STYLES.filter(s=>!q||s.code.toLowerCase().includes(q)||s.name.toLowerCase().includes(q));
+  if (!filtered.length) { el.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text-3);font-size:13px;">No styles found</div>`; return; }
+  el.innerHTML = filtered.map(s=>`<div onclick="selectStyle('${s.code}')" style="padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;font-size:13px;transition:background .1s;" onmouseover="this.style.background='var(--brand-50)'" onmouseout="this.style.background=''">
+    <div><span style="font-weight:600;color:var(--brand-700);">${s.code}</span> <span style="color:var(--text-2);margin-left:8px;">${s.name}</span></div>
+    <span style="font-size:11px;color:var(--text-3);">${s.sizes.join(', ')}</span>
+  </div>`).join('');
+}
+function selectStyle(code) {
+  selectedStyle = STYLES.find(s=>s.code===code);
+  document.getElementById('selectedStyleLabel').textContent = `${selectedStyle.code} — ${selectedStyle.name}`;
+  document.getElementById('modalGsCode').value = selectedStyle.gsCode || '';
+
+  // Build size qty grid
+  const grid = document.getElementById('sizeQtyGrid');
+  grid.innerHTML = selectedStyle.sizes.map(sz=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+    <div style="font-size:10.5px;font-weight:700;color:var(--text-3);">${sz}</div>
+    <input class="cell-input" type="number" min="0" value="0" id="sqty-${sz.replace(/\s/g,'_')}" style="width:52px;height:28px;border:1.5px solid var(--border);border-radius:var(--r-sm);text-align:center;" oninput="calcModalTotal()">
+  </div>`).join('');
+
+  document.getElementById('styleConfig').style.display='block';
+  document.getElementById('btnAddToOrder').disabled=false;
+  calcModalTotal();
+}
+function calcModalTotal() {
+  if (!selectedStyle) return;
+  let qty = 0;
+  selectedStyle.sizes.forEach(sz=>{
+    const id = `sqty-${sz.replace(/\s/g,'_')}`;
+    qty += parseInt(document.getElementById(id)?.value||0)||0;
+  });
+  const up = parseFloat(document.getElementById('modalUnitPrice').value)||0;
+  const disc = parseFloat(document.getElementById('modalDiscount').value)||0;
+  const gst = parseFloat(document.getElementById('modalGst').value)||5;
+  const sub = qty * up * (1 - disc/100);
+  const gstAmt = sub * gst/100;
+  document.getElementById('modalTotQty').textContent = qty.toLocaleString();
+  document.getElementById('modalSubTot').textContent = fmt(sub);
+  document.getElementById('modalGstAmt').textContent = fmt(gstAmt);
+  document.getElementById('modalLineTot').textContent = fmt(sub+gstAmt);
+}
+function addLineToOrder() {
+  if (!selectedStyle) return;
+  const color = document.getElementById('modalColor').value;
+  const loc = document.getElementById('modalLoc').value;
+  const gsCode = document.getElementById('modalGsCode').value;
+  const up = parseFloat(document.getElementById('modalUnitPrice').value)||0;
+  const disc = parseFloat(document.getElementById('modalDiscount').value)||0;
+  const gst = parseFloat(document.getElementById('modalGst').value)||5;
+  if (!color) { toast('Please select a color','error'); return; }
+  if (!loc)   { toast('Please select a location','error'); return; }
+
+  const locMap = {'L1':'Location 1 — Bangalore','L2':'Location 2 — Mumbai','L3':'Location 3 — Delhi'};
+  let added = 0;
+  selectedStyle.sizes.forEach(sz => {
+    const id = `sqty-${sz.replace(/\s/g,'_')}`;
+    const qty = parseInt(document.getElementById(id)?.value||0)||0;
+    if (qty > 0) {
+      orderLines.push({
+        id: nextLineId++,
+        type: lineType,
+        styleCode: selectedStyle.code,
+        styleName: selectedStyle.name,
+        color, location: loc, locationLabel: locMap[loc]||loc,
+        gsCode, size: sz, qty, approvedQty: null,
+        unitPrice: up, discount: disc, gst
+      });
+      added++;
+    }
+  });
+
+  if (!added) { toast('Enter quantity for at least one size','error'); return; }
+  closeStyleModal();
+  renderLines(); renderStyleChips();
+  toast(`${added} line(s) added for ${selectedStyle.code}`,'success');
+}
+
+/* ══════════════════════════════════════════════════
+   TOTALS & SUMMARY
+══════════════════════════════════════════════════ */
+function calcTotals() {
+  let qty=0, sub=0, gst=0, total=0;
+  orderLines.forEach(l => {
+    const s = l.qty * l.unitPrice * (1 - (l.discount||0)/100);
+    const g = s * (l.gst||0)/100;
+    qty += +l.qty;
+    sub += s; gst += g; total += s+g;
+  });
+  return { qty, sub, gst, total };
+}
+function recalc() { updateSummary(calcTotals()); }
+function updateSummary(t) {
+  const adj = parseFloat(document.getElementById('adjustment').value)||0;
+  document.getElementById('sumStyles').textContent = [...new Set(orderLines.map(l=>l.styleCode))].length;
+  document.getElementById('sumQty').textContent   = t.qty.toLocaleString();
+  document.getElementById('sumPcs').textContent   = t.qty.toLocaleString();
+  document.getElementById('totSub').textContent   = fmt(t.sub);
+  document.getElementById('totDisc').textContent  = fmt(0);
+  document.getElementById('totGst').textContent   = fmt(t.gst);
+  document.getElementById('totNet').textContent   = fmt(t.total + adj);
+}
+function fmt(v) { return '₹'+parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* ══════════════════════════════════════════════════
+   SAVE ACTIONS
+══════════════════════════════════════════════════ */
+function saveDraft() {
+  if (!document.getElementById('poNo').value.trim()) { toast('PO No# is required','error'); return; }
+  poStatus='Draft';
+  document.getElementById('formStatusBadge').className='sp sp-draft';
+  document.getElementById('formStatusBadge').textContent='Draft';
+  currentPoId = currentPoId||('BPO-2026-'+String(Math.floor(Math.random()*9000)+1000));
+  document.getElementById('formHeading').textContent = currentPoId;
+  document.getElementById('formMeta').textContent = 'Draft saved · '+new Date().toLocaleTimeString('en-IN');
+  toast('Buyer PO saved as Draft','info');
+}
+function saveAndFinalize() {
+  if (!document.getElementById('poNo').value.trim()) { toast('PO No# is required','error'); return; }
+  if (!document.getElementById('vendorCustomer').value) { toast('Please select a Vendor/Customer','error'); return; }
+  if (!orderLines.length) { toast('Add at least one order line','error'); return; }
+  poStatus='Open';
+  currentPoId = currentPoId||('BPO-2026-'+String(Math.floor(Math.random()*9000)+1000));
+  document.getElementById('formStatusBadge').className='sp sp-open';
+  document.getElementById('formStatusBadge').textContent='Open';
+  document.getElementById('formHeading').textContent = currentPoId;
+  document.getElementById('formMeta').textContent = 'Finalised · '+new Date().toLocaleString('en-IN');
+  document.getElementById('topbarTitle').textContent = 'View Buyer PO';
+  toast(`Buyer PO ${currentPoId} finalised successfully`,'success');
+}
+function goList() { toast('Navigating to Buyer PO List…','info'); }
+function editMode() {
+  document.getElementById('viewReadOnly').style.display='none';
+  document.getElementById('viewForm').style.display='flex';
+}
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR TOGGLE
+══════════════════════════════════════════════════ */
+function toggleGroup(el) {
+  const children = el.nextElementSibling;
+  const isOpen = el.classList.contains('open');
+  el.classList.toggle('open',!isOpen);
+  if (children) children.style.display = isOpen?'none':'block';
+}
+// init open groups
+document.querySelectorAll('.nav-parent.open').forEach(p=>{
+  const c=p.nextElementSibling; if(c) c.style.display='block';
+});
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+function toast(msg, type='info') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;">
+    ${type==='success'?'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>':
+      type==='error'?'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>':
+      '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>'}
+  </svg>${msg}`;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+/* Close modal on backdrop click */
+document.getElementById('styleModal').addEventListener('click',e=>{if(e.target===document.getElementById('styleModal'))closeStyleModal();});
+</script>
+</body>
+</html>
