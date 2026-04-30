@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Returns — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --return-bg:#fff7ed; --return-color:#9a3412; --return-border:#fed7aa;
+  --dn-bg:#ede9fe; --dn-color:#5b21b6; --dn-border:#c4b5fd;
+}
+
+/* ── Sidebar overrides (light sidebar) ── */
+.sidebar { background:var(--sidebar-bg)!important; border-right:1px solid var(--border)!important; }
+.brand-name { color:#1e1f2e!important; font-weight:800!important; }
+.brand-sub  { color:#8892a4!important; }
+.sidebar-brand { border-bottom:1px solid var(--border)!important; }
+.nav-section { color:#a0aec0!important; font-size:10px!important; font-weight:700!important; letter-spacing:.1em!important; text-transform:uppercase!important; padding:16px 18px 4px!important; }
+.nav-parent-label { color:#3d4462!important; font-weight:500!important; }
+.nav-parent-icon { color:#8892a4!important; }
+.nav-parent:hover .nav-parent-label { color:var(--brand-600)!important; }
+.nav-parent.active-group .nav-parent-label { color:var(--brand-600)!important; font-weight:600!important; }
+.nav-child { color:#64748b!important; font-size:12.5px!important; padding:7px 14px 7px 42px!important; border-radius:6px!important; margin:1px 8px!important; display:block!important; }
+.nav-child:hover { background:var(--sidebar-hover)!important; color:var(--brand-700)!important; }
+.nav-child.active { background:var(--sidebar-active)!important; color:var(--brand-700)!important; font-weight:600!important; }
+.nav-chevron { color:#a0aec0!important; }
+.sidebar-footer { border-top:1px solid var(--border)!important; }
+.sf-name { color:#1e1f2e!important; } .sf-role { color:#8892a4!important; } .sf-avatar { background:var(--brand-500)!important; }
+.topbar { border-bottom:1px solid #dde0ea!important; box-shadow:0 1px 4px rgba(91,95,199,.06)!important; }
+
+/* ── Status pills ── */
+.sp { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap; }
+.sp-pending    { background:#fff7ed;color:#9a3412;border:1px solid #fed7aa; }
+.sp-dispatched { background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd; }
+.sp-settled    { background:#f0fdf4;color:#166534;border:1px solid #86efac; }
+.sp-draft      { background:#f3f4f6;color:#4b5563;border:1px solid #e5e7eb; }
+.sp-issued     { background:#eff6ff;color:#1e40af;border:1px solid #93c5fd; }
+.sp-inline     { background:#fff7ed;color:#9a3412;border:1px solid #fed7aa; }
+.sp-qchold     { background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd; }
+.sp-excess     { background:#fefce8;color:#92400e;border:1px solid #fcd34d; }
+
+/* ── Section card ── */
+.sec { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px; }
+.sec-head { display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border2); }
+.sec-title { font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px; }
+.sec-title svg { width:15px;height:15px;color:var(--brand-500); }
+.sec-body { padding:18px 20px; }
+
+/* ── Stat strip ── */
+.stat-strip { display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px; }
+.stat-strip-item { flex:1;padding:14px 16px;text-align:center;border-right:1px solid var(--border2);cursor:pointer;transition:background var(--ease); }
+.stat-strip-item:last-child { border-right:none; }
+.stat-strip-item:hover { background:var(--gray-50); }
+.stat-strip-item.active { background:var(--brand-50); }
+.stat-strip-num { font-size:22px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:3px; }
+.stat-strip-label { font-size:10.5px;color:var(--text-3);font-weight:500; }
+
+/* ── Toolbar ── */
+.list-toolbar { display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border2);flex-wrap:wrap; }
+.list-toolbar .search-wrap { flex:1;max-width:360px; }
+
+/* ── Returns table ── */
+.ret-table { width:100%;border-collapse:collapse; }
+.ret-table thead tr { background:var(--gray-50);border-bottom:2px solid var(--border2); }
+.ret-table thead th { padding:10px 16px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);text-align:left;white-space:nowrap; }
+.ret-table tbody tr { border-bottom:1px solid var(--border2);transition:background var(--ease);cursor:pointer; }
+.ret-table tbody tr:last-child { border-bottom:none; }
+.ret-table tbody tr:hover { background:#fafbff; }
+.ret-table tbody td { padding:13px 16px;font-size:13px;color:var(--text-1);vertical-align:middle; }
+
+/* ── Return source badge ── */
+.src-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--r-full);font-size:11px;font-weight:600; }
+.src-inline { background:#fff7ed;color:#9a3412; }
+.src-qc     { background:#ede9fe;color:#5b21b6; }
+.src-excess { background:#fefce8;color:#92400e; }
+
+/* ── Slide panel ── */
+.slide-backdrop { position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:300;opacity:0;pointer-events:none;transition:opacity 220ms ease; }
+.slide-backdrop.open { opacity:1;pointer-events:auto; }
+.slide-panel { position:fixed;top:0;right:0;bottom:0;width:820px;max-width:95vw;background:var(--surface);box-shadow:-8px 0 40px rgba(0,0,0,.12);z-index:310;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 240ms cubic-bezier(.4,0,.2,1); }
+.slide-backdrop.open .slide-panel { transform:translateX(0); }
+.slide-head { display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border2);flex-shrink:0; }
+.slide-title { font-size:17px;font-weight:700;color:var(--text-1); }
+.slide-sub { font-size:12.5px;color:var(--text-3);margin-top:3px; }
+.slide-close { width:32px;height:32px;border:none;background:var(--gray-100);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all var(--ease);flex-shrink:0; }
+.slide-close:hover { background:var(--gray-200);color:var(--text-1); }
+.slide-close svg { width:15px;height:15px; }
+.slide-body { flex:1;overflow-y:auto;padding:24px; }
+.slide-foot { padding:16px 24px;border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--gray-50); }
+
+/* ── KV grid ── */
+.g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px; }
+.g2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px; }
+.kv { display:flex;flex-direction:column;gap:3px; }
+.kv-label { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3); }
+.kv-val { font-size:13.5px;font-weight:600;color:var(--text-1); }
+
+/* ── Return lines table ── */
+.rl-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.rl-table th { text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:8px 12px;background:var(--gray-50);border-bottom:2px solid var(--border2); }
+.rl-table td { padding:11px 12px;border-bottom:1px solid var(--border2);vertical-align:middle; }
+.rl-table tr:last-child td { border-bottom:none; }
+
+/* ── Debit note preview ── */
+.dn-card { border:1px solid var(--dn-border);border-radius:var(--r-lg);background:var(--dn-bg);padding:0;overflow:hidden;margin-bottom:14px; }
+.dn-head { display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--dn-border); }
+.dn-num { font-size:14px;font-weight:800;color:var(--dn-color); }
+.dn-table { width:100%;border-collapse:collapse;font-size:12.5px; }
+.dn-table th { text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dn-color);padding:8px 16px;background:rgba(196,181,253,0.2); }
+.dn-table td { padding:10px 16px;border-top:1px solid var(--dn-border);vertical-align:middle;color:#1e1f2e; }
+.dn-total-row td { font-weight:700;background:rgba(196,181,253,0.15);color:var(--dn-color);font-size:13px; }
+
+/* ── Trail ── */
+.trail-item { display:flex;gap:14px;padding:8px 0; }
+.trail-dot-wrap { display:flex;flex-direction:column;align-items:center;width:20px;flex-shrink:0; }
+.trail-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px; }
+.trail-dot.created    { background:#5b5fc7; }
+.trail-dot.dispatched { background:#7c3aed; }
+.trail-dot.settled    { background:#16a34a; }
+.trail-dot.pending    { border:2px dashed #9ca3af;background:transparent; }
+.trail-line { width:2px;flex:1;background:var(--border2);margin:3px 0; }
+
+/* ── Empty state ── */
+.empty-panel { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center; }
+.empty-panel svg { width:48px;height:48px;color:var(--gray-300);margin-bottom:16px; }
+.empty-panel-title { font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:6px; }
+.empty-panel-sub { font-size:13px;color:var(--text-3);max-width:280px; }
+
+/* ── Dispatch form ── */
+.dispatch-form { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Enterprise Garment Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child active" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Vendor Returns</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="page">
+    <!-- Page header -->
+    <div class="ph">
+      <div>
+        <div class="ph-title">Vendor Returns</div>
+        <div class="ph-sub">Track goods returned to vendors — from QC rejects (Scenario A &amp; B) and GRN excess rejections</div>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-outline" onclick="openDispatchBulkModal()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v1h-.5a.5.5 0 000 1H2v7a2 2 0 002 2h.535A2.5 2.5 0 009 15.5h2A2.5 2.5 0 0015.465 14H17a2 2 0 002-2V9l-3-5H6a1 1 0 00-1 1z"/></svg>
+          Mark Dispatched
+        </button>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stat-strip">
+      <div class="stat-strip-item active" onclick="filterByStatus('all',this)">
+        <div class="stat-strip-num" id="st-all">0</div>
+        <div class="stat-strip-label">All Returns</div>
+      </div>
+      <div class="stat-strip-item" onclick="filterByStatus('PENDING',this)">
+        <div class="stat-strip-num" id="st-pending" style="color:#9a3412;">0</div>
+        <div class="stat-strip-label">Pending Dispatch</div>
+      </div>
+      <div class="stat-strip-item" onclick="filterByStatus('DISPATCHED',this)">
+        <div class="stat-strip-num" id="st-dispatched" style="color:#5b21b6;">0</div>
+        <div class="stat-strip-label">Dispatched</div>
+      </div>
+      <div class="stat-strip-item" onclick="filterByStatus('SETTLED',this)">
+        <div class="stat-strip-num" id="st-settled" style="color:#166534;">0</div>
+        <div class="stat-strip-label">Settled</div>
+      </div>
+      <div class="stat-strip-item">
+        <div class="stat-strip-num" id="st-qty" style="color:#1e40af;">0</div>
+        <div class="stat-strip-label">Total Units Pending</div>
+      </div>
+    </div>
+
+    <!-- List card -->
+    <div class="card">
+      <!-- Toolbar -->
+      <div class="list-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+          <input class="search-input" type="text" id="retSearch" placeholder="Search by return #, GRN, vendor…" oninput="renderTable()">
+        </div>
+        <div class="toolbar-field">
+          <span class="toolbar-label">Source</span>
+          <select class="filter-select" id="filterSource" onchange="renderTable()">
+            <option value="">All Sources</option>
+            <option value="INLINE">QC Inline Reject (NE-14)</option>
+            <option value="QC_HOLD">QC Hold Fail (NE-15)</option>
+            <option value="EXCESS">Excess Rejected (NE-13)</option>
+          </select>
+        </div>
+        <div class="toolbar-field">
+          <span class="toolbar-label">Status</span>
+          <select class="filter-select" id="filterStatus" onchange="renderTable()">
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="DISPATCHED">Dispatched</option>
+            <option value="SETTLED">Settled</option>
+          </select>
+        </div>
+        <div class="toolbar-field">
+          <span class="toolbar-label">Vendor</span>
+          <select class="filter-select" id="filterVendor" onchange="renderTable()">
+            <option value="">All Vendors</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div style="overflow-x:auto;">
+        <table class="ret-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></th>
+              <th>Return #</th>
+              <th>Source</th>
+              <th>GRN / Reference</th>
+              <th>Vendor</th>
+              <th>Items</th>
+              <th style="text-align:right;">Return Qty</th>
+              <th>Linked Debit Note</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="retTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pager">
+        <span id="pageInfo" style="font-size:12.5px;color:var(--text-3);"></span>
+        <div class="pager-pages">
+          <button class="pager-btn" disabled>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+          </button>
+          <button class="pager-btn active">1</button>
+          <button class="pager-btn">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ════════════════════════════════════
+     RETURN DETAIL SLIDE PANEL
+════════════════════════════════════ -->
+<div class="slide-backdrop" id="retDetailBackdrop" onclick="closePanel(event)">
+  <div class="slide-panel" id="retDetailPanel">
+    <div class="slide-head">
+      <div>
+        <div class="slide-title" id="panelTitle">Vendor Return</div>
+        <div class="slide-sub" id="panelSub"></div>
+      </div>
+      <button class="slide-close" onclick="closeSlidePanel()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="slide-body" id="retDetailBody"></div>
+    <div class="slide-foot" id="retDetailFoot"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     DISPATCH MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop" id="dispatchModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="dispatchModalTitle">Mark as Dispatched</div>
+        <div class="modal-sub" id="dispatchModalSub">Record dispatch details for this vendor return</div>
+      </div>
+      <button class="modal-x" onclick="closeModal('dispatchModal')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Return summary -->
+      <div style="padding:12px 14px;background:var(--return-bg);border:1px solid var(--return-border);border-radius:var(--r-sm);margin-bottom:18px;font-size:13px;">
+        <div id="dispatchSummary"></div>
+      </div>
+      <div class="dispatch-form">
+        <div class="form-group">
+          <label class="form-label">Dispatch Date <span class="req">*</span></label>
+          <input type="date" class="form-control" id="dispatchDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Carrier / Courier <span class="req">*</span></label>
+          <input type="text" class="form-control" id="dispatchCarrier" placeholder="e.g. Blue Dart, DTDC…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tracking / Docket #</label>
+          <input type="text" class="form-control" id="dispatchTracking" placeholder="Optional">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Driver / Contact</label>
+          <input type="text" class="form-control" id="dispatchDriver" placeholder="Optional">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Dispatch Remarks</label>
+        <textarea class="form-control" id="dispatchRemarks" placeholder="Any notes for the vendor…" style="min-height:70px;"></textarea>
+      </div>
+      <div style="margin-top:16px;padding:10px 14px;background:var(--dn-bg);border:1px solid var(--dn-border);border-radius:var(--r-sm);font-size:12.5px;color:var(--dn-color);">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        Marking dispatched will update the linked Debit Note status to <strong>ISSUED</strong> and notify the accounts team.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('dispatchModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmDispatch()" style="background:#7c3aed;border-color:#7c3aed;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v1h-.5a.5.5 0 000 1H2v7a2 2 0 002 2h.535A2.5 2.5 0 009 15.5h2A2.5 2.5 0 0015.465 14H17a2 2 0 002-2V9l-3-5H6a1 1 0 00-1 1z"/></svg>
+        Confirm Dispatch
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SETTLE MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop" id="settleModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Mark as Settled</div>
+        <div class="modal-sub" id="settleModalSub">Confirm vendor has acknowledged and settled this return</div>
+      </div>
+      <button class="modal-x" onclick="closeModal('settleModal')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:var(--r-sm);margin-bottom:16px;font-size:13px;color:#166534;">
+        <strong>Settle this return?</strong> This marks the vendor return and its linked Debit Note as <strong>SETTLED</strong>. This action cannot be undone.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Settlement Reference (Credit Note / Payment Ref)</label>
+        <input type="text" class="form-control" id="settlementRef" placeholder="e.g. CN-2026-005 or NEFT-REF-8821">
+      </div>
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Settlement Date</label>
+        <input type="date" class="form-control" id="settlementDate">
+      </div>
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-control" id="settleRemarks" placeholder="Optional note…" style="min-height:60px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('settleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSettle()" style="background:#16a34a;border-color:#16a34a;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Mark Settled
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const RETURNS = [
+  {
+    id: 'VR-2026-001',
+    source: 'INLINE',           // NE-14: QC Inline reject
+    grnNum: 'GRN-2026-0007',
+    poNum:  'PO-2026-0010',
+    vendor: 'Sunrise Fabrics Pvt. Ltd.',
+    vendorCode: 'VND-002',
+    vendorPhone: '+91 98210 44321',
+    vendorEmail: 'accounts@sunrisefabrics.in',
+    invoiceRef: 'INV-SF-2026-0441',
+    status: 'PENDING',
+    createdAt: '2026-04-28',
+    returnQty: 35,
+    debitNote: { num: 'DN-2026-001', status: 'DRAFT', totalAmount: 26250, currency: 'INR' },
+    lines: [
+      { id:'rl1', item:'Cotton Poplin 60s', uom:'Mtrs', returnQty:20, unitRate:450, amount:9000,  reason:'Colour variation — off shade vs approved swatch' },
+      { id:'rl2', item:'Twill Fabric 8oz',  uom:'Mtrs', returnQty:15, unitRate:1150,amount:17250, reason:'Weave defect — broken yarn at 2m intervals' },
+    ],
+    trail: [
+      { action:'Return Created',  by:'System (GRN Post)', at:'2026-04-28 16:45', note:'Auto-generated from GRN-2026-0007 — QC Inline rejects (Scenario A)' },
+    ]
+  },
+  {
+    id: 'VR-2026-002',
+    source: 'QC_HOLD',          // NE-15: QC Hold fail
+    grnNum: 'GRN-2026-0009',
+    poNum:  'PO-2026-0012',
+    vendor: 'Global Threads LLC',
+    vendorCode: 'VND-004',
+    vendorPhone: '+91 99001 55678',
+    vendorEmail: 'returns@globalthreads.com',
+    invoiceRef: 'INV-GT-2026-0882',
+    status: 'PENDING',
+    createdAt: '2026-04-29',
+    returnQty: 48,
+    debitNote: { num: 'DN-2026-002', status: 'DRAFT', totalAmount: 57600, currency: 'INR' },
+    lines: [
+      { id:'rl3', item:'Elastic Webbing 25mm', uom:'Mtrs', returnQty:48, unitRate:1200, amount:57600, reason:'QC Fail — elastic tension out of spec (force test failed)' },
+    ],
+    trail: [
+      { action:'Return Created',  by:'System (QC Submit)', at:'2026-04-29 11:20', note:'Auto-generated from QC inspection of GRN-2026-0009 (Scenario B fail)' },
+    ]
+  },
+  {
+    id: 'VR-2026-003',
+    source: 'EXCESS',           // NE-13: Excess rejected by approver
+    grnNum: 'GRN-2026-0003',
+    poNum:  'PO-2026-0004',
+    vendor: 'Global Threads LLC',
+    vendorCode: 'VND-004',
+    vendorPhone: '+91 99001 55678',
+    vendorEmail: 'returns@globalthreads.com',
+    invoiceRef: '—',
+    status: 'DISPATCHED',
+    dispatchedAt: '2026-04-30',
+    carrier: 'Blue Dart',
+    trackingNum: 'BD-9921-4456',
+    createdAt: '2026-04-27',
+    returnQty: 120,
+    debitNote: null,            // Excess returns may not have a debit note
+    lines: [
+      { id:'rl4', item:'Hook & Eye Set',     uom:'Sets', returnQty:120, unitRate:28,  amount:3360,  reason:'Excess received beyond PO qty — approver rejected excess' },
+    ],
+    trail: [
+      { action:'Return Created',  by:'System (GRN Approval)',at:'2026-04-27 15:10', note:'Auto-generated from GRN-2026-0003 — excess lines rejected by approver (NE-13)' },
+      { action:'Dispatched',      by:'Priya Sharma',         at:'2026-04-30 10:05', note:'Blue Dart · Docket BD-9921-4456' },
+    ]
+  },
+  {
+    id: 'VR-2026-004',
+    source: 'QC_HOLD',
+    grnNum: 'GRN-2026-0011',
+    poNum:  'PO-2026-0015',
+    vendor: 'Kaveri Weavers Co.',
+    vendorCode: 'VND-007',
+    vendorPhone: '+91 95001 12345',
+    vendorEmail: 'support@kaveri.in',
+    invoiceRef: 'INV-KW-2026-0320',
+    status: 'SETTLED',
+    dispatchedAt: '2026-04-22',
+    carrier: 'DTDC',
+    trackingNum: 'DTDC-77810',
+    settledAt: '2026-04-29',
+    settlementRef: 'CN-2026-003',
+    createdAt: '2026-04-20',
+    returnQty: 62,
+    debitNote: { num: 'DN-2026-003', status: 'SETTLED', totalAmount: 43400, currency: 'INR' },
+    lines: [
+      { id:'rl5', item:'Polyester Blended Fabric', uom:'Mtrs', returnQty:62, unitRate:700, amount:43400, reason:'Pilling defect — fabric fails GSM spec' },
+    ],
+    trail: [
+      { action:'Return Created',  by:'System (QC Submit)', at:'2026-04-20 14:30', note:'Auto-generated from QC inspection of GRN-2026-0011' },
+      { action:'Dispatched',      by:'Ajay Nair',          at:'2026-04-22 09:15', note:'DTDC · Docket DTDC-77810' },
+      { action:'Settled',         by:'Ritu Verma',         at:'2026-04-29 16:45', note:'Credit note CN-2026-003 received from vendor' },
+    ]
+  },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let activeFilter = 'all';
+let selectedReturnId = null;
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+(function init() {
+  updateStats();
+  populateVendorFilter();
+  renderTable();
+  // Set today as default dispatch/settlement date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dispatchDate').value = today;
+  document.getElementById('settlementDate').value = today;
+})();
+
+function updateStats() {
+  document.getElementById('st-all').textContent       = RETURNS.length;
+  document.getElementById('st-pending').textContent   = RETURNS.filter(r=>r.status==='PENDING').length;
+  document.getElementById('st-dispatched').textContent= RETURNS.filter(r=>r.status==='DISPATCHED').length;
+  document.getElementById('st-settled').textContent   = RETURNS.filter(r=>r.status==='SETTLED').length;
+  const pendingQty = RETURNS.filter(r=>r.status==='PENDING').reduce((s,r)=>s+r.returnQty,0);
+  document.getElementById('st-qty').textContent = pendingQty.toLocaleString();
+}
+
+function populateVendorFilter() {
+  const vendors = [...new Set(RETURNS.map(r=>r.vendor))].sort();
+  const sel = document.getElementById('filterVendor');
+  vendors.forEach(v => { const o = document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+}
+
+/* ═══════════════════════════════════════
+   FILTER + RENDER
+═══════════════════════════════════════ */
+function filterByStatus(status, el) {
+  activeFilter = status;
+  document.querySelectorAll('.stat-strip-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('filterStatus').value = status === 'all' ? '' : status;
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('retSearch').value.trim().toLowerCase();
+  const src    = document.getElementById('filterSource').value;
+  const stat   = document.getElementById('filterStatus').value;
+  const vendor = document.getElementById('filterVendor').value;
+
+  const rows = RETURNS.filter(r => {
+    if (src    && r.source !== src)     return false;
+    if (stat   && r.status !== stat)    return false;
+    if (vendor && r.vendor !== vendor)  return false;
+    if (search && !`${r.id} ${r.grnNum} ${r.poNum} ${r.vendor}`.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('pageInfo').textContent = `Showing ${rows.length} of ${RETURNS.length} returns`;
+
+  const tbody = document.getElementById('retTableBody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h2a1 1 0 001-1v-1h-3v2zm3-4H9V8h5v2zm-7 0V8H4v2h3z"/></svg></div><div class="empty-title">No returns found</div><div class="empty-desc">Adjust your filters to see results</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const srcLabel = r.source==='INLINE' ? `<span class="src-badge src-inline">QC Inline</span>` :
+                     r.source==='QC_HOLD'? `<span class="src-badge src-qc">QC Hold</span>` :
+                                           `<span class="src-badge src-excess">Excess Reject</span>`;
+    const statBadge = r.status==='PENDING'    ? `<span class="sp sp-pending">Pending</span>` :
+                      r.status==='DISPATCHED' ? `<span class="sp sp-dispatched">Dispatched</span>` :
+                                                `<span class="sp sp-settled">Settled</span>`;
+    const dnCell = r.debitNote
+      ? `<a href="debit-notes.html" style="color:var(--brand-600);font-weight:600;font-size:12.5px;" title="${r.debitNote.status}">${r.debitNote.num}</a>`
+      : `<span style="color:var(--text-3);font-size:12px;">—</span>`;
+
+    return `<tr onclick="openReturnDetail('${r.id}')">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="row-chk" data-id="${r.id}" ${r.status!=='PENDING'?'disabled':''}></td>
+      <td><span style="font-weight:700;color:var(--brand-600);">${r.id}</span></td>
+      <td>${srcLabel}</td>
+      <td>
+        <div style="font-weight:500;">${r.grnNum}</div>
+        <div style="font-size:11.5px;color:var(--text-3);">${r.poNum}</div>
+      </td>
+      <td>
+        <div style="font-weight:500;">${r.vendor}</div>
+        <div style="font-size:11.5px;color:var(--text-3);">${r.vendorCode}</div>
+      </td>
+      <td style="color:var(--text-2);font-size:12.5px;">${r.lines.length} item${r.lines.length>1?'s':''}</td>
+      <td style="text-align:right;font-weight:700;">${r.returnQty.toLocaleString()}</td>
+      <td>${dnCell}</td>
+      <td>${statBadge}</td>
+      <td style="font-size:12.5px;color:var(--text-3);">${fmtDate(r.createdAt)}</td>
+      <td>
+        <div class="row-actions" onclick="event.stopPropagation()">
+          ${r.status==='PENDING' ? `<button class="btn btn-sm btn-outline" onclick="openDispatchModal('${r.id}')" title="Mark Dispatched" style="color:#7c3aed;border-color:#c4b5fd;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v1h-.5a.5.5 0 000 1H2v7a2 2 0 002 2h.535A2.5 2.5 0 009 15.5h2A2.5 2.5 0 0015.465 14H17a2 2 0 002-2V9l-3-5H6a1 1 0 00-1 1z"/></svg>
+            Dispatch
+          </button>` : ''}
+          ${r.status==='DISPATCHED' ? `<button class="btn btn-sm btn-outline" onclick="openSettleModal('${r.id}')" title="Mark Settled" style="color:#166534;border-color:#86efac;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            Settle
+          </button>` : ''}
+          <button class="icon-btn" onclick="openWhatsApp('${r.id}')" title="WhatsApp vendor">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:#16a34a;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="openEmail('${r.id}')" title="Email vendor">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          </button>
+          ${r.debitNote ? `<a href="debit-notes.html" class="icon-btn" title="View Debit Note" style="color:var(--dn-color);">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"/></svg>
+          </a>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════ */
+function openReturnDetail(id) {
+  selectedReturnId = id;
+  const r = RETURNS.find(x=>x.id===id);
+  if (!r) return;
+
+  document.getElementById('panelTitle').textContent = r.id;
+  document.getElementById('panelSub').textContent   = `${r.vendor} · ${r.grnNum}`;
+
+  const srcLabel = r.source==='INLINE'  ? 'QC Inline Reject (NE-14)' :
+                   r.source==='QC_HOLD' ? 'QC Hold Fail (NE-15)'     :
+                                          'Excess Rejected (NE-13)';
+
+  const totalAmt = r.lines.reduce((s,l)=>s+l.amount,0);
+
+  document.getElementById('retDetailBody').innerHTML = `
+    <!-- Source banner -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--return-bg);border:1px solid var(--return-border);border-radius:var(--r-sm);margin-bottom:18px;">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:var(--return-color);flex-shrink:0;"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v1h-.5a.5.5 0 000 1H2v7a2 2 0 002 2h.535A2.5 2.5 0 009 15.5h2A2.5 2.5 0 0015.465 14H17a2 2 0 002-2V9l-3-5H6a1 1 0 00-1 1z"/></svg>
+      <div>
+        <span style="font-weight:700;color:var(--return-color);">Return Source: ${srcLabel}</span>
+        <span style="margin-left:10px;color:var(--return-color);font-size:12.5px;">Total: ${r.returnQty} units &nbsp;·&nbsp; ₹${totalAmt.toLocaleString('en-IN')}</span>
+      </div>
+      <span style="margin-left:auto;">${
+        r.status==='PENDING'    ? '<span class="sp sp-pending">Pending Dispatch</span>' :
+        r.status==='DISPATCHED' ? '<span class="sp sp-dispatched">Dispatched</span>'    :
+                                  '<span class="sp sp-settled">Settled</span>'
+      }</span>
+    </div>
+
+    <!-- Header details -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4z" clip-rule="evenodd"/></svg>Return Details</div></div>
+      <div class="sec-body">
+        <div class="g3" style="margin-bottom:14px;">
+          <div class="kv"><div class="kv-label">Return #</div><div class="kv-val" style="color:var(--brand-600);">${r.id}</div></div>
+          <div class="kv"><div class="kv-label">GRN Number</div><div class="kv-val">${r.grnNum}</div></div>
+          <div class="kv"><div class="kv-label">PO Number</div><div class="kv-val">${r.poNum}</div></div>
+        </div>
+        <div class="g3">
+          <div class="kv"><div class="kv-label">Vendor</div><div class="kv-val">${r.vendor}</div></div>
+          <div class="kv"><div class="kv-label">Invoice Ref</div><div class="kv-val">${r.invoiceRef}</div></div>
+          <div class="kv"><div class="kv-label">Created On</div><div class="kv-val">${fmtDate(r.createdAt)}</div></div>
+        </div>
+        ${r.status!=='PENDING' ? `<div style="margin-top:14px;padding:10px 14px;background:var(--gray-50);border-radius:var(--r-sm);font-size:13px;">
+          <span style="font-weight:600;color:var(--text-2);">Dispatch: </span>${fmtDate(r.dispatchedAt||'')} via ${r.carrier||'—'} · Docket: <span style="font-weight:600;">${r.trackingNum||'—'}</span>
+          ${r.settlementRef ? ` &nbsp;|&nbsp; <span style="font-weight:600;color:var(--text-2);">Settled: </span>${fmtDate(r.settledAt||'')} · Ref: <span style="font-weight:600;">${r.settlementRef}</span>` : ''}
+        </div>` : ''}
+      </div>
+    </div>
+
+    <!-- Return lines -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>Items to Return</div></div>
+      <div style="overflow-x:auto;">
+        <table class="rl-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item / Description</th>
+              <th>UOM</th>
+              <th style="text-align:right;">Return Qty</th>
+              <th style="text-align:right;">Unit Rate</th>
+              <th style="text-align:right;">Amount</th>
+              <th>Reason for Return</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${r.lines.map((l,i)=>`<tr>
+              <td style="color:var(--text-3);font-size:11px;">${i+1}</td>
+              <td style="font-weight:500;">${l.item}</td>
+              <td style="color:var(--text-3);font-size:12px;">${l.uom}</td>
+              <td style="text-align:right;font-weight:700;color:var(--return-color);">${l.returnQty}</td>
+              <td style="text-align:right;">₹${l.unitRate.toLocaleString('en-IN')}</td>
+              <td style="text-align:right;font-weight:600;">₹${l.amount.toLocaleString('en-IN')}</td>
+              <td style="font-size:12px;color:var(--text-2);max-width:200px;">${l.reason}</td>
+            </tr>`).join('')}
+            <tr style="background:var(--gray-50);">
+              <td colspan="3" style="font-weight:700;font-size:12px;color:var(--text-2);text-align:right;padding-right:16px;">TOTAL</td>
+              <td style="text-align:right;font-weight:800;color:var(--return-color);">${r.returnQty}</td>
+              <td></td>
+              <td style="text-align:right;font-weight:800;">₹${totalAmt.toLocaleString('en-IN')}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Linked Debit Note -->
+    ${r.debitNote ? `
+    <div class="dn-card">
+      <div class="dn-head">
+        <div>
+          <div class="dn-num">${r.debitNote.num}</div>
+          <div style="font-size:11.5px;color:var(--dn-color);margin-top:2px;">Debit Note · Auto-generated</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;font-weight:800;color:var(--dn-color);">₹${r.debitNote.totalAmount.toLocaleString('en-IN')}</span>
+          <span class="sp ${r.debitNote.status==='DRAFT'?'sp-draft':r.debitNote.status==='ISSUED'?'sp-issued':'sp-settled'}">${r.debitNote.status}</span>
+          <a href="debit-notes.html" class="btn btn-sm btn-outline" style="color:var(--dn-color);border-color:var(--dn-border);">View Full DN →</a>
+        </div>
+      </div>
+      <table class="dn-table">
+        <thead><tr><th>Item</th><th>UOM</th><th style="text-align:right;">Qty</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Amount</th><th>Reason</th></tr></thead>
+        <tbody>
+          ${r.lines.map(l=>`<tr>
+            <td style="font-weight:500;">${l.item}</td>
+            <td style="color:var(--text-3);font-size:12px;">${l.uom}</td>
+            <td style="text-align:right;font-weight:600;">${l.returnQty}</td>
+            <td style="text-align:right;">₹${l.unitRate.toLocaleString('en-IN')}</td>
+            <td style="text-align:right;font-weight:600;">₹${l.amount.toLocaleString('en-IN')}</td>
+            <td style="font-size:12px;color:var(--text-2);">${l.reason}</td>
+          </tr>`).join('')}
+          <tr class="dn-total-row">
+            <td colspan="4" style="text-align:right;">Total Debit Amount</td>
+            <td style="text-align:right;">₹${r.debitNote.totalAmount.toLocaleString('en-IN')}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>` : `
+    <div style="padding:12px 16px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:var(--text-3);margin-bottom:14px;">
+      No Debit Note linked — excess returns from NE-13 approver rejection may not require a debit note. Issue one manually if needed.
+    </div>`}
+
+    <!-- Audit Trail -->
+    <div class="sec">
+      <div class="sec-head"><div class="sec-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>Audit Trail</div></div>
+      <div class="sec-body" style="padding:14px 20px;">
+        ${r.trail.map((t,i)=>`
+          <div class="trail-item">
+            <div class="trail-dot-wrap">
+              <div class="trail-dot ${t.action.toLowerCase().includes('creat')?'created':t.action.toLowerCase().includes('dispatch')?'dispatched':t.action.toLowerCase().includes('settl')?'settled':'pending'}"></div>
+              ${i<r.trail.length-1?'<div class="trail-line"></div>':''}
+            </div>
+            <div style="padding-bottom:${i<r.trail.length-1?'10px':'0'};">
+              <div style="font-size:13px;font-weight:600;color:var(--text-1);">${t.action}</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">${t.by} · ${t.at}</div>
+              ${t.note?`<div style="font-size:12px;color:var(--text-2);margin-top:3px;">${t.note}</div>`:''}
+            </div>
+          </div>`).join('')}
+        ${r.status==='PENDING' ? `<div class="trail-item">
+          <div class="trail-dot-wrap"><div class="trail-dot pending"></div></div>
+          <div><div style="font-size:13px;font-weight:600;color:#9ca3af;">Awaiting Dispatch</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Pending · Mark dispatched to proceed</div></div>
+        </div>` : ''}
+        ${r.status==='DISPATCHED' ? `<div class="trail-item">
+          <div class="trail-dot-wrap"><div class="trail-dot pending"></div></div>
+          <div><div style="font-size:13px;font-weight:600;color:#9ca3af;">Awaiting Settlement</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Pending · Mark settled once vendor confirms</div></div>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+
+  // Footer actions
+  const foot = document.getElementById('retDetailFoot');
+  foot.innerHTML = `
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" onclick="openWhatsApp('${r.id}')">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;color:#16a34a;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Vendor
+      </button>
+      <button class="btn btn-outline" onclick="openEmail('${r.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+        Email Vendor
+      </button>
+    </div>
+    <div style="display:flex;gap:8px;">
+      ${r.status==='PENDING' ? `<button class="btn btn-primary" onclick="openDispatchModal('${r.id}')" style="background:#7c3aed;border-color:#7c3aed;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v1h-.5a.5.5 0 000 1H2v7a2 2 0 002 2h.535A2.5 2.5 0 009 15.5h2A2.5 2.5 0 0015.465 14H17a2 2 0 002-2V9l-3-5H6a1 1 0 00-1 1z"/></svg>
+        Mark Dispatched
+      </button>` : ''}
+      ${r.status==='DISPATCHED' ? `<button class="btn btn-primary" onclick="openSettleModal('${r.id}')" style="background:#16a34a;border-color:#16a34a;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Mark Settled
+      </button>` : ''}
+    </div>`;
+
+  document.getElementById('retDetailBackdrop').classList.add('open');
+}
+
+function closeSlidePanel() { document.getElementById('retDetailBackdrop').classList.remove('open'); }
+function closePanel(e) { if (e.target===document.getElementById('retDetailBackdrop')) closeSlidePanel(); }
+
+/* ═══════════════════════════════════════
+   DISPATCH FLOW
+═══════════════════════════════════════ */
+function openDispatchModal(id) {
+  selectedReturnId = id;
+  const r = RETURNS.find(x=>x.id===id);
+  if (!r) return;
+  document.getElementById('dispatchModalTitle').textContent = `Dispatch ${r.id}`;
+  document.getElementById('dispatchSummary').innerHTML =
+    `<strong>${r.vendor}</strong> · ${r.returnQty} units · ${r.lines.length} item(s) · ` +
+    `${r.debitNote ? `Debit Note <strong>${r.debitNote.num}</strong> will be issued` : 'No Debit Note linked'}`;
+  closeSlidePanel();
+  openModal('dispatchModal');
+}
+
+function confirmDispatch() {
+  const date    = document.getElementById('dispatchDate').value;
+  const carrier = document.getElementById('dispatchCarrier').value.trim();
+  if (!date || !carrier) { toast('Dispatch date and carrier are required','error'); return; }
+
+  const r = RETURNS.find(x=>x.id===selectedReturnId);
+  if (r) {
+    r.status       = 'DISPATCHED';
+    r.dispatchedAt = date;
+    r.carrier      = carrier;
+    r.trackingNum  = document.getElementById('dispatchTracking').value.trim() || '—';
+    r.trail.push({ action:'Dispatched', by:'Current User', at: new Date().toLocaleString('en-IN'), note:`${carrier} · ${r.trackingNum}` });
+    if (r.debitNote) r.debitNote.status = 'ISSUED';
+  }
+  closeModal('dispatchModal');
+  updateStats();
+  renderTable();
+  toast(`${selectedReturnId} marked as dispatched. Debit Note ${r?.debitNote?.num||''} issued.`, 'success');
+}
+
+function openDispatchBulkModal() {
+  const checked = [...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.id);
+  if (!checked.length) { toast('Select at least one pending return to dispatch','error'); return; }
+  selectedReturnId = checked[0]; // Simplified — in real app multi-dispatch
+  const r = RETURNS.find(x=>x.id===selectedReturnId);
+  document.getElementById('dispatchModalTitle').textContent = `Dispatch ${checked.length} Return(s)`;
+  document.getElementById('dispatchSummary').innerHTML = checked.map(id=>{
+    const ret = RETURNS.find(x=>x.id===id);
+    return ret ? `<div>${ret.id} · ${ret.vendor} · ${ret.returnQty} units</div>` : '';
+  }).join('');
+  openModal('dispatchModal');
+}
+
+/* ═══════════════════════════════════════
+   SETTLE FLOW
+═══════════════════════════════════════ */
+function openSettleModal(id) {
+  selectedReturnId = id;
+  const r = RETURNS.find(x=>x.id===id);
+  if (!r) return;
+  document.getElementById('settleModalSub').textContent = `${r.id} · ${r.vendor}`;
+  closeSlidePanel();
+  openModal('settleModal');
+}
+
+function confirmSettle() {
+  const ref  = document.getElementById('settlementRef').value.trim();
+  const date = document.getElementById('settlementDate').value;
+  const r = RETURNS.find(x=>x.id===selectedReturnId);
+  if (r) {
+    r.status        = 'SETTLED';
+    r.settledAt     = date;
+    r.settlementRef = ref || '—';
+    r.trail.push({ action:'Settled', by:'Current User', at: new Date().toLocaleString('en-IN'), note: ref ? `Credit note / ref: ${ref}` : 'No reference provided' });
+    if (r.debitNote) r.debitNote.status = 'SETTLED';
+  }
+  closeModal('settleModal');
+  updateStats();
+  renderTable();
+  toast(`${selectedReturnId} marked as settled.`, 'success');
+}
+
+/* ═══════════════════════════════════════
+   VENDOR COMMUNICATION
+═══════════════════════════════════════ */
+function openWhatsApp(id) {
+  const r = RETURNS.find(x=>x.id===id);
+  if (!r) return;
+  const msg = encodeURIComponent(`Dear ${r.vendor},\n\nWe are returning ${r.returnQty} units against GRN ${r.grnNum} / PO ${r.poNum}.\nReturn Ref: ${r.id}\nReason: QC/Excess rejection\n\nPlease acknowledge receipt.\n\nRegards,\nStitch ERP`);
+  window.open(`https://wa.me/${r.vendorPhone.replace(/\D/g,'')}?text=${msg}`, '_blank');
+}
+function openEmail(id) {
+  const r = RETURNS.find(x=>x.id===id);
+  if (!r) return;
+  const sub = encodeURIComponent(`Vendor Return ${r.id} — ${r.grnNum}`);
+  const body = encodeURIComponent(`Dear ${r.vendor},\n\nPlease find details of the vendor return below:\n\nReturn Ref: ${r.id}\nGRN: ${r.grnNum}\nPO: ${r.poNum}\nReturn Qty: ${r.returnQty} units\n${r.debitNote?'Debit Note: '+r.debitNote.num:''}\n\nKindly acknowledge and arrange credit.\n\nRegards,\nStitch ERP`);
+  window.open(`mailto:${r.vendorEmail}?subject=${sub}&body=${body}`, '_blank');
+}
+
+/* ═══════════════════════════════════════
+   CHECKBOX SELECT ALL
+═══════════════════════════════════════ */
+function toggleAll(masterChk) {
+  document.querySelectorAll('.row-chk:not(:disabled)').forEach(c => c.checked = masterChk.checked);
+}
+
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch(e){ return d; }
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if(e.target===bd) closeModal(bd.id); });
+});
+function toggleGroup(el){const g=el.closest('.nav-group');const o=g.classList.contains('open');document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});g.classList.toggle('open',!o);el.classList.toggle('open',!o);}
+function toast(msg, type='success') {
+  const area=document.getElementById('toastArea');
+  const t=document.createElement('div');
+  t.className='toast '+(type==='success'?'success':'error');
+  const icon = type==='success'
+    ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>'
+    : '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/></svg>';
+  t.innerHTML=icon+' '+msg;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),4500);
+}
+</script>
+</body>
+</html>
