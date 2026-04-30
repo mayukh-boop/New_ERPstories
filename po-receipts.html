@@ -228,8 +228,43 @@
 .act-icon-btn.accounts:hover { background:#fefce8;border-color:#fde047;color:#854d0e; }
 .act-icon-btn.pdf:hover      { background:#fef2f2;border-color:#fca5a5;color:#dc2626; }
 .act-icon-btn.excel:hover    { background:#f0fdf4;border-color:#86efac;color:#15803d; }
+.act-icon-btn.label:hover    { background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed; }
 .act-icon-btn[disabled]      { opacity:.35;cursor:not-allowed;pointer-events:none; }
 .am-sep { height:1px;background:var(--border2);margin:4px 0; }
+
+/* ── Label Print Modal ── */
+.label-modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:400;display:none;align-items:center;justify-content:center; }
+.label-modal-overlay.open { display:flex; }
+.label-modal { background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-xl,0 20px 60px rgba(0,0,0,.2));width:720px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden; }
+.label-modal-head { padding:18px 22px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0; }
+.label-modal-title { font-size:15px;font-weight:700;color:var(--text-1); }
+.label-modal-sub { font-size:12px;color:var(--text-3);margin-top:2px; }
+.label-modal-body { flex:1;overflow-y:auto;padding:20px 22px; }
+.label-modal-foot { padding:14px 22px;border-top:1px solid var(--border2);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0; }
+
+/* label card — 80mm×50mm proportional */
+.label-card { width:302px;border:1.5px solid #d1d5db;border-radius:6px;padding:10px 12px;font-family:monospace;background:#fff;display:inline-flex;flex-direction:column;gap:5px;vertical-align:top;margin:6px; }
+.label-card-head { display:flex;justify-content:space-between;align-items:flex-start;gap:6px; }
+.label-grn { font-size:10px;font-weight:700;color:#1e1f2e;letter-spacing:.03em; }
+.label-lot { font-size:9px;font-weight:700;padding:1px 6px;background:#ede9fe;color:#5b21b6;border-radius:3px;white-space:nowrap; }
+.label-item { font-size:11px;font-weight:600;color:#1e1f2e;line-height:1.3; }
+.label-qty { font-size:11px;color:#374151; }
+.label-codes { display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:4px; }
+.label-qr { width:90px;height:90px;background:#f3f4f6;border:1px dashed #d1d5db;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:8px;color:#9ca3af;text-align:center; }
+.label-barcode-wrap { width:100%;display:flex;flex-direction:column;align-items:center;gap:2px; }
+.label-barcode { width:240px;height:30px;background:#f3f4f6;border:1px dashed #d1d5db;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;color:#9ca3af; }
+.label-barcode-text { font-size:8px;color:#6b7280;letter-spacing:.05em; }
+.label-cards-grid { display:flex;flex-wrap:wrap;gap:0; }
+
+@media print {
+  .label-modal-overlay, .label-modal-head, .label-modal-foot { display:none!important; }
+  body * { visibility:hidden; }
+  #labelPrintArea, #labelPrintArea * { visibility:visible; }
+  #labelPrintArea { position:fixed;inset:0;padding:4mm;display:flex;flex-wrap:wrap;gap:2mm; }
+  .label-card { width:80mm;height:50mm;page-break-inside:avoid;border:0.5pt solid #999;margin:0; }
+  .label-qr { width:22mm;height:22mm; }
+  .label-barcode { width:55mm;height:8mm; }
+}
 </style>
 </head>
 <body>
@@ -666,6 +701,43 @@
   </div>
 </div>
 
+<!-- ── Label Print Modal ── -->
+<div class="label-modal-overlay" id="labelModalOverlay">
+  <div class="label-modal">
+    <div class="label-modal-head">
+      <div>
+        <div class="label-modal-title">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;display:inline;vertical-align:-3px;margin-right:6px;color:#7c3aed;"><path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+          Inward Labels — <span id="labelModalGrnNum">GRN-2026-0001</span>
+        </div>
+        <div class="label-modal-sub">QR code (primary) + Code128 barcode (fallback) per inwarded line. One label per line with net qty &gt; 0.</div>
+      </div>
+      <button class="modal-x" onclick="closeLabelModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+
+    <!-- info strip -->
+    <div style="padding:10px 22px;background:#f5f3ff;border-bottom:1px solid #ede9fe;font-size:12px;color:#6d28d9;display:flex;align-items:center;gap:8px;">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;flex-shrink:0;"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+      In production, QR and barcode images are generated server-side by <strong>GET /cedge/api/v1/grn/{id}/labels</strong> (ZXing, Base64 PNG). Labels shown here are a layout preview.
+    </div>
+
+    <div class="label-modal-body" id="labelPrintArea">
+      <div class="label-cards-grid" id="labelCardsContainer"></div>
+    </div>
+
+    <div class="label-modal-foot">
+      <div style="font-size:12px;color:var(--text-3);margin-right:auto;" id="labelCountInfo"></div>
+      <button class="btn btn-outline" onclick="closeLabelModal()">Close</button>
+      <button class="btn btn-primary" onclick="window.print()" style="background:#7c3aed;border-color:#7c3aed;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/></svg>
+        Print Labels
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── GRN Column Configurator Panel ── -->
 <div class="col-panel-overlay" id="grnColPanelOverlay" onclick="closeGrnColPanel()"></div>
 <div class="col-panel" id="grnColPanel">
@@ -930,6 +1002,9 @@ function getGrnCellValue(g, id) {
           </button>
           <button class="act-icon-btn email" title="Send email to vendor" onclick="grnShareEmail(${g.id})">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          </button>
+          <button class="act-icon-btn label" title="${g.status==='Posted'?'Print Inward Labels':'Labels available after posting'}" ${g.status==='Posted'?'':'disabled'} onclick="openLabelModal(${g.id},'${g.grnNum}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
           </button>
           <button class="act-icon-btn accounts" title="${g.status==='Posted'?'Post to Accounts Payable':'Only Posted GRNs'}" ${g.status==='Posted'?'':'disabled'} onclick="postToAccounts('grn',${g.id},'${g.grnNum}','${g.vendor}')">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
@@ -1670,6 +1745,88 @@ function downloadDoc(format, type, id, refNum) {
   const label = format === 'pdf' ? 'PDF' : 'Excel';
   toast('Preparing ' + label + ' for ' + refNum + '…', 'success');
   setTimeout(() => toast(refNum + ' ' + label + ' ready — check downloads', 'success'), 1200);
+}
+
+/* ═══════════════════════════════════════
+   LABEL PRINT MODAL
+   Calls GET /cedge/api/v1/grn/{id}/labels in production.
+   Here we render placeholder label cards from GRN sample data.
+═══════════════════════════════════════ */
+
+// Sample line data keyed by GRN id — mirrors what the API would return
+const GRN_SAMPLE_LINES = {
+  1: [
+    { lineId:101, item:'Button Trims (12mm)',  uom:'Gross', netQty:500,   lotNum:'LOT-2026-001' },
+    { lineId:102, item:'Zipper Tape (5m roll)',uom:'Pcs',   netQty:200,   lotNum:'LOT-2026-002' },
+    { lineId:103, item:'Shoulder Pad Medium',  uom:'Pcs',   netQty:800,   lotNum:'LOT-2026-003' },
+    { lineId:104, item:'Elastic Band 25mm',    uom:'Mtrs',  netQty:0,     lotNum:null           }, // zero qty — no label
+  ],
+  2: [
+    { lineId:201, item:'Cotton Fabric 40s',    uom:'Mtrs',  netQty:5000,  lotNum:'LOT-2026-010' },
+    { lineId:202, item:'Polyester Lining',     uom:'Mtrs',  netQty:3200,  lotNum:'LOT-2026-011' },
+    { lineId:203, item:'Interlining 90gsm',    uom:'Mtrs',  netQty:1500,  lotNum:'LOT-2026-012' },
+    { lineId:204, item:'Fusible Web Tape',     uom:'Rolls', netQty:70,    lotNum:'LOT-2026-013' },
+    { lineId:205, item:'Thread (White 40/2)',  uom:'Cones', netQty:4500,  lotNum:'LOT-2026-014' },
+    { lineId:206, item:'Thread (Black 40/2)',  uom:'Cones', netQty:350,   lotNum:'LOT-2026-015' },
+  ],
+};
+
+function openLabelModal(grnId, grnNum) {
+  document.getElementById('labelModalGrnNum').textContent = grnNum;
+  const lines = (GRN_SAMPLE_LINES[grnId] || []).filter(l => l.netQty > 0);
+  const container = document.getElementById('labelCardsContainer');
+  const info      = document.getElementById('labelCountInfo');
+
+  if (!lines.length) {
+    container.innerHTML = `<div class="empty-state" style="width:100%;padding:40px 0;">
+      <div class="empty-title">No lines with net quantity</div>
+      <div class="empty-desc">All lines have zero net qty — no labels to generate.</div>
+    </div>`;
+    info.textContent = '';
+  } else {
+    container.innerHTML = lines.map(l => buildLabelCard(grnNum, l)).join('');
+    info.textContent = lines.length + ' label' + (lines.length > 1 ? 's' : '') + ' · 80mm × 50mm thermal';
+  }
+
+  document.getElementById('labelModalOverlay').classList.add('open');
+}
+
+function buildLabelCard(grnNum, l) {
+  const barText = grnNum + '-' + l.lineId;
+  const qrPayload = 'GRN:' + grnNum + (l.lotNum ? '|LOT:' + l.lotNum : '') +
+                    '|ITEM:' + l.item + '|UOM:' + l.uom +
+                    '|QTY:' + l.netQty + '|LINE:' + l.lineId;
+  return `
+  <div class="label-card">
+    <div class="label-card-head">
+      <div>
+        <div class="label-grn">${grnNum}</div>
+        <div class="label-item">${l.item}</div>
+        <div class="label-qty">${l.netQty.toLocaleString()} ${l.uom}</div>
+      </div>
+      ${l.lotNum ? `<span class="label-lot">${l.lotNum}</span>` : ''}
+    </div>
+    <div class="label-codes">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;">
+        <div class="label-qr" title="${qrPayload}">
+          <div style="text-align:center;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:22px;height:22px;color:#c4b5fd;"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zm-2 7a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zm8-12a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd"/><path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 110-2h1a1 1 0 110 2H7zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/></svg>
+            <div style="margin-top:3px;font-size:7px;line-height:1.3;">QR Code<br>Level H</div>
+          </div>
+        </div>
+        <div class="label-barcode-wrap">
+          <div class="label-barcode" title="${barText}">
+            <svg viewBox="0 0 60 12" fill="currentColor" style="width:100%;height:100%;"><rect x="0" y="0" width="2" height="12"/><rect x="4" y="0" width="1" height="12"/><rect x="7" y="0" width="3" height="12"/><rect x="12" y="0" width="1" height="12"/><rect x="15" y="0" width="2" height="12"/><rect x="19" y="0" width="1" height="12"/><rect x="22" y="0" width="3" height="12"/><rect x="27" y="0" width="1" height="12"/><rect x="30" y="0" width="2" height="12"/><rect x="34" y="0" width="1" height="12"/><rect x="37" y="0" width="3" height="12"/><rect x="42" y="0" width="1" height="12"/><rect x="45" y="0" width="2" height="12"/><rect x="49" y="0" width="1" height="12"/><rect x="52" y="0" width="3" height="12"/><rect x="57" y="0" width="2" height="12"/></svg>
+          </div>
+          <div class="label-barcode-text">${barText}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function closeLabelModal() {
+  document.getElementById('labelModalOverlay').classList.remove('open');
 }
 
 let grnActiveMenu = null;
