@@ -36,6 +36,7 @@
 .sp-posted   { background:#f0fdf4;color:#166534; }
 .sp-rejected { background:#fef2f2;color:#991b1b; }
 .sp-partial  { background:#f5f3ff;color:#5b21b6; }
+.sp-closed   { background:#f0fdfa;color:#0f766e; }
 
 /* ── Section block ── */
 .sec { background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px; }
@@ -355,7 +356,7 @@
             <select class="filter-select" id="grnFilterStatus" onchange="applyGrnFilter()" style="height:36px;">
               <option value="">All Statuses</option>
               <option>Draft</option><option>Posted</option>
-              <option>Pending Approval</option><option>Rejected</option>
+              <option>Pending Approval</option><option>Rejected</option><option>Closed</option>
             </select>
             <select class="filter-select" id="grnFilterVendor" onchange="applyGrnFilter()" style="height:36px;">
               <option value="">All Vendors</option>
@@ -372,12 +373,13 @@
         </div>
       </div>
       <!-- Stat cards -->
-      <div class="stat-grid">
+      <div class="stat-grid" style="grid-template-columns:repeat(6,1fr);">
         <div class="stat-card active" onclick="filterGrnTab('all',this,null)"><div class="stat-num" id="sc-all">0</div><div class="stat-label">Total GRNs</div></div>
         <div class="stat-card" onclick="filterGrnTab('Draft',this,null)"><div class="stat-num" style="color:#4b5563;" id="sc-draft">0</div><div class="stat-label">Drafts</div></div>
         <div class="stat-card" onclick="filterGrnTab('Pending Approval',this,null)"><div class="stat-num" style="color:#92400e;" id="sc-pending">0</div><div class="stat-label">Pending Approval</div></div>
         <div class="stat-card" onclick="filterGrnTab('Posted',this,null)"><div class="stat-num" style="color:#166534;" id="sc-posted">0</div><div class="stat-label">Posted</div></div>
         <div class="stat-card" onclick="filterGrnTab('Rejected',this,null)"><div class="stat-num" style="color:#991b1b;" id="sc-rejected">0</div><div class="stat-label">Rejected</div></div>
+        <div class="stat-card" onclick="filterGrnTab('Closed',this,null)"><div class="stat-num" style="color:#0f766e;" id="sc-closed">0</div><div class="stat-label">Closed (Short)</div></div>
       </div>
     </div>
     <!-- Tab strip -->
@@ -387,6 +389,7 @@
       <button class="tab-item" onclick="filterGrnTab('Pending Approval',null,this)">Pending Approval <span class="tab-count" id="tc-PendingApproval">0</span></button>
       <button class="tab-item" onclick="filterGrnTab('Posted',null,this)">Posted <span class="tab-count" id="tc-Posted">0</span></button>
       <button class="tab-item" onclick="filterGrnTab('Rejected',null,this)">Rejected <span class="tab-count" id="tc-Rejected">0</span></button>
+      <button class="tab-item" onclick="filterGrnTab('Closed',null,this)">Closed <span class="tab-count" id="tc-Closed">0</span></button>
     </div>
     <!-- Table -->
     <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
@@ -829,6 +832,7 @@ const GRNS = [
   {id:3, grnNum:'GRN-2026-0003', date:'2026-04-26', mode:'single', poNums:['PO-2026-0004'], vendor:'Global Threads LLC',         dcNum:'DC-55210', invoiceNum:'—',         internalRef:'RECV-2026-003', items:3, totalQty:820,   excessQty:50, lotTracked:false, status:'Pending Approval'},
   {id:4, grnNum:'GRN-2026-0004', date:'2026-04-27', mode:'single', poNums:['PO-2026-0007'], vendor:'Apex Raw Materials',         dcNum:'—',         invoiceNum:'—',         internalRef:'',              items:2, totalQty:300,   excessQty:0,  lotTracked:false, status:'Draft'},
   {id:5, grnNum:'GRN-2026-0005', date:'2026-04-28', mode:'multi',  poNums:['PO-2026-0008','PO-2026-0010'], vendor:'Global Threads LLC',        dcNum:'DC-55300', invoiceNum:'INV-9900', internalRef:'RECV-2026-005', items:3, totalQty:100,   excessQty:0,  lotTracked:false, status:'Rejected'},
+  {id:6, grnNum:'GRN-2026-0006', date:'2026-04-15', mode:'single', poNums:['PO-2026-0013'], vendor:'Horizon Trims Co.',         dcNum:'DC-44890', invoiceNum:'INV-8750', internalRef:'RECV-2026-006', items:4, totalQty:2000,  excessQty:0,  lotTracked:true,  status:'Closed', closeReason:'PO short-closed. Vendor unable to supply balance elastic band and snap fasteners. Inventory received accepted as final.', closedBy:'Mayukh Ghatak', closedAt:'2026-04-29'},
 ];
 
 /* ═══════════════════
@@ -893,11 +897,13 @@ function updateGrnStats() {
   document.getElementById('sc-pending').textContent = GRNS.filter(g=>g.status==='Pending Approval').length;
   document.getElementById('sc-posted').textContent  = GRNS.filter(g=>g.status==='Posted').length;
   document.getElementById('sc-rejected').textContent= GRNS.filter(g=>g.status==='Rejected').length;
+  document.getElementById('sc-closed').textContent  = GRNS.filter(g=>g.status==='Closed').length;
   document.getElementById('tc-all').textContent              = GRNS.length;
   document.getElementById('tc-Draft').textContent            = GRNS.filter(g=>g.status==='Draft').length;
   document.getElementById('tc-PendingApproval').textContent  = GRNS.filter(g=>g.status==='Pending Approval').length;
   document.getElementById('tc-Posted').textContent           = GRNS.filter(g=>g.status==='Posted').length;
   document.getElementById('tc-Rejected').textContent         = GRNS.filter(g=>g.status==='Rejected').length;
+  document.getElementById('tc-Closed').textContent           = GRNS.filter(g=>g.status==='Closed').length;
 }
 
 function filterGrnTab(tab, cardEl, tabEl) {
@@ -947,7 +953,7 @@ function renderGrnTableHead() {
 }
 
 function getGrnCellValue(g, id) {
-  const spMap = {Posted:'sp-posted',Draft:'sp-draft','Pending Approval':'sp-pending',Rejected:'sp-rejected'};
+  const spMap = {Posted:'sp-posted',Draft:'sp-draft','Pending Approval':'sp-pending',Rejected:'sp-rejected',Closed:'sp-closed'};
   switch(id) {
     case 'grnnum':
       return `<td>
@@ -1024,6 +1030,10 @@ function getGrnCellValue(g, id) {
               </div>
             </div>
           </div>
+          ${g.status==='Posted'?`<button class="act-icon-btn" title="Close GRN (Short-Close)" style="color:#0f766e;border-color:#99f6e4;background:#f0fdfa;" onclick="openCloseGRN(${g.id},'${g.grnNum}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </button>`:''}
+          ${g.status==='Closed'?`<span class="sp sp-closed" style="font-size:10.5px;padding:2px 8px;cursor:default;" title="Closed on ${g.closedAt||''}">Closed</span>`:''}
         </div>
       </td>`;
     default: return `<td>—</td>`;
@@ -1569,6 +1579,61 @@ function rejectGRN(id) {
   const g = GRNS.find(x=>x.id===id); if (!g) return;
   g.status = 'Rejected'; updateGrnStats(); applyGrnFilter();
   toast('GRN rejected', 'error');
+}
+
+function openCloseGRN(id, grnNum) {
+  const existing = document.getElementById('closeGRNModal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'closeGRNModal';
+  m.className = 'modal-backdrop open';
+  m.innerHTML = `<div class="modal" style="max-width:480px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:#0f766e;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Close GRN — ${grnNum}
+        </div>
+        <div class="modal-sub">Short-close: mark this receipt final; no further GRNs on the remaining balance</div>
+      </div>
+      <button class="modal-x" onclick="document.getElementById('closeGRNModal').remove()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:var(--r-sm);font-size:13px;color:#0f766e;margin-bottom:16px;display:flex;gap:8px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <span>Closing this GRN will write off any pending balances on its parent PO lines covered by this receipt. The parent PO status will be updated accordingly. This cannot be undone.</span>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Close Reason <span style="color:var(--danger);">*</span></label>
+        <textarea class="form-control" id="closeGRNReasonInput" placeholder="e.g. PO short-closed by buyer, accepting partial delivery as final…" style="min-height:90px;" required></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="document.getElementById('closeGRNModal').remove()">Cancel</button>
+      <button class="btn btn-primary" style="background:#0f766e;border-color:#0f766e;" onclick="confirmCloseGRN(${id})">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        Confirm Close GRN
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  setTimeout(() => document.getElementById('closeGRNReasonInput')?.focus(), 50);
+}
+
+function confirmCloseGRN(id) {
+  const reason = document.getElementById('closeGRNReasonInput')?.value.trim();
+  if (!reason) { toast('Close reason is required', 'error'); return; }
+  const g = GRNS.find(x=>x.id===id); if (!g) return;
+  g.status     = 'Closed';
+  g.closeReason= reason;
+  g.closedBy   = 'Mayukh Ghatak';
+  g.closedAt   = new Date().toISOString().split('T')[0];
+  document.getElementById('closeGRNModal')?.remove();
+  updateGrnStats(); applyGrnFilter();
+  toast(`${g.grnNum} closed — balance written off on parent PO lines`, 'success');
 }
 
 /* ═══════════════════

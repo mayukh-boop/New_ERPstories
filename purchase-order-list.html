@@ -52,9 +52,10 @@
 .sp-received  { background:#eff6ff; color:#1e40af; }
 .sp-partial   { background:#f5f3ff; color:#5b21b6; }
 .sp-cancelled { background:#f9fafb; color:#9ca3af; }
+.sp-closed    { background:#f0fdfa; color:#0f766e; }
 
 /* Stat cards */
-.stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.stat-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:20px; }
 .stat-card {
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r-lg); padding:16px 18px;
@@ -456,8 +457,13 @@
           </div>
           <div class="stat-card" onclick="setTab('Received')" id="sc-Received">
             <div class="stat-num" id="sc-Received-num" style="color:#1e40af;">0</div>
-            <div class="stat-label">Received / Closed</div>
+            <div class="stat-label">Received</div>
             <div class="stat-sub" style="color:var(--info);" id="sc-recv-amt"></div>
+          </div>
+          <div class="stat-card" onclick="setTab('Closed')" id="sc-Closed">
+            <div class="stat-num" id="sc-Closed-num" style="color:#0f766e;">0</div>
+            <div class="stat-label">Closed (Short)</div>
+            <div class="stat-sub" style="color:#0f766e;" id="sc-closed-amt"></div>
           </div>
         </div>
       </div>
@@ -487,6 +493,9 @@
         </button>
         <button class="tab-item" onclick="setTab('Cancelled',this)" id="tab-Cancelled">
           Cancelled <span class="tab-count" id="tc-Cancelled">0</span>
+        </button>
+        <button class="tab-item" onclick="setTab('Closed',this)" id="tab-Closed">
+          Closed <span class="tab-count" id="tc-Closed">0</span>
         </button>
       </div>
 
@@ -656,16 +665,19 @@ const POS = [
   {id:10, poNum:'PO-2026-0010', date:'2026-04-25', vendor:'Horizon Trims Co.',         shipTo:'Factory — Pune',         delivDate:'2026-06-10', items:5, amount:213000, received:0,      status:'Draft',              approver:'—',            approvedOn:'—',          note:'',               mode:'By Production Order'},
   {id:11, poNum:'PO-2026-0011', date:'2026-04-26', vendor:'Apex Raw Materials',         shipTo:'Head Office — Mumbai',   delivDate:'2026-06-15', items:2, amount:76500,  received:0,      status:'Cancelled',          approver:'—',            approvedOn:'—',          note:'Vendor unable to supply', mode:'Bulk Order'},
   {id:12, poNum:'PO-2026-0012', date:'2026-04-28', vendor:'Global Threads LLC',         shipTo:'Factory — Pune',         delivDate:'2026-06-20', items:6, amount:384000, received:0,      status:'Pending Approval',   approver:'—',            approvedOn:'—',          note:'',               mode:'By Style'},
+  {id:13, poNum:'PO-2026-0013', date:'2026-03-15', vendor:'Horizon Trims Co.',          shipTo:'Factory — Pune',         delivDate:'2026-04-10', items:4, amount:142000, received:98000,  status:'Closed',             approver:'Rajan Mehta',  approvedOn:'2026-03-17', note:'Short closed — vendor discontinued 2 items', mode:'Bulk Order', closeReason:'Vendor discontinued elastic band and snap fasteners. Accepting partial receipt. No further delivery expected.', closedBy:'Mayukh Ghatak', closedAt:'2026-04-29'},
 ];
 
 const statusCls = {
   'Draft':'sp-draft','Pending Approval':'sp-pending','Approved':'sp-approved',
-  'Rejected':'sp-rejected','Received':'sp-received','Partially Received':'sp-partial','Cancelled':'sp-cancelled'
+  'Rejected':'sp-rejected','Received':'sp-received','Partially Received':'sp-partial',
+  'Cancelled':'sp-cancelled','Closed':'sp-closed'
 };
 
 const statusDot = {
   'Draft':'dot-gray','Pending Approval':'dot-yellow','Approved':'dot-green',
-  'Rejected':'dot-red','Received':'dot-blue','Partially Received':'dot-blue','Cancelled':'dot-gray'
+  'Rejected':'dot-red','Received':'dot-blue','Partially Received':'dot-blue',
+  'Cancelled':'dot-gray','Closed':'dot-gray'
 };
 
 let currentTab = 'all';
@@ -711,22 +723,24 @@ renderTableHead();
 applyFilter();
 
 function updateStatCards() {
-  const statuses = ['Draft','Pending Approval','Approved','Received'];
+  const statuses = ['Draft','Pending Approval','Approved','Received','Closed'];
   document.getElementById('sc-all-num').textContent = POS.length;
   statuses.forEach(s => {
     const rows = POS.filter(p => p.status === s);
     const el = document.getElementById('sc-'+s+'-num');
     if (el) el.textContent = rows.length;
   });
-  const pendAmt = POS.filter(p=>p.status==='Pending Approval').reduce((a,b)=>a+b.amount,0);
-  const apprAmt = POS.filter(p=>p.status==='Approved').reduce((a,b)=>a+b.amount,0);
-  const recvAmt = POS.filter(p=>p.status==='Received').reduce((a,b)=>a+b.amount,0);
-  const pe = document.getElementById('sc-pend-amt'); if(pe) pe.textContent = fmt(pendAmt)+' pending';
-  const ae = document.getElementById('sc-appr-amt'); if(ae) ae.textContent = fmt(apprAmt)+' approved';
-  const re = document.getElementById('sc-recv-amt'); if(re) re.textContent = fmt(recvAmt)+' received';
+  const pendAmt  = POS.filter(p=>p.status==='Pending Approval').reduce((a,b)=>a+b.amount,0);
+  const apprAmt  = POS.filter(p=>p.status==='Approved').reduce((a,b)=>a+b.amount,0);
+  const recvAmt  = POS.filter(p=>p.status==='Received').reduce((a,b)=>a+b.amount,0);
+  const closedAmt= POS.filter(p=>p.status==='Closed').reduce((a,b)=>a+b.received,0);
+  const pe = document.getElementById('sc-pend-amt');   if(pe) pe.textContent = fmt(pendAmt)+' pending';
+  const ae = document.getElementById('sc-appr-amt');   if(ae) ae.textContent = fmt(apprAmt)+' approved';
+  const re = document.getElementById('sc-recv-amt');   if(re) re.textContent = fmt(recvAmt)+' received';
+  const ce = document.getElementById('sc-closed-amt'); if(ce) ce.textContent = fmt(closedAmt)+' received';
 
   // Tab counts
-  const all = ['Draft','Pending Approval','Approved','Partially Received','Received','Rejected','Cancelled','all'];
+  const all = ['Draft','Pending Approval','Approved','Partially Received','Received','Rejected','Cancelled','Closed','all'];
   all.forEach(s => {
     const cnt = s === 'all' ? POS.length : POS.filter(p=>p.status===s).length;
     const el = document.getElementById('tc-'+s);
@@ -1338,6 +1352,61 @@ function cancelPO(id) {
   toast(`${po.poNum} cancelled`,'error');
 }
 
+function openClosePO(id, poNum) {
+  const existing = document.getElementById('closePOModal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'closePOModal';
+  m.className = 'modal-backdrop open';
+  m.innerHTML = `<div class="modal" style="max-width:480px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:#0f766e;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Close PO — ${poNum}
+        </div>
+        <div class="modal-sub">Short-close: accept partial receipt without expecting further delivery</div>
+      </div>
+      <button class="modal-x" onclick="document.getElementById('closePOModal').remove()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:12px 14px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:var(--r-sm);font-size:13px;color:#0f766e;margin-bottom:16px;display:flex;gap:8px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <span>Closing a PO writes off all unreceived balances. No further GRNs can be created against this PO. This action cannot be undone.</span>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Close Reason <span style="color:var(--danger);">*</span></label>
+        <textarea class="form-control" id="closePOReasonInput" placeholder="e.g. Vendor discontinued items, accepting partial delivery as final…" style="min-height:90px;" required></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="document.getElementById('closePOModal').remove()">Cancel</button>
+      <button class="btn btn-primary" style="background:#0f766e;border-color:#0f766e;" onclick="confirmClosePO(${id})">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        Confirm Close PO
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  setTimeout(() => document.getElementById('closePOReasonInput')?.focus(), 50);
+}
+
+function confirmClosePO(id) {
+  const reason = document.getElementById('closePOReasonInput')?.value.trim();
+  if (!reason) { toast('Close reason is required','error'); return; }
+  const po = POS.find(p=>p.id===id);
+  po.status     = 'Closed';
+  po.closeReason= reason;
+  po.closedBy   = 'Mayukh Ghatak';
+  po.closedAt   = new Date().toISOString().split('T')[0];
+  document.getElementById('closePOModal')?.remove();
+  updateStatCards(); applyFilter();
+  toast(`${po.poNum} closed — unreceived balance written off`,'success');
+}
+
 /* ── Column Configurator ── */
 function getColDef(id) { return ALL_COLUMNS.find(c=>c.id===id); }
 
@@ -1473,6 +1542,8 @@ function getCellValue(po, id) {
   const canEdit = po.status === 'Draft';
   const canSubmit = po.status === 'Draft';
   const canCancel = ['Draft','Pending Approval','Approved'].includes(po.status);
+  const canClose  = po.status === 'Partially Received';
+  const isClosed  = po.status === 'Closed';
 
   switch(id) {
     case 'avatar':
@@ -1599,6 +1670,8 @@ function getCellValue(po, id) {
               ${canSubmit?`<div class="am-item" onclick="submitForApproval(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11h2v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>Submit for Approval</div>`:''}
               <div class="am-item" onclick="duplicatePO(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>Duplicate</div>
               ${canCancel?`<div class="am-sep"></div><div class="am-item danger" onclick="cancelPO(${po.id});closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>Cancel PO</div>`:''}
+              ${canClose?`<div class="am-sep"></div><div class="am-item" style="color:#0f766e;" onclick="openClosePO(${po.id},'${po.poNum}');closeMenus()"><svg viewBox="0 0 20 20" fill="currentColor" style="color:#0f766e;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Close PO (Short-Close)</div>`:''}
+              ${isClosed?`<div class="am-sep"></div><div class="am-item" style="color:#0f766e;opacity:0.7;cursor:default;pointer-events:none;"><svg viewBox="0 0 20 20" fill="currentColor" style="color:#0f766e;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Closed — ${po.closedAt?fmtDate(po.closedAt):''}</div>`:''}
             </div>
           </div>
         </div>
