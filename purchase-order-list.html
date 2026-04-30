@@ -1624,6 +1624,11 @@ function getCellValue(po, id) {
             <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
             Edit
           </button>
+          ${canClose?`<button class="btn btn-sm" style="padding:4px 10px;font-size:11.5px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;" onclick="openClosePO(${po.id},'${po.poNum}')" title="Short-close this PO">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Close PO
+          </button>`:''}
+          ${isClosed?`<span class="sp sp-closed" style="font-size:10.5px;padding:2px 8px;cursor:default;" title="Closed on ${po.closedAt||''}">Short Closed</span>`:''}
           <!-- WhatsApp -->
           <button class="act-icon-btn whatsapp" title="Share via WhatsApp to ${vc.phone ? '+'+vc.phone : 'vendor'}"
             onclick="${waUrl ? `window.open('${waUrl}','_blank')` : `toast('No WhatsApp number for this vendor','error')`}">

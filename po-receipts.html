@@ -1030,10 +1030,11 @@ function getGrnCellValue(g, id) {
               </div>
             </div>
           </div>
-          ${g.status==='Posted'?`<button class="act-icon-btn" title="Close GRN (Short-Close)" style="color:#0f766e;border-color:#99f6e4;background:#f0fdfa;" onclick="openCloseGRN(${g.id},'${g.grnNum}')">
-            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          ${g.status==='Posted'?`<button class="btn btn-sm" style="padding:4px 10px;font-size:11.5px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;" onclick="openCloseGRN(${g.id},'${g.grnNum}')" title="Short-close this GRN">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Close GRN
           </button>`:''}
-          ${g.status==='Closed'?`<span class="sp sp-closed" style="font-size:10.5px;padding:2px 8px;cursor:default;" title="Closed on ${g.closedAt||''}">Closed</span>`:''}
+          ${g.status==='Closed'?`<span class="sp sp-closed" style="font-size:10.5px;padding:2px 8px;cursor:default;" title="Closed on ${g.closedAt||''}">Short Closed</span>`:''}
         </div>
       </td>`;
     default: return `<td>—</td>`;
