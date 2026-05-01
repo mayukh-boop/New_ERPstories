@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Template Designer — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ── Theme overrides ── */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(91,95,199,0.07);
+  --sidebar-active: rgba(91,95,199,0.12);
+  --sidebar-text: #64748b;
+  --brand-500: #5b5fc7;
+  --brand-600: #4f52b2;
+  --brand-700: #3d40a0;
+  --bg: #f0f2f8;
+  --border: #e8eaf0;
+  --border2: #f0f2f7;
+}
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #1e1f2e !important; font-weight: 800 !important; }
+.brand-sub { color: #8892a4 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #a0aec0 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #3d4462 !important; font-weight: 500 !important; }
+.nav-parent-icon { color: #8892a4 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #a0aec0 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #1e1f2e !important; }
+.sf-role { color: #8892a4 !important; }
+.sf-avatar { background: var(--brand-500) !important; }
+.topbar { border-bottom: 1px solid #dde0ea !important; box-shadow: 0 1px 4px rgba(91,95,199,0.06) !important; }
+
+/* ── Workflow Designer Layout ── */
+.wd-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Designer Toolbar */
+.wd-toolbar {
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(91,95,199,0.05);
+}
+.wd-back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-3);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  padding-right: 14px;
+  margin-right: 4px;
+  transition: color 150ms;
+}
+.wd-back-link:hover { color: var(--brand-600); }
+.wd-back-link .material-symbols-outlined { font-size: 16px; }
+.wd-template-name {
+  height: 32px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  font-family: inherit;
+  background: var(--bg);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+  min-width: 200px;
+}
+.wd-template-name:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); background: #fff; }
+.wd-toolbar-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+.wd-toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+.wd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 150ms;
+  white-space: nowrap;
+}
+.wd-btn .material-symbols-outlined { font-size: 16px; }
+.wd-btn-ghost { background: transparent; color: var(--text-2); border-color: var(--border); }
+.wd-btn-ghost:hover { background: var(--gray-50); border-color: var(--gray-300); color: var(--text-1); }
+.wd-btn-purple { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.wd-btn-purple:hover { background: #6d28d9; }
+.wd-btn-primary { background: var(--brand-600); color: #fff; border-color: var(--brand-600); }
+.wd-btn-primary:hover { background: var(--brand-700); }
+.wd-btn-tna { background: #0e9f6e; color: #fff; border-color: #0e9f6e; }
+.wd-btn-tna:hover { background: #057a55; }
+
+/* Designer Body (sidebar + canvas + props panel) */
+.wd-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Activity Library Sidebar */
+.wd-lib {
+  width: 260px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wd-lib-header {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.wd-lib-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.wd-lib-search {
+  position: relative;
+}
+.wd-lib-search input {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px 0 28px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text-1);
+  outline: none;
+  transition: border-color 150ms;
+}
+.wd-lib-search input:focus { border-color: var(--brand-500); background: #fff; }
+.wd-lib-search .material-symbols-outlined {
+  position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+  font-size: 15px; color: var(--text-3); pointer-events: none;
+}
+.wd-lib-scroll { flex: 1; overflow-y: auto; padding: 8px 0; }
+.wd-lib-scroll::-webkit-scrollbar { width: 4px; }
+.wd-lib-scroll::-webkit-scrollbar-track { background: transparent; }
+.wd-lib-scroll::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+/* Activity group */
+.act-group { margin-bottom: 2px; }
+.act-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 150ms;
+}
+.act-group-header:hover { background: var(--bg); }
+.act-group-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.act-group-label .material-symbols-outlined { font-size: 14px; color: var(--text-3); }
+.act-group-chevron {
+  font-size: 14px;
+  color: var(--text-3);
+  transition: transform 150ms;
+}
+.act-group.open .act-group-chevron { transform: rotate(90deg); }
+.act-group-section {
+  display: none;
+  padding: 2px 10px 6px 10px;
+}
+.act-group.open .act-group-section { display: block; }
+.act-subgroup-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 6px 4px 4px;
+}
+.act-chips { display: flex; flex-wrap: wrap; gap: 5px; padding-bottom: 6px; }
+
+/* Activity chip */
+.act-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: grab;
+  user-select: none;
+  transition: transform 150ms, box-shadow 150ms, opacity 150ms;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+}
+.act-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+.act-chip:active { cursor: grabbing; transform: scale(0.97); }
+.act-chip.chip-internal { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+.act-chip.chip-jobwork { background: #fef9c3; border-color: #fde68a; color: #92400e; }
+.act-chip.chip-system { background: #ede9fe; border-color: #c4b5fd; color: #5b21b6; }
+.act-chip.chip-custom { background: #dcfce7; border-color: #86efac; color: #166534; }
+.act-chip .material-symbols-outlined { font-size: 12px; }
+
+/* System fixed items */
+.wd-lib-footer {
+  border-top: 1px solid var(--border2);
+  padding: 10px 14px;
+  flex-shrink: 0;
+}
+.wd-lib-footer-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.system-chips { display: flex; flex-direction: column; gap: 5px; }
+.system-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #ede9fe;
+  border: 1.5px solid #c4b5fd;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5b21b6;
+}
+.system-chip .material-symbols-outlined { font-size: 14px; }
+.system-chip .chip-lock { margin-left: auto; font-size: 13px; color: #7c3aed; opacity: 0.7; }
+
+/* Custom activity button */
+.custom-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 150ms;
+  margin-top: 6px;
+}
+.custom-add-btn:hover { border-color: var(--brand-400); color: var(--brand-600); background: var(--brand-50); }
+.custom-add-btn .material-symbols-outlined { font-size: 15px; }
+
+/* Custom activity inline form */
+.custom-form {
+  display: none;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.custom-form.open { display: flex; }
+.custom-form input, .custom-form select {
+  height: 30px;
+  padding: 0 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text-1);
+  outline: none;
+}
+.custom-form input:focus, .custom-form select:focus { border-color: var(--brand-500); }
+.custom-form-row { display: flex; gap: 6px; }
+.custom-form-row input { flex: 1; }
+.custom-form-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.custom-form-actions button {
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 150ms;
+}
+.cf-cancel { background: transparent; border-color: var(--border); color: var(--text-2); }
+.cf-cancel:hover { background: var(--gray-100); }
+.cf-add { background: var(--brand-600); color: #fff; border-color: var(--brand-600); }
+.cf-add:hover { background: var(--brand-700); }
+
+/* Canvas Area */
+.wd-canvas-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #f0f2f8;
+  background-image:
+    radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.wd-canvas-area svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Canvas drop hint */
+.canvas-drop-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.canvas-drop-hint.active { opacity: 1; }
+.canvas-drop-hint-inner {
+  padding: 20px 36px;
+  background: rgba(99,102,241,0.06);
+  border: 2px dashed var(--brand-400);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brand-600);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.canvas-drop-hint-inner .material-symbols-outlined { font-size: 22px; }
+
+/* Canvas zoom controls */
+.canvas-controls {
+  position: absolute;
+  bottom: 56px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+.canvas-ctrl-btn {
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  transition: all 150ms;
+  box-shadow: var(--shadow-sm);
+}
+.canvas-ctrl-btn:hover { background: var(--gray-50); border-color: var(--gray-300); }
+.canvas-ctrl-btn .material-symbols-outlined { font-size: 16px; }
+
+/* Status bar */
+.wd-status-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  font-size: 11.5px;
+  color: var(--text-3);
+  z-index: 10;
+}
+.status-item { display: flex; align-items: center; gap: 5px; }
+.status-item strong { color: var(--text-2); font-weight: 600; }
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-badge.valid { background: #dcfce7; color: #166534; }
+.status-badge.invalid { background: #fee2e2; color: #991b1b; }
+.status-badge .material-symbols-outlined { font-size: 13px; }
+.status-sep { width: 1px; height: 14px; background: var(--border); }
+.status-saved { margin-left: auto; color: var(--text-3); }
+
+/* Right Properties Panel */
+.wd-props {
+  width: 0;
+  flex-shrink: 0;
+  background: #fff;
+  border-left: 1px solid var(--border);
+  overflow: hidden;
+  transition: width 220ms ease;
+  display: flex;
+  flex-direction: column;
+}
+.wd-props.open {
+  width: 240px;
+}
+.wd-props-inner {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+.wd-props-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.wd-props-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+.wd-props-close {
+  width: 24px; height: 24px;
+  border: none;
+  background: var(--gray-100);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all 150ms;
+}
+.wd-props-close:hover { background: var(--gray-200); color: var(--text-1); }
+.wd-props-close .material-symbols-outlined { font-size: 15px; }
+.wd-props-node-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-top: 8px;
+  word-break: break-word;
+}
+.wd-props-body { padding: 16px; flex: 1; }
+.wd-prop-row { margin-bottom: 14px; }
+.wd-prop-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-3);
+  margin-bottom: 5px;
+}
+.wd-prop-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-1);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.wd-prop-input:focus { border-color: var(--brand-500); box-shadow: 0 0 0 2px rgba(99,102,241,0.1); background: #fff; }
+select.wd-prop-input { cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; background-color: var(--bg); padding-right: 24px;
+}
+select.wd-prop-input:focus { background-color: #fff; }
+
+/* Toggle switch */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--gray-300);
+  border-radius: 20px;
+  transition: background 150ms;
+  cursor: pointer;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 150ms;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: var(--brand-500); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(14px); }
+.toggle-label { font-size: 13px; color: var(--text-2); font-weight: 500; }
+
+/* Type badges in props panel */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.type-badge.INTERNAL { background: #dbeafe; color: #1e40af; }
+.type-badge.JOB_WORK { background: #fef9c3; color: #92400e; }
+.type-badge.SYSTEM { background: #ede9fe; color: #5b21b6; }
+.type-badge.CUSTOM { background: #dcfce7; color: #166534; }
+
+.wd-props-actions {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+
+/* TnA Modal overrides */
+.tna-modal { max-width: 760px !important; }
+.gantt-container {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.gantt-chart { min-width: 600px; }
+.gantt-header {
+  display: flex;
+  height: 28px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.gantt-label-col {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  border-right: 1px solid var(--border);
+}
+.gantt-timeline-col { flex: 1; position: relative; overflow: hidden; }
+.gantt-dates {
+  display: flex;
+  height: 28px;
+}
+.gantt-date-tick {
+  font-size: 10px;
+  color: var(--text-3);
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border2);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.gantt-row {
+  display: flex;
+  height: 36px;
+  border-bottom: 1px solid var(--border2);
+  align-items: center;
+}
+.gantt-row:last-child { border-bottom: none; }
+.gantt-row-label {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gantt-bar-area { flex: 1; position: relative; height: 100%; }
+.gantt-bar {
+  position: absolute;
+  top: 7px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 4px;
+  cursor: default;
+}
+
+/* Node SVG styles (inline in SVG via style attr but also here for reference) */
+.svg-node-handle {
+  cursor: crosshair;
+  transition: r 100ms;
+}
+
+/* Dragging state */
+body.dragging-chip { user-select: none; }
+body.dragging-chip * { cursor: grabbing !important; }
+
+/* Floating drag ghost */
+.drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.85;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  display: none;
+}
+.drag-ghost.visible { display: flex; }
+
+/* Edge delete hint */
+.edge-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30,30,46,0.8);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms;
+  z-index: 20;
+  white-space: nowrap;
+}
+.edge-hint.visible { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">C-Edge ERP</div>
+      <div class="brand-sub">Stitch Manufacturing Suite</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Sales</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleNav(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">shopping_bag</span></span>
+          <span class="nav-parent-label">Buyer Orders</span>
+          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="#">Order Entry</a>
+          <a class="nav-child" href="#">Order List</a>
+          <a class="nav-child" href="#">Buyer Wise Summary</a>
+        </div>
+      </div>
+
+      <div class="nav-section">Procurement</div>
+      <div class="nav-group">
+        <div class="nav-parent active-group open" onclick="toggleNav(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">inventory_2</span></span>
+          <span class="nav-parent-label">Purchase</span>
+          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="purchase-order.html">Purchase Orders</a>
+          <a class="nav-child" href="po-receipts.html">GRN — Receipts</a>
+          <a class="nav-child" href="grn-approval.html">GRN Approval</a>
+          <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        </div>
+      </div>
+
+      <div class="nav-section">Production</div>
+      <div class="nav-group open">
+        <div class="nav-parent open active-group" onclick="toggleNav(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">precision_manufacturing</span></span>
+          <span class="nav-parent-label">Planning & TnA</span>
+          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child active" href="#">Workflow Designer</a>
+          <a class="nav-child" href="#">TnA Calendar</a>
+          <a class="nav-child" href="#">Work Orders</a>
+          <a class="nav-child" href="#">Production Tracker</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleNav(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">content_cut</span></span>
+          <span class="nav-parent-label">Cutting</span>
+          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="#">Cutting Plans</a>
+          <a class="nav-child" href="#">Bundle Tracking</a>
+        </div>
+      </div>
+
+      <div class="nav-section">Masters</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleNav(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">tune</span></span>
+          <span class="nav-parent-label">Master Data</span>
+          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="#">Vendors</a>
+          <a class="nav-child" href="#">Fabric Types</a>
+          <a class="nav-child" href="#">Colours & UOMs</a>
+          <a class="nav-child" href="#">Processes</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ MAIN SHELL ═══════════════ -->
+  <div class="wd-shell">
+
+    <!-- Workflow Designer Toolbar -->
+    <div class="wd-toolbar">
+      <div class="wd-back-link" onclick="showToast('Navigating to Templates list…','info')">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Templates
+      </div>
+      <input class="wd-template-name" id="templateName" type="text" value="Standard Export" />
+      <div class="wd-toolbar-sep"></div>
+      <button class="wd-btn wd-btn-ghost" onclick="autoLayout()">
+        <span class="material-symbols-outlined">account_tree</span>
+        Auto Layout
+      </button>
+      <button class="wd-btn wd-btn-tna" onclick="openTnaModal()">
+        <span class="material-symbols-outlined">timeline</span>
+        Test TnA
+      </button>
+      <div class="wd-toolbar-right">
+        <button class="wd-btn wd-btn-ghost" onclick="showToast('Template exported','info')">
+          <span class="material-symbols-outlined">ios_share</span>
+          Export
+        </button>
+        <button class="wd-btn wd-btn-primary" onclick="saveTemplate()">
+          <span class="material-symbols-outlined">save</span>
+          Save Template
+        </button>
+      </div>
+    </div>
+
+    <!-- Designer Body -->
+    <div class="wd-body">
+
+      <!-- Activity Library -->
+      <div class="wd-lib" id="actLib">
+        <div class="wd-lib-header">
+          <div class="wd-lib-title">Activity Library</div>
+          <div class="wd-lib-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="libSearch" placeholder="Search activities…" oninput="filterLib(this.value)">
+          </div>
+        </div>
+
+        <div class="wd-lib-scroll" id="libScroll">
+
+          <!-- Inside Factory -->
+          <div class="act-group open" id="grp-factory">
+            <div class="act-group-header" onclick="toggleGroup(this)">
+              <div class="act-group-label">
+                <span class="material-symbols-outlined">factory</span>
+                Inside Factory
+              </div>
+              <span class="act-group-chevron material-symbols-outlined">chevron_right</span>
+            </div>
+            <div class="act-group-section">
+
+              <div class="act-subgroup-label">Procurement</div>
+              <div class="act-chips" id="chips-procurement">
+                <div class="act-chip chip-internal" draggable="true" data-label="PO Issue" data-type="INTERNAL" data-ld="2">PO Issue</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="GRN" data-type="INTERNAL" data-ld="3">GRN</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Fabric Inspection" data-type="INTERNAL" data-ld="2">Fabric Inspection</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Trim Receipt" data-type="INTERNAL" data-ld="1">Trim Receipt</div>
+              </div>
+
+              <div class="act-subgroup-label">Pre-Production</div>
+              <div class="act-chips" id="chips-preproduction">
+                <div class="act-chip chip-internal" draggable="true" data-label="Work Order" data-type="INTERNAL" data-ld="2">Work Order</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="PP Sample" data-type="INTERNAL" data-ld="5">PP Sample</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="PP Meeting" data-type="INTERNAL" data-ld="1">PP Meeting</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Size Set Sample" data-type="INTERNAL" data-ld="7">Size Set</div>
+              </div>
+
+              <div class="act-subgroup-label">Cutting</div>
+              <div class="act-chips" id="chips-cutting">
+                <div class="act-chip chip-internal" draggable="true" data-label="Fabric Spreading" data-type="INTERNAL" data-ld="1">Fabric Spreading</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Cutting" data-type="INTERNAL" data-ld="3">Cutting</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Bundling" data-type="INTERNAL" data-ld="1">Bundling</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Numbering" data-type="INTERNAL" data-ld="1">Numbering</div>
+              </div>
+
+              <div class="act-subgroup-label">Embellishment</div>
+              <div class="act-chips" id="chips-embellishment">
+                <div class="act-chip chip-internal" draggable="true" data-label="Embroidery" data-type="INTERNAL" data-ld="4">Embroidery</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Printing" data-type="INTERNAL" data-ld="3">Printing</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Internal Washing" data-type="INTERNAL" data-ld="2">Int. Washing</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Dyeing" data-type="INTERNAL" data-ld="3">Dyeing</div>
+              </div>
+
+              <div class="act-subgroup-label">Sewing</div>
+              <div class="act-chips" id="chips-sewing">
+                <div class="act-chip chip-internal" draggable="true" data-label="Sewing" data-type="INTERNAL" data-ld="5">Sewing</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Assembly" data-type="INTERNAL" data-ld="2">Assembly</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Re-work" data-type="INTERNAL" data-ld="2">Re-work</div>
+              </div>
+
+              <div class="act-subgroup-label">Finishing</div>
+              <div class="act-chips" id="chips-finishing">
+                <div class="act-chip chip-internal" draggable="true" data-label="Ironing" data-type="INTERNAL" data-ld="2">Ironing</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Folding" data-type="INTERNAL" data-ld="1">Folding</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Tagging" data-type="INTERNAL" data-ld="1">Tagging</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Packing" data-type="INTERNAL" data-ld="2">Packing</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Carton Packing" data-type="INTERNAL" data-ld="1">Carton Packing</div>
+              </div>
+
+              <div class="act-subgroup-label">Quality Control</div>
+              <div class="act-chips" id="chips-qc">
+                <div class="act-chip chip-internal" draggable="true" data-label="Inline QC" data-type="INTERNAL" data-ld="1">Inline QC</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="Mid-Line QC" data-type="INTERNAL" data-ld="1">Mid-Line QC</div>
+                <div class="act-chip chip-internal" draggable="true" data-label="AQL Inspection" data-type="INTERNAL" data-ld="2">AQL Inspection</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outside Job Work -->
+          <div class="act-group open" id="grp-jobwork">
+            <div class="act-group-header" onclick="toggleGroup(this)">
+              <div class="act-group-label">
+                <span class="material-symbols-outlined">work_outline</span>
+                Outside Job Work
+              </div>
+              <span class="act-group-chevron material-symbols-outlined">chevron_right</span>
+            </div>
+            <div class="act-group-section">
+
+              <div class="act-subgroup-label">Fabric</div>
+              <div class="act-chips">
+                <div class="act-chip chip-jobwork" draggable="true" data-label="External Washing" data-type="JOB_WORK" data-ld="5">Ext. Washing</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="External Dyeing" data-type="JOB_WORK" data-ld="7">Ext. Dyeing</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="External Printing" data-type="JOB_WORK" data-ld="5">Ext. Printing</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Embroidery Job Work" data-type="JOB_WORK" data-ld="6">Embroidery JW</div>
+              </div>
+
+              <div class="act-subgroup-label">Processing</div>
+              <div class="act-chips">
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Laser Treatment" data-type="JOB_WORK" data-ld="4">Laser Treatment</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Stone Work" data-type="JOB_WORK" data-ld="3">Stone Work</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Hand Work" data-type="JOB_WORK" data-ld="5">Hand Work</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Smocking" data-type="JOB_WORK" data-ld="4">Smocking</div>
+              </div>
+
+              <div class="act-subgroup-label">Testing</div>
+              <div class="act-chips">
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Lab Testing" data-type="JOB_WORK" data-ld="5">Lab Testing</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Third Party QC" data-type="JOB_WORK" data-ld="3">3rd Party QC</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Buyer Audit" data-type="JOB_WORK" data-ld="2">Buyer Audit</div>
+              </div>
+
+              <div class="act-subgroup-label">Logistics</div>
+              <div class="act-chips">
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Freight Forwarding" data-type="JOB_WORK" data-ld="3">Freight Fwding</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Customs Clearance" data-type="JOB_WORK" data-ld="2">Customs Clr.</div>
+                <div class="act-chip chip-jobwork" draggable="true" data-label="Courier" data-type="JOB_WORK" data-ld="1">Courier</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /lib-scroll -->
+
+        <!-- System Fixed + Custom -->
+        <div class="wd-lib-footer">
+          <div class="wd-lib-footer-label">System Fixed</div>
+          <div class="system-chips">
+            <div class="system-chip">
+              <span class="material-symbols-outlined" style="font-size:14px">verified</span>
+              Final Inspection
+              <span class="material-symbols-outlined chip-lock">lock</span>
+            </div>
+            <div class="system-chip">
+              <span class="material-symbols-outlined" style="font-size:14px">local_shipping</span>
+              Shipment
+              <span class="material-symbols-outlined chip-lock">lock</span>
+            </div>
+          </div>
+          <button class="custom-add-btn" onclick="toggleCustomForm()">
+            <span class="material-symbols-outlined">add_circle</span>
+            + Custom Activity
+          </button>
+          <div class="custom-form" id="customForm">
+            <input type="text" id="cf-name" placeholder="Activity name…" />
+            <div class="custom-form-row">
+              <select id="cf-type">
+                <option value="INTERNAL">Internal</option>
+                <option value="JOB_WORK">Job Work</option>
+                <option value="CUSTOM">Custom</option>
+              </select>
+              <input type="number" id="cf-ld" placeholder="Days" min="1" max="90" style="width:70px;flex:none" />
+            </div>
+            <div class="custom-form-actions">
+              <button class="cf-cancel" onclick="toggleCustomForm()">Cancel</button>
+              <button class="cf-add" onclick="addCustomActivity()">Add</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /wd-lib -->
+
+      <!-- Canvas Area -->
+      <div class="wd-canvas-area" id="canvasArea">
+        <svg id="wfSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="canvas-drop-hint" id="dropHint">
+          <div class="canvas-drop-hint-inner">
+            <span class="material-symbols-outlined">add_box</span>
+            Drop activity here
+          </div>
+        </div>
+        <div class="canvas-controls">
+          <button class="canvas-ctrl-btn" onclick="zoomIn()" title="Zoom In">
+            <span class="material-symbols-outlined">add</span>
+          </button>
+          <button class="canvas-ctrl-btn" id="zoomLabel" title="Reset Zoom" onclick="resetZoom()" style="font-size:10px;font-weight:700;color:var(--text-2)">100%</button>
+          <button class="canvas-ctrl-btn" onclick="zoomOut()" title="Zoom Out">
+            <span class="material-symbols-outlined">remove</span>
+          </button>
+          <button class="canvas-ctrl-btn" onclick="fitToView()" title="Fit to View" style="margin-top:4px;">
+            <span class="material-symbols-outlined">fit_screen</span>
+          </button>
+        </div>
+        <div class="wd-status-bar">
+          <div class="status-item">
+            <span class="material-symbols-outlined" style="font-size:14px;color:var(--brand-500)">radio_button_checked</span>
+            Nodes: <strong id="nodeCount">0</strong>
+          </div>
+          <div class="status-sep"></div>
+          <div class="status-item">
+            <span class="material-symbols-outlined" style="font-size:14px;color:var(--brand-400)">arrow_forward</span>
+            Edges: <strong id="edgeCount">0</strong>
+          </div>
+          <div class="status-sep"></div>
+          <div id="dagStatus" class="status-badge valid">
+            <span class="material-symbols-outlined">check_circle</span>
+            Valid DAG
+          </div>
+          <div class="status-sep"></div>
+          <div class="status-item" style="color:var(--text-3);font-size:11px">
+            <span class="material-symbols-outlined" style="font-size:13px">info</span>
+            Drag handles to connect nodes · Click edge to select · Del to remove
+          </div>
+          <div class="status-saved" id="lastSaved">Last saved: never</div>
+        </div>
+        <div class="edge-hint" id="edgeHint">Press Delete to remove selected edge</div>
+      </div><!-- /canvas-area -->
+
+      <!-- Properties Panel -->
+      <div class="wd-props" id="propsPanel">
+        <div class="wd-props-inner">
+          <div class="wd-props-header">
+            <div class="wd-props-title">
+              <span>Node Properties</span>
+              <button class="wd-props-close" onclick="closeProps()">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="wd-props-node-name" id="propsNodeName">—</div>
+            <div style="margin-top:6px;" id="propsTypeBadge"></div>
+          </div>
+          <div class="wd-props-body">
+            <div class="wd-prop-row">
+              <div class="wd-prop-label">Lead Days</div>
+              <input class="wd-prop-input" id="propsLeadDays" type="number" min="1" max="90" value="1" oninput="updateNodeProp('leadDays', parseInt(this.value)||1)" />
+            </div>
+            <div class="wd-prop-row">
+              <div class="wd-prop-label">Blocking</div>
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input type="checkbox" id="propsBlocking" onchange="updateNodeProp('blocking', this.checked)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="propsBlockingLabel">Yes</span>
+              </div>
+            </div>
+            <div class="wd-prop-row">
+              <div class="wd-prop-label">Default Edge Type</div>
+              <select class="wd-prop-input" id="propsEdgeType" onchange="updateNodeProp('edgeType', this.value)">
+                <option value="FINISH_TO_START">Finish-to-Start</option>
+                <option value="START_TO_START">Start-to-Start</option>
+                <option value="FINISH_TO_FINISH">Finish-to-Finish</option>
+              </select>
+            </div>
+            <div class="wd-prop-row" id="propsNameRow" style="display:none">
+              <div class="wd-prop-label">Activity Name</div>
+              <input class="wd-prop-input" id="propsName" type="text" oninput="updateNodeProp('label', this.value)" />
+            </div>
+            <div class="wd-prop-row" style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border2)">
+              <div class="wd-prop-label" style="margin-bottom:4px">Connections</div>
+              <div id="propsConnections" style="font-size:12px;color:var(--text-2);line-height:1.7"></div>
+            </div>
+          </div>
+          <div class="wd-props-actions">
+            <button class="btn btn-danger btn-sm" id="propsDeleteBtn" onclick="deleteSelectedNode()" style="width:100%;justify-content:center;">
+              <span class="material-symbols-outlined" style="font-size:14px">delete</span>
+              Remove Node
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /wd-body -->
+  </div><!-- /wd-shell -->
+</div><!-- /app -->
+
+<!-- Drag Ghost -->
+<div class="drag-ghost act-chip" id="dragGhost"></div>
+
+<!-- TnA Modal -->
+<div class="modal-backdrop" id="tnaModal">
+  <div class="modal tna-modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-500);vertical-align:middle;margin-right:4px">timeline</span>
+          Test TnA — Back-Calculate Timeline
+        </div>
+        <div class="modal-sub">Enter target delivery date to generate a Gantt chart with back-calculated dates.</div>
+      </div>
+      <button class="modal-x" onclick="closeTnaModal()">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 2l11 11M13 2L2 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border2)">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Delivery Date <span class="req">*</span></label>
+          <input class="form-control" type="date" id="tnaDate" />
+        </div>
+        <button class="btn btn-primary" onclick="generateTna()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Generate
+        </button>
+      </div>
+      <div id="tnaResult"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeTnaModal()">Close</button>
+      <button class="btn btn-primary" onclick="exportTna()">
+        <span class="material-symbols-outlined" style="font-size:14px">download</span>
+        Export TnA
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Area -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   WORKFLOW DESIGNER — Data Model & Core Engine
+   ═══════════════════════════════════════════════════════ */
+
+const NODE_W = 160;
+const NODE_H = 70;
+const HANDLE_R = 6;
+
+// ── Data Model ──
+let nodes = [
+  { id: 'n1',   label: 'PO Issue',     type: 'INTERNAL', leadDays: 2,  blocking: true,  edgeType: 'FINISH_TO_START', x: 40,   y: 180 },
+  { id: 'n2',   label: 'GRN',          type: 'INTERNAL', leadDays: 3,  blocking: true,  edgeType: 'FINISH_TO_START', x: 230,  y: 180 },
+  { id: 'n3',   label: 'Work Order',   type: 'INTERNAL', leadDays: 2,  blocking: true,  edgeType: 'FINISH_TO_START', x: 420,  y: 180 },
+  { id: 'n4',   label: 'Cutting',      type: 'INTERNAL', leadDays: 3,  blocking: true,  edgeType: 'FINISH_TO_START', x: 610,  y: 120 },
+  { id: 'n5',   label: 'Embroidery JW',type: 'JOB_WORK', leadDays: 6,  blocking: false, edgeType: 'FINISH_TO_START', x: 610,  y: 260 },
+  { id: 'n6',   label: 'Sewing',       type: 'INTERNAL', leadDays: 5,  blocking: true,  edgeType: 'FINISH_TO_START', x: 800,  y: 180 },
+  { id: 'n7',   label: 'Finishing',    type: 'INTERNAL', leadDays: 3,  blocking: true,  edgeType: 'FINISH_TO_START', x: 990,  y: 180 },
+  { id: 'fi',   label: 'Final Inspection', type: 'SYSTEM', leadDays: 2, blocking: true, edgeType: 'FINISH_TO_START', x: 1180, y: 180, fixed: true },
+  { id: 'ship', label: 'Shipment',     type: 'SYSTEM',   leadDays: 1,  blocking: true,  edgeType: 'FINISH_TO_START', x: 1370, y: 180, fixed: true },
+];
+
+let edges = [
+  { id: 'e1', from: 'n1',  to: 'n2',   type: 'FINISH_TO_START' },
+  { id: 'e2', from: 'n2',  to: 'n3',   type: 'FINISH_TO_START' },
+  { id: 'e3', from: 'n3',  to: 'n4',   type: 'FINISH_TO_START' },
+  { id: 'e4', from: 'n3',  to: 'n5',   type: 'FINISH_TO_START' },
+  { id: 'e5', from: 'n4',  to: 'n6',   type: 'FINISH_TO_START' },
+  { id: 'e6', from: 'n5',  to: 'n6',   type: 'FINISH_TO_START' },
+  { id: 'e7', from: 'n6',  to: 'n7',   type: 'FINISH_TO_START' },
+  { id: 'e8', from: 'n7',  to: 'fi',   type: 'FINISH_TO_START' },
+  { id: 'e9', from: 'fi',  to: 'ship', type: 'FINISH_TO_START' },
+];
+
+let selectedNodeId = null;
+let selectedEdgeId = null;
+let idCounter = 100;
+let viewTransform = { x: 0, y: 0, scale: 1 };
+
+// Drag state
+let dragState = null;  // node drag
+let connectState = null; // edge drawing
+let chipDragData = null; // library chip drag
+
+// ── Node type config ──
+const typeConfig = {
+  INTERNAL: { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af', badgeBg: '#dbeafe', badgeText: '#1e40af' },
+  JOB_WORK: { bg: '#fef9c3', border: '#fde68a', text: '#92400e', badgeBg: '#fef9c3', badgeText: '#92400e' },
+  SYSTEM:   { bg: '#ede9fe', border: '#c4b5fd', text: '#5b21b6', badgeBg: '#ede9fe', badgeText: '#5b21b6' },
+  CUSTOM:   { bg: '#dcfce7', border: '#86efac', text: '#166534', badgeBg: '#dcfce7', badgeText: '#166534' },
+};
+
+function genId(prefix) { return prefix + (++idCounter); }
+
+/* ═══════════════════════════════════════════════════════
+   RENDER
+   ═══════════════════════════════════════════════════════ */
+function render() {
+  const svg = document.getElementById('wfSvg');
+  svg.innerHTML = '';
+
+  // Defs (arrowhead marker)
+  const defs = makeSVG('defs');
+  const marker = makeSVG('marker', {
+    id: 'arrow', markerWidth: '10', markerHeight: '7',
+    refX: '9', refY: '3.5', orient: 'auto'
+  });
+  const arrowPoly = makeSVG('polygon', {
+    points: '0 0, 10 3.5, 0 7',
+    fill: '#94a3b8'
+  });
+  marker.appendChild(arrowPoly);
+
+  const markerRed = makeSVG('marker', {
+    id: 'arrow-red', markerWidth: '10', markerHeight: '7',
+    refX: '9', refY: '3.5', orient: 'auto'
+  });
+  const arrowPolyRed = makeSVG('polygon', {
+    points: '0 0, 10 3.5, 0 7',
+    fill: '#ef4444'
+  });
+  markerRed.appendChild(arrowPolyRed);
+
+  const markerSel = makeSVG('marker', {
+    id: 'arrow-sel', markerWidth: '10', markerHeight: '7',
+    refX: '9', refY: '3.5', orient: 'auto'
+  });
+  const arrowPolySel = makeSVG('polygon', {
+    points: '0 0, 10 3.5, 0 7',
+    fill: '#6366f1'
+  });
+  markerSel.appendChild(arrowPolySel);
+
+  defs.appendChild(marker);
+  defs.appendChild(markerRed);
+  defs.appendChild(markerSel);
+  svg.appendChild(defs);
+
+  // Transform group
+  const g = makeSVG('g', {
+    transform: `translate(${viewTransform.x},${viewTransform.y}) scale(${viewTransform.scale})`
+  });
+  svg.appendChild(g);
+
+  // Critical path detection
+  const cp = computeCriticalPath();
+
+  // Render edges
+  edges.forEach(e => renderEdge(g, e, cp));
+
+  // Render connecting line (while drawing)
+  if (connectState && connectState.phase === 'dragging') {
+    const src = nodes.find(n => n.id === connectState.fromId);
+    if (src) {
+      const sx = src.x + NODE_W;
+      const sy = src.y + NODE_H / 2;
+      const ex = connectState.ex;
+      const ey = connectState.ey;
+      const cp1x = sx + 80, cp1y = sy;
+      const cp2x = ex - 80, cp2y = ey;
+      const path = makeSVG('path', {
+        d: `M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`,
+        fill: 'none', stroke: '#6366f1', 'stroke-width': '2',
+        'stroke-dasharray': '6,3', 'pointer-events': 'none'
+      });
+      g.appendChild(path);
+    }
+  }
+
+  // Render nodes
+  nodes.forEach(n => renderNode(g, n, cp));
+
+  updateStatusBar();
+}
+
+function renderEdge(g, e, cp) {
+  const src = nodes.find(n => n.id === e.from);
+  const tgt = nodes.find(n => n.id === e.to);
+  if (!src || !tgt) return;
+
+  const sx = src.x + NODE_W;
+  const sy = src.y + NODE_H / 2;
+  const ex = tgt.x;
+  const ey = tgt.y + NODE_H / 2;
+  const cp1x = sx + 80, cp1y = sy;
+  const cp2x = ex - 80, cp2y = ey;
+
+  const isSel = e.id === selectedEdgeId;
+  const isCrit = cp.critEdges.has(e.id);
+
+  let strokeColor = isSel ? '#6366f1' : (isCrit ? '#ef4444' : '#94a3b8');
+  let strokeW = isSel ? 2.5 : (isCrit ? 2 : 1.8);
+  let markerEnd = isSel ? 'url(#arrow-sel)' : (isCrit ? 'url(#arrow-red)' : 'url(#arrow)');
+
+  // Hit area (invisible, wider path for easier clicking)
+  const hitPath = makeSVG('path', {
+    d: `M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`,
+    fill: 'none', stroke: 'transparent', 'stroke-width': '12',
+    cursor: 'pointer', 'data-edge-id': e.id
+  });
+  hitPath.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    selectEdge(e.id);
+  });
+  g.appendChild(hitPath);
+
+  // Visible path
+  const path = makeSVG('path', {
+    d: `M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`,
+    fill: 'none', stroke: strokeColor, 'stroke-width': strokeW,
+    'marker-end': markerEnd, 'pointer-events': 'none',
+    opacity: isSel ? '1' : '0.75'
+  });
+  g.appendChild(path);
+
+  // Edge type label
+  if (e.type && e.type !== 'FINISH_TO_START') {
+    const midX = cubicPoint(sx, cp1x, cp2x, ex, 0.5);
+    const midY = cubicPoint(sy, cp1y, cp2y, ey, 0.5);
+    const typeShort = { START_TO_START: 'SS', FINISH_TO_FINISH: 'FF' };
+    const label = makeSVG('text', {
+      x: midX, y: midY - 8,
+      'text-anchor': 'middle', 'font-size': '9',
+      fill: '#94a3b8', 'font-family': 'Inter, sans-serif', 'font-weight': '600'
+    });
+    label.textContent = typeShort[e.type] || '';
+    g.appendChild(label);
+  }
+}
+
+function cubicPoint(p0, p1, p2, p3, t) {
+  const mt = 1 - t;
+  return mt*mt*mt*p0 + 3*mt*mt*t*p1 + 3*mt*t*t*p2 + t*t*t*p3;
+}
+
+function renderNode(g, n, cp) {
+  const tc = typeConfig[n.type] || typeConfig.INTERNAL;
+  const isSel = n.id === selectedNodeId;
+  const isCrit = cp.critNodes.has(n.id);
+
+  const nodeG = makeSVG('g', { transform: `translate(${n.x},${n.y})`, cursor: 'move' });
+
+  // Drop shadow filter
+  if (isSel || isCrit) {
+    // glow
+  }
+
+  // Main rect
+  const rect = makeSVG('rect', {
+    x: 0, y: 0, width: NODE_W, height: NODE_H,
+    rx: 8, ry: 8,
+    fill: isCrit ? '#fef2f2' : tc.bg,
+    stroke: isSel ? '#6366f1' : (isCrit ? '#ef4444' : tc.border),
+    'stroke-width': isSel ? 2.5 : (isCrit ? 2 : 1.5),
+    style: `filter: drop-shadow(0 2px 6px rgba(0,0,0,${isSel ? 0.14 : 0.07}));`
+  });
+  nodeG.appendChild(rect);
+
+  // Drag handle icon (top-left)
+  const dhText = makeSVG('text', {
+    x: 8, y: 16,
+    'font-size': '12', fill: '#cbd5e1',
+    'font-family': 'Material Symbols Outlined',
+    'pointer-events': 'none', 'user-select': 'none'
+  });
+  dhText.textContent = 'drag_indicator';
+  nodeG.appendChild(dhText);
+
+  // Lock icon for SYSTEM nodes
+  if (n.type === 'SYSTEM') {
+    const lockText = makeSVG('text', {
+      x: NODE_W - 20, y: 15,
+      'font-size': '13', fill: '#7c3aed', opacity: '0.6',
+      'font-family': 'Material Symbols Outlined',
+      'pointer-events': 'none', 'user-select': 'none'
+    });
+    lockText.textContent = 'lock';
+    nodeG.appendChild(lockText);
+  }
+
+  // Delete button (hidden for SYSTEM nodes)
+  if (n.type !== 'SYSTEM') {
+    const delG = makeSVG('g', { transform: `translate(${NODE_W - 18}, 4)`, cursor: 'pointer', opacity: '0' });
+    delG.classList.add('node-del-btn');
+    const delCircle = makeSVG('circle', { cx: 7, cy: 7, r: 7, fill: '#ef4444' });
+    const delText = makeSVG('text', {
+      x: 7, y: 11, 'text-anchor': 'middle', 'font-size': '10',
+      fill: '#fff', 'font-weight': '700', 'pointer-events': 'none', 'user-select': 'none'
+    });
+    delText.textContent = '×';
+    delG.appendChild(delCircle);
+    delG.appendChild(delText);
+    delG.addEventListener('click', (ev) => { ev.stopPropagation(); deleteNode(n.id); });
+    nodeG.appendChild(delG);
+
+    // Show/hide delete button on node hover
+    nodeG.addEventListener('mouseenter', () => {
+      delG.setAttribute('opacity', '1');
+    });
+    nodeG.addEventListener('mouseleave', () => {
+      if (n.id !== selectedNodeId) delG.setAttribute('opacity', '0');
+    });
+    if (n.id === selectedNodeId) delG.setAttribute('opacity', '1');
+  }
+
+  // Node label
+  const label = makeSVG('text', {
+    x: NODE_W / 2, y: 33,
+    'text-anchor': 'middle', 'font-size': '13', 'font-weight': '700',
+    fill: isCrit ? '#991b1b' : tc.text, 'font-family': 'Inter, sans-serif',
+    'pointer-events': 'none', 'user-select': 'none'
+  });
+  // Truncate label
+  const maxLen = 18;
+  label.textContent = n.label.length > maxLen ? n.label.slice(0, maxLen - 1) + '…' : n.label;
+  nodeG.appendChild(label);
+
+  // Lead days badge (bottom-left)
+  const ldBg = makeSVG('rect', {
+    x: 6, y: NODE_H - 22, width: 30, height: 16, rx: 8, ry: 8,
+    fill: 'rgba(0,0,0,0.08)', 'pointer-events': 'none'
+  });
+  nodeG.appendChild(ldBg);
+  const ldText = makeSVG('text', {
+    x: 21, y: NODE_H - 10, 'text-anchor': 'middle', 'font-size': '10', 'font-weight': '700',
+    fill: tc.text, 'font-family': 'Inter, sans-serif', 'pointer-events': 'none', 'user-select': 'none'
+  });
+  ldText.textContent = `${n.leadDays}d`;
+  nodeG.appendChild(ldText);
+
+  // Type badge (bottom-right)
+  const typeShortMap = { INTERNAL: 'INT', JOB_WORK: 'JW', SYSTEM: 'SYS', CUSTOM: 'CUST' };
+  const typeLabel = typeShortMap[n.type] || n.type;
+  const tbWidth = typeLabel.length * 5.5 + 12;
+  const tbBg = makeSVG('rect', {
+    x: NODE_W - tbWidth - 6, y: NODE_H - 22, width: tbWidth, height: 16, rx: 8, ry: 8,
+    fill: 'rgba(0,0,0,0.08)', 'pointer-events': 'none'
+  });
+  nodeG.appendChild(tbBg);
+  const tbText = makeSVG('text', {
+    x: NODE_W - tbWidth/2 - 6, y: NODE_H - 10, 'text-anchor': 'middle', 'font-size': '9.5', 'font-weight': '700',
+    fill: tc.text, 'font-family': 'Inter, sans-serif', 'pointer-events': 'none', 'user-select': 'none',
+    'letter-spacing': '0.04em'
+  });
+  tbText.textContent = typeLabel;
+  nodeG.appendChild(tbText);
+
+  // Blocking indicator dot
+  if (n.blocking) {
+    const bDot = makeSVG('circle', {
+      cx: 42, cy: NODE_H - 13, r: 3.5,
+      fill: '#6366f1', opacity: '0.8', 'pointer-events': 'none'
+    });
+    nodeG.appendChild(bDot);
+  }
+
+  // Left handle (incoming connections)
+  const leftHandle = makeSVG('circle', {
+    cx: 0, cy: NODE_H / 2, r: HANDLE_R,
+    fill: '#fff', stroke: tc.border, 'stroke-width': '2',
+    cursor: 'default', opacity: '0.8'
+  });
+  nodeG.appendChild(leftHandle);
+
+  // Right handle (outgoing connections)
+  const rightHandle = makeSVG('circle', {
+    cx: NODE_W, cy: NODE_H / 2, r: HANDLE_R,
+    fill: '#fff', stroke: tc.border, 'stroke-width': '2',
+    cursor: 'crosshair', opacity: '0.8'
+  });
+  rightHandle.addEventListener('mousedown', (ev) => {
+    ev.stopPropagation();
+    startConnect(n.id, ev);
+  });
+  rightHandle.addEventListener('mouseenter', () => {
+    rightHandle.setAttribute('fill', '#6366f1');
+    rightHandle.setAttribute('r', '8');
+    rightHandle.setAttribute('stroke', '#6366f1');
+  });
+  rightHandle.addEventListener('mouseleave', () => {
+    if (!connectState) {
+      rightHandle.setAttribute('fill', '#fff');
+      rightHandle.setAttribute('r', String(HANDLE_R));
+      rightHandle.setAttribute('stroke', tc.border);
+    }
+  });
+  nodeG.appendChild(rightHandle);
+
+  // Node click → select
+  rect.addEventListener('mousedown', (ev) => {
+    ev.stopPropagation();
+    if (ev.button !== 0) return;
+    selectNode(n.id);
+    startNodeDrag(n.id, ev);
+  });
+  label.addEventListener('mousedown', (ev) => {
+    ev.stopPropagation();
+    if (ev.button !== 0) return;
+    selectNode(n.id);
+    startNodeDrag(n.id, ev);
+  });
+
+  // Left handle as drop target for connections
+  leftHandle.addEventListener('mouseup', (ev) => {
+    if (connectState && connectState.phase === 'dragging') {
+      ev.stopPropagation();
+      finishConnect(n.id);
+    }
+  });
+  leftHandle.addEventListener('mouseenter', () => {
+    if (connectState && connectState.phase === 'dragging') {
+      leftHandle.setAttribute('fill', '#10b981');
+      leftHandle.setAttribute('r', '8');
+    }
+  });
+  leftHandle.addEventListener('mouseleave', () => {
+    leftHandle.setAttribute('fill', '#fff');
+    leftHandle.setAttribute('r', String(HANDLE_R));
+  });
+
+  g.appendChild(nodeG);
+}
+
+function makeSVG(tag, attrs = {}) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NODE DRAG
+   ═══════════════════════════════════════════════════════ */
+function startNodeDrag(nodeId, ev) {
+  const n = nodes.find(x => x.id === nodeId);
+  if (!n || n.fixed) return;
+
+  const svg = document.getElementById('wfSvg');
+  const svgRect = svg.getBoundingClientRect();
+
+  const startMouseX = ev.clientX;
+  const startMouseY = ev.clientY;
+  const startNodeX = n.x;
+  const startNodeY = n.y;
+
+  dragState = { nodeId, startMouseX, startMouseY, startNodeX, startNodeY };
+}
+
+/* ═══════════════════════════════════════════════════════
+   EDGE DRAWING
+   ═══════════════════════════════════════════════════════ */
+function startConnect(fromId, ev) {
+  const svg = document.getElementById('wfSvg');
+  const pt = svgPoint(svg, ev.clientX, ev.clientY);
+  connectState = {
+    phase: 'dragging',
+    fromId,
+    ex: pt.x,
+    ey: pt.y
+  };
+  document.body.classList.add('dragging-chip');
+}
+
+function finishConnect(toId) {
+  if (!connectState) return;
+  const fromId = connectState.fromId;
+  connectState = null;
+  document.body.classList.remove('dragging-chip');
+
+  if (fromId === toId) { render(); return; }
+  if (edges.find(e => e.from === fromId && e.to === toId)) { render(); return; }
+
+  // Prevent cycle
+  if (wouldCreateCycle(fromId, toId)) {
+    showToast('Cannot create a cycle — DAG constraint violated', 'error');
+    render();
+    return;
+  }
+
+  edges.push({ id: genId('e'), from: fromId, to: toId, type: 'FINISH_TO_START' });
+  render();
+}
+
+function wouldCreateCycle(fromId, toId) {
+  // Would adding fromId → toId create a cycle?
+  // DFS from toId: if we can reach fromId, it would create a cycle
+  const visited = new Set();
+  const stack = [toId];
+  while (stack.length > 0) {
+    const cur = stack.pop();
+    if (cur === fromId) return true;
+    if (visited.has(cur)) continue;
+    visited.add(cur);
+    edges.filter(e => e.from === cur).forEach(e => stack.push(e.to));
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECTION
+   ═══════════════════════════════════════════════════════ */
+function selectNode(id) {
+  selectedNodeId = id;
+  selectedEdgeId = null;
+  hideEdgeHint();
+  openProps(id);
+  render();
+}
+
+function selectEdge(id) {
+  selectedEdgeId = id;
+  selectedNodeId = null;
+  closeProps();
+  showEdgeHint();
+  render();
+}
+
+function clearSelection() {
+  selectedNodeId = null;
+  selectedEdgeId = null;
+  closeProps();
+  hideEdgeHint();
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════
+   NODE / EDGE DELETE
+   ═══════════════════════════════════════════════════════ */
+function deleteNode(id) {
+  const n = nodes.find(x => x.id === id);
+  if (!n || n.fixed) {
+    showToast('System nodes cannot be deleted', 'error');
+    return;
+  }
+  nodes = nodes.filter(x => x.id !== id);
+  edges = edges.filter(e => e.from !== id && e.to !== id);
+  if (selectedNodeId === id) { selectedNodeId = null; closeProps(); }
+  render();
+  showToast(`"${n.label}" removed`, 'info');
+}
+
+function deleteSelectedNode() {
+  if (selectedNodeId) deleteNode(selectedNodeId);
+}
+
+function deleteSelectedEdge() {
+  if (!selectedEdgeId) return;
+  edges = edges.filter(e => e.id !== selectedEdgeId);
+  selectedEdgeId = null;
+  hideEdgeHint();
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROPERTIES PANEL
+   ═══════════════════════════════════════════════════════ */
+function openProps(id) {
+  const n = nodes.find(x => x.id === id);
+  if (!n) return;
+
+  document.getElementById('propsPanel').classList.add('open');
+  document.getElementById('propsNodeName').textContent = n.label;
+
+  const badge = document.getElementById('propsTypeBadge');
+  badge.innerHTML = `<span class="type-badge ${n.type}">${n.type.replace('_', ' ')}</span>`;
+
+  document.getElementById('propsLeadDays').value = n.leadDays;
+  document.getElementById('propsBlocking').checked = n.blocking;
+  document.getElementById('propsBlockingLabel').textContent = n.blocking ? 'Yes' : 'No';
+  document.getElementById('propsEdgeType').value = n.edgeType || 'FINISH_TO_START';
+
+  // Name editable only for non-system
+  const nameRow = document.getElementById('propsNameRow');
+  if (n.type === 'SYSTEM') {
+    nameRow.style.display = 'none';
+  } else {
+    nameRow.style.display = 'block';
+    document.getElementById('propsName').value = n.label;
+  }
+
+  // Connections
+  const incoming = edges.filter(e => e.to === id).map(e => {
+    const src = nodes.find(x => x.id === e.from);
+    return src ? `← ${src.label}` : '';
+  }).filter(Boolean);
+  const outgoing = edges.filter(e => e.from === id).map(e => {
+    const tgt = nodes.find(x => x.id === e.to);
+    return tgt ? `→ ${tgt.label}` : '';
+  }).filter(Boolean);
+  const connDiv = document.getElementById('propsConnections');
+  if (incoming.length === 0 && outgoing.length === 0) {
+    connDiv.innerHTML = '<span style="color:var(--text-3);font-style:italic">No connections</span>';
+  } else {
+    connDiv.innerHTML = [...incoming, ...outgoing].map(c =>
+      `<div style="color:${c.startsWith('←') ? '#6366f1' : '#10b981'}">${c}</div>`
+    ).join('');
+  }
+
+  // Delete button state
+  const delBtn = document.getElementById('propsDeleteBtn');
+  if (n.type === 'SYSTEM') {
+    delBtn.disabled = true;
+    delBtn.title = 'System nodes cannot be removed';
+  } else {
+    delBtn.disabled = false;
+    delBtn.title = '';
+  }
+}
+
+function closeProps() {
+  document.getElementById('propsPanel').classList.remove('open');
+  selectedNodeId = null;
+}
+
+function updateNodeProp(prop, value) {
+  if (!selectedNodeId) return;
+  const n = nodes.find(x => x.id === selectedNodeId);
+  if (!n) return;
+  n[prop] = value;
+  if (prop === 'blocking') {
+    document.getElementById('propsBlockingLabel').textContent = value ? 'Yes' : 'No';
+  }
+  if (prop === 'label') {
+    document.getElementById('propsNodeName').textContent = value;
+  }
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════
+   ZOOM & PAN
+   ═══════════════════════════════════════════════════════ */
+function svgPoint(svg, clientX, clientY) {
+  const rect = svg.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left - viewTransform.x) / viewTransform.scale,
+    y: (clientY - rect.top  - viewTransform.y) / viewTransform.scale
+  };
+}
+
+function zoomIn()  { setZoom(viewTransform.scale * 1.2); }
+function zoomOut() { setZoom(viewTransform.scale / 1.2); }
+function resetZoom() { viewTransform = { x: 20, y: 20, scale: 1 }; render(); updateZoomLabel(); }
+
+function setZoom(z) {
+  viewTransform.scale = Math.min(3, Math.max(0.2, z));
+  render();
+  updateZoomLabel();
+}
+
+function updateZoomLabel() {
+  document.getElementById('zoomLabel').textContent = `${Math.round(viewTransform.scale * 100)}%`;
+}
+
+function fitToView() {
+  if (nodes.length === 0) return;
+  const area = document.getElementById('canvasArea');
+  const W = area.clientWidth - 40;
+  const H = area.clientHeight - 80;
+
+  const minX = Math.min(...nodes.map(n => n.x));
+  const minY = Math.min(...nodes.map(n => n.y));
+  const maxX = Math.max(...nodes.map(n => n.x + NODE_W));
+  const maxY = Math.max(...nodes.map(n => n.y + NODE_H));
+  const dw = maxX - minX;
+  const dh = maxY - minY;
+
+  const scale = Math.min(W / dw, H / dh, 1.5);
+  viewTransform.scale = scale;
+  viewTransform.x = (W - dw * scale) / 2 + 20 - minX * scale;
+  viewTransform.y = (H - dh * scale) / 2 + 40 - minY * scale;
+  render();
+  updateZoomLabel();
+}
+
+/* ═══════════════════════════════════════════════════════
+   AUTO LAYOUT (Topological layering)
+   ═══════════════════════════════════════════════════════ */
+function autoLayout() {
+  // Compute longest path (column) for each node
+  const indegree = {};
+  const adjList = {};
+  nodes.forEach(n => { indegree[n.id] = 0; adjList[n.id] = []; });
+  edges.forEach(e => {
+    if (adjList[e.from]) adjList[e.from].push(e.to);
+    if (indegree[e.to] !== undefined) indegree[e.to]++;
+  });
+
+  // BFS / Kahn's to get topological order
+  const queue = [];
+  const topo = [];
+  Object.keys(indegree).forEach(id => { if (indegree[id] === 0) queue.push(id); });
+
+  const col = {};
+  nodes.forEach(n => col[n.id] = 0);
+
+  while (queue.length) {
+    const cur = queue.shift();
+    topo.push(cur);
+    (adjList[cur] || []).forEach(next => {
+      col[next] = Math.max(col[next], col[cur] + 1);
+      if (--indegree[next] === 0) queue.push(next);
+    });
+  }
+
+  // Group nodes by column
+  const colGroups = {};
+  nodes.forEach(n => {
+    const c = col[n.id] || 0;
+    if (!colGroups[c]) colGroups[c] = [];
+    colGroups[c].push(n.id);
+  });
+
+  const colSpacing = 200;
+  const rowSpacing = 100;
+  const startX = 40;
+  const startY = 60;
+
+  Object.keys(colGroups).sort((a,b) => a-b).forEach(c => {
+    const ids = colGroups[c];
+    ids.forEach((id, i) => {
+      const n = nodes.find(x => x.id === id);
+      if (!n) return;
+      n.x = startX + c * colSpacing;
+      n.y = startY + i * rowSpacing;
+    });
+  });
+
+  render();
+  showToast('Layout applied', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CRITICAL PATH
+   ═══════════════════════════════════════════════════════ */
+function computeCriticalPath() {
+  const critNodes = new Set();
+  const critEdges = new Set();
+
+  // Topological sort
+  const indegree = {};
+  const adjList = {};
+  nodes.forEach(n => { indegree[n.id] = 0; adjList[n.id] = []; });
+  edges.forEach(e => {
+    if (adjList[e.from]) adjList[e.from].push(e.id);
+    if (indegree[e.to] !== undefined) indegree[e.to]++;
+  });
+
+  const queue = [];
+  Object.keys(indegree).forEach(id => { if (indegree[id] === 0) queue.push(id); });
+
+  // ES (Early Start) and path tracking
+  const es = {};
+  const pred = {}; // predecessor edge for each node
+  nodes.forEach(n => { es[n.id] = 0; pred[n.id] = null; });
+
+  const visited = new Set();
+  const bfsQ = [...queue];
+  while (bfsQ.length) {
+    const cur = bfsQ.shift();
+    if (visited.has(cur)) continue;
+    visited.add(cur);
+    const curNode = nodes.find(n => n.id === cur);
+    if (!curNode) continue;
+
+    const outEdges = edges.filter(e => e.from === cur);
+    outEdges.forEach(e => {
+      const tgtNode = nodes.find(n => n.id === e.to);
+      if (!tgtNode) return;
+      const arrive = es[cur] + curNode.leadDays;
+      if (arrive > es[e.to]) {
+        es[e.to] = arrive;
+        pred[e.to] = e.id;
+      }
+      if (--indegree[e.to] === 0) bfsQ.push(e.to);
+    });
+  }
+
+  // Find sink (SYSTEM: shipment or node with no outgoing)
+  let sinkId = 'ship';
+  if (!nodes.find(n => n.id === 'ship')) {
+    let maxEs = -1;
+    nodes.forEach(n => {
+      if (es[n.id] > maxEs) { maxEs = es[n.id]; sinkId = n.id; }
+    });
+  }
+
+  // Trace back critical path
+  let cur = sinkId;
+  while (cur) {
+    critNodes.add(cur);
+    const eId = pred[cur];
+    if (!eId) break;
+    critEdges.add(eId);
+    const e = edges.find(x => x.id === eId);
+    cur = e ? e.from : null;
+  }
+
+  return { critNodes, critEdges };
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════ */
+function updateStatusBar() {
+  document.getElementById('nodeCount').textContent = nodes.length;
+  document.getElementById('edgeCount').textContent = edges.length;
+
+  // Check for cycles
+  const hasCycle = detectCycle();
+  const dagEl = document.getElementById('dagStatus');
+  if (hasCycle) {
+    dagEl.className = 'status-badge invalid';
+    dagEl.innerHTML = '<span class="material-symbols-outlined">warning</span> Cycle Detected';
+  } else {
+    dagEl.className = 'status-badge valid';
+    dagEl.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Valid DAG';
+  }
+}
+
+function detectCycle() {
+  const visited = new Set();
+  const inStack = new Set();
+
+  function dfs(id) {
+    if (inStack.has(id)) return true;
+    if (visited.has(id)) return false;
+    visited.add(id);
+    inStack.add(id);
+    for (const e of edges.filter(e => e.from === id)) {
+      if (dfs(e.to)) return true;
+    }
+    inStack.delete(id);
+    return false;
+  }
+
+  for (const n of nodes) {
+    if (dfs(n.id)) return true;
+  }
+  return false;
+}
+
+function showEdgeHint() {
+  document.getElementById('edgeHint').classList.add('visible');
+}
+function hideEdgeHint() {
+  document.getElementById('edgeHint').classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIBRARY CHIP DRAG-DROP
+   ═══════════════════════════════════════════════════════ */
+const ghost = document.getElementById('dragGhost');
+
+document.querySelectorAll('.act-chip[draggable]').forEach(chip => {
+  chip.addEventListener('dragstart', (ev) => {
+    chipDragData = {
+      label: chip.dataset.label,
+      type:  chip.dataset.type,
+      ld:    parseInt(chip.dataset.ld) || 2
+    };
+    ev.dataTransfer.effectAllowed = 'copy';
+    ev.dataTransfer.setData('text/plain', chip.dataset.label);
+
+    // Show drop hint
+    document.getElementById('dropHint').classList.add('active');
+  });
+  chip.addEventListener('dragend', () => {
+    document.getElementById('dropHint').classList.remove('active');
+    chipDragData = null;
+  });
+});
+
+const canvasArea = document.getElementById('canvasArea');
+canvasArea.addEventListener('dragover', (ev) => {
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = 'copy';
+});
+canvasArea.addEventListener('dragleave', (ev) => {
+  if (!canvasArea.contains(ev.relatedTarget)) {
+    document.getElementById('dropHint').classList.remove('active');
+  }
+});
+canvasArea.addEventListener('drop', (ev) => {
+  ev.preventDefault();
+  document.getElementById('dropHint').classList.remove('active');
+  if (!chipDragData) return;
+
+  const svg = document.getElementById('wfSvg');
+  const pt = svgPoint(svg, ev.clientX, ev.clientY);
+
+  const newNode = {
+    id: genId('n'),
+    label: chipDragData.label,
+    type:  chipDragData.type,
+    leadDays: chipDragData.ld,
+    blocking: false,
+    edgeType: 'FINISH_TO_START',
+    x: Math.max(0, pt.x - NODE_W / 2),
+    y: Math.max(0, pt.y - NODE_H / 2)
+  };
+  nodes.push(newNode);
+  chipDragData = null;
+  render();
+  selectNode(newNode.id);
+  showToast(`"${newNode.label}" added to canvas`, 'success');
+});
+
+/* ═══════════════════════════════════════════════════════
+   MOUSE EVENTS (node drag + edge connect)
+   ═══════════════════════════════════════════════════════ */
+const svgEl = document.getElementById('wfSvg');
+
+svgEl.addEventListener('mousemove', (ev) => {
+  if (dragState) {
+    const dx = (ev.clientX - dragState.startMouseX) / viewTransform.scale;
+    const dy = (ev.clientY - dragState.startMouseY) / viewTransform.scale;
+    const n = nodes.find(x => x.id === dragState.nodeId);
+    if (n) {
+      n.x = Math.max(0, dragState.startNodeX + dx);
+      n.y = Math.max(0, dragState.startNodeY + dy);
+      render();
+    }
+  }
+
+  if (connectState && connectState.phase === 'dragging') {
+    const pt = svgPoint(svgEl, ev.clientX, ev.clientY);
+    connectState.ex = pt.x;
+    connectState.ey = pt.y;
+    render();
+  }
+});
+
+svgEl.addEventListener('mouseup', (ev) => {
+  dragState = null;
+  if (connectState && connectState.phase === 'dragging') {
+    connectState = null;
+    document.body.classList.remove('dragging-chip');
+    render();
+  }
+});
+
+svgEl.addEventListener('click', (ev) => {
+  if (ev.target === svgEl || ev.target.tagName === 'svg') {
+    clearSelection();
+  }
+});
+
+// Pan canvas (middle mouse or space+drag)
+let isPanning = false;
+let panStart = null;
+
+svgEl.addEventListener('mousedown', (ev) => {
+  if (ev.button === 1 || (ev.button === 0 && ev.altKey)) {
+    isPanning = true;
+    panStart = { x: ev.clientX - viewTransform.x, y: ev.clientY - viewTransform.y };
+    ev.preventDefault();
+  }
+});
+
+document.addEventListener('mousemove', (ev) => {
+  if (isPanning && panStart) {
+    viewTransform.x = ev.clientX - panStart.x;
+    viewTransform.y = ev.clientY - panStart.y;
+    render();
+  }
+});
+document.addEventListener('mouseup', () => {
+  isPanning = false;
+  panStart = null;
+  if (dragState) dragState = null;
+});
+
+// Scroll to zoom
+canvasArea.addEventListener('wheel', (ev) => {
+  ev.preventDefault();
+  const factor = ev.deltaY < 0 ? 1.1 : 0.9;
+  const rect = svgEl.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+  viewTransform.x = mx - (mx - viewTransform.x) * factor;
+  viewTransform.y = my - (my - viewTransform.y) * factor;
+  setZoom(viewTransform.scale * factor);
+}, { passive: false });
+
+// Delete key
+document.addEventListener('keydown', (ev) => {
+  if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'TEXTAREA' || ev.target.tagName === 'SELECT') return;
+  if (ev.key === 'Delete' || ev.key === 'Backspace') {
+    if (selectedEdgeId) deleteSelectedEdge();
+    else if (selectedNodeId) deleteSelectedNode();
+  }
+  if (ev.key === 'Escape') clearSelection();
+});
+
+/* ═══════════════════════════════════════════════════════
+   ACTIVITY GROUPS / SIDEBAR
+   ═══════════════════════════════════════════════════════ */
+function toggleGroup(headerEl) {
+  const group = headerEl.parentElement;
+  group.classList.toggle('open');
+}
+
+function toggleNav(el) {
+  const group = el.parentElement;
+  group.classList.toggle('open');
+  el.classList.toggle('open');
+}
+
+function filterLib(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.act-chip[draggable]').forEach(chip => {
+    const label = (chip.dataset.label || '').toLowerCase();
+    chip.style.display = (!q || label.includes(q)) ? '' : 'none';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CUSTOM ACTIVITY FORM
+   ═══════════════════════════════════════════════════════ */
+function toggleCustomForm() {
+  const form = document.getElementById('customForm');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    document.getElementById('cf-name').focus();
+  }
+}
+
+function addCustomActivity() {
+  const name = document.getElementById('cf-name').value.trim();
+  const type = document.getElementById('cf-type').value;
+  const ld   = parseInt(document.getElementById('cf-ld').value) || 2;
+  if (!name) { showToast('Enter a name for the activity', 'error'); return; }
+
+  const newNode = {
+    id: genId('cust'),
+    label: name,
+    type: type,
+    leadDays: ld,
+    blocking: false,
+    edgeType: 'FINISH_TO_START',
+    x: 100 + Math.random() * 300,
+    y: 100 + Math.random() * 200
+  };
+  nodes.push(newNode);
+  render();
+  selectNode(newNode.id);
+  showToast(`Custom activity "${name}" added`, 'success');
+
+  // Reset form
+  document.getElementById('cf-name').value = '';
+  document.getElementById('cf-ld').value = '';
+  document.getElementById('customForm').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SAVE TEMPLATE
+   ═══════════════════════════════════════════════════════ */
+function saveTemplate() {
+  const name = document.getElementById('templateName').value.trim() || 'Unnamed Template';
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('lastSaved').textContent = `Last saved: ${timeStr}`;
+  showToast(`Template "${name}" saved successfully`, 'success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   TNA MODAL
+   ═══════════════════════════════════════════════════════ */
+function openTnaModal() {
+  const modal = document.getElementById('tnaModal');
+  modal.classList.add('open');
+  // Set default date 90 days from today
+  const d = new Date();
+  d.setDate(d.getDate() + 90);
+  document.getElementById('tnaDate').value = d.toISOString().slice(0, 10);
+  document.getElementById('tnaResult').innerHTML = '';
+}
+
+function closeTnaModal() {
+  document.getElementById('tnaModal').classList.remove('open');
+}
+
+function generateTna() {
+  const dateStr = document.getElementById('tnaDate').value;
+  if (!dateStr) { showToast('Please select a delivery date', 'error'); return; }
+
+  const deliveryDate = new Date(dateStr);
+
+  // Topological sort
+  const indegree = {};
+  const adjList = {};
+  nodes.forEach(n => { indegree[n.id] = 0; adjList[n.id] = []; });
+  edges.forEach(e => {
+    if (adjList[e.from]) adjList[e.from].push(e.to);
+    if (indegree[e.to] !== undefined) indegree[e.to]++;
+  });
+
+  const roots = nodes.filter(n => indegree[n.id] === 0).map(n => n.id);
+  const topoOrder = [];
+  const queue = [...roots];
+  const inDegCopy = {...indegree};
+
+  while (queue.length) {
+    const cur = queue.shift();
+    topoOrder.push(cur);
+    (adjList[cur] || []).forEach(next => {
+      inDegCopy[next]--;
+      if (inDegCopy[next] === 0) queue.push(next);
+    });
+  }
+
+  // Forward pass: earliest start (from 0)
+  const es = {};
+  nodes.forEach(n => es[n.id] = 0);
+  topoOrder.forEach(id => {
+    const n = nodes.find(x => x.id === id);
+    if (!n) return;
+    edges.filter(e => e.from === id).forEach(e => {
+      es[e.to] = Math.max(es[e.to], es[id] + n.leadDays);
+    });
+  });
+
+  // Total project duration
+  const totalDays = Math.max(...nodes.map(n => es[n.id] + n.leadDays), 1);
+
+  // Back-calculate actual dates
+  const nodeInfo = {};
+  nodes.forEach(n => {
+    const daysFromStart = es[n.id];
+    const daysBeforeDelivery = totalDays - daysFromStart;
+    const startDate = new Date(deliveryDate);
+    startDate.setDate(deliveryDate.getDate() - daysBeforeDelivery);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + n.leadDays - 1);
+    nodeInfo[n.id] = { startDate, endDate, daysFromStart };
+  });
+
+  // Critical path
+  const cp = computeCriticalPath();
+
+  // Build Gantt
+  const sortedNodes = [...topoOrder]
+    .map(id => nodes.find(n => n.id === id))
+    .filter(Boolean);
+
+  const minDate = new Date(Math.min(...Object.values(nodeInfo).map(d => d.startDate)));
+  const maxDate = new Date(deliveryDate);
+  const totalSpan = Math.max((maxDate - minDate) / 86400000 + 1, 1);
+
+  const fmt = (d) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+
+  const typeColors = {
+    INTERNAL: '#6366f1',
+    JOB_WORK: '#f59e0b',
+    SYSTEM:   '#8b5cf6',
+    CUSTOM:   '#10b981',
+  };
+
+  // Build date ticks (every ~7 days)
+  const ticks = [];
+  const tickD = new Date(minDate);
+  while (tickD <= maxDate) {
+    ticks.push(new Date(tickD));
+    tickD.setDate(tickD.getDate() + Math.max(7, Math.floor(totalSpan / 10)));
+  }
+
+  let ganttHtml = `
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="font-size:13px;font-weight:600;color:var(--text-1)">Delivery: ${fmt(deliveryDate)}</div>
+      <div style="font-size:12px;color:var(--text-3)">Total duration: <strong style="color:var(--text-1)">${totalDays} working days</strong></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:11px;color:var(--text-3)">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#6366f1;border-radius:3px;margin-right:4px;vertical-align:middle"></span>Internal</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#f59e0b;border-radius:3px;margin-right:4px;vertical-align:middle"></span>Job Work</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#8b5cf6;border-radius:3px;margin-right:4px;vertical-align:middle"></span>System</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#ef4444;border-radius:3px;margin-right:4px;vertical-align:middle"></span>Critical Path</span>
+      </div>
+    </div>
+    <div class="gantt-container">
+      <div class="gantt-chart">
+        <div class="gantt-header">
+          <div class="gantt-label-col">Activity</div>
+          <div class="gantt-timeline-col">
+            <div class="gantt-dates">
+  `;
+
+  ticks.forEach(t => {
+    const pct = ((t - minDate) / 86400000 / totalSpan * 100).toFixed(1);
+    ganttHtml += `<div class="gantt-date-tick" style="left:${pct}%;position:absolute;border:none">${fmt(t)}</div>`;
+  });
+
+  ganttHtml += `</div></div></div>`;
+
+  sortedNodes.forEach(n => {
+    const info = nodeInfo[n.id];
+    if (!info) return;
+    const left = ((info.startDate - minDate) / 86400000 / totalSpan * 100).toFixed(1);
+    const width = Math.max((n.leadDays / totalSpan * 100), 1).toFixed(1);
+    const isCrit = cp.critNodes.has(n.id);
+    const color = isCrit ? '#ef4444' : (typeColors[n.type] || '#6366f1');
+
+    ganttHtml += `
+      <div class="gantt-row">
+        <div class="gantt-row-label" title="${n.label}">${n.label}</div>
+        <div class="gantt-bar-area">
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${color};${isCrit ? 'box-shadow:0 0 0 2px rgba(239,68,68,0.3)' : ''}" title="${fmt(info.startDate)} → ${fmt(info.endDate)} (${n.leadDays}d)">
+            ${parseFloat(width) > 6 ? fmt(info.startDate) : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  ganttHtml += `</div></div>`;
+
+  // Summary table
+  ganttHtml += `
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:8px">Back-Calculated Schedule</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--gray-50);border-bottom:1px solid var(--border)">
+            <th style="padding:7px 10px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Activity</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Type</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Start By</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Finish By</th>
+            <th style="padding:7px 10px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Days</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  sortedNodes.forEach(n => {
+    const info = nodeInfo[n.id];
+    if (!info) return;
+    const isCrit = cp.critNodes.has(n.id);
+    ganttHtml += `
+      <tr style="border-bottom:1px solid var(--border2);${isCrit ? 'background:#fef2f2' : ''}">
+        <td style="padding:7px 10px;font-weight:${isCrit ? '700' : '500'};color:${isCrit ? '#991b1b' : 'var(--text-1)'}">
+          ${n.label}${isCrit ? ' <span style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:0.06em">CRITICAL</span>' : ''}
+        </td>
+        <td style="padding:7px 10px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;background:${typeColors[n.type]}22;color:${typeColors[n.type]}">${n.type.replace('_',' ')}</span>
+        </td>
+        <td style="padding:7px 10px;text-align:center;font-weight:600">${fmt(info.startDate)}</td>
+        <td style="padding:7px 10px;text-align:center;font-weight:600">${fmt(info.endDate)}</td>
+        <td style="padding:7px 10px;text-align:center;color:var(--text-2)">${n.leadDays}</td>
+      </tr>
+    `;
+  });
+
+  ganttHtml += `</tbody></table></div>`;
+
+  document.getElementById('tnaResult').innerHTML = ganttHtml;
+}
+
+function exportTna() {
+  showToast('TnA exported to PDF (demo)', 'success');
+  closeTnaModal();
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════ */
+function showToast(msg, type = 'info') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = `toast${type === 'success' ? ' success' : type === 'error' ? ' error' : ''}`;
+
+  const icons = {
+    success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+    error:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+  };
+
+  t.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
+  area.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = '0.3s ease'; }, 2800);
+  setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 3100);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  // Initial fit
+  setTimeout(() => {
+    fitToView();
+    showToast('Workflow designer ready — drag activities from the library or connect nodes', 'info');
+  }, 100);
+});
+
+// Modal backdrop click to close
+document.getElementById('tnaModal').addEventListener('click', (ev) => {
+  if (ev.target === document.getElementById('tnaModal')) closeTnaModal();
+});
+</script>
+</body>
+</html>
