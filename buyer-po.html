@@ -295,6 +295,9 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   <header class="topbar">
     <span class="topbar-module" id="topbarTitle">Create Buyer PO</span>
     <div class="topbar-right">
+      <button class="btn btn-outline btn-sm" style="font-size:11.5px;" onclick="previewViewMode()" title="Preview: View mode for BPO-2026-0301">
+        <span class="material-symbols-outlined" style="font-size:14px;">visibility</span> Preview Saved PO
+      </button>
       <button class="topbar-icon-btn" title="Notifications">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
       </button>
@@ -634,8 +637,303 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
         </button>
       </div>
     </div>
-    <div id="viewBody" style="flex:1;overflow-y:auto;padding:0 28px 32px;">
-      <!-- dynamically filled -->
+    <!-- Tab strip inside view mode -->
+    <div class="tab-strip" style="flex-shrink:0;">
+      <button class="tab-btn active" id="vtab-overview" onclick="switchViewTab('overview')">Overview</button>
+      <button class="tab-btn" id="vtab-lines" onclick="switchViewTab('lines')">
+        Lines <span class="tab-count">12</span>
+      </button>
+      <button class="tab-btn" id="vtab-prodorders" onclick="switchViewTab('prodorders')">
+        Production Orders <span class="tab-count">2</span>
+      </button>
+      <button class="tab-btn" id="vtab-procurement" onclick="switchViewTab('procurement')">
+        Purchase POs &amp; GRNs <span class="tab-count">3</span>
+      </button>
+    </div>
+
+    <div id="viewBody" style="flex:1;overflow-y:auto;padding:20px 28px 32px;">
+
+      <!-- ── TAB: Overview ── -->
+      <div class="tab-panel active" id="vpanel-overview">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
+          <div class="card" style="padding:16px 18px;">
+            <div class="view-field-label" style="margin-bottom:10px;">Order Details</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div><div class="view-field-label">Buyer PO No.</div><div class="view-field-val" style="font-size:15px;font-weight:700;">BPO-2026-0301</div></div>
+              <div><div class="view-field-label">Our Ref / Season</div><div class="view-field-val">SS-2026 / Monsoon Drop</div></div>
+              <div><div class="view-field-label">Order Type</div><div class="view-field-val">Export</div></div>
+              <div><div class="view-field-label">Order Date</div><div class="view-field-val">15 Apr 2026</div></div>
+              <div><div class="view-field-label">Delivery Date</div><div class="view-field-val" style="color:#1d4ed8;font-weight:600;">08 Jul 2026</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:16px 18px;">
+            <div class="view-field-label" style="margin-bottom:10px;">Parties</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div><div class="view-field-label">Buyer / Customer</div><div class="view-field-val">MARKS &amp; SPENCER PLC</div></div>
+              <div><div class="view-field-label">Ship To</div><div class="view-field-val">M&amp;S Distribution Centre, Leeds UK</div></div>
+              <div><div class="view-field-label">Bill To</div><div class="view-field-val">M&amp;S Finance, London EC1V</div></div>
+              <div><div class="view-field-label">Buyer PO Ref</div><div class="view-field-val">MSP-PO-2025-114</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:16px 18px;">
+            <div class="view-field-label" style="margin-bottom:10px;">Financials</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div><div class="view-field-label">Total Styles</div><div class="view-field-val">3</div></div>
+              <div><div class="view-field-label">Total Qty</div><div class="view-field-val" style="font-size:15px;font-weight:700;">9,600 pcs</div></div>
+              <div><div class="view-field-label">Sub Total</div><div class="view-field-val">₹96,00,000</div></div>
+              <div><div class="view-field-label">GST</div><div class="view-field-val">₹4,80,000</div></div>
+              <div><div class="view-field-label" style="font-size:11px;">Net Total</div><div class="view-field-val" style="font-size:16px;font-weight:800;color:var(--brand-600);">₹1,00,80,000</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Status Banner -->
+        <div style="padding:14px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r-md);display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="material-symbols-outlined" style="color:#16a34a;font-size:22px;">precision_manufacturing</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#15803d;">Production Order Linked: PRD-2025-0042</div>
+              <div style="font-size:12px;color:#166534;margin-top:2px;">Style: AP2801 ST002 — Basic Round Neck Tee &nbsp;|&nbsp; TnA Status: <strong>AT_RISK</strong> &nbsp;|&nbsp; Sewing: 12 Jun – 28 Jun</div>
+            </div>
+          </div>
+          <a href="production-order.html" class="btn btn-outline btn-sm" style="border-color:#16a34a;color:#15803d;">View Production Order →</a>
+        </div>
+      </div>
+
+      <!-- ── TAB: Lines ── -->
+      <div class="tab-panel" id="vpanel-lines">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--gray-50);">
+                <th style="text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">#</th>
+                <th style="text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Style</th>
+                <th style="text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Colour</th>
+                <th style="text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Size</th>
+                <th style="text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">SKU</th>
+                <th style="text-align:right;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Ord Qty</th>
+                <th style="text-align:right;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Unit Price</th>
+                <th style="text-align:right;padding:10px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-3);font-size:12px;">1</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">AP2801 ST002 — Basic Round Neck Tee</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">Jet Black</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">XS</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);font-family:monospace;font-size:12px;">ST002-XS</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">400</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">₹1,000</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;font-weight:600;">₹4,00,000</td></tr>
+              <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-3);font-size:12px;">2</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">AP2801 ST002 — Basic Round Neck Tee</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">Jet Black</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">S</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);font-family:monospace;font-size:12px;">ST002-S</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">800</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">₹1,000</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;font-weight:600;">₹8,00,000</td></tr>
+              <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-3);font-size:12px;">3</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">AP2801 ST002 — Basic Round Neck Tee</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">Jet Black</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">M</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);font-family:monospace;font-size:12px;">ST002-M</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">1,200</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">₹1,000</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;font-weight:600;">₹12,00,000</td></tr>
+              <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-3);font-size:12px;">4</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">AP2801 ST002 — Basic Round Neck Tee</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">Jet Black</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">L</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);font-family:monospace;font-size:12px;">ST002-L</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">1,200</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">₹1,000</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;font-weight:600;">₹12,00,000</td></tr>
+              <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-3);font-size:12px;">5</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">AP2801 ST002 — Basic Round Neck Tee</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">Jet Black</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);">XL</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);font-family:monospace;font-size:12px;">ST002-XL</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">800</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;">₹1,000</td><td style="padding:9px 12px;border-bottom:1px solid var(--border2);text-align:right;font-weight:600;">₹8,00,000</td></tr>
+              <tr style="background:var(--gray-50);"><td colspan="5" style="padding:9px 12px;border-top:2px solid var(--border2);font-size:12px;font-weight:700;color:var(--text-3);">Style Sub-total: AP2801 ST002</td><td style="padding:9px 12px;border-top:2px solid var(--border2);text-align:right;font-weight:700;">4,400</td><td></td><td style="padding:9px 12px;border-top:2px solid var(--border2);text-align:right;font-weight:700;">₹44,00,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── TAB: Production Orders ── -->
+      <div class="tab-panel" id="vpanel-prodorders">
+        <div class="prd-section-head">
+          <div>
+            <div class="prd-section-title">Linked Production Orders</div>
+            <div class="prd-section-sub">This Buyer PO (Style: AP2801 ST002) is grouped into the following production orders.</div>
+          </div>
+          <a href="production-order.html" class="btn btn-primary btn-sm">
+            <span class="material-symbols-outlined" style="font-size:14px;">add</span> Create Production Order
+          </a>
+        </div>
+
+        <!-- Production Order 1 — AT RISK -->
+        <div style="border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface);cursor:pointer;" onclick="toggleTnaPanel('tna1')">
+            <div style="display:flex;align-items:center;gap:14px;flex:1;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text-1);">
+                  <a href="production-order.html" style="color:var(--brand-600);text-decoration:none;" onclick="event.stopPropagation()">PRD-2025-0042</a>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">Created 18 Mar 2025 &nbsp;·&nbsp; Workflow: Standard Export</div>
+              </div>
+              <div style="flex:1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div style="font-size:12px;"><span style="color:var(--text-3);">Total Qty:</span> <strong>7,200 pcs</strong></div>
+                <div style="font-size:12px;"><span style="color:var(--text-3);">This PO contribution:</span> <strong>4,400 pcs</strong></div>
+                <div style="font-size:12px;"><span style="color:var(--text-3);">Also linked:</span> <a href="buyer-po-list.html" style="color:var(--brand-600);font-weight:600;font-size:11.5px;">MSP-PO-2025-115 (+2,800 pcs)</a></div>
+                <div style="font-size:12px;"><span style="color:var(--text-3);">Delivery:</span> <strong>08 Jul 2025</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span class="sew-pill">Sewing: 12 Jun – 28 Jun</span>
+                <span class="sp sp-pending" style="font-size:10.5px;">AT_RISK</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined" style="color:var(--text-3);font-size:18px;margin-left:10px;" id="tna1-chevron">expand_more</span>
+          </div>
+
+          <!-- TnA inline panel -->
+          <div class="tna-panel" id="tna1">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;">TnA Progress — PRD-2025-0042</div>
+            <div class="tna-stages">
+              <div class="tna-stage"><div class="tna-dot done"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg></div><div class="tna-stage-label done">PP Sample</div></div>
+              <div class="tna-stage"><div class="tna-dot done"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg></div><div class="tna-stage-label done">Fabric</div></div>
+              <div class="tna-stage"><div class="tna-dot done"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg></div><div class="tna-stage-label done">Trims</div></div>
+              <div class="tna-stage"><div class="tna-dot active"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg></div><div class="tna-stage-label active">Cutting</div></div>
+              <div class="tna-stage"><div class="tna-dot delayed"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg></div><div class="tna-stage-label delayed">Sewing</div></div>
+              <div class="tna-stage"><div class="tna-dot pending"></div><div class="tna-stage-label">Washing</div></div>
+              <div class="tna-stage"><div class="tna-dot pending"></div><div class="tna-stage-label">Finishing</div></div>
+              <div class="tna-stage"><div class="tna-dot pending"></div><div class="tna-stage-label">Final QC</div></div>
+              <div class="tna-stage"><div class="tna-dot pending"></div><div class="tna-stage-label">Shipment</div></div>
+            </div>
+            <div style="padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:12.5px;color:#92400e;">
+                <strong>Next stage:</strong> Sewing — Planned start 05 May 2025 &nbsp;|&nbsp; Projected delay: <span style="color:#dc2626;font-weight:700;">+3 days</span>
+              </div>
+              <a href="tna-tracker.html" class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px;border-color:#f59e0b;color:#92400e;">View Full TnA →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Order 2 — NOT STARTED -->
+        <div style="border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface);cursor:pointer;" onclick="toggleTnaPanel('tna2')">
+            <div style="display:flex;align-items:center;gap:14px;flex:1;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text-1);">
+                  <a href="production-order.html" style="color:var(--brand-600);text-decoration:none;" onclick="event.stopPropagation()">PRD-2025-0041</a>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">Created 10 Mar 2025 &nbsp;·&nbsp; No workflow assigned</div>
+              </div>
+              <div style="flex:1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div style="font-size:12px;"><span style="color:var(--text-3);">Total Qty:</span> <strong>2,400 pcs</strong></div>
+                <div style="font-size:12px;"><span style="color:var(--text-3);">This PO contribution:</span> <strong>2,400 pcs</strong></div>
+                <div style="font-size:12px;"><span style="color:var(--text-3);">Delivery:</span> <strong>15 Aug 2025</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span class="sew-pill-none">Sewing: Unassigned</span>
+                <span class="sp sp-draft" style="font-size:10.5px;">NOT_STARTED</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined" style="color:var(--text-3);font-size:18px;margin-left:10px;" id="tna2-chevron">expand_more</span>
+          </div>
+          <div class="tna-panel" id="tna2">
+            <div style="padding:20px;text-align:center;color:var(--text-3);">
+              <span class="material-symbols-outlined" style="font-size:32px;display:block;margin-bottom:8px;">timeline</span>
+              <div style="font-size:13px;font-weight:600;color:var(--text-2);">No TnA generated yet</div>
+              <div style="font-size:12px;margin-top:4px;">Assign a workflow template to this production order to generate the TnA.</div>
+              <a href="production-order.html" class="btn btn-primary btn-sm" style="margin-top:12px;display:inline-flex;">Assign Workflow →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: Purchase POs & GRNs ── -->
+      <div class="tab-panel" id="vpanel-procurement">
+        <div style="margin-bottom:16px;">
+          <div class="prd-section-title">Material Procurement Traceability</div>
+          <div class="prd-section-sub" style="margin-top:4px;">Purchase orders and GRNs raised for raw materials linked to this Buyer PO's production order (PRD-2025-0042).</div>
+        </div>
+
+        <!-- PO 1 — Received -->
+        <div style="border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:16px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:#f0fdf4;border:1px solid #bbf7d0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:18px;color:#16a34a;">inventory_2</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <a href="purchase-order.html" style="font-size:13px;font-weight:700;color:var(--brand-600);text-decoration:none;">PO-2025-0891</a>
+              <span class="sp sp-approved" style="font-size:10.5px;">RECEIVED</span>
+              <span style="font-size:12px;color:var(--text-3);">Vendor: Pacific Fabrics Ltd</span>
+              <span style="font-size:12px;color:var(--text-3);">Material: 60/40 CVC Interlock Fabric — 2,800 kg</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:5px;flex-wrap:wrap;">
+              <span style="font-size:12px;color:var(--text-3);">PO Date: 20 Mar 2025</span>
+              <span style="font-size:12px;color:var(--text-3);">Expected: 05 Apr 2025</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:14px;color:#16a34a;">check_circle</span>
+                <a href="po-receipts.html" style="font-size:12px;font-weight:600;color:#16a34a;text-decoration:none;">GRN-2025-0334 &nbsp;·&nbsp; Received 03 Apr 2025</a>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:14px;font-weight:700;color:var(--text-1);">₹4,20,000</div>
+            <div style="font-size:11px;color:var(--text-3);">incl. GST</div>
+          </div>
+        </div>
+
+        <!-- PO 2 — Received -->
+        <div style="border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:16px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:#f0fdf4;border:1px solid #bbf7d0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:18px;color:#16a34a;">inventory_2</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <a href="purchase-order.html" style="font-size:13px;font-weight:700;color:var(--brand-600);text-decoration:none;">PO-2025-0892</a>
+              <span class="sp sp-approved" style="font-size:10.5px;">RECEIVED</span>
+              <span style="font-size:12px;color:var(--text-3);">Vendor: Zipper World India</span>
+              <span style="font-size:12px;color:var(--text-3);">Material: YKK Zippers — 12,000 pcs</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:5px;flex-wrap:wrap;">
+              <span style="font-size:12px;color:var(--text-3);">PO Date: 22 Mar 2025</span>
+              <span style="font-size:12px;color:var(--text-3);">Expected: 08 Apr 2025</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:14px;color:#16a34a;">check_circle</span>
+                <a href="po-receipts.html" style="font-size:12px;font-weight:600;color:#16a34a;text-decoration:none;">GRN-2025-0335 &nbsp;·&nbsp; Received 07 Apr 2025</a>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:14px;font-weight:700;color:var(--text-1);">₹36,000</div>
+            <div style="font-size:11px;color:var(--text-3);">incl. GST</div>
+          </div>
+        </div>
+
+        <!-- PO 3 — Pending -->
+        <div style="border:1px solid #fde68a;border-radius:var(--r-md);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:16px;background:#fffbeb;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:#fef3c7;border:1px solid #fde68a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:18px;color:#d97706;">schedule</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <a href="purchase-order.html" style="font-size:13px;font-weight:700;color:var(--brand-600);text-decoration:none;">PO-2025-0901</a>
+              <span class="sp sp-pending" style="font-size:10.5px;">PENDING</span>
+              <span style="font-size:12px;color:var(--text-3);">Vendor: ColorTex Accessories</span>
+              <span style="font-size:12px;color:var(--text-3);">Material: Hang Tags &amp; Labels — 15,000 sets</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:5px;flex-wrap:wrap;">
+              <span style="font-size:12px;color:var(--text-3);">PO Date: 28 Mar 2025</span>
+              <span style="font-size:12px;color:var(--text-3);">Expected: 25 Apr 2025</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:14px;color:#d97706;">radio_button_unchecked</span>
+                <span style="font-size:12px;color:#92400e;font-weight:600;">GRN Pending — 7 days overdue</span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:14px;font-weight:700;color:var(--text-1);">₹18,000</div>
+            <div style="font-size:11px;color:var(--text-3);">incl. GST</div>
+          </div>
+        </div>
+
+        <!-- Traceability chain summary -->
+        <div style="margin-top:20px;padding:14px 16px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--r-md);">
+          <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Full Traceability Chain</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;">
+            <a href="buyer-po-list.html" style="padding:5px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-full);font-weight:600;color:#1d4ed8;text-decoration:none;">MSP-PO-2025-114 (this PO)</a>
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">chevron_right</span>
+            <a href="production-order.html" style="padding:5px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r-full);font-weight:600;color:#15803d;text-decoration:none;">PRD-2025-0042</a>
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">chevron_right</span>
+            <a href="tna-tracker.html" style="padding:5px 12px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--r-full);font-weight:600;color:#7c3aed;text-decoration:none;">TnA: 9 stages (AT_RISK)</a>
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">chevron_right</span>
+            <span style="padding:5px 12px;background:var(--gray-100);border:1px solid var(--border);border-radius:var(--r-full);font-weight:600;color:var(--text-2);">Planning Board</span>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;">
+            <a href="buyer-po-list.html" style="padding:5px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-full);font-weight:600;color:#1d4ed8;text-decoration:none;">MSP-PO-2025-115 (linked)</a>
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">chevron_right</span>
+            <a href="production-order.html" style="padding:5px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r-full);font-weight:600;color:#15803d;text-decoration:none;">PRD-2025-0042 (shared)</a>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;">
+            <span style="color:var(--text-3);">Materials:</span>
+            <a href="purchase-order.html" style="padding:5px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-full);font-weight:600;color:#c2410c;text-decoration:none;">PO-2025-0891 → GRN-2025-0334</a>
+            <a href="purchase-order.html" style="padding:5px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-full);font-weight:600;color:#c2410c;text-decoration:none;">PO-2025-0892 → GRN-2025-0335</a>
+            <a href="purchase-order.html" style="padding:5px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r-full);font-weight:600;color:#92400e;text-decoration:none;">PO-2025-0901 ⚠ Pending</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -1259,6 +1557,30 @@ function saveAndFinalize() {
   document.getElementById('formMeta').textContent = 'Finalised · '+new Date().toLocaleString('en-IN');
   document.getElementById('topbarTitle').textContent = 'View Buyer PO';
   toast(`Buyer PO ${currentPoId} finalised successfully`,'success');
+  setTimeout(()=>{
+    document.getElementById('viewForm').style.display='none';
+    document.getElementById('viewReadOnly').style.display='flex';
+    document.getElementById('viewPoNum').textContent = currentPoId;
+    switchViewTab('overview');
+  }, 800);
+}
+function switchViewTab(id) {
+  document.querySelectorAll('#viewReadOnly .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#viewReadOnly .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('vtab-'+id)?.classList.add('active');
+  document.getElementById('vpanel-'+id)?.classList.add('active');
+}
+function toggleTnaPanel(id) {
+  const panel = document.getElementById(id);
+  const chevron = document.getElementById(id+'-chevron');
+  panel.classList.toggle('open');
+  if(chevron) chevron.textContent = panel.classList.contains('open') ? 'expand_less' : 'expand_more';
+}
+function previewViewMode() {
+  document.getElementById('viewForm').style.display='none';
+  document.getElementById('viewReadOnly').style.display='flex';
+  document.getElementById('topbarTitle').textContent='View Buyer PO';
+  switchViewTab('overview');
 }
 function goList() { toast('Navigating to Buyer PO List…','info'); }
 function editMode() {
