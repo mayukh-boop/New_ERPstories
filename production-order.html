@@ -925,7 +925,7 @@ select.fi {
 <aside class="sidebar">
   <div class="sidebar-brand">
     <div class="brand-logo">C</div>
-    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Production Suite</div></div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
   </div>
   <nav class="sidebar-nav">
 
@@ -952,9 +952,20 @@ select.fi {
       <div class="nav-children">
         <a class="nav-child" href="purchase-order-list.html">PO List</a>
         <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
         <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
         <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
         <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
       </div>
     </div>
 
@@ -962,7 +973,7 @@ select.fi {
     <div class="nav-group open">
       <div class="nav-parent active-group open" onclick="toggleGroup(this)">
         <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
-        <span class="nav-parent-label">Production</span>
+        <span class="nav-parent-label">Production Orders</span>
         <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
       </div>
       <div class="nav-children">
@@ -973,35 +984,14 @@ select.fi {
     <div class="nav-group">
       <div class="nav-parent" onclick="toggleGroup(this)">
         <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
-        <span class="nav-parent-label">Planning & TnA</span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
         <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
       </div>
       <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
         <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
-        <a class="nav-child" href="#">TnA Calendar</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
         <a class="nav-child" href="#">Planning Board</a>
-      </div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">content_cut</span></span>
-        <span class="nav-parent-label">Cutting</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="#">Cut Orders</a>
-        <a class="nav-child" href="#">Fabric Issue</a>
-      </div>
-    </div>
-    <div class="nav-group">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">sewing</span></span>
-        <span class="nav-parent-label">Sewing</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="#">Sewing Lines</a>
-        <a class="nav-child" href="#">Daily Output</a>
       </div>
     </div>
 
@@ -1013,10 +1003,16 @@ select.fi {
         <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
       </div>
       <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
         <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
         <a class="nav-child" href="masters-company.html">Company Settings</a>
-        <a class="nav-child" href="#">Style Master</a>
-        <a class="nav-child" href="#">Sewing Line Master</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+        <a class="nav-child" href="masters-operation.html">Operations</a>
+        <a class="nav-child" href="masters-aisle.html">Aisle / Location</a>
       </div>
     </div>
 
