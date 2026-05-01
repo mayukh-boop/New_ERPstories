@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Order — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ── Theme ── */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(37,99,235,0.07);
+  --sidebar-active: rgba(37,99,235,0.12);
+  --sidebar-text: #64748b;
+  --brand-50:  #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-200: #bfdbfe;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --brand-800: #1e40af;
+  --bg: #f0f2f7;
+  --border: #e2e8f0;
+  --border2: #f1f5f9;
+}
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #0f172a !important; font-weight: 800 !important; }
+.brand-sub { color: #94a3b8 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #94a3b8 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: .1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #334155 !important; font-weight: 500 !important; }
+.nav-parent-icon { color: #94a3b8 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #cbd5e1 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #0f172a !important; }
+.sf-role { color: #94a3b8 !important; }
+.sf-avatar { background: var(--brand-600) !important; }
+.topbar { border-bottom: 1px solid #e2e8f0 !important; box-shadow: 0 1px 4px rgba(37,99,235,0.06) !important; }
+
+/* ── Section block ── */
+.sec {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border2);
+}
+.sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sec-title .material-symbols-outlined { font-size: 16px; color: var(--brand-500); }
+.sec-body { padding: 16px 18px; }
+
+/* ── Form fields ── */
+.fl { display: flex; flex-direction: column; gap: 4px; }
+.fl label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: .03em; }
+.fl label .req { color: var(--danger); margin-left: 2px; }
+.fi {
+  height: 34px;
+  border: 1.5px solid transparent;
+  border-bottom-color: var(--border);
+  background: transparent;
+  border-radius: 0;
+  font-size: 13px;
+  color: var(--text-1);
+  padding: 0 6px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .15s, background .15s;
+}
+.fi:focus { border-bottom-color: var(--brand-500); background: var(--brand-50); }
+.fi[readonly] { color: var(--text-3); cursor: default; }
+.fi.disabled-look { color: var(--text-3); background: var(--gray-50); cursor: not-allowed; }
+select.fi {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 22px;
+  cursor: pointer;
+}
+.fi-area {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text-1);
+  padding: 8px 10px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color .15s;
+  min-height: 72px;
+  background: transparent;
+}
+.fi-area:focus { border-color: var(--brand-500); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+
+/* ── View toggle at top ── */
+.page-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--gray-100);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+.pvt-btn {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-3);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .15s;
+}
+.pvt-btn.active {
+  background: var(--surface);
+  color: var(--brand-700);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.pvt-btn .material-symbols-outlined { font-size: 16px; }
+
+/* ── Entry point cards ── */
+.entry-points {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.ep-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .2s;
+  min-width: 110px;
+  position: relative;
+  user-select: none;
+}
+.ep-card:hover {
+  border-color: var(--brand-400);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+}
+.ep-card.selected {
+  border-color: var(--brand-600);
+  background: var(--brand-50);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+.ep-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r);
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+.ep-icon .material-symbols-outlined { font-size: 22px; color: var(--gray-500); }
+.ep-card.selected .ep-icon { background: var(--brand-100); }
+.ep-card.selected .ep-icon .material-symbols-outlined { color: var(--brand-600); }
+.ep-card:hover .ep-icon { background: var(--brand-100); }
+.ep-card:hover .ep-icon .material-symbols-outlined { color: var(--brand-600); }
+.ep-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.3;
+}
+.ep-card.selected .ep-label { color: var(--brand-700); }
+.ep-badge {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  background: #fbbf24;
+  color: #78350f;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* ── Search box with icon ── */
+.search-field {
+  position: relative;
+}
+.search-field .material-symbols-outlined {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.search-field .fi {
+  padding-left: 32px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  height: 38px;
+}
+.search-field .fi:focus { border-color: var(--brand-500); background: var(--brand-50); }
+
+/* ── Pre-fill hint bar ── */
+.prefill-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-200);
+  border-radius: var(--r-sm);
+  margin-bottom: 14px;
+  font-size: 12.5px;
+  color: var(--brand-700);
+}
+.prefill-bar .material-symbols-outlined { font-size: 18px; }
+
+/* ── PO search results table ── */
+.po-search-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.po-search-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 7px 10px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.po-search-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.po-search-table tr:last-child td { border-bottom: none; }
+.po-search-table tr:hover td { background: var(--brand-50); }
+.po-search-table input[type=checkbox] { accent-color: var(--brand-600); width: 14px; height: 14px; cursor: pointer; }
+
+/* ── Selected PO tags ── */
+.po-selected-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--success-bg);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--r-sm);
+  margin-top: 10px;
+}
+.po-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: var(--surface);
+  border: 1px solid #86efac;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #166534;
+}
+.po-tag .material-symbols-outlined { font-size: 14px; cursor: pointer; color: #22c55e; }
+.po-tag .material-symbols-outlined:hover { color: var(--danger); }
+
+/* ── Lines table ── */
+.lines-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.lines-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.lines-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.lines-table tr:last-child td { border-bottom: none; }
+.lines-table tr:hover td { background: #fafbff; }
+.lines-table tfoot td {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-1);
+  padding: 9px 10px;
+  background: var(--gray-50);
+  border-top: 2px solid var(--border2);
+}
+.lines-table input.ce {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--text-1);
+  outline: none;
+  padding: 2px 4px;
+  font-family: inherit;
+  min-width: 60px;
+}
+.lines-table input.ce:focus { border-bottom-color: var(--brand-500); background: var(--brand-50); }
+.lines-table select.ce {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--text-1);
+  outline: none;
+  padding: 2px 4px;
+  font-family: inherit;
+  appearance: none;
+  cursor: pointer;
+}
+.lines-table select.ce:focus { border-bottom-color: var(--brand-500); background: var(--brand-50); }
+
+/* ── Workflow preview strip ── */
+.wf-strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.wf-node {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.wf-stage {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-200);
+  border-radius: var(--r-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--brand-700);
+  white-space: nowrap;
+}
+.wf-stage .material-symbols-outlined { font-size: 14px; }
+.wf-arrow {
+  width: 20px;
+  height: 1px;
+  background: var(--brand-300);
+  position: relative;
+  flex-shrink: 0;
+}
+.wf-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -3px;
+  border: 4px solid transparent;
+  border-left-color: var(--brand-400);
+}
+
+/* ── Status badges ── */
+.sp { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.sp-draft { background: var(--gray-100); color: var(--gray-600); }
+.sp-active { background: var(--brand-50); color: var(--brand-800); }
+.sp-production { background: #fff7ed; color: #c2410c; }
+.sp-completed { background: var(--success-bg); color: #166534; }
+.sp-cancelled { background: var(--danger-bg); color: #991b1b; }
+.sp-pending { background: var(--warning-bg); color: #92400e; }
+
+/* ── Detail page header ── */
+.detail-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.detail-hero-left { display: flex; flex-direction: column; gap: 6px; }
+.detail-prd-num { font-size: 22px; font-weight: 800; color: var(--text-1); letter-spacing: -.01em; }
+.detail-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--text-2); }
+.detail-meta-item { display: flex; align-items: center; gap: 5px; }
+.detail-meta-item .material-symbols-outlined { font-size: 16px; color: var(--text-3); }
+.detail-hero-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 16px;
+}
+.tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.tab-btn:hover { color: var(--text-1); }
+.tab-btn.active { color: var(--brand-600); border-bottom-color: var(--brand-600); }
+.tab-btn .material-symbols-outlined { font-size: 17px; }
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--gray-100);
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+}
+.tab-btn.active .tab-count { background: var(--brand-100); color: var(--brand-700); }
+
+/* ── Tab panel ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Summary cards grid ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.sum-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+}
+.sum-card-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.sum-card-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1.2;
+}
+.sum-card-sub {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+
+/* ── TnA table ── */
+.tna-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.tna-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.tna-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.tna-table tr:last-child td { border-bottom: none; }
+.tna-table tr.tna-completed { border-left: 3px solid var(--success); }
+.tna-table tr.tna-in-progress { border-left: 3px solid var(--brand-500); }
+.tna-table tr.tna-delayed { border-left: 3px solid var(--danger); }
+.tna-table tr.tna-not-started { border-left: 3px solid var(--gray-300); }
+.tna-table tr:hover td { background: #fafbff; }
+
+.critical-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--danger);
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ── Inline mini card ── */
+.mini-card {
+  background: var(--gray-50);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  padding: 12px 16px;
+}
+.mini-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+/* ── TnA mini card in overview ── */
+.tna-mini {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--warning-bg);
+  border: 1px solid #fde68a;
+  border-radius: var(--r-sm);
+  margin-top: 14px;
+}
+.tna-mini .material-symbols-outlined { font-size: 22px; color: var(--warning); }
+.tna-mini-label { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--warning); }
+.tna-mini-value { font-size: 14px; font-weight: 700; color: #92400e; margin-top: 2px; }
+.tna-mini-sub { font-size: 12px; color: var(--warning); }
+
+/* ── Planning card ── */
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.plan-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r);
+  background: var(--success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.plan-icon .material-symbols-outlined { font-size: 26px; color: var(--success); }
+.plan-info { flex: 1; }
+.plan-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.plan-meta { font-size: 12.5px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+.plan-meta-item { display: flex; align-items: center; gap: 5px; }
+.plan-meta-item .material-symbols-outlined { font-size: 15px; color: var(--text-3); }
+
+/* ── Linked POs table ── */
+.linked-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.linked-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.linked-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.linked-table tr:last-child td { border-bottom: none; }
+.linked-table tr:hover td { background: #fafbff; }
+
+/* ── Utility ── */
+.text-muted { color: var(--text-3); font-size: 11.5px; }
+.fw7 { font-weight: 700; }
+.preview-link { font-size: 12px; font-weight: 600; color: var(--brand-600); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; }
+.preview-link:hover { text-decoration: underline; }
+.preview-link .material-symbols-outlined { font-size: 14px; }
+
+/* ── Row number ── */
+.line-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+/* Wf preview panel */
+.wf-preview {
+  display: none;
+  padding: 12px 14px;
+  background: var(--gray-50);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  margin-top: 10px;
+}
+.wf-preview.visible { display: block; }
+.wf-preview-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
+
+/* Two-panel layout for overview */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Delay chip */
+.delay-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+.delay-chip.overdue { background: var(--danger-bg); color: var(--danger); }
+.delay-chip.on-track { background: var(--success-bg); color: var(--success); }
+.delay-chip.pending { background: var(--gray-100); color: var(--gray-500); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">C-Edge ERP</div>
+    <div class="brand-sub">Production Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Operations</div>
+
+    <div class="nav-group open">
+      <div class="nav-parent active-group" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px;">factory</span></span>
+        <span class="nav-parent-label">Production</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="production-order.html">Production Orders</a>
+        <a class="nav-child" href="#">TnA Tracker</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px;">shopping_bag</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px;">inventory_2</span></span>
+        <span class="nav-parent-label">Procurement</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order.html">Purchase Orders</a>
+        <a class="nav-child" href="po-receipts.html">GRN / Receipt</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Configuration</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px;">settings</span></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info">
+      <div class="sf-name">Mayukh Ghatak</div>
+      <div class="sf-role">Org Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" id="topbarTitle">Production Orders</span>
+    <div class="topbar-right">
+      <!-- Page view toggle -->
+      <div class="page-view-toggle">
+        <button class="pvt-btn active" id="pvtCreate" onclick="switchView('create')">
+          <span class="material-symbols-outlined">add_box</span> Create New
+        </button>
+        <button class="pvt-btn" id="pvtDetail" onclick="switchView('detail')">
+          <span class="material-symbols-outlined">visibility</span> View Detail
+        </button>
+      </div>
+      <button class="topbar-icon-btn" title="Notifications">
+        <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════
+       VIEW: CREATE FORM
+  ══════════════════════════ -->
+  <main class="page" id="viewCreate" style="padding-top:0;">
+
+    <!-- Breadcrumb + toolbar -->
+    <div style="padding:14px 0 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-outline btn-sm" onclick="switchView('list')" style="display:flex;align-items:center;gap:5px;">
+          <span class="material-symbols-outlined" style="font-size:14px;">arrow_back</span> Production Orders
+        </button>
+        <span style="color:var(--text-3);">/</span>
+        <span style="font-size:15px;font-weight:700;color:var(--text-1);">New Production Order</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="showToast('Saved as draft','info')">
+          <span class="material-symbols-outlined" style="font-size:15px;">save</span> Save as Draft
+        </button>
+        <button class="btn btn-primary" onclick="showToast('Order activated — PRD-2025-0042','success')" style="background:var(--brand-600);">
+          <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span> Activate
+        </button>
+      </div>
+    </div>
+
+    <!-- ① Entry Point Selector -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-title"><span class="material-symbols-outlined">input</span>Entry Point — How do you want to create this order?</div>
+      </div>
+      <div class="sec-body">
+        <div class="entry-points">
+          <div class="ep-card selected" id="ep-style" onclick="selectEP('style')">
+            <div class="ep-icon"><span class="material-symbols-outlined">style</span></div>
+            <div class="ep-label">Style Search</div>
+          </div>
+          <div class="ep-card" id="ep-sample" onclick="selectEP('sample')">
+            <div class="ep-badge">Coming Soon</div>
+            <div class="ep-icon"><span class="material-symbols-outlined">design_services</span></div>
+            <div class="ep-label">Sample Style</div>
+          </div>
+          <div class="ep-card" id="ep-buyerpo" onclick="selectEP('buyerpo')">
+            <div class="ep-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+            <div class="ep-label">Buyer PO Search</div>
+          </div>
+          <div class="ep-card" id="ep-clone" onclick="selectEP('clone')">
+            <div class="ep-icon"><span class="material-symbols-outlined">content_copy</span></div>
+            <div class="ep-label">Clone Existing Order</div>
+          </div>
+          <div class="ep-card" id="ep-general" onclick="selectEP('general')">
+            <div class="ep-icon"><span class="material-symbols-outlined">add_circle</span></div>
+            <div class="ep-label">General / Standalone</div>
+          </div>
+        </div>
+
+        <!-- Style Search sub-panel -->
+        <div id="ep-panel-style">
+          <div class="prefill-bar">
+            <span class="material-symbols-outlined">info</span>
+            Search for a style to pre-fill style details into the form below.
+          </div>
+          <div class="search-field" style="max-width:460px;margin-bottom:12px;">
+            <span class="material-symbols-outlined">search</span>
+            <input class="fi" type="text" placeholder="Search style code or name…" value="SS-2025-POLO-01" />
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;">
+            <div class="fl" style="min-width:160px;">
+              <label>Style Code</label>
+              <input class="fi" type="text" value="SS-2025-POLO-01" readonly />
+            </div>
+            <div class="fl" style="min-width:180px;">
+              <label>Style Name</label>
+              <input class="fi" type="text" value="Classic Polo Shirt" readonly />
+            </div>
+            <div class="fl" style="min-width:130px;">
+              <label>Season</label>
+              <input class="fi" type="text" value="SS 2025" readonly />
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="clearStyle()">
+                <span class="material-symbols-outlined" style="font-size:14px;">close</span> Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buyer PO Search sub-panel -->
+        <div id="ep-panel-buyerpo" style="display:none;">
+          <div class="prefill-bar">
+            <span class="material-symbols-outlined">info</span>
+            Search and select Buyer POs to link to this production order. Fields will be pre-filled from the selected POs.
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            <div class="search-field" style="flex:1;max-width:420px;">
+              <span class="material-symbols-outlined">search</span>
+              <input class="fi" type="text" placeholder="Search by PO # or customer name…" />
+            </div>
+            <button class="btn btn-outline btn-sm"><span class="material-symbols-outlined" style="font-size:14px;">search</span> Search</button>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;">
+            <table class="po-search-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;"></th>
+                  <th>PO #</th>
+                  <th>Customer</th>
+                  <th>Style</th>
+                  <th class="num">Total Qty</th>
+                  <th>Delivery Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked onchange="updatePOSelection()" /></td>
+                  <td><span style="font-weight:600;color:var(--brand-700);">MSP-PO-2025-114</span></td>
+                  <td>Marks &amp; Spencer</td>
+                  <td>Classic Polo Shirt</td>
+                  <td class="num" style="text-align:right;">2,400</td>
+                  <td>15 Jul 2025</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked onchange="updatePOSelection()" /></td>
+                  <td><span style="font-weight:600;color:var(--brand-700);">MSP-PO-2025-115</span></td>
+                  <td>Marks &amp; Spencer</td>
+                  <td>Classic Polo Shirt</td>
+                  <td class="num" style="text-align:right;">2,400</td>
+                  <td>15 Jul 2025</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" onchange="updatePOSelection()" /></td>
+                  <td><span style="font-weight:600;color:var(--brand-700);">MSP-PO-2025-116</span></td>
+                  <td>Marks &amp; Spencer</td>
+                  <td>Classic Polo Shirt V2</td>
+                  <td class="num" style="text-align:right;">1,200</td>
+                  <td>30 Jul 2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="po-selected-bar" id="poSelectedBar">
+            <span class="material-symbols-outlined" style="font-size:18px;color:var(--success);">check_circle</span>
+            <span style="font-size:12px;font-weight:700;color:#166534;">2 POs selected:</span>
+            <span class="po-tag">MSP-PO-2025-114 <span class="material-symbols-outlined">close</span></span>
+            <span class="po-tag">MSP-PO-2025-115 <span class="material-symbols-outlined">close</span></span>
+          </div>
+        </div>
+
+        <!-- General sub-panel -->
+        <div id="ep-panel-general" style="display:none;">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--border2);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-3);">
+            <span class="material-symbols-outlined" style="font-size:18px;">info</span>
+            General / Standalone order — no style or PO pre-fill. All fields must be filled manually.
+          </div>
+        </div>
+
+        <!-- Clone sub-panel -->
+        <div id="ep-panel-clone" style="display:none;">
+          <div class="search-field" style="max-width:420px;">
+            <span class="material-symbols-outlined">search</span>
+            <input class="fi" type="text" placeholder="Search by Production Order # to clone…" />
+          </div>
+        </div>
+
+        <!-- Sample sub-panel -->
+        <div id="ep-panel-sample" style="display:none;">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--warning-bg);border:1px solid #fde68a;border-radius:var(--r-sm);font-size:12.5px;color:#92400e;">
+            <span class="material-symbols-outlined" style="font-size:18px;">construction</span>
+            Sample Style orders are coming soon. Use <strong>Style Search</strong> or <strong>General</strong> for now.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② Order Details + Dates (side by side) -->
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:14px;margin-bottom:14px;">
+
+      <!-- Order Details -->
+      <div class="sec" style="margin-bottom:0;">
+        <div class="sec-head">
+          <div class="sec-title"><span class="material-symbols-outlined">assignment</span>Order Details</div>
+        </div>
+        <div class="sec-body">
+          <div class="g3" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>Production Order #</label>
+              <input class="fi" type="text" value="PRD-2025-0042" readonly />
+            </div>
+            <div class="fl">
+              <label>Order Type <span class="req">*</span></label>
+              <select class="fi">
+                <option>— Select —</option>
+                <option selected>CONFIRMED_BUYER_PO</option>
+                <option>UNCONFIRMED_BUYER_PO</option>
+                <option>INTERNAL</option>
+                <option>GENERAL</option>
+              </select>
+            </div>
+            <div class="fl">
+              <label>Location / Factory <span class="req">*</span></label>
+              <select class="fi">
+                <option>— Select —</option>
+                <option selected>Factory 1 — Tirupur</option>
+                <option>Factory 2 — Chennai</option>
+                <option>Factory 3 — Coimbatore</option>
+              </select>
+            </div>
+          </div>
+          <div class="g3" style="margin-bottom:14px;">
+            <div class="fl">
+              <label>Style <span class="req">*</span></label>
+              <input class="fi" type="text" value="SS-2025-POLO-01 — Classic Polo Shirt" />
+            </div>
+            <div class="fl">
+              <label>Season</label>
+              <input class="fi" type="text" value="SS 2025" />
+            </div>
+            <div class="fl">
+              <label>Buyer</label>
+              <input class="fi" type="text" value="Marks &amp; Spencer" />
+            </div>
+          </div>
+          <div class="fl" style="max-width:100%;">
+            <label>Sample Style <span style="color:var(--text-3);font-weight:400;">(optional)</span></label>
+            <input class="fi disabled-look" type="text" placeholder="Sample Style page coming soon — link a sample here" disabled />
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates + Workflow stacked -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- Dates -->
+        <div class="sec" style="margin-bottom:0;">
+          <div class="sec-head">
+            <div class="sec-title"><span class="material-symbols-outlined">event</span>Dates</div>
+          </div>
+          <div class="sec-body">
+            <div class="fl" style="margin-bottom:12px;">
+              <label>Delivery Date <span class="req">*</span></label>
+              <input class="fi" type="date" value="2025-07-15" />
+            </div>
+            <div class="fl">
+              <label>Ex-Factory Date</label>
+              <input class="fi" type="date" value="2025-07-08" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow -->
+        <div class="sec" style="margin-bottom:0;">
+          <div class="sec-head">
+            <div class="sec-title"><span class="material-symbols-outlined">account_tree</span>Workflow</div>
+          </div>
+          <div class="sec-body">
+            <div class="fl" style="margin-bottom:8px;">
+              <label>Workflow Template <span class="req">*</span></label>
+              <select class="fi" id="wfSelect" onchange="checkWfPreview()">
+                <option value="">— Select template —</option>
+                <option value="standard" selected>Standard Export — 9 nodes</option>
+                <option value="local">Local Delivery — 5 nodes</option>
+                <option value="sample">Sample Order — 4 nodes</option>
+              </select>
+            </div>
+            <span class="preview-link" onclick="toggleWfPreview()">
+              <span class="material-symbols-outlined">visibility</span>
+              <span id="previewLinkText">Preview Workflow</span>
+            </span>
+            <div class="wf-preview" id="wfPreview">
+              <div class="wf-preview-title">Standard Export — 9 stages</div>
+              <div class="wf-strip">
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">science</span>PP Sample</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">inventory</span>Fabric In</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">cut</span>Cutting</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">sewing</span>Sewing</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">local_laundry_service</span>Washing</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">checkroom</span>Finishing</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">verified</span>Final QC</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">inventory_2</span>Packing</div>
+                  <div class="wf-arrow"></div>
+                </div>
+                <div class="wf-node">
+                  <div class="wf-stage"><span class="material-symbols-outlined">local_shipping</span>Shipment</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ Order Lines -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-title"><span class="material-symbols-outlined">table_rows</span>Order Lines</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:var(--text-3);">Total:</span>
+          <span style="font-size:13px;font-weight:800;color:var(--brand-700);" id="totalQty">4,800 pcs</span>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border2);">
+        <table class="lines-table" id="linesTable">
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th>Colour</th>
+              <th>Size</th>
+              <th style="width:100px;">Qty</th>
+              <th>Source (Buyer PO #)</th>
+              <th style="width:60px;"></th>
+            </tr>
+          </thead>
+          <tbody id="linesBody">
+            <tr>
+              <td><div class="line-num">1</div></td>
+              <td><input class="ce" type="text" value="White" /></td>
+              <td><select class="ce"><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select></td>
+              <td><input class="ce" type="number" value="800" style="text-align:right;" /></td>
+              <td><input class="ce" type="text" value="MSP-PO-2025-114" /></td>
+              <td><button class="icon-btn del" onclick="deleteLine(this)" title="Remove row"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">2</div></td>
+              <td><input class="ce" type="text" value="White" /></td>
+              <td><select class="ce"><option selected>L</option><option>S</option><option>M</option><option>XL</option><option>XXL</option></select></td>
+              <td><input class="ce" type="number" value="1200" style="text-align:right;" /></td>
+              <td><input class="ce" type="text" value="MSP-PO-2025-114" /></td>
+              <td><button class="icon-btn del" onclick="deleteLine(this)" title="Remove row"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">3</div></td>
+              <td><input class="ce" type="text" value="Navy Blue" /></td>
+              <td><select class="ce"><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select></td>
+              <td><input class="ce" type="number" value="1000" style="text-align:right;" /></td>
+              <td><input class="ce" type="text" value="MSP-PO-2025-115" /></td>
+              <td><button class="icon-btn del" onclick="deleteLine(this)" title="Remove row"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">4</div></td>
+              <td><input class="ce" type="text" value="Navy Blue" /></td>
+              <td><select class="ce"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select></td>
+              <td><input class="ce" type="number" value="1800" style="text-align:right;" /></td>
+              <td><input class="ce" type="text" value="MSP-PO-2025-115" /></td>
+              <td><button class="icon-btn del" onclick="deleteLine(this)" title="Remove row"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);">Total Qty</td>
+              <td style="text-align:right;font-size:14px;font-weight:800;color:var(--brand-700);">4,800</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid var(--border2);">
+        <button class="btn btn-ghost btn-sm" onclick="addLine()" style="color:var(--brand-600);">
+          <span class="material-symbols-outlined" style="font-size:15px;">add</span> Add Row
+        </button>
+      </div>
+    </div>
+
+    <!-- ④ Notes -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-title"><span class="material-symbols-outlined">notes</span>Notes</div>
+      </div>
+      <div class="sec-body">
+        <textarea class="fi-area" placeholder="Internal notes, special instructions…">Buyer approved fabric swatches on 20 Apr 2025. Ensure shrinkage tests per M&S Q1 standard before shipment.</textarea>
+      </div>
+    </div>
+
+    <div style="height:28px;"></div>
+  </main>
+
+  <!-- ══════════════════════════
+       VIEW: DETAIL
+  ══════════════════════════ -->
+  <main class="page" id="viewDetail" style="display:none;padding-top:0;">
+
+    <!-- Breadcrumb -->
+    <div style="padding:14px 0 14px;display:flex;align-items:center;gap:10px;">
+      <button class="btn btn-outline btn-sm" onclick="switchView('list')" style="display:flex;align-items:center;gap:5px;">
+        <span class="material-symbols-outlined" style="font-size:14px;">arrow_back</span> Production Orders
+      </button>
+      <span style="color:var(--text-3);">/</span>
+      <span style="font-size:14px;font-weight:600;color:var(--text-2);">PRD-2025-0042</span>
+    </div>
+
+    <!-- Hero header -->
+    <div class="detail-hero">
+      <div class="detail-hero-left">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="detail-prd-num">PRD-2025-0042</div>
+          <span class="sp sp-production">
+            <span class="dot dot-yellow"></span> IN_PRODUCTION
+          </span>
+        </div>
+        <div class="detail-meta">
+          <div class="detail-meta-item">
+            <span class="material-symbols-outlined">style</span>
+            SS-2025-POLO-01 — Classic Polo Shirt
+          </div>
+          <div class="detail-meta-item">
+            <span class="material-symbols-outlined">event</span>
+            Delivery: 15 Jul 2025
+          </div>
+          <div class="detail-meta-item">
+            <span class="material-symbols-outlined">factory</span>
+            Factory 1 — Tirupur
+          </div>
+          <div class="detail-meta-item">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            Marks &amp; Spencer
+          </div>
+        </div>
+      </div>
+      <div class="detail-hero-actions">
+        <button class="btn btn-outline btn-sm">
+          <span class="material-symbols-outlined" style="font-size:14px;">edit</span> Edit
+        </button>
+        <button class="btn btn-outline btn-sm">
+          <span class="material-symbols-outlined" style="font-size:14px;">timeline</span> Generate TnA
+        </button>
+        <button class="btn btn-outline btn-sm">
+          <span class="material-symbols-outlined" style="font-size:14px;">view_kanban</span> Assign to Board
+        </button>
+        <button class="btn btn-danger btn-sm">
+          <span class="material-symbols-outlined" style="font-size:14px;">cancel</span> Cancel Order
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-overview" onclick="switchTab('overview')">
+        <span class="material-symbols-outlined">dashboard</span> Overview
+      </button>
+      <button class="tab-btn" id="tab-lines" onclick="switchTab('lines')">
+        <span class="material-symbols-outlined">table_rows</span> Lines
+        <span class="tab-count">4</span>
+      </button>
+      <button class="tab-btn" id="tab-linkedpo" onclick="switchTab('linkedpo')">
+        <span class="material-symbols-outlined">link</span> Linked Buyer POs
+        <span class="tab-count">2</span>
+      </button>
+      <button class="tab-btn" id="tab-tna" onclick="switchTab('tna')">
+        <span class="material-symbols-outlined">timeline</span> TnA
+        <span class="tab-count">9</span>
+      </button>
+      <button class="tab-btn" id="tab-planning" onclick="switchTab('planning')">
+        <span class="material-symbols-outlined">calendar_month</span> Planning
+      </button>
+    </div>
+
+    <!-- ── TAB: Overview ── -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="summary-grid">
+        <div class="sum-card">
+          <div class="sum-card-label">Order Type</div>
+          <div class="sum-card-value">Confirmed Buyer PO</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Season</div>
+          <div class="sum-card-value">SS 2025</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Total Quantity</div>
+          <div class="sum-card-value" style="color:var(--brand-700);">4,800 pcs</div>
+          <div class="sum-card-sub">4 size-colour lines</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Workflow Template</div>
+          <div class="sum-card-value">Standard Export</div>
+          <div class="sum-card-sub">9 nodes</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Buyer</div>
+          <div class="sum-card-value">Marks &amp; Spencer</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Created By</div>
+          <div class="sum-card-value">Mayukh Ghatak</div>
+          <div class="sum-card-sub">28 Apr 2025, 10:42 AM</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Ex-Factory Date</div>
+          <div class="sum-card-value">08 Jul 2025</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-card-label">Delivery Date</div>
+          <div class="sum-card-value" style="color:var(--danger);">15 Jul 2025</div>
+          <div class="sum-card-sub">75 days remaining</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Linked POs mini -->
+        <div class="sec" style="margin-bottom:0;">
+          <div class="sec-head">
+            <div class="sec-title"><span class="material-symbols-outlined">link</span>Linked Buyer POs</div>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('linkedpo')">View all</button>
+          </div>
+          <div class="sec-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span style="font-size:13px;font-weight:700;color:var(--text-1);">2 POs linked</span>
+              <span class="badge badge-blue">Total: 4,800 pcs</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="mini-card" style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:12.5px;font-weight:700;color:var(--brand-700);">MSP-PO-2025-114</div>
+                  <div class="text-muted">2,400 pcs · Del: 15 Jul 2025</div>
+                </div>
+                <span class="sp sp-active" style="font-size:10px;">CONFIRMED</span>
+              </div>
+              <div class="mini-card" style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:12.5px;font-weight:700;color:var(--brand-700);">MSP-PO-2025-115</div>
+                  <div class="text-muted">2,400 pcs · Del: 15 Jul 2025</div>
+                </div>
+                <span class="sp sp-active" style="font-size:10px;">CONFIRMED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TnA status mini -->
+        <div class="sec" style="margin-bottom:0;">
+          <div class="sec-head">
+            <div class="sec-title"><span class="material-symbols-outlined">timeline</span>TnA Status</div>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('tna')">View full TnA</button>
+          </div>
+          <div class="sec-body">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="dot dot-green" style="width:10px;height:10px;flex-shrink:0;"></span>
+                <span style="font-size:13px;font-weight:600;color:var(--text-1);">PP Sample</span>
+                <span class="badge badge-green" style="margin-left:auto;">Completed</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="dot dot-green" style="width:10px;height:10px;flex-shrink:0;"></span>
+                <span style="font-size:13px;font-weight:600;color:var(--text-1);">Fabric In</span>
+                <span class="badge badge-green" style="margin-left:auto;">Completed</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="dot dot-blue" style="width:10px;height:10px;flex-shrink:0;"></span>
+                <span style="font-size:13px;font-weight:600;color:var(--text-1);">Cutting</span>
+                <span class="badge badge-blue" style="margin-left:auto;">In Progress</span>
+              </div>
+            </div>
+            <div class="tna-mini">
+              <span class="material-symbols-outlined">warning</span>
+              <div>
+                <div class="tna-mini-label">Next Critical Stage</div>
+                <div class="tna-mini-value">Sewing — starts 10 May 2025</div>
+                <div class="tna-mini-sub">9 days from today</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: Lines ── -->
+    <div class="tab-panel" id="panel-lines">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title"><span class="material-symbols-outlined">table_rows</span>Order Lines</div>
+          <span style="font-size:13px;font-weight:700;color:var(--brand-700);">4,800 pcs total</span>
+        </div>
+        <table class="lines-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Colour</th>
+              <th>Size</th>
+              <th style="text-align:right;">Qty</th>
+              <th>Source (Buyer PO #)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="line-num">1</div></td>
+              <td>White</td>
+              <td>M</td>
+              <td style="text-align:right;font-weight:600;">800</td>
+              <td><span style="color:var(--brand-700);font-weight:600;">MSP-PO-2025-114</span></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">2</div></td>
+              <td>White</td>
+              <td>L</td>
+              <td style="text-align:right;font-weight:600;">1,200</td>
+              <td><span style="color:var(--brand-700);font-weight:600;">MSP-PO-2025-114</span></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">3</div></td>
+              <td>Navy Blue</td>
+              <td>M</td>
+              <td style="text-align:right;font-weight:600;">1,000</td>
+              <td><span style="color:var(--brand-700);font-weight:600;">MSP-PO-2025-115</span></td>
+            </tr>
+            <tr>
+              <td><div class="line-num">4</div></td>
+              <td>Navy Blue</td>
+              <td>L</td>
+              <td style="text-align:right;font-weight:600;">1,800</td>
+              <td><span style="color:var(--brand-700);font-weight:600;">MSP-PO-2025-115</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);">Total Qty</td>
+              <td style="text-align:right;font-size:15px;font-weight:800;color:var(--brand-700);">4,800</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: Linked Buyer POs ── -->
+    <div class="tab-panel" id="panel-linkedpo">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title"><span class="material-symbols-outlined">link</span>Linked Buyer POs</div>
+          <button class="btn btn-outline btn-sm">
+            <span class="material-symbols-outlined" style="font-size:14px;">add_link</span> Link PO
+          </button>
+        </div>
+        <table class="linked-table">
+          <thead>
+            <tr>
+              <th>PO #</th>
+              <th>Customer</th>
+              <th>Delivery Date</th>
+              <th style="text-align:right;">Total Qty</th>
+              <th>Status</th>
+              <th style="text-align:right;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="buyer-po.html" style="color:var(--brand-700);font-weight:700;">MSP-PO-2025-114</a></td>
+              <td>Marks &amp; Spencer</td>
+              <td>15 Jul 2025</td>
+              <td style="text-align:right;font-weight:600;">2,400</td>
+              <td><span class="sp sp-active" style="font-size:10px;">CONFIRMED</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-danger btn-sm">
+                  <span class="material-symbols-outlined" style="font-size:13px;">link_off</span> Unlink
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><a href="buyer-po.html" style="color:var(--brand-700);font-weight:700;">MSP-PO-2025-115</a></td>
+              <td>Marks &amp; Spencer</td>
+              <td>15 Jul 2025</td>
+              <td style="text-align:right;font-weight:600;">2,400</td>
+              <td><span class="sp sp-active" style="font-size:10px;">CONFIRMED</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-danger btn-sm">
+                  <span class="material-symbols-outlined" style="font-size:13px;">link_off</span> Unlink
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: TnA ── -->
+    <div class="tab-panel" id="panel-tna">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title"><span class="material-symbols-outlined">timeline</span>Time &amp; Action Plan — Standard Export</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm">
+              <span class="material-symbols-outlined" style="font-size:14px;">download</span> Export
+            </button>
+            <button class="btn btn-primary btn-sm">
+              <span class="material-symbols-outlined" style="font-size:14px;">edit</span> Update Actuals
+            </button>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:var(--gray-50);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:16px;font-size:12px;">
+          <div style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:3px;background:var(--success);border-radius:2px;"></span> Completed</div>
+          <div style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:3px;background:var(--brand-500);border-radius:2px;"></span> In Progress</div>
+          <div style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:3px;background:var(--danger);border-radius:2px;"></span> Delayed</div>
+          <div style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:3px;background:var(--gray-300);border-radius:2px;"></span> Not Started</div>
+          <div style="display:flex;align-items:center;gap:5px;"><span class="critical-dot" style="margin:0;"></span> Critical Path</div>
+        </div>
+        <table class="tna-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Stage Name</th>
+              <th>Type</th>
+              <th>Planned Start</th>
+              <th>Planned End</th>
+              <th>Actual Start</th>
+              <th>Actual End</th>
+              <th>Status</th>
+              <th>Delay</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="tna-completed">
+              <td style="color:var(--text-3);font-size:12px;">1</td>
+              <td>
+                <span class="critical-dot"></span>
+                PP Sample Approval
+              </td>
+              <td><span class="badge badge-gray">MILESTONE</span></td>
+              <td>28 Mar 2025</td>
+              <td>04 Apr 2025</td>
+              <td>28 Mar 2025</td>
+              <td>03 Apr 2025</td>
+              <td><span class="sp sp-completed" style="font-size:10px;">COMPLETED</span></td>
+              <td><span class="delay-chip on-track">−1d early</span></td>
+            </tr>
+            <tr class="tna-completed">
+              <td style="color:var(--text-3);font-size:12px;">2</td>
+              <td>Fabric Inspection &amp; Receipt</td>
+              <td><span class="badge badge-gray">TASK</span></td>
+              <td>05 Apr 2025</td>
+              <td>10 Apr 2025</td>
+              <td>05 Apr 2025</td>
+              <td>09 Apr 2025</td>
+              <td><span class="sp sp-completed" style="font-size:10px;">COMPLETED</span></td>
+              <td><span class="delay-chip on-track">−1d early</span></td>
+            </tr>
+            <tr class="tna-completed">
+              <td style="color:var(--text-3);font-size:12px;">3</td>
+              <td>
+                <span class="critical-dot"></span>
+                Trims &amp; Accessories Approval
+              </td>
+              <td><span class="badge badge-gray">MILESTONE</span></td>
+              <td>07 Apr 2025</td>
+              <td>12 Apr 2025</td>
+              <td>08 Apr 2025</td>
+              <td>13 Apr 2025</td>
+              <td><span class="sp sp-completed" style="font-size:10px;">COMPLETED</span></td>
+              <td><span class="delay-chip overdue">+1d late</span></td>
+            </tr>
+            <tr class="tna-in-progress">
+              <td style="color:var(--text-3);font-size:12px;">4</td>
+              <td>
+                <span class="critical-dot"></span>
+                Cutting
+              </td>
+              <td><span class="badge badge-blue">PRODUCTION</span></td>
+              <td>22 Apr 2025</td>
+              <td>05 May 2025</td>
+              <td>22 Apr 2025</td>
+              <td>—</td>
+              <td><span class="sp sp-active" style="font-size:10px;">IN_PROGRESS</span></td>
+              <td><span class="delay-chip on-track">On track</span></td>
+            </tr>
+            <tr class="tna-delayed">
+              <td style="color:var(--text-3);font-size:12px;">5</td>
+              <td>
+                <span class="critical-dot"></span>
+                Sewing
+              </td>
+              <td><span class="badge badge-blue">PRODUCTION</span></td>
+              <td>05 May 2025</td>
+              <td>28 May 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="sp sp-pending" style="font-size:10px;">DELAYED</span></td>
+              <td><span class="delay-chip overdue">+3d projected</span></td>
+            </tr>
+            <tr class="tna-not-started">
+              <td style="color:var(--text-3);font-size:12px;">6</td>
+              <td>Washing</td>
+              <td><span class="badge badge-gray">TASK</span></td>
+              <td>28 May 2025</td>
+              <td>05 Jun 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="sp sp-draft" style="font-size:10px;">NOT_STARTED</span></td>
+              <td><span class="delay-chip pending">—</span></td>
+            </tr>
+            <tr class="tna-not-started">
+              <td style="color:var(--text-3);font-size:12px;">7</td>
+              <td>Finishing &amp; Pressing</td>
+              <td><span class="badge badge-gray">TASK</span></td>
+              <td>06 Jun 2025</td>
+              <td>14 Jun 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="sp sp-draft" style="font-size:10px;">NOT_STARTED</span></td>
+              <td><span class="delay-chip pending">—</span></td>
+            </tr>
+            <tr class="tna-not-started">
+              <td style="color:var(--text-3);font-size:12px;">8</td>
+              <td>
+                <span class="critical-dot"></span>
+                Final QC Inspection
+              </td>
+              <td><span class="badge badge-gray">MILESTONE</span></td>
+              <td>16 Jun 2025</td>
+              <td>20 Jun 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="sp sp-draft" style="font-size:10px;">NOT_STARTED</span></td>
+              <td><span class="delay-chip pending">—</span></td>
+            </tr>
+            <tr class="tna-not-started">
+              <td style="color:var(--text-3);font-size:12px;">9</td>
+              <td>
+                <span class="critical-dot"></span>
+                Shipment / Ex-Factory
+              </td>
+              <td><span class="badge badge-gray">MILESTONE</span></td>
+              <td>08 Jul 2025</td>
+              <td>08 Jul 2025</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="sp sp-draft" style="font-size:10px;">NOT_STARTED</span></td>
+              <td><span class="delay-chip pending">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: Planning ── -->
+    <div class="tab-panel" id="panel-planning">
+      <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;color:var(--text-2);">Sewing line allocations and capacity assignments for this production order.</div>
+        <button class="btn btn-primary btn-sm">
+          <span class="material-symbols-outlined" style="font-size:14px;">add</span> Assign Line
+        </button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-icon">
+          <span class="material-symbols-outlined">precision_manufacturing</span>
+        </div>
+        <div class="plan-info">
+          <div class="plan-title">Sewing Line: Line A — Factory 1, Tirupur</div>
+          <div class="plan-meta">
+            <div class="plan-meta-item">
+              <span class="material-symbols-outlined">calendar_month</span>
+              12 Jun 2025 – 28 Jun 2025
+            </div>
+            <div class="plan-meta-item">
+              <span class="material-symbols-outlined">speed</span>
+              450 pcs/day capacity
+            </div>
+            <div class="plan-meta-item">
+              <span class="material-symbols-outlined">group</span>
+              42 operators assigned
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <span class="badge badge-green" style="font-size:12px;padding:4px 12px;">On Track</span>
+          <span style="font-size:12px;color:var(--text-3);">7,650 pcs capacity</span>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:14px;">
+        <div class="sec-head">
+          <div class="sec-title"><span class="material-symbols-outlined">insights</span>Capacity Utilisation</div>
+        </div>
+        <div class="sec-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+            <div class="mini-card" style="text-align:center;">
+              <div class="mini-card-title">Ordered Qty</div>
+              <div style="font-size:22px;font-weight:800;color:var(--brand-700);">4,800</div>
+              <div class="text-muted">pcs</div>
+            </div>
+            <div class="mini-card" style="text-align:center;">
+              <div class="mini-card-title">Line Capacity</div>
+              <div style="font-size:22px;font-weight:800;color:var(--success);">7,650</div>
+              <div class="text-muted">pcs over 17 days</div>
+            </div>
+            <div class="mini-card" style="text-align:center;">
+              <div class="mini-card-title">Utilisation</div>
+              <div style="font-size:22px;font-weight:800;color:var(--warning);">62.7%</div>
+              <div class="text-muted">of allocated capacity</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;height:12px;background:var(--gray-100);border-radius:9999px;overflow:hidden;">
+            <div style="height:100%;width:62.7%;background:linear-gradient(to right, var(--brand-500), var(--brand-400));border-radius:9999px;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-3);">
+            <span>0%</span><span>62.7% used</span><span>100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:28px;"></div>
+  </main>
+</div><!-- /.main -->
+
+</div><!-- /.app -->
+
+<!-- Toast area -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ── Sidebar accordion ── */
+function toggleGroup(el) {
+  const group = el.parentElement;
+  const isOpen = group.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  document.querySelectorAll('.nav-parent.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) {
+    group.classList.add('open');
+    el.classList.add('open');
+  }
+}
+
+/* ── Top-level view switcher ── */
+function switchView(view) {
+  const createEl = document.getElementById('viewCreate');
+  const detailEl = document.getElementById('viewDetail');
+  const pvtCreate = document.getElementById('pvtCreate');
+  const pvtDetail = document.getElementById('pvtDetail');
+  const topbar   = document.getElementById('topbarTitle');
+
+  if (view === 'create') {
+    createEl.style.display = '';
+    detailEl.style.display = 'none';
+    pvtCreate.classList.add('active');
+    pvtDetail.classList.remove('active');
+    topbar.textContent = 'New Production Order';
+  } else if (view === 'detail') {
+    createEl.style.display = 'none';
+    detailEl.style.display = '';
+    pvtCreate.classList.remove('active');
+    pvtDetail.classList.add('active');
+    topbar.textContent = 'PRD-2025-0042';
+  } else if (view === 'list') {
+    // Placeholder — would navigate to list page
+    showToast('Navigating to Production Orders list…', 'info');
+  }
+}
+
+/* ── Entry point selector ── */
+const epPanels = ['style', 'sample', 'buyerpo', 'clone', 'general'];
+
+function selectEP(key) {
+  epPanels.forEach(ep => {
+    const card  = document.getElementById('ep-' + ep);
+    const panel = document.getElementById('ep-panel-' + ep);
+    if (ep === key) {
+      card.classList.add('selected');
+      if (panel) panel.style.display = '';
+    } else {
+      card.classList.remove('selected');
+      if (panel) panel.style.display = 'none';
+    }
+  });
+}
+
+function clearStyle() {
+  selectEP('general');
+  document.getElementById('ep-general').classList.remove('selected');
+  document.getElementById('ep-style').classList.remove('selected');
+  // Re-show general panel without selecting a card
+  epPanels.forEach(ep => {
+    const p = document.getElementById('ep-panel-' + ep);
+    if (p) p.style.display = 'none';
+  });
+  document.getElementById('ep-panel-general').style.display = '';
+  showToast('Style cleared', 'info');
+}
+
+/* ── Workflow preview ── */
+function toggleWfPreview() {
+  const panel = document.getElementById('wfPreview');
+  const link  = document.getElementById('previewLinkText');
+  const visible = panel.classList.contains('visible');
+  if (visible) {
+    panel.classList.remove('visible');
+    link.textContent = 'Preview Workflow';
+  } else {
+    panel.classList.add('visible');
+    link.textContent = 'Hide Preview';
+  }
+}
+
+function checkWfPreview() {
+  // Reset preview when template changes
+  const panel = document.getElementById('wfPreview');
+  const link  = document.getElementById('previewLinkText');
+  panel.classList.remove('visible');
+  link.textContent = 'Preview Workflow';
+}
+
+/* ── Order lines ── */
+let lineCount = 4;
+
+function addLine() {
+  lineCount++;
+  const tbody = document.getElementById('linesBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><div class="line-num">${lineCount}</div></td>
+    <td><input class="ce" type="text" placeholder="Colour" /></td>
+    <td><select class="ce"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></td>
+    <td><input class="ce" type="number" value="0" style="text-align:right;" /></td>
+    <td><input class="ce" type="text" placeholder="PO # or Manual" /></td>
+    <td><button class="icon-btn del" onclick="deleteLine(this)" title="Remove row"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td>
+  `;
+  tbody.appendChild(tr);
+  renumberLines();
+}
+
+function deleteLine(btn) {
+  const tr = btn.closest('tr');
+  tr.remove();
+  renumberLines();
+}
+
+function renumberLines() {
+  const rows = document.querySelectorAll('#linesBody tr');
+  rows.forEach((row, i) => {
+    const numEl = row.querySelector('.line-num');
+    if (numEl) numEl.textContent = i + 1;
+  });
+}
+
+/* ── PO selection state ── */
+function updatePOSelection() {
+  // In a real app, recalculate selected POs and update the bar
+  // Here just a placeholder
+}
+
+/* ── Detail tabs ── */
+function switchTab(tabKey) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const btn   = document.getElementById('tab-' + tabKey);
+  const panel = document.getElementById('panel-' + tabKey);
+  if (btn)   btn.classList.add('active');
+  if (panel) panel.classList.add('active');
+}
+
+/* ── Toast ── */
+function showToast(msg, type) {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'success' ? ' success' : type === 'error' ? ' error' : '');
+
+  const iconMap = {
+    success: 'check_circle',
+    error:   'error',
+    info:    'info'
+  };
+  t.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px;">${iconMap[type] || 'info'}</span> ${msg}`;
+  area.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  // Ensure first entry point panel is visible
+  selectEP('style');
+});
+</script>
+</body>
+</html>
