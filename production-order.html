@@ -685,6 +685,229 @@ select.fi {
 .wf-preview.visible { display: block; }
 .wf-preview-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
 
+/* ── Lead Day Override ── */
+.ld-collapsible {
+  margin-top: 10px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.ld-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--gray-50);
+  border: none;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background .15s;
+  text-align: left;
+  letter-spacing: .03em;
+}
+.ld-toggle-btn:hover { background: var(--brand-50); color: var(--brand-700); }
+.ld-toggle-btn .material-symbols-outlined { font-size: 18px; transition: transform .2s; }
+.ld-toggle-btn.open .material-symbols-outlined.chevron { transform: rotate(180deg); }
+.ld-body {
+  display: none;
+  padding: 12px 14px;
+  background: var(--surface);
+}
+.ld-body.open { display: block; }
+.ld-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.ld-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.ld-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.ld-table tr:last-child td { border-bottom: none; }
+.ld-table tr.ld-system td { background: var(--gray-50); color: var(--text-3); }
+.ld-input {
+  width: 60px;
+  height: 28px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--text-1);
+  padding: 0 6px;
+  text-align: center;
+  outline: none;
+  transition: border-color .15s;
+}
+.ld-input:focus { border-color: var(--brand-500); }
+.ld-input[readonly] { background: var(--gray-100); color: var(--text-3); cursor: not-allowed; border-color: var(--border2); }
+
+/* ── Traceability tab ── */
+.trace-section {
+  margin-bottom: 14px;
+}
+.trace-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-2);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.trace-section-title .material-symbols-outlined { font-size: 16px; color: var(--brand-500); }
+
+/* TnA stage dots */
+.tna-dot-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.tna-dot-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  flex-shrink: 0;
+}
+.tna-dot-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border2);
+  min-width: 16px;
+  margin-top: -18px;
+  flex-shrink: 0;
+}
+.tna-dot-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.tdc-green  { background: var(--success-bg); border-color: var(--success); }
+.tdc-blue   { background: var(--brand-50);   border-color: var(--brand-500); }
+.tdc-gray   { background: var(--gray-100);   border-color: var(--gray-300); }
+.tdc-red    { background: var(--danger-bg);  border-color: var(--danger); }
+.tna-dot-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-align: center;
+  max-width: 52px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tna-dot-delay {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  border: 1.5px solid white;
+}
+
+/* Amber callout */
+.amber-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+.amber-callout .material-symbols-outlined { font-size: 18px; color: #f97316; flex-shrink: 0; }
+
+/* Procurement table */
+.proc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.proc-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  padding: 7px 10px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.proc-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.proc-table tr:last-child td { border-bottom: none; }
+.proc-table tr:hover td { background: #fafbff; }
+
+/* Planning info card */
+.plan-info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.plan-info-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r);
+  background: var(--success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.plan-info-icon .material-symbols-outlined { font-size: 24px; color: var(--success); }
+
 /* Two-panel layout for overview */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
@@ -1129,6 +1352,100 @@ select.fi {
                 </div>
               </div>
             </div>
+
+            <!-- Lead Day Override -->
+            <div class="ld-collapsible" id="ldCollapsible">
+              <button class="ld-toggle-btn" id="ldToggleBtn" onclick="toggleLdPanel()">
+                <span style="display:flex;align-items:center;gap:6px;">
+                  <span class="material-symbols-outlined" style="font-size:16px;color:var(--brand-500);">tune</span>
+                  Customise Stage Lead Days
+                </span>
+                <span class="material-symbols-outlined chevron" style="font-size:18px;color:var(--text-3);">expand_more</span>
+              </button>
+              <div class="ld-body" id="ldBody">
+                <table class="ld-table">
+                  <thead>
+                    <tr>
+                      <th>Stage</th>
+                      <th>Type</th>
+                      <th style="text-align:center;">Default Days</th>
+                      <th style="text-align:center;">Override</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>PO Issue</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">2</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld1" value="2" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>GRN</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">3</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld2" value="3" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>Work Order</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">2</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld3" value="2" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>Cutting</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">4</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld4" value="4" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>Embroidery JW</td>
+                      <td><span class="badge badge-yellow" style="font-size:10px;">JOB_WORK</span></td>
+                      <td style="text-align:center;color:var(--text-3);">6</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld5" value="6" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>Sewing</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">14</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld6" value="14" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr>
+                      <td>Finishing</td>
+                      <td><span class="badge badge-blue" style="font-size:10px;">INTERNAL</span></td>
+                      <td style="text-align:center;color:var(--text-3);">4</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld7" value="4" min="1" oninput="recalcTotal()" /></td>
+                    </tr>
+                    <tr class="ld-system">
+                      <td>Final Inspection</td>
+                      <td><span class="badge badge-gray" style="font-size:10px;">SYSTEM</span></td>
+                      <td style="text-align:center;">3</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld8" value="3" readonly /></td>
+                    </tr>
+                    <tr class="ld-system">
+                      <td>Shipment</td>
+                      <td><span class="badge badge-gray" style="font-size:10px;">SYSTEM</span></td>
+                      <td style="text-align:center;">3</td>
+                      <td style="text-align:center;"><input type="number" class="ld-input" id="ld9" value="3" readonly /></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px;">
+                  <div style="font-size:12px;color:var(--text-3);">
+                    <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:3px;">info</span>
+                    Overrides apply to this Production Order only. The workflow template is not modified.
+                  </div>
+                  <div style="display:flex;align-items:center;gap:16px;">
+                    <a href="#" onclick="resetLdDefaults();return false;" style="font-size:12px;color:var(--brand-600);font-weight:600;display:inline-flex;align-items:center;gap:3px;">
+                      <span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Reset to Defaults
+                    </a>
+                    <span style="font-size:12.5px;font-weight:700;color:var(--text-1);">
+                      Total lead days: <span id="ldTotal" style="color:var(--brand-700);font-size:14px;">41</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1295,6 +1612,9 @@ select.fi {
       </button>
       <button class="tab-btn" id="tab-planning" onclick="switchTab('planning')">
         <span class="material-symbols-outlined">calendar_month</span> Planning
+      </button>
+      <button class="tab-btn" id="tab-traceability" onclick="switchTab('traceability')">
+        <span class="material-symbols-outlined">account_tree</span> Traceability
       </button>
     </div>
 
@@ -1741,6 +2061,254 @@ select.fi {
       </div>
     </div>
 
+    <!-- ── TAB: Traceability ── -->
+    <div class="tab-panel" id="panel-traceability">
+
+      <!-- Section 1: Source Buyer POs -->
+      <div class="sec trace-section">
+        <div class="sec-head">
+          <div class="sec-title">
+            <span class="material-symbols-outlined">receipt_long</span>
+            Source Buyer POs
+          </div>
+          <a href="#" style="font-size:12px;font-weight:600;color:var(--brand-600);display:inline-flex;align-items:center;gap:4px;" onclick="switchTab('linkedpo');return false;">
+            View All Linked Buyer POs <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+          </a>
+        </div>
+        <table class="proc-table">
+          <thead>
+            <tr>
+              <th>PO #</th>
+              <th>Customer</th>
+              <th>Delivery Date</th>
+              <th style="text-align:right;">Qty</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="buyer-po.html" style="color:var(--brand-700);font-weight:700;">MSP-PO-2025-114</a></td>
+              <td>Marks &amp; Spencer</td>
+              <td>15 Jul 2025</td>
+              <td style="text-align:right;font-weight:600;">3,200 pcs</td>
+              <td><span class="sp sp-active" style="font-size:10px;">Approved</span></td>
+            </tr>
+            <tr>
+              <td><a href="buyer-po.html" style="color:var(--brand-700);font-weight:700;">MSP-PO-2025-115</a></td>
+              <td>Marks &amp; Spencer</td>
+              <td>15 Jul 2025</td>
+              <td style="text-align:right;font-weight:600;">1,600 pcs</td>
+              <td><span class="sp sp-active" style="font-size:10px;">Approved</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section 2: Purchase POs & GRN Receipts -->
+      <div class="sec trace-section">
+        <div class="sec-head">
+          <div class="sec-title">
+            <span class="material-symbols-outlined">local_shipping</span>
+            Purchase POs &amp; GRN Receipts
+          </div>
+        </div>
+        <div style="padding:6px 18px 2px;font-size:12px;color:var(--text-3);font-weight:600;">Material Procurement for this Production Run</div>
+        <table class="proc-table">
+          <thead>
+            <tr>
+              <th>Purchase PO #</th>
+              <th>Vendor</th>
+              <th>Material</th>
+              <th style="text-align:right;">Ordered Qty</th>
+              <th>GRN #</th>
+              <th>GRN Date</th>
+              <th style="text-align:right;">Received Qty</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="purchase-order.html" style="color:var(--brand-700);font-weight:700;">PO-2025-0891</a></td>
+              <td>Arvind Mills</td>
+              <td>Fabric — Cotton Pique 220GSM</td>
+              <td style="text-align:right;font-weight:600;">5,200 m</td>
+              <td><a href="po-receipts.html" style="color:var(--brand-700);font-weight:600;">GRN-2025-0334</a></td>
+              <td>03 Jun 2025</td>
+              <td style="text-align:right;font-weight:600;">5,200 m</td>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--success);">
+                  <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span> Received
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td><a href="purchase-order.html" style="color:var(--brand-700);font-weight:700;">PO-2025-0892</a></td>
+              <td>Himatsingka</td>
+              <td>Trim — Buttons, Zips</td>
+              <td style="text-align:right;font-weight:600;">4,800 sets</td>
+              <td><a href="po-receipts.html" style="color:var(--brand-700);font-weight:600;">GRN-2025-0335</a></td>
+              <td>05 Jun 2025</td>
+              <td style="text-align:right;font-weight:600;">4,800 sets</td>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--success);">
+                  <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span> Received
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td><a href="purchase-order.html" style="color:var(--brand-700);font-weight:700;">PO-2025-0901</a></td>
+              <td>Coats Thread</td>
+              <td>Thread — Polyester 40s</td>
+              <td style="text-align:right;font-weight:600;">200 cones</td>
+              <td style="color:var(--text-3);">—</td>
+              <td style="color:var(--text-3);">—</td>
+              <td style="text-align:right;font-weight:600;color:var(--text-3);">0</td>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#d97706;">
+                  <span class="material-symbols-outlined" style="font-size:15px;">warning</span> Pending
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section 3: TnA Summary -->
+      <div class="sec trace-section">
+        <div class="sec-head">
+          <div class="sec-title">
+            <span class="material-symbols-outlined">timeline</span>
+            TnA Summary
+          </div>
+          <a href="tna-tracker.html" style="font-size:12px;font-weight:600;color:var(--brand-600);display:inline-flex;align-items:center;gap:4px;">
+            View Full TnA <span class="material-symbols-outlined" style="font-size:14px;">open_in_new</span>
+          </a>
+        </div>
+        <div class="sec-body">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:12px;">Time &amp; Action Progress</div>
+          <!-- Stage dot track -->
+          <div class="tna-dot-track" style="align-items:flex-start;gap:0;padding:8px 0 4px;">
+
+            <!-- Completed stages -->
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-green">
+                <span class="material-symbols-outlined" style="font-size:11px;color:var(--success);">check</span>
+              </div>
+              <div class="tna-dot-label">PO Issue</div>
+            </div>
+            <div class="tna-dot-connector" style="background:var(--success);margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-green" style="position:relative;">
+                <span class="material-symbols-outlined" style="font-size:11px;color:var(--success);">check</span>
+                <span class="tna-dot-delay" title="1 day delay"></span>
+              </div>
+              <div class="tna-dot-label">GRN <span style="color:var(--danger);font-size:8px;">+1d</span></div>
+            </div>
+            <div class="tna-dot-connector" style="background:var(--success);margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-green">
+                <span class="material-symbols-outlined" style="font-size:11px;color:var(--success);">check</span>
+              </div>
+              <div class="tna-dot-label">Work Order</div>
+            </div>
+            <div class="tna-dot-connector" style="background:var(--success);margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-green">
+                <span class="material-symbols-outlined" style="font-size:11px;color:var(--success);">check</span>
+              </div>
+              <div class="tna-dot-label">Cutting</div>
+            </div>
+            <div class="tna-dot-connector" style="background:var(--border2);margin-top:-27px;"></div>
+
+            <!-- In Progress -->
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-blue">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--brand-500);display:block;"></span>
+              </div>
+              <div class="tna-dot-label">Emb. JW</div>
+            </div>
+            <div class="tna-dot-connector" style="margin-top:-27px;"></div>
+
+            <!-- Not Started -->
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-gray"></div>
+              <div class="tna-dot-label">Sewing</div>
+            </div>
+            <div class="tna-dot-connector" style="margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-gray"></div>
+              <div class="tna-dot-label">Finishing</div>
+            </div>
+            <div class="tna-dot-connector" style="margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-gray"></div>
+              <div class="tna-dot-label">Final Insp.</div>
+            </div>
+            <div class="tna-dot-connector" style="margin-top:-27px;"></div>
+
+            <div class="tna-dot-node">
+              <div class="tna-dot-circle tdc-gray"></div>
+              <div class="tna-dot-label">Shipment</div>
+            </div>
+
+          </div>
+
+          <!-- Next stage callout -->
+          <div class="amber-callout">
+            <span class="material-symbols-outlined">sewing</span>
+            <div>
+              <strong>Next Stage: Sewing</strong>
+              &nbsp;|&nbsp; Planned Start: 12 Jun 2025
+              &nbsp;|&nbsp; <span style="font-weight:700;">2 days away</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Planning Board Status -->
+      <div class="trace-section">
+        <div class="plan-info-card">
+          <div class="plan-info-icon">
+            <span class="material-symbols-outlined">precision_manufacturing</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:700;color:var(--text-1);margin-bottom:6px;">
+              Assigned to: Line A — Factory 1, Tirupur
+            </div>
+            <div style="font-size:12.5px;color:var(--text-2);display:flex;flex-wrap:wrap;gap:14px;">
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:15px;color:var(--text-3);">calendar_month</span>
+                Period: 12 Jun – 28 Jun 2025
+              </span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:15px;color:var(--text-3);">speed</span>
+                Capacity: 450 pcs/day
+              </span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:15px;color:var(--text-3);">today</span>
+                Days needed: 11
+              </span>
+              <span style="display:flex;align-items:center;gap:4px;color:var(--success);font-weight:700;">
+                <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span>
+                Status: On Track
+              </span>
+            </div>
+          </div>
+          <a href="#" style="font-size:12px;font-weight:600;color:var(--brand-600);display:inline-flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:14px;">view_kanban</span>
+            View on Planning Board
+          </a>
+        </div>
+      </div>
+
+    </div>
+    <!-- END TAB: Traceability -->
+
     <div style="height:28px;"></div>
   </main>
 </div><!-- /.main -->
@@ -1813,6 +2381,36 @@ function clearStyle() {
   });
   document.getElementById('ep-panel-general').style.display = '';
   showToast('Style cleared', 'info');
+}
+
+/* ── Lead Day Override ── */
+function toggleLdPanel() {
+  const btn  = document.getElementById('ldToggleBtn');
+  const body = document.getElementById('ldBody');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+const LD_DEFAULTS = [2, 3, 2, 4, 6, 14, 4, 3, 3];
+
+function recalcTotal() {
+  let total = 0;
+  for (let i = 1; i <= 9; i++) {
+    const el = document.getElementById('ld' + i);
+    if (el) total += parseInt(el.value) || 0;
+  }
+  const tot = document.getElementById('ldTotal');
+  if (tot) tot.textContent = total;
+}
+
+function resetLdDefaults() {
+  LD_DEFAULTS.forEach((val, idx) => {
+    const el = document.getElementById('ld' + (idx + 1));
+    if (el && !el.readOnly) el.value = val;
+  });
+  recalcTotal();
+  showToast('Lead days reset to template defaults', 'info');
 }
 
 /* ── Workflow preview ── */

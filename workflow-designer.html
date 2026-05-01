@@ -757,7 +757,7 @@ body.dragging-chip * { cursor: grabbing !important; }
           <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child active" href="workflow-designer.html">Workflow Designer</a>
+          <a class="nav-child active" href="workflow-template-list.html">Workflow Designer</a>
           <a class="nav-child" href="#">TnA Calendar</a>
           <a class="nav-child" href="#">Planning Board</a>
         </div>
@@ -817,6 +817,11 @@ body.dragging-chip * { cursor: grabbing !important; }
         Back to Templates
       </div>
       <input class="wd-template-name" id="templateName" type="text" value="Standard Export" />
+      <button id="defaultToggle" onclick="toggleDefault()" style="display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:6px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:transparent;color:#b45309;transition:all 150ms;" title="Set as default template">
+        <span id="defaultStar" style="font-size:17px;line-height:1;">&#9733;</span>
+        <span id="defaultLabel">Default</span>
+      </button>
+      <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;background:#f1f5f9;border-radius:20px;font-size:11.5px;font-weight:500;color:#64748b;white-space:nowrap;">Used in 3 orders</span>
       <div class="wd-toolbar-sep"></div>
       <button class="wd-btn wd-btn-ghost" onclick="autoLayout()">
         <span class="material-symbols-outlined">account_tree</span>
@@ -2383,6 +2388,26 @@ function exportTna() {
 /* ═══════════════════════════════════════════════════════
    TOAST
    ═══════════════════════════════════════════════════════ */
+/* Default toggle */
+let isDefault = true; // "Standard Export" starts as active default
+function toggleDefault() {
+  isDefault = !isDefault;
+  const star = document.getElementById('defaultStar');
+  const label = document.getElementById('defaultLabel');
+  const btn = document.getElementById('defaultToggle');
+  if (isDefault) {
+    star.innerHTML = '&#9733;';
+    label.textContent = 'Default';
+    btn.style.color = '#b45309';
+    showToast('Standard Export set as default template.', 'success');
+  } else {
+    star.innerHTML = '&#9734;';
+    label.textContent = 'Set as Default';
+    btn.style.color = '#94a3b8';
+    showToast('Default removed from Standard Export.', 'info');
+  }
+}
+
 function showToast(msg, type = 'info') {
   const area = document.getElementById('toastArea');
   const t = document.createElement('div');

@@ -530,6 +530,116 @@
 .gantt-tooltip-row { display: flex; gap: 6px; }
 .gantt-tooltip-row span:first-child { color: #9ca3af; min-width: 80px; }
 
+/* ── Calendar sub-toggle ── */
+.cal-sub-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--gray-100);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+.cst-btn {
+  padding: 6px 16px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-3);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .15s;
+}
+.cst-btn.active {
+  background: var(--surface);
+  color: var(--brand-700);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.cst-btn .material-symbols-outlined { font-size: 16px; }
+
+/* ── TnA List View ── */
+.tna-list-stat-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.tna-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tsp-total  { background: var(--gray-100); color: var(--gray-700); }
+.tsp-risk   { background: #fff7ed; color: #c2410c; }
+.tsp-delay  { background: var(--danger-bg); color: #991b1b; }
+.tsp-track  { background: var(--brand-50); color: var(--brand-800); }
+.tsp-ns     { background: var(--gray-100); color: var(--gray-600); }
+
+.tna-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 1100px;
+}
+.tna-list-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.tna-list-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.tna-list-table tbody tr:last-child td { border-bottom: none; }
+.tna-list-table tbody tr:hover { background: #fafbff; }
+.tna-list-table td.cell-delayed-bg { background: #fef2f2; }
+.tna-list-table td.cell-delayed-bg:hover { background: #fecaca; }
+
+.overall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ob-completed  { background: var(--success-bg); color: #166534; }
+.ob-on-track   { background: var(--brand-50); color: var(--brand-800); }
+.ob-at-risk    { background: #fff7ed; color: #c2410c; }
+.ob-delayed    { background: var(--danger-bg); color: #991b1b; }
+.ob-not-started { background: var(--gray-100); color: var(--gray-600); }
+
+.critical-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  background: var(--danger-bg);
+  color: #991b1b;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
 /* ── Calendar View ── */
 .cal-header {
   display: flex;
@@ -966,6 +1076,14 @@
         <div class="ocs-item">
           <div class="ocs-label">Workflow</div>
           <div class="ocs-value" style="color:var(--text-2);">Standard Export — 9 nodes</div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Buyer POs</div>
+          <div class="ocs-value" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <a href="buyer-po.html" style="display:inline-flex;align-items:center;padding:3px 10px;background:var(--brand-50);color:var(--brand-700);border:1px solid var(--brand-200);border-radius:9999px;font-size:11.5px;font-weight:700;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='var(--brand-100)'" onmouseout="this.style.background='var(--brand-50)'">MSP-PO-2025-114</a>
+            <a href="buyer-po.html" style="display:inline-flex;align-items:center;padding:3px 10px;background:var(--brand-50);color:var(--brand-700);border:1px solid var(--brand-200);border-radius:9999px;font-size:11.5px;font-weight:700;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='var(--brand-100)'" onmouseout="this.style.background='var(--brand-50)'">MSP-PO-2025-115</a>
+          </div>
         </div>
       </div>
 
@@ -1489,12 +1607,28 @@
     ══════════════════════════════════ -->
     <div id="viewCalendar" class="view-panel">
 
-      <!-- Calendar header -->
-      <div class="cal-header">
+      <!-- Calendar / List sub-toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="cal-title">TnA Calendar</div>
-          <div style="font-size:13px;color:var(--text-3);margin-top:2px;">Cross-order monthly view — all active production orders</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text-1);">TnA Calendar</div>
+          <div style="font-size:13px;color:var(--text-3);margin-top:2px;">Cross-order view — all active production orders</div>
         </div>
+        <div class="cal-sub-toggle">
+          <button class="cst-btn active" id="cstCalendar" onclick="switchCalSub('calendar')">
+            <span class="material-symbols-outlined">calendar_month</span> Calendar View
+          </button>
+          <button class="cst-btn" id="cstList" onclick="switchCalSub('list')">
+            <span class="material-symbols-outlined">table_rows</span> List View
+          </button>
+        </div>
+      </div>
+
+      <!-- ── CALENDAR SUB-VIEW ── -->
+      <div id="calSubCalendar" class="inner-panel active">
+
+      <!-- Calendar header (nav row) -->
+      <div class="cal-header">
+        <div style="display:none;"><!-- title moved above --></div>
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="showToast('Navigated to May 2025','info')">
             <span class="material-symbols-outlined">chevron_left</span>
@@ -1559,6 +1693,232 @@
         </div>
       </div>
 
+      </div><!-- /#calSubCalendar -->
+
+      <!-- ── LIST SUB-VIEW ── -->
+      <div id="calSubList" class="inner-panel">
+
+        <!-- Filter bar -->
+        <div class="cal-filter-bar" style="margin-bottom:14px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Factory</div>
+            <select class="filter-select">
+              <option selected>All Factories</option>
+              <option>Main Factory — Kolkata</option>
+              <option>Unit 2 — Howrah</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Order Type</div>
+            <select class="filter-select">
+              <option selected>All Types</option>
+              <option>Export</option>
+              <option>Domestic</option>
+              <option>Sample</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Status</div>
+            <select class="filter-select">
+              <option selected>All Statuses</option>
+              <option>Completed</option>
+              <option>On Track</option>
+              <option>At Risk</option>
+              <option>Delayed</option>
+              <option>Not Started</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Delivery From</div>
+            <input type="date" class="filter-select" value="2025-05-01" style="padding:0 8px;appearance:none;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Delivery To</div>
+            <input type="date" class="filter-select" value="2025-09-30" style="padding:0 8px;appearance:none;" />
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:auto;" onclick="showToast('Filter applied','info')">
+            <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Apply
+          </button>
+          <button class="btn btn-ghost btn-sm" style="margin-top:auto;color:var(--text-3);" onclick="showToast('Filters cleared','info')">Clear</button>
+        </div>
+
+        <!-- Summary stat pills -->
+        <div class="tna-list-stat-pills">
+          <span class="tna-stat-pill tsp-total">
+            <span class="material-symbols-outlined" style="font-size:15px;">list</span>
+            Total: 4
+          </span>
+          <span class="tna-stat-pill tsp-risk">
+            <span class="material-symbols-outlined" style="font-size:15px;">warning</span>
+            At Risk: 1
+          </span>
+          <span class="tna-stat-pill tsp-delay">
+            <span class="material-symbols-outlined" style="font-size:15px;">schedule</span>
+            Delayed: 1
+          </span>
+          <span class="tna-stat-pill tsp-track">
+            <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span>
+            On Track: 1
+          </span>
+          <span class="tna-stat-pill tsp-ns">
+            <span class="material-symbols-outlined" style="font-size:15px;">radio_button_unchecked</span>
+            Not Started: 1
+          </span>
+        </div>
+
+        <!-- List table -->
+        <div class="sec">
+          <div style="overflow-x:auto;">
+            <table class="tna-list-table">
+              <thead>
+                <tr>
+                  <th>Production Order #</th>
+                  <th>Style</th>
+                  <th>Buyer</th>
+                  <th>Delivery Date</th>
+                  <th style="text-align:center;">Total Stages</th>
+                  <th style="text-align:center;">Completed</th>
+                  <th style="text-align:center;">In Progress</th>
+                  <th style="text-align:center;">Delayed</th>
+                  <th style="text-align:center;">Not Started</th>
+                  <th>Critical Path</th>
+                  <th>Sewing Window</th>
+                  <th>Overall Status</th>
+                  <th style="text-align:center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <!-- Row 1: AT_RISK -->
+                <tr>
+                  <td>
+                    <a href="#" onclick="switchMainView('tracker');showToast('Viewing TnA for PRD-2025-0042','info');return false;"
+                       style="color:var(--brand-700);font-weight:700;">PRD-2025-0042</a>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;color:var(--text-1);">SS-2025-POLO-01</div>
+                    <div style="font-size:11.5px;color:var(--text-3);">Classic Polo Shirt</div>
+                  </td>
+                  <td>Marks &amp; Spencer</td>
+                  <td><span style="color:var(--danger);font-weight:700;">15 Jul 2025</span></td>
+                  <td style="text-align:center;font-weight:700;">9</td>
+                  <td style="text-align:center;font-weight:700;color:var(--success);">3</td>
+                  <td style="text-align:center;font-weight:700;color:var(--brand-600);">2</td>
+                  <td style="text-align:center;font-weight:700;color:var(--danger);background:#fef2f2;">1</td>
+                  <td style="text-align:center;color:var(--gray-500);">3</td>
+                  <td><span class="critical-badge">⚠ Critical</span></td>
+                  <td>
+                    <span class="sewing-window-pill">
+                      <span class="material-symbols-outlined">sewing</span>
+                      12 Jun – 28 Jun
+                    </span>
+                  </td>
+                  <td><span class="overall-badge ob-at-risk">AT_RISK</span></td>
+                  <td style="text-align:center;">
+                    <button class="btn btn-outline btn-sm" onclick="switchMainView('tracker');showToast('Viewing TnA for PRD-2025-0042','info');">
+                      <span class="material-symbols-outlined" style="font-size:14px;">timeline</span> View TnA
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Row 2: NOT_STARTED -->
+                <tr>
+                  <td>
+                    <a href="#" onclick="showToast('Viewing TnA for PRD-2025-0041','info');return false;"
+                       style="color:var(--brand-700);font-weight:700;">PRD-2025-0041</a>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;color:var(--text-1);">AW-2025-JACKET-03</div>
+                    <div style="font-size:11.5px;color:var(--text-3);">Winter Jacket</div>
+                  </td>
+                  <td>Own Brand</td>
+                  <td style="font-weight:600;">30 Aug 2025</td>
+                  <td style="text-align:center;font-weight:700;">9</td>
+                  <td style="text-align:center;font-weight:700;color:var(--success);">0</td>
+                  <td style="text-align:center;font-weight:700;color:var(--brand-600);">0</td>
+                  <td style="text-align:center;font-weight:700;color:var(--gray-400);">0</td>
+                  <td style="text-align:center;color:var(--gray-500);">9</td>
+                  <td><span style="color:var(--text-3);font-size:12px;">—</span></td>
+                  <td><span style="color:var(--text-3);font-size:12px;font-style:italic;">Not scheduled</span></td>
+                  <td><span class="overall-badge ob-not-started">NOT_STARTED</span></td>
+                  <td style="text-align:center;">
+                    <button class="btn btn-outline btn-sm" onclick="showToast('Viewing TnA for PRD-2025-0041','info');">
+                      <span class="material-symbols-outlined" style="font-size:14px;">timeline</span> View TnA
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Row 3: DELAYED -->
+                <tr>
+                  <td>
+                    <a href="#" onclick="showToast('Viewing TnA for PRD-2025-0040','info');return false;"
+                       style="color:var(--brand-700);font-weight:700;">PRD-2025-0040</a>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;color:var(--text-1);">SS-2025-TSHIRT-07</div>
+                    <div style="font-size:11.5px;color:var(--text-3);">Basic Tee</div>
+                  </td>
+                  <td>Zara India</td>
+                  <td><span style="color:var(--danger);font-weight:700;">10 Jun 2025</span></td>
+                  <td style="text-align:center;font-weight:700;">9</td>
+                  <td style="text-align:center;font-weight:700;color:var(--success);">4</td>
+                  <td style="text-align:center;font-weight:700;color:var(--brand-600);">2</td>
+                  <td style="text-align:center;font-weight:700;color:var(--danger);background:#fef2f2;">2</td>
+                  <td style="text-align:center;color:var(--gray-500);">1</td>
+                  <td><span class="critical-badge">⚠ Critical</span></td>
+                  <td>
+                    <span class="sewing-window-pill">
+                      <span class="material-symbols-outlined">sewing</span>
+                      01 Jun – 18 Jun
+                    </span>
+                  </td>
+                  <td><span class="overall-badge ob-delayed">DELAYED</span></td>
+                  <td style="text-align:center;">
+                    <button class="btn btn-outline btn-sm" onclick="showToast('Viewing TnA for PRD-2025-0040','info');">
+                      <span class="material-symbols-outlined" style="font-size:14px;">timeline</span> View TnA
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Row 4: ON_TRACK -->
+                <tr>
+                  <td>
+                    <a href="#" onclick="showToast('Viewing TnA for PRD-2025-0039','info');return false;"
+                       style="color:var(--brand-700);font-weight:700;">PRD-2025-0039</a>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;color:var(--text-1);">SS-2025-DRESS-02</div>
+                    <div style="font-size:11.5px;color:var(--text-3);">Casual Dress</div>
+                  </td>
+                  <td>Next UK</td>
+                  <td style="font-weight:600;">20 Sep 2025</td>
+                  <td style="text-align:center;font-weight:700;">8</td>
+                  <td style="text-align:center;font-weight:700;color:var(--success);">1</td>
+                  <td style="text-align:center;font-weight:700;color:var(--brand-600);">1</td>
+                  <td style="text-align:center;font-weight:700;color:var(--gray-400);">0</td>
+                  <td style="text-align:center;color:var(--gray-500);">6</td>
+                  <td><span style="color:var(--text-3);font-size:12px;">—</span></td>
+                  <td>
+                    <span class="sewing-window-pill">
+                      <span class="material-symbols-outlined">sewing</span>
+                      15 Jul – 30 Jul
+                    </span>
+                  </td>
+                  <td><span class="overall-badge ob-on-track">ON_TRACK</span></td>
+                  <td style="text-align:center;">
+                    <button class="btn btn-outline btn-sm" onclick="showToast('Viewing TnA for PRD-2025-0039','info');">
+                      <span class="material-symbols-outlined" style="font-size:14px;">timeline</span> View TnA
+                    </button>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /#calSubList -->
+
     </div>
     <!-- END VIEW 2 -->
 
@@ -1611,6 +1971,27 @@ function switchMainView(view) {
   document.getElementById('btnViewTracker').classList.toggle('active', view === 'tracker');
   document.getElementById('btnViewCalendar').classList.toggle('active', view === 'calendar');
   if (view === 'gantt') switchInnerView('gantt');
+}
+
+// ─────────────────────────────────────────
+//  Calendar sub-view switch (Calendar / List)
+// ─────────────────────────────────────────
+function switchCalSub(sub) {
+  var calPanel  = document.getElementById('calSubCalendar');
+  var listPanel = document.getElementById('calSubList');
+  var calBtn    = document.getElementById('cstCalendar');
+  var listBtn   = document.getElementById('cstList');
+  if (sub === 'calendar') {
+    calPanel.classList.add('active');
+    listPanel.classList.remove('active');
+    calBtn.classList.add('active');
+    listBtn.classList.remove('active');
+  } else {
+    calPanel.classList.remove('active');
+    listPanel.classList.add('active');
+    calBtn.classList.remove('active');
+    listBtn.classList.add('active');
+  }
 }
 
 // ─────────────────────────────────────────

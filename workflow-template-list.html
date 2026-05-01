@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Templates — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(37,99,235,0.07);
+  --sidebar-active: rgba(37,99,235,0.12);
+  --brand-50:  #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-200: #bfdbfe;
+  --brand-300: #93c5fd;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --brand-800: #1e40af;
+  --bg: #f0f2f7;
+  --border: #e2e8f0;
+  --border2: #f1f5f9;
+}
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #0f172a !important; font-weight: 800 !important; }
+.brand-sub  { color: #94a3b8 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #94a3b8 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: .1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #334155 !important; font-weight: 500 !important; }
+.nav-parent-icon  { color: #94a3b8 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover  { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #cbd5e1 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name   { color: #0f172a !important; }
+.sf-role   { color: #94a3b8 !important; }
+.sf-avatar { background: var(--brand-600) !important; }
+.topbar { border-bottom: 1px solid #e2e8f0 !important; box-shadow: 0 1px 4px rgba(37,99,235,0.06) !important; }
+
+/* ── Stat bar ── */
+.stat-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-num   { font-size: 26px; font-weight: 800; color: var(--text-1); line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 11.5px; color: var(--text-3); font-weight: 500; }
+.stat-sub   { font-size: 11px; margin-top: 6px; font-weight: 500; }
+
+/* ── Toolbar ── */
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--text-3);
+}
+.search-input {
+  height: 36px;
+  padding: 0 10px 0 32px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-1);
+  transition: border-color 150ms;
+}
+.search-input:focus { border-color: var(--brand-500); }
+.search-input::placeholder { color: var(--text-3); }
+.filter-sel {
+  height: 36px;
+  padding: 0 30px 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  outline: none;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-1);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+  transition: border-color 150ms;
+}
+.filter-sel:focus { border-color: var(--brand-500); }
+
+/* ── Table wrapper ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.wt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.wt-table th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.wt-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: middle;
+}
+.wt-table tr:last-child td { border-bottom: none; }
+.wt-table tr:hover td { background: var(--brand-50); }
+
+/* Template name link */
+.tpl-name-link {
+  font-weight: 700;
+  color: var(--brand-600);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 150ms;
+}
+.tpl-name-link:hover { color: var(--brand-800); text-decoration: underline; }
+
+/* Star button */
+.star-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  transition: background 150ms;
+  color: var(--text-3);
+}
+.star-btn:hover { background: #fefce8; }
+.star-btn.is-default { color: #ca8a04; }
+.star-btn .material-symbols-outlined { font-size: 20px; }
+
+/* Nodes badge */
+.nodes-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  background: var(--gray-100);
+  color: var(--text-2);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Used-in chip */
+.used-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.used-chip.inuse    { background: var(--brand-50);  color: var(--brand-700); }
+.used-chip.notused  { background: var(--gray-100);  color: var(--gray-600); }
+
+/* Order type badges */
+.ot-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  margin-right: 3px;
+}
+.ot-export   { background: #eff6ff; color: #1e40af; }
+.ot-domestic { background: #f0fdf4; color: #166534; }
+.ot-knit     { background: #fdf4ff; color: #7e22ce; }
+.ot-sample   { background: #fff7ed; color: #c2410c; }
+
+/* Activities text */
+.activities-text {
+  font-size: 12px;
+  color: var(--text-2);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Row actions */
+.row-actions { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+.icon-action {
+  width: 30px; height: 30px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+.icon-action:hover            { border-color: var(--brand-400); color: var(--brand-600); background: var(--brand-50); }
+.icon-action.del:hover        { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
+.icon-action.del[disabled]    { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+.icon-action svg              { width: 14px; height: 14px; }
+.icon-action .material-symbols-outlined { font-size: 15px; }
+
+/* Eye preview popup */
+.preview-popup {
+  position: fixed;
+  z-index: 300;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 16px 20px;
+  max-width: 640px;
+  min-width: 320px;
+  display: none;
+}
+.preview-popup.open { display: block; }
+.preview-popup-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.flow-chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.flow-node {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  background: var(--brand-50);
+  border: 1.5px solid var(--brand-200);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-800);
+  white-space: nowrap;
+}
+.flow-arrow {
+  font-size: 14px;
+  color: var(--text-3);
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Toast */
+.toast-area { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 10px 16px; border-radius: var(--r); font-size: 13px; font-weight: 500; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.18); animation: slideIn .22s ease; display: flex; align-items: center; gap: 8px; min-width: 260px; }
+.toast.success { background: #16a34a; }
+.toast.error   { background: #dc2626; }
+.toast.info    { background: var(--brand-600); }
+@keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* Confirm dialog */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms;
+}
+.confirm-backdrop.open { opacity: 1; pointer-events: auto; }
+.confirm-dialog {
+  background: #fff;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 28px 22px;
+  transform: scale(0.97) translateY(8px);
+  transition: transform 180ms;
+}
+.confirm-backdrop.open .confirm-dialog { transform: scale(1) translateY(0); }
+.confirm-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-full);
+  background: #fefce8;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  font-size: 22px;
+  color: #ca8a04;
+}
+.confirm-title { font-size: 15px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+.confirm-body  { font-size: 13px; color: var(--text-2); line-height: 1.5; margin-bottom: 22px; }
+.confirm-footer { display: flex; justify-content: flex-end; gap: 8px; }
+.btn-conf-cancel  { padding: 8px 18px; background: transparent; border: 1.5px solid var(--border); border-radius: var(--r-sm); font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 150ms; }
+.btn-conf-cancel:hover { background: var(--gray-100); }
+.btn-conf-ok { padding: 8px 18px; background: var(--brand-600); border: 1.5px solid var(--brand-600); border-radius: var(--r-sm); font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; font-family: inherit; transition: all 150ms; }
+.btn-conf-ok:hover { background: var(--brand-700); }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--border2); background: var(--gray-50); font-size: 12.5px; color: var(--text-3); }
+.pag-btns { display: flex; gap: 4px; }
+.pag-btn { height: 28px; min-width: 28px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface); cursor: pointer; font-size: 12px; font-family: inherit; color: var(--text-2); display: flex; align-items: center; justify-content: center; transition: all 150ms; }
+.pag-btn:hover { border-color: var(--brand-400); color: var(--brand-700); }
+.pag-btn.active { background: var(--brand-600); color: #fff; border-color: var(--brand-600); }
+.pag-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Tooltip */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: var(--gray-900);
+  color: #f9fafb;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms;
+  z-index: 200;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Production Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="workflow-template-list.html">Workflow Designer</a>
+        <a class="nav-child" href="#">TnA Calendar</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">content_cut</span></span>
+        <span class="nav-parent-label">Cutting</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Cut Orders</a>
+        <a class="nav-child" href="#">Fabric Issue</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">sewing</span></span>
+        <span class="nav-parent-label">Sewing</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Sewing Lines</a>
+        <a class="nav-child" href="#">Daily Output</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="#">Style Master</a>
+        <a class="nav-child" href="#">Sewing Line Master</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Workflow Templates</span>
+    <div class="topbar-right">
+      <a href="workflow-designer.html" class="topbar-cta">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Template
+      </a>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">Workflow Templates</div>
+        <div class="ph-sub">Define reusable activity sequences assigned to every Production Order</div>
+      </div>
+      <a href="workflow-designer.html" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Template
+      </a>
+    </div>
+
+    <!-- Summary stat bar -->
+    <div class="stat-bar">
+      <div class="stat-card">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Total Templates</div>
+        <div class="stat-sub" style="color:var(--text-3);">All workflows</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="display:flex;align-items:center;gap:8px;">
+          1
+          <span class="material-symbols-outlined" style="font-size:22px;color:#ca8a04;line-height:1;" title="Default template">star</span>
+        </div>
+        <div class="stat-label">Default Template</div>
+        <div class="stat-sub" style="color:var(--brand-600);">Auto-assigned to new orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--success);">4</div>
+        <div class="stat-label">In Use</div>
+        <div class="stat-sub" style="color:var(--success);">Assigned to Production Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--gray-400);">1</div>
+        <div class="stat-label">Not Used</div>
+        <div class="stat-sub" style="color:var(--text-3);">No orders assigned</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input class="search-input" id="searchInput" placeholder="Search template name…" oninput="applyFilter()">
+      </div>
+      <select class="filter-sel" id="usageFilter" onchange="applyFilter()">
+        <option value="all">All Templates</option>
+        <option value="inuse">In Use</option>
+        <option value="notused">Not Used</option>
+      </select>
+      <div style="flex:1;"></div>
+      <a href="workflow-designer.html" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Template
+      </a>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="wt-table" id="mainTable">
+        <thead>
+          <tr>
+            <th>Template Name</th>
+            <th style="text-align:center;">Default</th>
+            <th>Stages</th>
+            <th>Activities</th>
+            <th>Used In</th>
+            <th>Order Types</th>
+            <th>Last Updated</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" style="display:none;" class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="empty-title">No templates found</div>
+        <div class="empty-desc">Try adjusting your search or filter, or create a new template.</div>
+        <a href="workflow-designer.html" class="btn btn-primary btn-sm" style="margin-top:10px;">New Template</a>
+      </div>
+      <div class="pagination" id="paginationFooter">
+        <span id="paginationInfo">Showing 5 of 5 templates</span>
+        <div class="pag-btns">
+          <button class="pag-btn" disabled>&laquo;</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn" disabled>&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ── Activity flow preview popup ── -->
+<div class="preview-popup" id="previewPopup">
+  <div class="preview-popup-title" id="previewPopupTitle">Activity Flow</div>
+  <div class="flow-chain" id="flowChain"></div>
+</div>
+
+<!-- ── Confirm dialog ── -->
+<div class="confirm-backdrop" id="confirmBackdrop">
+  <div class="confirm-dialog">
+    <div class="confirm-icon">
+      <span class="material-symbols-outlined" id="confirmIcon" style="font-size:22px;">star</span>
+    </div>
+    <div class="confirm-title" id="confirmTitle">Confirm</div>
+    <div class="confirm-body"  id="confirmBody">Are you sure?</div>
+    <div class="confirm-footer">
+      <button class="btn-conf-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-conf-ok"     id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast area ── -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ── Data ── */
+const TEMPLATES = [
+  {
+    id: 1,
+    name: 'Standard Export',
+    isDefault: true,
+    stages: 9,
+    activities: 'PO Issue → GRN → Work Order → Cutting → Embroidery JW → Sewing → Finishing → FI → Shipment',
+    usedIn: 3,
+    orderTypes: ['EXPORT'],
+    updatedAt: '28 Apr 2025'
+  },
+  {
+    id: 2,
+    name: 'Domestic Quick Turn',
+    isDefault: false,
+    stages: 6,
+    activities: 'Work Order → Cutting → Sewing → Finishing → FI → Dispatch',
+    usedIn: 1,
+    orderTypes: ['DOMESTIC'],
+    updatedAt: '15 Apr 2025'
+  },
+  {
+    id: 3,
+    name: 'Knit with Print',
+    isDefault: false,
+    stages: 8,
+    activities: 'Work Order → Fabric Receipt → Printing → Cutting → Sewing → Finishing → FI → Shipment',
+    usedIn: 0,
+    orderTypes: ['EXPORT', 'KNIT'],
+    updatedAt: '10 Mar 2025'
+  },
+  {
+    id: 4,
+    name: 'Heavy Embellishment Export',
+    isDefault: false,
+    stages: 11,
+    activities: 'PO Issue → GRN → Work Order → Cutting → Embroidery JW → Stone Work → Sewing → Washing → Finishing → FI → Shipment',
+    usedIn: 2,
+    orderTypes: ['EXPORT'],
+    updatedAt: '01 Apr 2025'
+  },
+  {
+    id: 5,
+    name: 'Sample Development',
+    isDefault: false,
+    stages: 5,
+    activities: 'Work Order → PP Sample → Size Set → Fit Sample → Approval',
+    usedIn: 1,
+    orderTypes: ['SAMPLE'],
+    updatedAt: '20 Mar 2025'
+  }
+];
+
+/* ── State ── */
+let pendingConfirmFn = null;
+let activePreviewId  = null;
+
+/* ── Helpers ── */
+function orderTypeBadge(ot) {
+  const map = {
+    EXPORT:   'ot-export',
+    DOMESTIC: 'ot-domestic',
+    KNIT:     'ot-knit',
+    SAMPLE:   'ot-sample'
+  };
+  return `<span class="ot-badge ${map[ot] || 'ot-export'}">${ot}</span>`;
+}
+
+function truncate(str, max) {
+  return str.length > max ? str.slice(0, max) + '…' : str;
+}
+
+/* ── Render ── */
+function applyFilter() {
+  const q     = document.getElementById('searchInput').value.toLowerCase().trim();
+  const usage = document.getElementById('usageFilter').value;
+
+  const rows = TEMPLATES.filter(t => {
+    if (q && !t.name.toLowerCase().includes(q)) return false;
+    if (usage === 'inuse'   && t.usedIn === 0) return false;
+    if (usage === 'notused' && t.usedIn  >  0) return false;
+    return true;
+  });
+
+  const tbody  = document.getElementById('tableBody');
+  const empty  = document.getElementById('emptyState');
+  const pagFoot = document.getElementById('paginationFooter');
+  const pagInfo = document.getElementById('paginationInfo');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    pagFoot.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  pagFoot.style.display = 'flex';
+  pagInfo.textContent = `Showing ${rows.length} of ${TEMPLATES.length} template${TEMPLATES.length !== 1 ? 's' : ''}`;
+
+  tbody.innerHTML = rows.map(t => {
+    const starFill   = t.isDefault ? 'FILL' : '0';
+    const starClass  = t.isDefault ? 'is-default' : '';
+    const starTitle  = t.isDefault ? 'Default template' : 'Set as default';
+    const starIcon   = t.isDefault ? 'star' : 'star';
+
+    const usedChipClass = t.usedIn > 0 ? 'inuse' : 'notused';
+    const usedLabel     = t.usedIn > 0 ? `${t.usedIn} order${t.usedIn !== 1 ? 's' : ''}` : 'Not used';
+
+    const otBadges = t.orderTypes.map(orderTypeBadge).join('');
+
+    const actTrunc = truncate(t.activities, 42);
+
+    const deleteDisabled = t.usedIn > 0;
+    const deleteTooltip  = deleteDisabled ? `Cannot delete — assigned to ${t.usedIn} order${t.usedIn !== 1 ? 's' : ''}` : 'Delete template';
+
+    return `<tr id="row-${t.id}">
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <a class="tpl-name-link" href="workflow-designer.html" title="Open in designer">${t.name}</a>
+        </div>
+      </td>
+      <td style="text-align:center;">
+        <button class="star-btn ${starClass}" id="star-${t.id}" onclick="handleStarClick(${t.id})" title="${starTitle}">
+          <span class="material-symbols-outlined" style="font-variation-settings:'FILL' ${t.isDefault ? 1 : 0},'wght' 400,'GRAD' 0,'opsz' 20;">${starIcon}</span>
+        </button>
+      </td>
+      <td>
+        <span class="nodes-badge">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;flex-shrink:0;"><circle cx="10" cy="10" r="3"/><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12z" opacity=".3"/></svg>
+          ${t.stages} nodes
+        </span>
+      </td>
+      <td>
+        <div class="activities-text" title="${t.activities}">${actTrunc}</div>
+      </td>
+      <td>
+        <span class="used-chip ${usedChipClass}">${usedLabel}</span>
+      </td>
+      <td>${otBadges}</td>
+      <td style="font-size:12px;color:var(--text-3);">${t.updatedAt}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-action" onclick="showPreview(event, ${t.id})" title="Preview activity flow">
+            <span class="material-symbols-outlined" style="font-size:15px;">visibility</span>
+          </button>
+          <a href="workflow-designer.html" class="icon-action" title="Edit in designer">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          </a>
+          <button class="icon-action" onclick="handleDuplicate(${t.id})" title="Duplicate template">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>
+          </button>
+          <button class="icon-action del${deleteDisabled ? '' : ''}" ${deleteDisabled ? `disabled data-tooltip="${deleteTooltip}"` : `onclick="handleDelete(${t.id})"`} title="${deleteTooltip}" style="${deleteDisabled ? 'opacity:0.35;cursor:not-allowed;' : ''}">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Star / Set as Default ── */
+function handleStarClick(id) {
+  const tpl = TEMPLATES.find(t => t.id === id);
+  if (!tpl) return;
+  if (tpl.isDefault) return; // already default — no action
+
+  openConfirm({
+    icon: 'star',
+    iconColor: '#ca8a04',
+    iconBg: '#fefce8',
+    title: 'Set as Default Template?',
+    body: `Set <strong>${tpl.name}</strong> as the default template? It will be auto-assigned to all new Production Orders.`,
+    okLabel: 'Set as Default',
+    okFn: () => {
+      TEMPLATES.forEach(t => { t.isDefault = false; });
+      tpl.isDefault = true;
+      applyFilter();
+      showToast(`"${tpl.name}" is now the default template`, 'success');
+    }
+  });
+}
+
+/* ── Duplicate ── */
+function handleDuplicate(id) {
+  const tpl = TEMPLATES.find(t => t.id === id);
+  if (!tpl) return;
+  showToast(`Duplicated "${tpl.name}" — opening designer…`, 'info');
+  setTimeout(() => { location.href = 'workflow-designer.html'; }, 900);
+}
+
+/* ── Delete ── */
+function handleDelete(id) {
+  const tpl = TEMPLATES.find(t => t.id === id);
+  if (!tpl) return;
+  if (tpl.usedIn > 0) return;
+
+  openConfirm({
+    icon: 'delete',
+    iconColor: '#dc2626',
+    iconBg: '#fef2f2',
+    title: 'Delete Template?',
+    body: `Are you sure you want to delete <strong>${tpl.name}</strong>? This action cannot be undone.`,
+    okLabel: 'Delete',
+    okBtnStyle: 'background:#dc2626;border-color:#dc2626;',
+    okFn: () => {
+      const idx = TEMPLATES.findIndex(t => t.id === id);
+      if (idx !== -1) TEMPLATES.splice(idx, 1);
+      applyFilter();
+      showToast(`"${tpl.name}" deleted`, 'success');
+    }
+  });
+}
+
+/* ── Preview popup ── */
+function showPreview(event, id) {
+  event.stopPropagation();
+  const tpl = TEMPLATES.find(t => t.id === id);
+  if (!tpl) return;
+
+  const popup = document.getElementById('previewPopup');
+  document.getElementById('previewPopupTitle').textContent = tpl.name + ' — Activity Flow';
+
+  const stages = tpl.activities.split(' → ');
+  const chain = document.getElementById('flowChain');
+  chain.innerHTML = stages.map((s, i) =>
+    `<span class="flow-node">${s}</span>${i < stages.length - 1 ? '<span class="flow-arrow">→</span>' : ''}`
+  ).join('');
+
+  // Position near the clicked button
+  const rect = event.currentTarget.getBoundingClientRect();
+  const popW = 600;
+  let left = rect.left;
+  if (left + popW > window.innerWidth - 16) left = window.innerWidth - popW - 16;
+  const top = rect.bottom + 8;
+
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.classList.add('open');
+
+  activePreviewId = id;
+}
+
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('previewPopup');
+  if (popup.classList.contains('open') && !popup.contains(e.target)) {
+    popup.classList.remove('open');
+    activePreviewId = null;
+  }
+});
+
+/* ── Confirm dialog ── */
+function openConfirm({ icon, iconColor, iconBg, title, body, okLabel, okBtnStyle, okFn }) {
+  document.getElementById('confirmIcon').textContent      = icon;
+  document.getElementById('confirmIcon').style.color      = iconColor || '';
+  document.getElementById('confirmIcon').parentElement.style.background = iconBg || '#f3f4f6';
+  document.getElementById('confirmTitle').textContent     = title;
+  document.getElementById('confirmBody').innerHTML        = body;
+  const okBtn = document.getElementById('confirmOkBtn');
+  okBtn.textContent = okLabel || 'Confirm';
+  okBtn.style.cssText = okBtnStyle || '';
+  pendingConfirmFn = okFn;
+  document.getElementById('confirmBackdrop').classList.add('open');
+}
+
+document.getElementById('confirmOkBtn').addEventListener('click', function() {
+  closeConfirm();
+  if (typeof pendingConfirmFn === 'function') pendingConfirmFn();
+  pendingConfirmFn = null;
+});
+
+function closeConfirm() {
+  document.getElementById('confirmBackdrop').classList.remove('open');
+}
+
+document.getElementById('confirmBackdrop').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+/* ── Toast ── */
+function showToast(msg, type) {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `toast ${type || 'info'}`;
+  el.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;flex-shrink:0;">${type === 'success' ? 'check_circle' : 'info'}</span>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ── Sidebar group toggle ── */
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  if (!grp) return;
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ── Init ── */
+applyFilter();
+</script>
+</body>
+</html>
