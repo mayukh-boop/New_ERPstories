@@ -94,11 +94,6 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 | NE-13 | GRN Excess Quantity Approval Workstation | `grn-approval.html` | `grn_header` (status: `EXCESS_PENDING`), `ApprovalTrail`, tolerance % |
 | NE-14A | Inline QC at GRN Receipt | `grn-qc.html` | `GrnLine` (acceptedQty, rejectedQty), inline QC status flags |
 | NE-14B | QC Inspection Page + Debit Notes | `grn-qc.html` | `QcInspection`, `DebitNote`, `VendorReturn`, `InventoryMovement` |
-| NE-18 | Buyer PO Master | `buyer-po.html`, `buyer-po-list.html` | `buyer_po_header`, `buyer_po_lines`, `style_size_variants` |
-| NE-19 | Production Planning & Capacity Management Epic | (all production HTML files) | `production_order`, `workflow_template`, `workflow_node`, `workflow_edge`, `production_order_tna` |
-| NE-20 (NE-PP-02) | Workflow Template Designer | `workflow-template-list.html`, `workflow-designer.html` | `workflow_template`, `workflow_node`, `workflow_edge`, `workflow_activity_library` |
-| NE-21 (NE-PP-01) | Production Order Master | `production-order-list.html`, `production-order.html` | `production_order`, `production_order_buyer_po`, `production_order_line` |
-| NE-22 (NE-PP-03) | TnA Generation & Tracking | `tna-tracker.html` | `production_order_tna` |
 
 ---
 
@@ -106,44 +101,16 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 
 ```
 /
-├── BACKEND CLAUDE.md                      # Backend architecture — read before any backend story/design
-├── FRONTEND CLAUDE.md                     # Frontend architecture — read before any UI story/design
-├── design-system.css                      # Shared CSS design system for all HTML prototypes
-│
-├── SALES
-│   ├── buyer-po-list.html                 # Buyer PO list view — configurable columns, PDF/Excel/WA/Email export
-│   └── buyer-po.html                      # Buyer PO create/detail — By Style/Location/Size views; Production Order traceability tab
-│
-├── PROCUREMENT
-│   ├── purchase-order-list.html           # Purchase Order list view
-│   ├── purchase-order.html                # Purchase Order create/detail
-│   ├── po-receipts.html                   # GRN receipt entry screen
-│   ├── grn-approval.html                  # GRN excess quantity approval workstation
-│   ├── grn-qc.html                        # QC inspection workstation
-│   ├── vendor-returns.html                # Vendor returns
-│   └── debit-notes.html                   # Debit notes
-│
-├── PRODUCTION
-│   ├── production-order-list.html         # Production Order list — configurable columns, stat cards, row actions
-│   ├── production-order.html              # Production Order create/detail — 5 entry points, lead day override, traceability tab
-│   ├── workflow-template-list.html        # Workflow Template list — default star, used-in count, duplicate/delete
-│   ├── workflow-designer.html             # Workflow Template DAG designer — drag-drop canvas, parallel activities, TnA test
-│   └── tna-tracker.html                   # TnA Tracker (per order) + TnA Calendar (monthly + list view)
-│
-├── MASTERS
-│   ├── masters-list.html                  # All masters overview
-│   ├── masters-vendor.html                # Vendor / Customer master
-│   ├── masters-company.html               # Company settings
-│   ├── masters-color.html                 # Color master
-│   ├── masters-size.html                  # Size master
-│   ├── masters-uom.html                   # Units of Measure
-│   ├── masters-garmenttype.html           # Garment types
-│   ├── masters-operation.html             # Operations master
-│   ├── masters-rawmaterial.html           # Raw materials master
-│   └── masters-aisle.html                 # Aisles / warehouse locations
-│
-└── SPECS
-    └── user-stories-grn-qc-approval.md    # Feature specs: GRN approval, QC inspection, debit notes
+├── BACKEND CLAUDE.md                   # Backend architecture — read before any backend story/design
+├── FRONTEND CLAUDE.md                  # Frontend architecture — read before any UI story/design
+├── design-system.css                   # Shared CSS design system for all HTML prototypes
+├── user-stories-grn-qc-approval.md     # Feature specs: GRN approval, QC inspection, debit notes
+├── purchase-order.html                 # PO master entry screen
+├── po-receipts.html                    # GRN receipt entry screen
+├── grn-approval.html                   # GRN excess quantity approval workstation
+├── grn-qc.html                         # QC inspection workstation
+├── purchase-order-list.html            # PO list view
+└── masters-*.html (9 files)            # Master data screens: color, UOM, vendor, fabric, process, etc.
 ```
 
 

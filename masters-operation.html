@@ -135,111 +135,60 @@
   }
   .add-substep-row:hover { background: var(--brand-50); }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
 <div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-logo">C</div>
-    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Production Suite</div></div>
-  </div>
-  <nav class="sidebar-nav">
-
-    <div class="nav-section">Sales</div>
-    <div class="nav-group" id="grp-sales">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
-        <span class="nav-parent-label">Buyer Orders</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Stitch ERP</div>
+      <div class="brand-sub">Enterprise Garment Platform</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8a1 1 0 011-1h4v5H3v-4zm8-8h4a1 1 0 011 1v4h-5V4zm0 8h5v3a1 1 0 01-1 1h-4v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
       </div>
-      <div class="nav-children">
-        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
-        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child active" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">MG</div>
+      <div class="sf-info">
+        <div class="sf-name">Mayukh Ghatak</div>
+        <div class="sf-role">Admin Access</div>
       </div>
     </div>
-
-    <div class="nav-section">Procurement</div>
-    <div class="nav-group" id="grp-procurement">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
-        <span class="nav-parent-label">Purchase Orders</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="purchase-order-list.html">PO List</a>
-        <a class="nav-child" href="purchase-order.html">Create PO</a>
-      </div>
-    </div>
-    <div class="nav-group" id="grp-grn">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
-        <span class="nav-parent-label">GRN &amp; Receipts</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
-        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
-        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
-        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
-        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
-      </div>
-    </div>
-
-    <div class="nav-section">Production</div>
-    <div class="nav-group" id="grp-prod-orders">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
-        <span class="nav-parent-label">Production Orders</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="production-order-list.html">Production Order List</a>
-        <a class="nav-child" href="production-order.html">Create Production Order</a>
-      </div>
-    </div>
-    <div class="nav-group" id="grp-planning">
-      <div class="nav-parent" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
-        <span class="nav-parent-label">Planning &amp; TnA</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
-        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
-        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
-      </div>
-    </div>
-
-    <div class="nav-section">Masters</div>
-    <div class="nav-group open" id="grp-masters">
-      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
-        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
-        <span class="nav-parent-label">Master Data</span>
-        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
-      </div>
-      <div class="nav-children">
-        <a class="nav-child" href="masters-list.html">All Masters</a>
-        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
-        <a class="nav-child" href="masters-company.html">Company Settings</a>
-        <a class="nav-child" href="masters-color.html">Colors</a>
-        <a class="nav-child" href="masters-size.html">Sizes</a>
-        <a class="nav-child" href="masters-uom.html">Units of Measure</a>
-        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
-        <a class="nav-child active" href="masters-operation.html">Operations</a>
-        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
-        <a class="nav-child" href="masters-aisle.html">Aisles / Locations</a>
-      </div>
-    </div>
-
-  </nav>
-  <div class="sidebar-footer">
-    <div class="sf-avatar">MG</div>
-    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
-  </div>
-</aside>
+  </aside>
 
   <div class="main">
     <header class="topbar">
@@ -751,12 +700,7 @@ function showToast(msg,type='success'){
   t.className='toast show'+(type==='error'?' toast-error':'');
   setTimeout(()=>t.classList.remove('show'),3000);
 }
-function toggleGroup(el) {
-  const grp = el.closest('.nav-group');
-  grp.classList.toggle('open');
-  el.classList.toggle('open');
-  el.classList.toggle('active-group');
-}
+function toggleGroup(el){el.closest('.nav-group').classList.toggle('open');}
 
 // Auto-expand first row
 expandedRows.add(data[0].id);
