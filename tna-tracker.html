@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TnA Tracker — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ── Theme override (blue sidebar like production-order.html) ── */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(37,99,235,0.07);
+  --sidebar-active: rgba(37,99,235,0.12);
+  --sidebar-text: #64748b;
+  --brand-50:  #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-200: #bfdbfe;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --brand-800: #1e40af;
+  --bg: #f0f2f7;
+  --border: #e2e8f0;
+  --border2: #f1f5f9;
+  --orange: #f97316;
+  --orange-bg: #fff7ed;
+  --orange-border: #fed7aa;
+}
+
+/* Sidebar overrides */
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #0f172a !important; font-weight: 800 !important; }
+.brand-sub { color: #94a3b8 !important; }
+.sidebar-brand {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--border) !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-logo {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--brand-600);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.nav-section {
+  color: #94a3b8 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  padding: 16px 18px 4px !important;
+}
+.nav-parent-label { color: #334155 !important; font-weight: 500 !important; }
+.nav-parent-icon { color: #94a3b8 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-parent.active-group .nav-parent-icon { color: var(--brand-500) !important; }
+.nav-child {
+  color: #64748b !important;
+  font-size: 12.5px !important;
+  padding: 7px 14px 7px 42px !important;
+  border-radius: 6px !important;
+  margin: 1px 8px !important;
+  display: block !important;
+}
+.nav-child:hover { background: var(--sidebar-hover) !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #cbd5e1 !important; }
+.sidebar-footer { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #0f172a !important; }
+.sf-role { color: #94a3b8 !important; }
+.sf-avatar { background: var(--brand-600) !important; }
+.topbar { border-bottom: 1px solid #e2e8f0 !important; box-shadow: 0 1px 4px rgba(37,99,235,0.06) !important; }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-3);
+  flex: 1;
+}
+.breadcrumb a, .breadcrumb span.bc-link {
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color .15s;
+}
+.breadcrumb a:hover, .breadcrumb span.bc-link:hover { color: var(--brand-600); }
+.breadcrumb .bc-sep { color: var(--border); }
+.breadcrumb .bc-current { color: var(--text-1); font-weight: 600; }
+
+/* ── Top header area ── */
+.tna-topbar-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tna-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── View toggle (Tracker / Calendar) ── */
+.main-view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--gray-100);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+.mvt-btn {
+  padding: 7px 18px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-3);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.mvt-btn.active {
+  background: var(--surface);
+  color: var(--brand-700);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.mvt-btn .material-symbols-outlined { font-size: 17px; }
+
+/* ── Order context strip ── */
+.order-context-strip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.ocs-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ocs-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-3);
+}
+.ocs-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+.ocs-sep {
+  width: 1px;
+  height: 36px;
+  background: var(--border2);
+  flex-shrink: 0;
+}
+
+/* ── Stat bar ── */
+.stat-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-1);
+}
+.stat-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+.stat-card.green .stat-value { color: var(--success); }
+.stat-card.blue .stat-value { color: var(--brand-600); }
+.stat-card.red .stat-value { color: var(--danger); }
+.stat-card.gray .stat-value { color: var(--gray-400); }
+
+/* ── Inner view toggle (Table/Gantt) ── */
+.inner-view-toggle {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 0;
+}
+.ivt-btn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.ivt-btn:hover { color: var(--text-1); }
+.ivt-btn.active { color: var(--brand-600); border-bottom-color: var(--brand-600); }
+.ivt-btn .material-symbols-outlined { font-size: 17px; }
+
+/* ── TnA Table ── */
+.tna-table-wrap {
+  overflow-x: auto;
+}
+.tna-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 900px;
+}
+.tna-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border2);
+  background: var(--gray-50);
+  white-space: nowrap;
+}
+.tna-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.tna-table tbody tr:last-child td { border-bottom: none; }
+
+/* Row status coloring */
+.tna-table tbody tr.row-completed {
+  border-left: 3px solid var(--success);
+  background: #f0fdf4;
+}
+.tna-table tbody tr.row-completed:hover { background: #dcfce7; }
+.tna-table tbody tr.row-in-progress {
+  border-left: 3px solid var(--brand-500);
+}
+.tna-table tbody tr.row-in-progress:hover { background: #fafbff; }
+.tna-table tbody tr.row-delayed {
+  border-left: 3px solid var(--danger);
+}
+.tna-table tbody tr.row-delayed:hover { background: var(--danger-bg); }
+.tna-table tbody tr.row-not-started {
+  border-left: 3px solid var(--gray-300);
+}
+.tna-table tbody tr.row-not-started:hover { background: #fafbff; }
+
+/* Critical path highlight */
+.tna-table tbody tr.row-critical-path {
+  background: #fff5f5 !important;
+  border-left-width: 4px !important;
+}
+.tna-table tbody tr.row-critical-path.row-completed { background: #f0fdf4 !important; }
+.tna-table tbody tr.row-critical-path:hover { filter: brightness(0.97); }
+
+/* Sewing stage */
+.tna-table tbody tr.row-sewing {
+  border-left: 3px solid var(--orange) !important;
+  background: var(--orange-bg) !important;
+}
+.tna-table tbody tr.row-sewing:hover { background: #fef3c7 !important; }
+
+/* Status badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sp-completed { background: var(--success-bg); color: #166534; }
+.sp-in-progress { background: var(--brand-50); color: var(--brand-800); }
+.sp-delayed { background: var(--danger-bg); color: #991b1b; }
+.sp-not-started { background: var(--gray-100); color: var(--gray-600); }
+.sp-amber { background: #fff7ed; color: #c2410c; }
+.sp-blue-pill { background: var(--brand-50); color: var(--brand-700); padding: 3px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
+.sp-amber-pill { background: #fff7ed; color: #c2410c; padding: 3px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
+
+/* Type badge */
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.type-internal { background: var(--brand-50); color: var(--brand-700); }
+.type-jw { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+.type-system { background: var(--gray-100); color: var(--gray-600); }
+
+/* Delay chip */
+.delay-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.delay-chip.overdue { background: var(--danger-bg); color: var(--danger); }
+.delay-chip.zero { background: var(--gray-100); color: var(--text-3); }
+
+/* Critical path indicator */
+.cp-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-right: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Row num */
+.row-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-3);
+}
+
+/* Action btn */
+.tna-edit-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all .15s;
+}
+.tna-edit-btn:hover { background: var(--info-bg); color: var(--info); border-color: var(--brand-300); }
+.tna-edit-btn .material-symbols-outlined { font-size: 14px; }
+
+/* Footer total row */
+.tna-table tfoot td {
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-top: 2px solid var(--border2);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+/* ── Inline Edit Panel ── */
+.inline-edit-panel {
+  display: none;
+  background: var(--brand-50);
+  border: 1.5px solid var(--brand-200);
+  border-radius: var(--r);
+  padding: 16px 20px;
+  margin: 0 4px 4px;
+}
+.inline-edit-panel.open { display: block; }
+.iep-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--brand-700);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.iep-title .material-symbols-outlined { font-size: 16px; }
+.iep-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+.iep-field { display: flex; flex-direction: column; gap: 4px; }
+.iep-label { font-size: 11px; font-weight: 600; color: var(--text-2); }
+.iep-input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1.5px solid var(--brand-200);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--text-1);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .15s;
+}
+.iep-input:focus { border-color: var(--brand-500); }
+.iep-textarea {
+  padding: 7px 10px;
+  border: 1.5px solid var(--brand-200);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--text-1);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .15s;
+  resize: none;
+  height: 34px;
+}
+.iep-textarea:focus { border-color: var(--brand-500); }
+.iep-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── Gantt Chart ── */
+.gantt-wrap {
+  overflow-x: auto;
+  padding: 20px;
+}
+.gantt-container {
+  display: flex;
+  min-width: 800px;
+  position: relative;
+}
+.gantt-labels {
+  width: 160px;
+  flex-shrink: 0;
+  padding-top: 40px; /* header row height */
+}
+.gantt-label-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.gantt-label-row:last-child { border-bottom: none; }
+.gantt-label-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 148px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.gantt-label-sub {
+  font-size: 10px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* SVG gantt area */
+.gantt-svg-area {
+  flex: 1;
+  position: relative;
+}
+.gantt-svg-area svg {
+  display: block;
+  width: 100%;
+}
+
+/* Gantt tooltip */
+.gantt-tooltip {
+  position: fixed;
+  background: var(--gray-900);
+  color: #f9fafb;
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+  z-index: 300;
+  display: none;
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+}
+.gantt-tooltip.visible { display: block; }
+.gantt-tooltip-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.gantt-tooltip-row { display: flex; gap: 6px; }
+.gantt-tooltip-row span:first-child { color: #9ca3af; min-width: 80px; }
+
+/* ── Calendar View ── */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-1);
+}
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cal-nav-btn {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+  transition: all .15s;
+}
+.cal-nav-btn:hover { background: var(--brand-50); border-color: var(--brand-300); color: var(--brand-600); }
+.cal-nav-btn .material-symbols-outlined { font-size: 18px; }
+.cal-month-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-1);
+  min-width: 140px;
+  text-align: center;
+}
+
+/* Filter bar for calendar */
+.cal-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+/* Calendar grid */
+.cal-grid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.cal-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--border2);
+}
+.cal-day-hdr {
+  padding: 10px 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-3);
+}
+.cal-weeks {
+  display: flex;
+  flex-direction: column;
+}
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border2);
+}
+.cal-week:last-child { border-bottom: none; }
+.cal-cell {
+  min-height: 110px;
+  padding: 8px;
+  border-right: 1px solid var(--border2);
+  vertical-align: top;
+  transition: background .15s;
+  position: relative;
+}
+.cal-cell:last-child { border-right: none; }
+.cal-cell:hover { background: var(--gray-50); }
+.cal-cell.other-month { background: #fafbfc; }
+.cal-cell.other-month .cal-day-num { color: var(--text-3); }
+.cal-cell.today-cell { background: var(--brand-50); }
+.cal-cell.today-cell .cal-day-num {
+  background: var(--brand-600);
+  color: #fff;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.cal-day-num {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+/* Calendar chips */
+.cal-chips { display: flex; flex-direction: column; gap: 3px; }
+.cal-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  position: relative;
+}
+.cal-chip:hover { opacity: 0.85; }
+.cal-chip.chip-green { background: var(--success-bg); color: #166534; }
+.cal-chip.chip-blue { background: var(--brand-50); color: var(--brand-800); }
+.cal-chip.chip-red { background: var(--danger-bg); color: #991b1b; }
+.cal-chip.chip-gray { background: var(--gray-100); color: var(--gray-600); }
+
+/* Calendar popup */
+.cal-popup {
+  position: fixed;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  z-index: 400;
+  min-width: 240px;
+  display: none;
+  font-size: 13px;
+}
+.cal-popup.visible { display: block; }
+.cal-popup-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.cal-popup-close { cursor: pointer; color: var(--text-3); }
+.cal-popup-close:hover { color: var(--text-1); }
+.cal-popup-row { display: flex; gap: 8px; margin-bottom: 5px; color: var(--text-2); }
+.cal-popup-row .cal-popup-key { color: var(--text-3); font-size: 11.5px; min-width: 80px; }
+.cal-popup-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--brand-600);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.cal-popup-link:hover { text-decoration: underline; }
+.cal-popup-link .material-symbols-outlined { font-size: 14px; }
+
+/* ── Utility ── */
+.text-muted { color: var(--text-3); font-size: 11.5px; }
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.gap-6 { gap: 6px; }
+.view-panel { display: none; }
+.view-panel.active { display: block; }
+.inner-panel { display: none; }
+.inner-panel.active { display: block; }
+
+/* Section card */
+.sec {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.sec-title .material-symbols-outlined { font-size: 16px; color: var(--brand-500); }
+
+/* Sewing window pill */
+.sewing-window-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: var(--orange-bg);
+  border: 1px solid var(--orange-border);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c2410c;
+}
+.sewing-window-pill .material-symbols-outlined { font-size: 13px; }
+
+/* Status IN_PRODUCTION amber */
+.status-in-prod {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c2410c;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div>
+      <div class="brand-name">C-Edge ERP</div>
+      <div class="brand-sub">Production Suite</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning & TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child active" href="tna-tracker.html">TnA Calendar</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">content_cut</span></span>
+        <span class="nav-parent-label">Cutting</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Cut Orders</a>
+        <a class="nav-child" href="#">Fabric Issue</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">sewing</span></span>
+        <span class="nav-parent-label">Sewing</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Sewing Lines</a>
+        <a class="nav-child" href="#">Daily Output</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="#">Style Master</a>
+        <a class="nav-child" href="#">Sewing Line Master</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info">
+      <div class="sf-name">Mayukh Ghatak</div>
+      <div class="sf-role">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">TnA Tracker</span>
+    <div class="topbar-right">
+      <!-- Main view toggle: Tracker vs Calendar -->
+      <div class="main-view-toggle">
+        <button class="mvt-btn active" id="btnViewTracker" onclick="switchMainView('tracker')">
+          <span class="material-symbols-outlined">table_rows</span> TnA Tracker
+        </button>
+        <button class="mvt-btn" id="btnViewCalendar" onclick="switchMainView('calendar')">
+          <span class="material-symbols-outlined">calendar_month</span> TnA Calendar
+        </button>
+      </div>
+      <button class="topbar-icon-btn" title="Notifications">
+        <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page" id="mainPage">
+
+    <!-- ══════════════════════════════════
+         VIEW 1: TnA TRACKER
+    ══════════════════════════════════ -->
+    <div id="viewTracker" class="view-panel active">
+
+      <!-- Breadcrumb + actions -->
+      <div class="tna-topbar-area">
+        <div class="breadcrumb">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">arrow_back</span>
+          <span class="bc-link">Production Orders</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-link" style="color:var(--brand-600);font-weight:600;">PRD-2025-0042</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">Time & Action</span>
+        </div>
+        <div class="tna-topbar-actions">
+          <button class="btn btn-outline btn-sm" onclick="showToast('TnA plan regenerated from workflow template','success')">
+            <span class="material-symbols-outlined" style="font-size:14px;">refresh</span> Regenerate TnA
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Downstream stages re-planned based on current delays','info')">
+            <span class="material-symbols-outlined" style="font-size:14px;">account_tree</span> Re-plan Downstream
+          </button>
+        </div>
+      </div>
+
+      <!-- Order context strip -->
+      <div class="order-context-strip">
+        <div class="ocs-item">
+          <div class="ocs-label">Production Order</div>
+          <div class="ocs-value" style="color:var(--brand-700);font-weight:800;">PRD-2025-0042</div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Style</div>
+          <div class="ocs-value">SS-2025-POLO-01 / Classic Polo Shirt</div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Buyer</div>
+          <div class="ocs-value">Marks &amp; Spencer</div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Delivery Date</div>
+          <div class="ocs-value">
+            <span class="sp-blue-pill">15 Jul 2025</span>
+          </div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Status</div>
+          <div class="ocs-value">
+            <span class="status-in-prod">
+              <span class="material-symbols-outlined" style="font-size:13px;">engineering</span>
+              IN_PRODUCTION
+            </span>
+          </div>
+        </div>
+        <div class="ocs-sep"></div>
+        <div class="ocs-item">
+          <div class="ocs-label">Workflow</div>
+          <div class="ocs-value" style="color:var(--text-2);">Standard Export — 9 nodes</div>
+        </div>
+      </div>
+
+      <!-- Summary stat bar -->
+      <div class="stat-bar">
+        <div class="stat-card">
+          <div class="stat-label">Total Stages</div>
+          <div class="stat-value">9</div>
+          <div class="stat-sub">All workflow nodes</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">On schedule</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value">2</div>
+          <div class="stat-sub">Active now</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Delayed</div>
+          <div class="stat-value">1</div>
+          <div class="stat-sub">Needs attention</div>
+        </div>
+        <div class="stat-card gray">
+          <div class="stat-label">Not Started</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">Upcoming</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Critical Path</div>
+          <div class="stat-value" style="font-size:17px;">42 days</div>
+          <div class="stat-sub" style="margin-top:4px;">
+            <span class="sewing-window-pill">
+              <span class="material-symbols-outlined">sewing</span>
+              12 Jun – 28 Jun
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inner view toggle: Table / Gantt -->
+      <div class="sec">
+        <div class="sec-head" style="padding:0 0 0 0;border-bottom:none;">
+          <div class="inner-view-toggle" style="flex:1;">
+            <button class="ivt-btn active" id="btnTableView" onclick="switchInnerView('table')">
+              <span class="material-symbols-outlined">table_rows</span> Table View
+            </button>
+            <button class="ivt-btn" id="btnGanttView" onclick="switchInnerView('gantt')">
+              <span class="material-symbols-outlined">bar_chart</span> Gantt View
+            </button>
+          </div>
+        </div>
+
+        <!-- TABLE VIEW -->
+        <div id="innerTable" class="inner-panel active">
+          <div class="tna-table-wrap">
+            <table class="tna-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th>
+                  <th>Stage</th>
+                  <th>Type</th>
+                  <th style="width:80px;">Lead Days</th>
+                  <th>Planned Start</th>
+                  <th>Planned End</th>
+                  <th>Actual Start</th>
+                  <th>Actual End</th>
+                  <th>Status</th>
+                  <th style="width:70px;">Delay</th>
+                  <th>Remarks</th>
+                  <th style="width:44px;text-align:center;">Edit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Row 1: PO Issue - COMPLETED, critical path -->
+                <tr class="row-completed row-critical-path" data-row="1">
+                  <td><span class="row-num">1</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    PO Issue
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">2d</td>
+                  <td>28 May 2025</td>
+                  <td>30 May 2025</td>
+                  <td>28 May 2025</td>
+                  <td>30 May 2025</td>
+                  <td><span class="status-pill sp-completed">✓ Completed</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(1)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-1" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-1">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 1: PO Issue</div>
+                      <div class="iep-grid">
+                        <div class="iep-field">
+                          <div class="iep-label">Actual Start Date</div>
+                          <input type="date" class="iep-input" value="2025-05-28">
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Actual End Date</div>
+                          <input type="date" class="iep-input" value="2025-05-30">
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Status</div>
+                          <select class="iep-input">
+                            <option>COMPLETED</option>
+                            <option>IN_PROGRESS</option>
+                            <option>DELAYED</option>
+                            <option>NOT_STARTED</option>
+                          </select>
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Remarks</div>
+                          <textarea class="iep-textarea" placeholder="Add remarks…"></textarea>
+                        </div>
+                        <div class="iep-actions">
+                          <button class="btn btn-primary btn-sm" onclick="saveEditPanel(1)">Save</button>
+                          <button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(1)">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2: GRN - DELAYED, critical path -->
+                <tr class="row-delayed row-critical-path" data-row="2">
+                  <td><span class="row-num">2</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    GRN
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">3d</td>
+                  <td>30 May 2025</td>
+                  <td>02 Jun 2025</td>
+                  <td>30 May 2025</td>
+                  <td style="color:var(--danger);font-weight:600;">03 Jun 2025</td>
+                  <td><span class="status-pill sp-delayed">⚠ Delayed</span></td>
+                  <td><span class="delay-chip overdue">+1d</span></td>
+                  <td style="font-size:12px;color:var(--text-2);">Fabric delivery delayed</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(2)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-2" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-2">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 2: GRN</div>
+                      <div class="iep-grid">
+                        <div class="iep-field">
+                          <div class="iep-label">Actual Start Date</div>
+                          <input type="date" class="iep-input" value="2025-05-30">
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Actual End Date</div>
+                          <input type="date" class="iep-input" value="2025-06-03">
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Status</div>
+                          <select class="iep-input">
+                            <option>COMPLETED</option>
+                            <option>IN_PROGRESS</option>
+                            <option selected>DELAYED</option>
+                            <option>NOT_STARTED</option>
+                          </select>
+                        </div>
+                        <div class="iep-field">
+                          <div class="iep-label">Remarks</div>
+                          <textarea class="iep-textarea" placeholder="Add remarks…">Fabric delivery delayed</textarea>
+                        </div>
+                        <div class="iep-actions">
+                          <button class="btn btn-primary btn-sm" onclick="saveEditPanel(2)">Save</button>
+                          <button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(2)">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3: Work Order - COMPLETED, critical path -->
+                <tr class="row-completed row-critical-path" data-row="3">
+                  <td><span class="row-num">3</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    Work Order
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">2d</td>
+                  <td>03 Jun 2025</td>
+                  <td>05 Jun 2025</td>
+                  <td>03 Jun 2025</td>
+                  <td>05 Jun 2025</td>
+                  <td><span class="status-pill sp-completed">✓ Completed</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(3)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-3" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-3">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 3: Work Order</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input" value="2025-06-03"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input" value="2025-06-05"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option selected>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…"></textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(3)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(3)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 4: Cutting - COMPLETED, critical path -->
+                <tr class="row-completed row-critical-path" data-row="4">
+                  <td><span class="row-num">4</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    Cutting
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">4d</td>
+                  <td>05 Jun 2025</td>
+                  <td>09 Jun 2025</td>
+                  <td>05 Jun 2025</td>
+                  <td>09 Jun 2025</td>
+                  <td><span class="status-pill sp-completed">✓ Completed</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(4)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-4" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-4">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 4: Cutting</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input" value="2025-06-05"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input" value="2025-06-09"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option selected>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…"></textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(4)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(4)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 5: Embroidery JW - IN_PROGRESS, NOT critical path (parallel) -->
+                <tr class="row-in-progress" data-row="5">
+                  <td><span class="row-num">5</span></td>
+                  <td style="color:var(--text-2);">
+                    Embroidery JW
+                    <div style="font-size:10.5px;color:var(--text-3);margin-top:2px;">Parallel — not critical path</div>
+                  </td>
+                  <td><span class="type-tag type-jw">Job Work</span></td>
+                  <td style="text-align:center;font-weight:700;">6d</td>
+                  <td>05 Jun 2025</td>
+                  <td>11 Jun 2025</td>
+                  <td>05 Jun 2025</td>
+                  <td class="text-muted">—</td>
+                  <td><span class="status-pill sp-in-progress">● In Progress</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td style="font-size:12px;color:var(--text-2);">At vendor</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(5)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-5" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-5">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 5: Embroidery JW</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input" value="2025-06-05"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input" placeholder="Not yet"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option>COMPLETED</option><option selected>IN_PROGRESS</option><option>DELAYED</option><option>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…">At vendor</textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(5)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(5)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 6: Sewing - NOT_STARTED, critical path + SEWING STAGE -->
+                <tr class="row-sewing row-not-started" data-row="6">
+                  <td><span class="row-num" style="background:#fed7aa;color:#c2410c;">6</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    <strong>Sewing</strong>
+                    <span style="display:inline-flex;align-items:center;gap:3px;padding:1px 7px;background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:9999px;font-size:10px;font-weight:700;color:#c2410c;margin-left:6px;vertical-align:middle;">
+                      <span class="material-symbols-outlined" style="font-size:11px;">sewing</span>SEWING
+                    </span>
+                    <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Waiting for Cutting + Embroidery</div>
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">14d</td>
+                  <td>12 Jun 2025</td>
+                  <td>26 Jun 2025</td>
+                  <td class="text-muted">—</td>
+                  <td class="text-muted">—</td>
+                  <td><span class="status-pill sp-not-started">○ Not Started</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td style="font-size:12px;color:var(--text-2);">Waiting for Cutting + Embroidery</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(6)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-6" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-6">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 6: Sewing</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input" placeholder="Not yet"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input" placeholder="Not yet"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option selected>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…">Waiting for Cutting + Embroidery</textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(6)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(6)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 7: Finishing - NOT_STARTED, critical path -->
+                <tr class="row-not-started row-critical-path" data-row="7">
+                  <td><span class="row-num">7</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    Finishing
+                  </td>
+                  <td><span class="type-tag type-internal">Internal</span></td>
+                  <td style="text-align:center;font-weight:700;">4d</td>
+                  <td>26 Jun 2025</td>
+                  <td>30 Jun 2025</td>
+                  <td class="text-muted">—</td>
+                  <td class="text-muted">—</td>
+                  <td><span class="status-pill sp-not-started">○ Not Started</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(7)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-7" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-7">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 7: Finishing</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option selected>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…"></textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(7)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(7)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 8: Final Inspection - NOT_STARTED, critical path, SYSTEM -->
+                <tr class="row-not-started row-critical-path" data-row="8">
+                  <td><span class="row-num">8</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    Final Inspection
+                    <span class="type-tag type-system" style="margin-left:6px;vertical-align:middle;font-size:9.5px;">SYSTEM</span>
+                  </td>
+                  <td><span class="type-tag type-system">System</span></td>
+                  <td style="text-align:center;font-weight:700;">3d</td>
+                  <td>30 Jun 2025</td>
+                  <td>03 Jul 2025</td>
+                  <td class="text-muted">—</td>
+                  <td class="text-muted">—</td>
+                  <td><span class="status-pill sp-not-started">○ Not Started</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(8)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-8" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-8">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 8: Final Inspection</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option selected>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…"></textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(8)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(8)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 9: Shipment - NOT_STARTED, critical path, SYSTEM -->
+                <tr class="row-not-started row-critical-path" data-row="9">
+                  <td><span class="row-num">9</span></td>
+                  <td>
+                    <span class="cp-dot" title="Critical Path"></span>
+                    Shipment
+                    <span class="type-tag type-system" style="margin-left:6px;vertical-align:middle;font-size:9.5px;">SYSTEM</span>
+                  </td>
+                  <td><span class="type-tag type-system">System</span></td>
+                  <td style="text-align:center;font-weight:700;">3d</td>
+                  <td>03 Jul 2025</td>
+                  <td>15 Jul 2025</td>
+                  <td class="text-muted">—</td>
+                  <td class="text-muted">—</td>
+                  <td><span class="status-pill sp-not-started">○ Not Started</span></td>
+                  <td><span class="delay-chip zero">0d</span></td>
+                  <td class="text-muted">—</td>
+                  <td style="text-align:center;">
+                    <button class="tna-edit-btn" onclick="toggleEditPanel(9)" title="Edit actuals">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr id="edit-panel-row-9" style="display:none;">
+                  <td colspan="12" style="padding:0;">
+                    <div class="inline-edit-panel open" id="edit-panel-9">
+                      <div class="iep-title"><span class="material-symbols-outlined">edit_calendar</span> Update Actuals — Stage 9: Shipment</div>
+                      <div class="iep-grid">
+                        <div class="iep-field"><div class="iep-label">Actual Start Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Actual End Date</div><input type="date" class="iep-input"></div>
+                        <div class="iep-field"><div class="iep-label">Status</div><select class="iep-input"><option>COMPLETED</option><option>IN_PROGRESS</option><option>DELAYED</option><option selected>NOT_STARTED</option></select></div>
+                        <div class="iep-field"><div class="iep-label">Remarks</div><textarea class="iep-textarea" placeholder="Add remarks…"></textarea></div>
+                        <div class="iep-actions"><button class="btn btn-primary btn-sm" onclick="saveEditPanel(9)">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleEditPanel(9)">Cancel</button></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="font-size:12px;color:var(--text-3);">
+                    <span style="color:var(--danger);margin-right:6px;">●</span> Critical path rows highlighted in red |
+                    <span style="color:var(--orange);margin-left:6px;">●</span> Sewing stage highlighted in orange
+                  </td>
+                  <td style="text-align:center;">
+                    <strong style="color:var(--danger);">42d</strong>
+                  </td>
+                  <td colspan="8" style="font-size:12px;color:var(--text-2);">
+                    <strong>Total lead days on critical path: 42 days</strong>
+                    &nbsp;&nbsp;|&nbsp;&nbsp; 1 stage delayed (+1 day) &nbsp;&nbsp;|&nbsp;&nbsp; Delivery: 15 Jul 2025
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <!-- END TABLE VIEW -->
+
+        <!-- GANTT VIEW -->
+        <div id="innerGantt" class="inner-panel">
+          <div class="gantt-wrap">
+            <!-- Legend -->
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+              <div style="font-size:11.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;">Legend:</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:28px;height:10px;background:#3b82f6;border-radius:3px;"></div> Planned
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:28px;height:10px;background:#16a34a;border-radius:3px;"></div> Completed (on time)
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:28px;height:10px;background:#dc2626;border-radius:3px;"></div> Delayed / Actual overrun
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:28px;height:10px;background:#f97316;border-radius:3px;"></div> Sewing stage
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:2px;height:18px;background:#dc2626;border-left:2px dashed #dc2626;"></div> Today (10 Jun)
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);">
+                <div style="width:2px;height:18px;background:#16a34a;border-left:2px dashed #16a34a;"></div> Delivery (15 Jul)
+              </div>
+            </div>
+            <div class="gantt-container" id="ganttContainer">
+              <!-- Labels column -->
+              <div class="gantt-labels" id="ganttLabels">
+                <!-- filled by JS -->
+              </div>
+              <!-- SVG chart -->
+              <div class="gantt-svg-area" id="ganttSvgArea">
+                <!-- filled by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END GANTT VIEW -->
+
+      </div><!-- /.sec -->
+    </div>
+    <!-- END VIEW 1 -->
+
+    <!-- ══════════════════════════════════
+         VIEW 2: TnA CALENDAR
+    ══════════════════════════════════ -->
+    <div id="viewCalendar" class="view-panel">
+
+      <!-- Calendar header -->
+      <div class="cal-header">
+        <div>
+          <div class="cal-title">TnA Calendar</div>
+          <div style="font-size:13px;color:var(--text-3);margin-top:2px;">Cross-order monthly view — all active production orders</div>
+        </div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="showToast('Navigated to May 2025','info')">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="cal-month-label">June 2025</span>
+          <button class="cal-nav-btn" onclick="showToast('Navigated to July 2025','info')">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="cal-filter-bar">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Factory</div>
+          <select class="filter-select">
+            <option>All Factories</option>
+            <option selected>Main Factory — Kolkata</option>
+            <option>Unit 2 — Howrah</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Order Type</div>
+          <select class="filter-select">
+            <option selected>All Types</option>
+            <option>Export</option>
+            <option>Domestic</option>
+            <option>Sample</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Status Filter</div>
+          <select class="filter-select">
+            <option selected>All Statuses</option>
+            <option>Delayed</option>
+            <option>In Progress</option>
+            <option>Not Started</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:auto;" onclick="showToast('Filter applied','info')">
+          <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Apply
+        </button>
+        <button class="btn btn-ghost btn-sm" style="margin-top:auto;color:var(--text-3);" onclick="showToast('Filters cleared','info')">
+          Clear
+        </button>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="cal-grid">
+        <div class="cal-day-headers">
+          <div class="cal-day-hdr">Mon</div>
+          <div class="cal-day-hdr">Tue</div>
+          <div class="cal-day-hdr">Wed</div>
+          <div class="cal-day-hdr">Thu</div>
+          <div class="cal-day-hdr">Fri</div>
+          <div class="cal-day-hdr">Sat</div>
+          <div class="cal-day-hdr">Sun</div>
+        </div>
+        <div class="cal-weeks" id="calWeeks">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+    </div>
+    <!-- END VIEW 2 -->
+
+  </main>
+</div><!-- /.main -->
+</div><!-- /.app -->
+
+<!-- Gantt tooltip -->
+<div class="gantt-tooltip" id="ganttTooltip"></div>
+
+<!-- Calendar popup -->
+<div class="cal-popup" id="calPopup">
+  <div class="cal-popup-title">
+    <span id="calPopupTitle">Stage Detail</span>
+    <span class="cal-popup-close material-symbols-outlined" onclick="closeCalPopup()">close</span>
+  </div>
+  <div id="calPopupBody"></div>
+  <div class="cal-popup-link" onclick="switchMainView('tracker');showToast('Navigating to TnA Tracker…','info')">
+    <span class="material-symbols-outlined">open_in_new</span> View TnA
+  </div>
+</div>
+
+<!-- Toast area -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+// ─────────────────────────────────────────
+//  Sidebar group toggle
+// ─────────────────────────────────────────
+function toggleGroup(el) {
+  var group = el.closest('.nav-group');
+  var isOpen = group.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(function(g) {
+    if (g !== group) {
+      g.classList.remove('open');
+      var parent = g.querySelector('.nav-parent');
+      if (parent) parent.classList.remove('open');
+    }
+  });
+  group.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+
+// ─────────────────────────────────────────
+//  Main view switch (Tracker / Calendar)
+// ─────────────────────────────────────────
+function switchMainView(view) {
+  document.getElementById('viewTracker').classList.toggle('active', view === 'tracker');
+  document.getElementById('viewCalendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('btnViewTracker').classList.toggle('active', view === 'tracker');
+  document.getElementById('btnViewCalendar').classList.toggle('active', view === 'calendar');
+  if (view === 'gantt') switchInnerView('gantt');
+}
+
+// ─────────────────────────────────────────
+//  Inner view switch (Table / Gantt)
+// ─────────────────────────────────────────
+function switchInnerView(view) {
+  document.getElementById('innerTable').classList.toggle('active', view === 'table');
+  document.getElementById('innerGantt').classList.toggle('active', view === 'gantt');
+  document.getElementById('btnTableView').classList.toggle('active', view === 'table');
+  document.getElementById('btnGanttView').classList.toggle('active', view === 'gantt');
+  if (view === 'gantt') buildGantt();
+}
+
+// ─────────────────────────────────────────
+//  Inline edit panel toggle
+// ─────────────────────────────────────────
+var openEditRow = null;
+function toggleEditPanel(rowNum) {
+  var panelRow = document.getElementById('edit-panel-row-' + rowNum);
+  if (!panelRow) return;
+  if (openEditRow !== null && openEditRow !== rowNum) {
+    var prevRow = document.getElementById('edit-panel-row-' + openEditRow);
+    if (prevRow) prevRow.style.display = 'none';
+  }
+  if (panelRow.style.display === 'none' || panelRow.style.display === '') {
+    panelRow.style.display = 'table-row';
+    openEditRow = rowNum;
+  } else {
+    panelRow.style.display = 'none';
+    openEditRow = null;
+  }
+}
+
+function saveEditPanel(rowNum) {
+  var panelRow = document.getElementById('edit-panel-row-' + rowNum);
+  if (panelRow) panelRow.style.display = 'none';
+  openEditRow = null;
+  showToast('Stage ' + rowNum + ' actuals saved successfully', 'success');
+}
+
+// ─────────────────────────────────────────
+//  Toast
+// ─────────────────────────────────────────
+function showToast(msg, type) {
+  var area = document.getElementById('toastArea');
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || '');
+  t.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">' +
+    (type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info') +
+    '</span>' + msg;
+  area.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 3200);
+}
+
+// ─────────────────────────────────────────
+//  GANTT CHART (pure SVG)
+// ─────────────────────────────────────────
+var STAGES = [
+  { num: 1, name: 'PO Issue',         type: 'INTERNAL', ld: 2,  ps: '2025-05-28', pe: '2025-05-30', as: '2025-05-28', ae: '2025-05-30', status: 'COMPLETED',   delay: 0, cp: true,  sewing: false },
+  { num: 2, name: 'GRN',              type: 'INTERNAL', ld: 3,  ps: '2025-05-30', pe: '2025-06-02', as: '2025-05-30', ae: '2025-06-03', status: 'DELAYED',     delay: 1, cp: true,  sewing: false },
+  { num: 3, name: 'Work Order',       type: 'INTERNAL', ld: 2,  ps: '2025-06-03', pe: '2025-06-05', as: '2025-06-03', ae: '2025-06-05', status: 'COMPLETED',   delay: 0, cp: true,  sewing: false },
+  { num: 4, name: 'Cutting',          type: 'INTERNAL', ld: 4,  ps: '2025-06-05', pe: '2025-06-09', as: '2025-06-05', ae: '2025-06-09', status: 'COMPLETED',   delay: 0, cp: true,  sewing: false },
+  { num: 5, name: 'Embroidery JW',    type: 'JOB_WORK', ld: 6,  ps: '2025-06-05', pe: '2025-06-11', as: '2025-06-05', ae: null,         status: 'IN_PROGRESS', delay: 0, cp: false, sewing: false },
+  { num: 6, name: 'Sewing',           type: 'INTERNAL', ld: 14, ps: '2025-06-12', pe: '2025-06-26', as: null,         ae: null,         status: 'NOT_STARTED', delay: 0, cp: true,  sewing: true  },
+  { num: 7, name: 'Finishing',        type: 'INTERNAL', ld: 4,  ps: '2025-06-26', pe: '2025-06-30', as: null,         ae: null,         status: 'NOT_STARTED', delay: 0, cp: true,  sewing: false },
+  { num: 8, name: 'Final Inspection', type: 'SYSTEM',   ld: 3,  ps: '2025-06-30', pe: '2025-07-03', as: null,         ae: null,         status: 'NOT_STARTED', delay: 0, cp: true,  sewing: false },
+  { num: 9, name: 'Shipment',         type: 'SYSTEM',   ld: 3,  ps: '2025-07-03', pe: '2025-07-15', as: null,         ae: null,         status: 'NOT_STARTED', delay: 0, cp: true,  sewing: false }
+];
+
+var GANTT_START = new Date('2025-05-28');
+var GANTT_END   = new Date('2025-07-15');
+var TODAY       = new Date('2025-06-10');
+var DELIVERY    = new Date('2025-07-15');
+var ROW_H       = 44;
+var HEADER_H    = 40;
+var PX_PER_DAY;
+
+function daysBetween(a, b) {
+  return Math.round((b - a) / 86400000);
+}
+
+function buildGantt() {
+  var container = document.getElementById('ganttContainer');
+  var labelsEl  = document.getElementById('ganttLabels');
+  var svgArea   = document.getElementById('ganttSvgArea');
+
+  var totalDays = daysBetween(GANTT_START, GANTT_END);
+  var svgWidth  = svgArea.getBoundingClientRect().width || 700;
+  PX_PER_DAY = svgWidth / totalDays;
+
+  // ── Build label column ──
+  var labHtml = '<div style="height:' + HEADER_H + 'px;"></div>';
+  STAGES.forEach(function(s) {
+    var icon = '';
+    if (s.cp) icon = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#dc2626;margin-right:4px;flex-shrink:0;"></span>';
+    labHtml += '<div class="gantt-label-row"><div class="gantt-label-text">' + icon + s.name + '</div></div>';
+  });
+  labelsEl.innerHTML = labHtml;
+
+  // ── Build SVG ──
+  var svgH = HEADER_H + STAGES.length * ROW_H;
+  var tickDates = [
+    new Date('2025-05-28'),
+    new Date('2025-06-04'),
+    new Date('2025-06-11'),
+    new Date('2025-06-18'),
+    new Date('2025-06-25'),
+    new Date('2025-07-02'),
+    new Date('2025-07-09'),
+    new Date('2025-07-15')
+  ];
+  var tickLabels = ['28 May','4 Jun','11 Jun','18 Jun','25 Jun','2 Jul','9 Jul','15 Jul'];
+
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="' + svgH + '" viewBox="0 0 ' + svgWidth + ' ' + svgH + '" style="font-family:Inter,sans-serif;">';
+
+  // Background and grid lines
+  svg += '<rect width="' + svgWidth + '" height="' + svgH + '" fill="#f9fafb"/>';
+
+  // Column bands (alternate weeks)
+  for (var i = 0; i < tickDates.length - 1; i++) {
+    var bx = daysBetween(GANTT_START, tickDates[i]) * PX_PER_DAY;
+    var bw = daysBetween(tickDates[i], tickDates[i+1]) * PX_PER_DAY;
+    if (i % 2 === 0) {
+      svg += '<rect x="' + bx + '" y="' + HEADER_H + '" width="' + bw + '" height="' + (STAGES.length * ROW_H) + '" fill="rgba(0,0,0,0.02)"/>';
+    }
+  }
+
+  // Horizontal row lines
+  for (var r = 0; r <= STAGES.length; r++) {
+    var ry = HEADER_H + r * ROW_H;
+    svg += '<line x1="0" y1="' + ry + '" x2="' + svgWidth + '" y2="' + ry + '" stroke="#f1f5f9" stroke-width="1"/>';
+  }
+
+  // Tick vertical lines and labels
+  tickDates.forEach(function(td, i) {
+    var tx = daysBetween(GANTT_START, td) * PX_PER_DAY;
+    svg += '<line x1="' + tx + '" y1="0" x2="' + tx + '" y2="' + svgH + '" stroke="#e2e8f0" stroke-width="1"/>';
+    svg += '<text x="' + (tx + 4) + '" y="14" font-size="10" font-weight="600" fill="#9ca3af">' + tickLabels[i] + '</text>';
+  });
+
+  // ── Stage bars ──
+  STAGES.forEach(function(s, idx) {
+    var barY    = HEADER_H + idx * ROW_H + 8;
+    var barH    = s.cp ? 20 : 16;
+    var barYoff = s.cp ? 0 : 2;
+    var pStartX = daysBetween(GANTT_START, new Date(s.ps)) * PX_PER_DAY;
+    var pEndX   = daysBetween(GANTT_START, new Date(s.pe)) * PX_PER_DAY;
+    var pW      = Math.max(pEndX - pStartX, 2);
+
+    // Planned bar (blue)
+    var planColor = '#bfdbfe';
+    if (s.sewing) planColor = '#fed7aa';
+    svg += '<rect x="' + pStartX + '" y="' + (barY + barYoff) + '" width="' + pW + '" height="' + barH + '" rx="3" fill="' + planColor + '" opacity="0.9" class="gantt-bar" data-idx="' + idx + '" style="cursor:pointer;"/>';
+
+    // Actual bar overlay
+    if (s.as) {
+      var aStartX = daysBetween(GANTT_START, new Date(s.as)) * PX_PER_DAY;
+      var aEndDate = s.ae ? new Date(s.ae) : TODAY;
+      var aEndX   = daysBetween(GANTT_START, aEndDate) * PX_PER_DAY;
+      var aW      = Math.max(aEndX - aStartX, 2);
+      var aColor  = '#16a34a'; // green = on time
+      if (s.status === 'DELAYED') aColor = '#dc2626';
+      if (s.status === 'IN_PROGRESS') aColor = '#3b82f6';
+      if (s.sewing) aColor = '#f97316';
+      svg += '<rect x="' + aStartX + '" y="' + (barY + barYoff + 3) + '" width="' + aW + '" height="' + (barH - 6) + '" rx="3" fill="' + aColor + '" opacity="0.9" class="gantt-bar-actual" data-idx="' + idx + '" style="cursor:pointer;"/>';
+    }
+
+    // Stage name label on bar
+    if (pW > 30) {
+      var labelX = pStartX + 4;
+      var labelY = barY + barYoff + barH / 2 + 4;
+      var labelColor = s.sewing ? '#7c3aed' : '#1e40af';
+      svg += '<text x="' + labelX + '" y="' + labelY + '" font-size="9.5" font-weight="700" fill="' + labelColor + '">' +
+        (s.name.length > 12 ? s.name.substring(0, 11) + '…' : s.name) + '</text>';
+    }
+
+    // Delay indicator
+    if (s.delay > 0 && s.ae) {
+      var delX = daysBetween(GANTT_START, new Date(s.ae)) * PX_PER_DAY + 3;
+      var delY = barY + barYoff + barH / 2 + 4;
+      svg += '<rect x="' + delX + '" y="' + (barY + barYoff + 2) + '" width="26" height="14" rx="7" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>';
+      svg += '<text x="' + (delX + 5) + '" y="' + (barY + barYoff + 13) + '" font-size="9" font-weight="800" fill="#dc2626">+1d</text>';
+    }
+  });
+
+  // Today line (red dashed)
+  var todayX = daysBetween(GANTT_START, TODAY) * PX_PER_DAY;
+  svg += '<line x1="' + todayX + '" y1="0" x2="' + todayX + '" y2="' + svgH + '" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4"/>';
+  svg += '<rect x="' + (todayX - 18) + '" y="17" width="36" height="14" rx="3" fill="#dc2626"/>';
+  svg += '<text x="' + todayX + '" y="28" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">Today</text>';
+
+  // Delivery date line (green dashed)
+  var delX = daysBetween(GANTT_START, DELIVERY) * PX_PER_DAY;
+  svg += '<line x1="' + delX + '" y1="0" x2="' + delX + '" y2="' + svgH + '" stroke="#16a34a" stroke-width="2" stroke-dasharray="5,4"/>';
+  svg += '<rect x="' + (delX - 20) + '" y="2" width="40" height="14" rx="3" fill="#16a34a"/>';
+  svg += '<text x="' + delX + '" y="13" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">Delivery</text>';
+
+  svg += '</svg>';
+  svgArea.innerHTML = svg;
+
+  // Tooltip on hover
+  svgArea.querySelectorAll('.gantt-bar, .gantt-bar-actual').forEach(function(bar) {
+    bar.addEventListener('mouseenter', function(e) {
+      var idx = parseInt(this.getAttribute('data-idx'));
+      var s = STAGES[idx];
+      var tooltip = document.getElementById('ganttTooltip');
+      var statusColors = {
+        'COMPLETED': '#16a34a', 'DELAYED': '#dc2626',
+        'IN_PROGRESS': '#2563eb', 'NOT_STARTED': '#6b7280'
+      };
+      tooltip.innerHTML = '<div class="gantt-tooltip-title">' + s.num + '. ' + s.name + '</div>' +
+        '<div class="gantt-tooltip-row"><span>Type:</span><span>' + s.type.replace('_',' ') + '</span></div>' +
+        '<div class="gantt-tooltip-row"><span>Lead Days:</span><span>' + s.ld + 'd</span></div>' +
+        '<div class="gantt-tooltip-row"><span>Planned:</span><span>' + formatDate(s.ps) + ' → ' + formatDate(s.pe) + '</span></div>' +
+        (s.as ? '<div class="gantt-tooltip-row"><span>Actual:</span><span>' + formatDate(s.as) + ' → ' + (s.ae ? formatDate(s.ae) : 'Ongoing') + '</span></div>' : '') +
+        '<div class="gantt-tooltip-row"><span>Status:</span><span style="color:' + (statusColors[s.status]||'#111') + ';font-weight:700;">' + s.status.replace('_',' ') + '</span></div>' +
+        (s.delay > 0 ? '<div class="gantt-tooltip-row"><span>Delay:</span><span style="color:#dc2626;font-weight:700;">+' + s.delay + ' day(s)</span></div>' : '') +
+        (s.cp ? '<div style="margin-top:6px;font-size:10px;color:#f87171;font-weight:700;">● Critical Path</div>' : '') +
+        (s.sewing ? '<div style="margin-top:4px;font-size:10px;color:#f97316;font-weight:700;">● Sewing Stage</div>' : '');
+      tooltip.classList.add('visible');
+      moveTip(e);
+    });
+    bar.addEventListener('mousemove', moveTip);
+    bar.addEventListener('mouseleave', function() {
+      document.getElementById('ganttTooltip').classList.remove('visible');
+    });
+  });
+}
+
+function moveTip(e) {
+  var tip = document.getElementById('ganttTooltip');
+  var x = e.clientX + 14, y = e.clientY - 10;
+  if (x + 220 > window.innerWidth) x = e.clientX - 230;
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  var d = new Date(str);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+// ─────────────────────────────────────────
+//  CALENDAR
+// ─────────────────────────────────────────
+var CAL_EVENTS = [
+  { day: 3,  label: 'GRN end',        order: 'PRD-2025-0042', status: 'DELAYED',     planned: '2 Jun',  delay: '+1d' },
+  { day: 5,  label: 'Work Order end', order: 'PRD-2025-0042', status: 'COMPLETED',   planned: '5 Jun',  delay: null  },
+  { day: 9,  label: 'Cutting end',    order: 'PRD-2025-0042', status: 'COMPLETED',   planned: '9 Jun',  delay: null  },
+  { day: 11, label: 'Embroidery JW',  order: 'PRD-2025-0042', status: 'IN_PROGRESS', planned: '11 Jun', delay: null  },
+  { day: 12, label: 'Sewing start',   order: 'PRD-2025-0042', status: 'NOT_STARTED', planned: '12 Jun', delay: null  },
+  { day: 15, label: 'Cutting end',    order: 'PRD-2025-0041', status: 'NOT_STARTED', planned: '15 Jun', delay: null  },
+  { day: 20, label: 'Work Order',     order: 'PRD-2025-0043', status: 'NOT_STARTED', planned: '20 Jun', delay: null  },
+  { day: 26, label: 'Sewing end',     order: 'PRD-2025-0042', status: 'NOT_STARTED', planned: '26 Jun', delay: null  },
+  { day: 30, label: 'Finishing end',  order: 'PRD-2025-0042', status: 'NOT_STARTED', planned: '30 Jun', delay: null  }
+];
+
+function statusToChipClass(s) {
+  if (s === 'COMPLETED')   return 'chip-green';
+  if (s === 'IN_PROGRESS') return 'chip-blue';
+  if (s === 'DELAYED')     return 'chip-red';
+  return 'chip-gray';
+}
+
+function buildCalendar() {
+  // June 2025: starts Monday Jun 2 = day-of-week 1 (Mon=0 offset)
+  // Jun 1 2025 is a Sunday (day 0 in JS). Monday-first grid.
+  var firstDay = new Date('2025-06-01');
+  var firstDow = firstDay.getDay(); // 0=Sun
+  // Convert to Mon-first: Mon=0 … Sun=6
+  var startOffset = (firstDow + 6) % 7; // Sun→6, Mon→0
+
+  // Fill event map
+  var eventMap = {};
+  CAL_EVENTS.forEach(function(ev) {
+    if (!eventMap[ev.day]) eventMap[ev.day] = [];
+    eventMap[ev.day].push(ev);
+  });
+
+  var weeksHtml = '';
+  var cell = 1 - startOffset; // can be negative (prev month days)
+  var daysInJun = 30;
+
+  for (var w = 0; w < 5; w++) {
+    weeksHtml += '<div class="cal-week">';
+    for (var d = 0; d < 7; d++, cell++) {
+      var isOther = cell < 1 || cell > daysInJun;
+      var isToday = cell === 10; // 10 Jun = today in mock
+      var classes = 'cal-cell' + (isOther ? ' other-month' : '') + (isToday ? ' today-cell' : '');
+      var dayNum  = isOther ? (cell < 1 ? (31 + cell) : (cell - 30)) : cell;
+      weeksHtml += '<div class="' + classes + '">';
+      weeksHtml += '<span class="cal-day-num">' + dayNum + '</span>';
+      if (!isOther && eventMap[cell]) {
+        weeksHtml += '<div class="cal-chips">';
+        eventMap[cell].forEach(function(ev, ei) {
+          weeksHtml += '<div class="cal-chip ' + statusToChipClass(ev.status) + '" onclick="showCalPopup(event,' + cell + ',' + ei + ')" title="' + ev.label + ' — ' + ev.order + '">' +
+            ev.label.substring(0, 14) + (ev.label.length > 14 ? '…' : '') +
+            '</div>';
+        });
+        weeksHtml += '</div>';
+      }
+      weeksHtml += '</div>';
+    }
+    weeksHtml += '</div>';
+    if (cell > daysInJun + 1) break;
+  }
+
+  document.getElementById('calWeeks').innerHTML = weeksHtml;
+}
+
+function showCalPopup(e, day, evIdx) {
+  e.stopPropagation();
+  var ev = CAL_EVENTS.filter(function(x) { return x.day === day; })[evIdx];
+  if (!ev) return;
+  var popup = document.getElementById('calPopup');
+  document.getElementById('calPopupTitle').textContent = ev.label;
+  var statusLabel = ev.status.replace('_', ' ');
+  var statusColor = ev.status === 'DELAYED' ? '#dc2626' : ev.status === 'COMPLETED' ? '#16a34a' : ev.status === 'IN_PROGRESS' ? '#2563eb' : '#6b7280';
+  var bodyHtml = '<div class="cal-popup-row"><span class="cal-popup-key">Order:</span><span style="font-weight:700;color:var(--brand-700);">' + ev.order + '</span></div>' +
+    '<div class="cal-popup-row"><span class="cal-popup-key">Stage:</span><span>' + ev.label + '</span></div>' +
+    '<div class="cal-popup-row"><span class="cal-popup-key">Planned End:</span><span>' + ev.planned + ' 2025</span></div>' +
+    '<div class="cal-popup-row"><span class="cal-popup-key">Status:</span><span style="font-weight:700;color:' + statusColor + ';">' + statusLabel + '</span></div>' +
+    (ev.delay ? '<div class="cal-popup-row"><span class="cal-popup-key">Delay:</span><span style="font-weight:700;color:#dc2626;">' + ev.delay + '</span></div>' : '');
+  document.getElementById('calPopupBody').innerHTML = bodyHtml;
+  var px = e.clientX + 10, py = e.clientY + 10;
+  if (px + 260 > window.innerWidth) px = e.clientX - 270;
+  if (py + 200 > window.innerHeight) py = e.clientY - 210;
+  popup.style.left = px + 'px';
+  popup.style.top  = py + 'px';
+  popup.classList.add('visible');
+}
+
+function closeCalPopup() {
+  document.getElementById('calPopup').classList.remove('visible');
+}
+
+document.addEventListener('click', function(e) {
+  var popup = document.getElementById('calPopup');
+  if (!popup.contains(e.target)) popup.classList.remove('visible');
+});
+
+// ─────────────────────────────────────────
+//  Init
+// ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  buildCalendar();
+  // Delay gantt build until it's visible (lazy)
+});
+
+window.addEventListener('resize', function() {
+  if (document.getElementById('innerGantt').classList.contains('active')) {
+    buildGantt();
+  }
+});
+</script>
+</body>
+</html>
