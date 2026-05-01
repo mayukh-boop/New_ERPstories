@@ -252,6 +252,10 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
             <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
             By Location
           </button>
+          <button class="vt-btn" id="vtSize" onclick="setView('size')" title="Sizes as columns, qty per cell">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
+            By Size
+          </button>
         </div>
       </div>
     </div>
@@ -655,11 +659,16 @@ const ADDRESSES = {
 };
 
 const STYLES = [
-  { code:'AP2801 ST002', name:'Basic Round Neck Tee', sizes:['XS','S','M','L','XL','XXL','3XL'], gsCode:'89075362686' },
-  { code:'AP2801 ST003', name:'V-Neck Polo', sizes:['S','M','L','XL','XXL'], gsCode:'89075362700' },
-  { code:'DL3002 BT001', name:'Cargo Shorts', sizes:['28','30','32','34','36','38'], gsCode:'62034200' },
-  { code:'ZI1001 KT005', name:'Knit Jogger', sizes:['S','M','L','XL','XXL'], gsCode:'61091000' },
-  { code:'AP2801 JK010', name:'Bomber Jacket', sizes:['S','M','L','XL','XXL'], gsCode:'62019300' },
+  { code:'AP2801 ST002', name:'Basic Round Neck Tee', sizes:['XS','S','M','L','XL','XXL','3XL'], gsCode:'89075362686',
+    sizeData:{ XS:{sku:'ST002-XS',articleNo:'ART-ST002-XS',ean:'8907536268601'}, S:{sku:'ST002-S',articleNo:'ART-ST002-S',ean:'8907536268602'}, M:{sku:'ST002-M',articleNo:'ART-ST002-M',ean:'8907536268603'}, L:{sku:'ST002-L',articleNo:'ART-ST002-L',ean:'8907536268604'}, XL:{sku:'ST002-XL',articleNo:'ART-ST002-XL',ean:'8907536268605'}, XXL:{sku:'ST002-XXL',articleNo:'ART-ST002-XXL',ean:'8907536268606'}, '3XL':{sku:'ST002-3XL',articleNo:'ART-ST002-3XL',ean:'8907536268607'} } },
+  { code:'AP2801 ST003', name:'V-Neck Polo', sizes:['S','M','L','XL','XXL'], gsCode:'89075362700',
+    sizeData:{ S:{sku:'ST003-S',articleNo:'ART-ST003-S',ean:'8907536270001'}, M:{sku:'ST003-M',articleNo:'ART-ST003-M',ean:'8907536270002'}, L:{sku:'ST003-L',articleNo:'ART-ST003-L',ean:'8907536270003'}, XL:{sku:'ST003-XL',articleNo:'ART-ST003-XL',ean:'8907536270004'}, XXL:{sku:'ST003-XXL',articleNo:'ART-ST003-XXL',ean:'8907536270005'} } },
+  { code:'DL3002 BT001', name:'Cargo Shorts', sizes:['28','30','32','34','36','38'], gsCode:'62034200',
+    sizeData:{ '28':{sku:'BT001-28',articleNo:'ART-BT001-28',ean:'6203420000281'}, '30':{sku:'BT001-30',articleNo:'ART-BT001-30',ean:'6203420000301'}, '32':{sku:'BT001-32',articleNo:'ART-BT001-32',ean:'6203420000321'}, '34':{sku:'BT001-34',articleNo:'ART-BT001-34',ean:'6203420000341'}, '36':{sku:'BT001-36',articleNo:'ART-BT001-36',ean:'6203420000361'}, '38':{sku:'BT001-38',articleNo:'ART-BT001-38',ean:'6203420000381'} } },
+  { code:'ZI1001 KT005', name:'Knit Jogger', sizes:['S','M','L','XL','XXL'], gsCode:'61091000',
+    sizeData:{ S:{sku:'KT005-S',articleNo:'ART-KT005-S',ean:'6109100000051'}, M:{sku:'KT005-M',articleNo:'ART-KT005-M',ean:'6109100000052'}, L:{sku:'KT005-L',articleNo:'ART-KT005-L',ean:'6109100000053'}, XL:{sku:'KT005-XL',articleNo:'ART-KT005-XL',ean:'6109100000054'}, XXL:{sku:'KT005-XXL',articleNo:'ART-KT005-XXL',ean:'6109100000055'} } },
+  { code:'AP2801 JK010', name:'Bomber Jacket', sizes:['S','M','L','XL','XXL'], gsCode:'62019300',
+    sizeData:{ S:{sku:'JK010-S',articleNo:'ART-JK010-S',ean:'6201930000051'}, M:{sku:'JK010-M',articleNo:'ART-JK010-M',ean:'6201930000052'}, L:{sku:'JK010-L',articleNo:'ART-JK010-L',ean:'6201930000053'}, XL:{sku:'JK010-XL',articleNo:'ART-JK010-XL',ean:'6201930000054'}, XXL:{sku:'JK010-XXL',articleNo:'ART-JK010-XXL',ean:'6201930000055'} } },
 ];
 
 /* ══════════════════════════════════════════════════
@@ -721,6 +730,7 @@ function setView(v) {
   viewMode = v;
   document.getElementById('vtStyle').classList.toggle('active', v==='style');
   document.getElementById('vtLocation').classList.toggle('active', v==='location');
+  document.getElementById('vtSize').classList.toggle('active', v==='size');
   renderLines();
 }
 
@@ -728,6 +738,8 @@ function setView(v) {
    LINES RENDER
 ══════════════════════════════════════════════════ */
 function renderLines() {
+  if (viewMode === 'size') { renderSizeView(); return; }
+
   const head = document.getElementById('linesTableHead');
   const body = document.getElementById('linesBody');
   const foot = document.getElementById('linesFoot');
@@ -739,7 +751,9 @@ function renderLines() {
       <th>Style</th>
       <th>Color</th>
       <th>Location</th>
-      <th>GS Code</th>
+      <th>SKU</th>
+      <th>Article No.</th>
+      <th>EAN</th>
       <th>Size</th>
       <th class="num">Qty</th>
       <th class="num">A.Qty</th>
@@ -753,7 +767,7 @@ function renderLines() {
       <th></th>
     </tr>`;
     if (!orderLines.length) {
-      body.innerHTML = `<tr><td colspan="17"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="20"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
     } else {
       body.innerHTML = orderLines.map((l,i) => buildStyleRow(l,i)).join('');
     }
@@ -770,7 +784,9 @@ function renderLines() {
       <th>Solid/Pack</th>
       <th>Style</th>
       <th>Color</th>
-      <th>GS Code</th>
+      <th>SKU</th>
+      <th>Article No.</th>
+      <th>EAN</th>
       <th>Size</th>
       <th class="num">Qty</th>
       <th class="num">Unit Price</th>
@@ -782,12 +798,12 @@ function renderLines() {
       <th></th>
     </tr>`;
     if (!orderLines.length) {
-      body.innerHTML = `<tr><td colspan="14"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="17"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
     } else {
       let rows = '';
       Object.entries(groups).forEach(([loc, lines]) => {
         const locQty = lines.reduce((a,b)=>a+(+b.qty||0),0);
-        rows += `<tr class="grp-head"><td colspan="14">
+        rows += `<tr class="grp-head"><td colspan="17">
           <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;display:inline;margin-right:5px;vertical-align:-2px;"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
           ${loc} <span style="font-weight:400;color:var(--brand-600);margin-left:8px;">${lines.length} line(s) · ${locQty.toLocaleString()} pcs</span>
         </td></tr>`;
@@ -800,22 +816,133 @@ function renderLines() {
   // Footer totals row
   const totals = calcTotals();
   if (orderLines.length) {
-    const cols = viewMode==='style' ? 17 : 14;
+    // style: 20 cols (#+type+style+color+loc+sku+art+ean+size+qty+aqty+price+disc%+discamt+gst%+sub+gst+total+del = 19 + 1 del)
+    // location: 17 cols
+    const cols = viewMode==='style' ? 20 : 17;
     foot.innerHTML = `<tr>
-      <td colspan="${cols-5}" style="font-weight:700;font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;">Tot Qty</td>
+      <td colspan="${cols-6}" style="font-weight:700;font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;">Tot Qty</td>
       <td class="num" colspan="1" style="font-size:13px;">${totals.qty.toLocaleString()}</td>
       <td class="num" colspan="1"></td>
       <td class="num" colspan="1"></td>
       <td class="num" colspan="1" style="font-size:13px;">${fmt(totals.sub)}</td>
       <td class="num" colspan="1" style="font-size:13px;">${fmt(totals.gst)}</td>
       <td class="num" colspan="1" style="font-size:13px;color:var(--brand-600);">${fmt(totals.total)}</td>
-      ${viewMode==='style'?'<td></td>':''}
+      <td></td>
     </tr>`;
   } else {
     foot.innerHTML = '';
   }
 
   updateSummary(totals);
+}
+
+/* ══════════════════════════════════════════════════
+   BY-SIZE HORIZONTAL VIEW
+══════════════════════════════════════════════════ */
+function renderSizeView() {
+  const head = document.getElementById('linesTableHead');
+  const body = document.getElementById('linesBody');
+  const foot = document.getElementById('linesFoot');
+
+  // All unique sizes in order first-seen
+  const sizeSet = [];
+  orderLines.forEach(l => { if (!sizeSet.includes(l.size)) sizeSet.push(l.size); });
+
+  if (!orderLines.length) {
+    head.innerHTML = `<tr><th>#</th><th>Style</th><th>Color</th><th>Location</th><th>Unit Price</th><th>Disc%</th><th>GST%</th><th>Total Qty</th><th>Total</th></tr>`;
+    body.innerHTML = `<tr><td colspan="9"><div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No lines added yet. Click <strong>Add Style</strong> to begin.</div></td></tr>`;
+    foot.innerHTML = ''; return;
+  }
+
+  // Group by style+color+location
+  const groups = {};
+  orderLines.forEach(l => {
+    const key = `${l.styleCode}||${l.color}||${l.locationLabel||l.location||''}`;
+    if (!groups[key]) groups[key] = { line: l, sizes: {} };
+    groups[key].sizes[l.size] = l;
+  });
+
+  // Header: fixed cols + one th per size (with size label + codes below)
+  head.innerHTML = `<tr>
+    <th style="width:28px;">#</th>
+    <th>TYPE</th>
+    <th>STYLE</th>
+    <th>COLOR</th>
+    <th>LOCATION</th>
+    <th class="num">PRICE</th>
+    <th class="num">DISC%</th>
+    <th class="num">GST%</th>
+    ${sizeSet.map(s => `<th class="num" style="min-width:70px;background:#eef2ff;color:var(--brand-700);vertical-align:top;">
+      <div style="font-size:11px;font-weight:800;">${s}</div>
+    </th>`).join('')}
+    <th class="num">TOT QTY</th>
+    <th class="num">TOTAL</th>
+    <th></th>
+  </tr>`;
+
+  let rowNum = 0;
+  body.innerHTML = Object.entries(groups).map(([key, grp]) => {
+    rowNum++;
+    const l = grp.line;
+    const isRatio = l.type === 'ratio';
+    const totalQty = sizeSet.reduce((a,s) => a + (grp.sizes[s] ? (+grp.sizes[s].qty||0) : 0), 0);
+    const sub = sizeSet.reduce((a,s) => {
+      const sl = grp.sizes[s]; if (!sl) return a;
+      return a + (+sl.qty||0) * (+sl.unitPrice||0) * (1-(+sl.discount||0)/100);
+    }, 0);
+    const gstAmt = sub * (+l.gst||0)/100;
+    const total = sub + gstAmt;
+
+    return `<tr class="${isRatio?'ratio-row':''}">
+      <td style="color:var(--text-3);font-size:11px;">${rowNum}</td>
+      <td><span class="${isRatio?'ratio-badge':'solid-badge'}">${isRatio?'Ratio':'Solid'}</span></td>
+      <td style="font-weight:600;font-size:12.5px;">${l.styleCode}</td>
+      <td style="font-size:12.5px;">${l.color}</td>
+      <td style="font-size:12px;color:var(--text-2);">${l.locationLabel||l.location||'—'}</td>
+      <td class="num"><input class="cell-input" type="number" value="${l.unitPrice}" min="0" step="0.01" style="width:68px;text-align:right;" onchange="updateGroupField('${key}','unitPrice',this.value)"></td>
+      <td class="num"><input class="cell-input" type="number" value="${l.discount||0}" min="0" max="100" style="width:44px;text-align:right;" onchange="updateGroupField('${key}','discount',this.value)"></td>
+      <td class="num"><input class="cell-input" type="number" value="${l.gst||5}" min="0" style="width:40px;text-align:right;" onchange="updateGroupField('${key}','gst',this.value)"></td>
+      ${sizeSet.map(s => {
+        const sl = grp.sizes[s];
+        return `<td class="num" style="background:${sl?'#eef2ff':'var(--gray-50)'};padding:4px 6px;">
+          ${sl ? `<div style="font-size:10px;color:var(--text-3);font-family:monospace;line-height:1.3;margin-bottom:2px;">${sl.skuCode||''}</div>
+                  <input class="cell-input" type="number" value="${sl.qty}" min="0" style="width:54px;text-align:right;background:transparent;" onchange="updateLine(${sl.id},'qty',this.value);">
+                  <div style="font-size:9.5px;color:var(--text-3);font-family:monospace;margin-top:1px;">${sl.eanCode||''}</div>`
+            : `<span style="font-size:11px;color:var(--text-3);">—</span>`}
+        </td>`;
+      }).join('')}
+      <td class="num" style="font-weight:700;">${totalQty.toLocaleString()}</td>
+      <td class="num" style="font-weight:700;color:var(--brand-600);">${fmt(total)}</td>
+      <td><button style="width:22px;height:22px;border:none;background:var(--gray-100);border-radius:var(--r-sm);cursor:pointer;color:var(--text-3);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;" onclick="removeSizeGroup('${key}')">×</button></td>
+    </tr>`;
+  }).join('');
+
+  // Footer: size column totals
+  const totals = calcTotals();
+  const totalCols = 8 + sizeSet.length + 3;
+  foot.innerHTML = `<tr>
+    <td colspan="8" style="font-weight:700;font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;">Totals</td>
+    ${sizeSet.map(s => {
+      const st = orderLines.filter(l=>l.size===s).reduce((a,l)=>a+(+l.qty||0),0);
+      return `<td class="num" style="font-weight:700;background:#eef2ff;color:var(--brand-700);">${st||'—'}</td>`;
+    }).join('')}
+    <td class="num" style="font-weight:700;">${totals.qty.toLocaleString()}</td>
+    <td class="num" style="font-weight:700;color:var(--brand-600);">${fmt(totals.total)}</td>
+    <td></td>
+  </tr>`;
+
+  updateSummary(totals);
+}
+
+function updateGroupField(key, field, val) {
+  orderLines.forEach(l => {
+    if (`${l.styleCode}||${l.color}||${l.locationLabel||l.location||''}` === key) l[field] = +val;
+  });
+  renderLines();
+}
+function removeSizeGroup(key) {
+  orderLines = orderLines.filter(l => `${l.styleCode}||${l.color}||${l.locationLabel||l.location||''}` !== key);
+  renderLines(); renderStyleChips();
 }
 
 function buildStyleRow(l, i) {
@@ -829,7 +956,9 @@ function buildStyleRow(l, i) {
     <td style="font-weight:600;font-size:12.5px;">${l.styleCode}</td>
     <td style="font-size:12.5px;">${l.color}</td>
     <td style="font-size:12px;color:var(--text-2);">${l.locationLabel||l.location||'—'}</td>
-    <td style="font-size:11.5px;color:var(--text-3);">${l.gsCode||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);font-family:monospace;">${l.skuCode||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);">${l.articleNo||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);font-family:monospace;">${l.eanCode||'—'}</td>
     <td style="font-weight:600;">${l.size}</td>
     <td class="num"><input class="cell-input" type="number" value="${l.qty}" min="0" style="width:70px;text-align:right;" onchange="updateLine(${l.id},'qty',this.value)"></td>
     <td class="num" style="color:var(--text-3);">${l.approvedQty||l.qty}</td>
@@ -855,7 +984,9 @@ function buildLocationRow(l, i) {
     <td><span class="${l.type==='ratio'?'ratio-badge':'solid-badge'}">${l.type==='ratio'?'Ratio':'Solid'}</span></td>
     <td style="font-weight:600;font-size:12.5px;">${l.styleCode}</td>
     <td style="font-size:12.5px;">${l.color}</td>
-    <td style="font-size:11.5px;color:var(--text-3);">${l.gsCode||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);font-family:monospace;">${l.skuCode||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);">${l.articleNo||'—'}</td>
+    <td style="font-size:11px;color:var(--text-3);font-family:monospace;">${l.eanCode||'—'}</td>
     <td style="font-weight:600;">${l.size}</td>
     <td class="num"><input class="cell-input" type="number" value="${l.qty}" min="0" style="width:70px;text-align:right;" onchange="updateLine(${l.id},'qty',this.value)"></td>
     <td class="num"><input class="cell-input" type="number" value="${l.unitPrice}" min="0" step="0.01" style="width:80px;text-align:right;" onchange="updateLine(${l.id},'unitPrice',this.value)"></td>
@@ -930,12 +1061,18 @@ function selectStyle(code) {
   document.getElementById('selectedStyleLabel').textContent = `${selectedStyle.code} — ${selectedStyle.name}`;
   document.getElementById('modalGsCode').value = selectedStyle.gsCode || '';
 
-  // Build size qty grid
+  // Build size qty grid with SKU/Article/EAN
   const grid = document.getElementById('sizeQtyGrid');
-  grid.innerHTML = selectedStyle.sizes.map(sz=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-    <div style="font-size:10.5px;font-weight:700;color:var(--text-3);">${sz}</div>
-    <input class="cell-input" type="number" min="0" value="0" id="sqty-${sz.replace(/\s/g,'_')}" style="width:52px;height:28px;border:1.5px solid var(--border);border-radius:var(--r-sm);text-align:center;" oninput="calcModalTotal()">
-  </div>`).join('');
+  grid.innerHTML = selectedStyle.sizes.map(sz => {
+    const sd = (selectedStyle.sizeData||{})[sz] || {};
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px;">
+      <div style="font-size:11px;font-weight:700;color:var(--brand-700);background:var(--brand-50);border-radius:var(--r-sm);padding:1px 8px;">${sz}</div>
+      ${sd.sku ? `<div style="font-size:9.5px;color:var(--text-3);font-family:monospace;" title="SKU">${sd.sku}</div>` : ''}
+      ${sd.articleNo ? `<div style="font-size:9.5px;color:var(--text-3);" title="Article No.">${sd.articleNo}</div>` : ''}
+      ${sd.ean ? `<div style="font-size:9px;color:var(--text-3);font-family:monospace;" title="EAN">${sd.ean}</div>` : ''}
+      <input class="cell-input" type="number" min="0" value="0" id="sqty-${sz.replace(/\s/g,'_')}" style="width:60px;height:28px;border:1.5px solid var(--border);border-radius:var(--r-sm);text-align:center;margin-top:2px;" oninput="calcModalTotal()">
+    </div>`;
+  }).join('');
 
   document.getElementById('styleConfig').style.display='block';
   document.getElementById('btnAddToOrder').disabled=false;
@@ -975,6 +1112,7 @@ function addLineToOrder() {
     const id = `sqty-${sz.replace(/\s/g,'_')}`;
     const qty = parseInt(document.getElementById(id)?.value||0)||0;
     if (qty > 0) {
+      const sd = (selectedStyle.sizeData||{})[sz] || {};
       orderLines.push({
         id: nextLineId++,
         type: lineType,
@@ -982,7 +1120,8 @@ function addLineToOrder() {
         styleName: selectedStyle.name,
         color, location: loc, locationLabel: locMap[loc]||loc,
         gsCode, size: sz, qty, approvedQty: null,
-        unitPrice: up, discount: disc, gst
+        unitPrice: up, discount: disc, gst,
+        skuCode: sd.sku || '', articleNo: sd.articleNo || '', eanCode: sd.ean || ''
       });
       added++;
     }

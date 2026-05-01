@@ -89,6 +89,34 @@
 .toast{padding:10px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
 .toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
 @keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* Column config panel */
+.col-config-panel{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);z-index:200;min-width:270px;padding:14px 16px;display:none;}
+.col-config-panel.open{display:block;}
+.col-cfg-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.col-cfg-hint{font-size:10.5px;color:var(--text-3);font-weight:400;margin-bottom:10px;letter-spacing:0;}
+.col-cfg-list{display:flex;flex-direction:column;gap:0;}
+.col-cfg-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border2);cursor:default;border-radius:var(--r-sm);transition:background .1s;}
+.col-cfg-row:last-child{border-bottom:none;}
+.col-cfg-row.dragging{opacity:.4;}
+.col-cfg-row.drag-over{background:var(--brand-50);border-color:var(--brand-300);}
+.col-cfg-drag{width:16px;height:16px;cursor:grab;color:var(--text-3);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.col-cfg-drag:active{cursor:grabbing;}
+.col-cfg-drag svg{width:14px;height:14px;}
+.col-cfg-row input[type=checkbox]{accent-color:var(--brand-500);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+.col-cfg-row label{font-size:12.5px;color:var(--text-1);cursor:pointer;flex:1;}
+.col-cfg-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.col-cfg-arrows button{width:16px;height:14px;border:1px solid var(--border);border-radius:2px;background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);padding:0;font-size:9px;line-height:1;}
+.col-cfg-arrows button:hover{background:var(--brand-50);color:var(--brand-700);border-color:var(--brand-300);}
+/* Icon action buttons */
+.icon-action{width:28px;height:28px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;}
+.icon-action:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action.pdf:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2;}
+.icon-action.excel:hover{border-color:#86efac;color:#15803d;background:#f0fdf4;}
+.icon-action.email:hover{border-color:#93c5fd;color:#2563eb;background:#eff6ff;}
+.icon-action.wa:hover{border-color:#4ade80;color:#16a34a;background:#f0fdf4;}
+.icon-action svg{width:13px;height:13px;}
+.col-cfg-wrap{position:relative;}
 </style>
 </head>
 <body>
@@ -246,25 +274,31 @@
         <option value="2026-03">Mar 2026</option>
         <option value="2026-02">Feb 2026</option>
       </select>
+      <select class="filter-sel" id="filterShipping" onchange="applyFilter()">
+        <option value="">All Shipping</option>
+        <option value="SEA">Sea</option>
+        <option value="AIR">Air</option>
+        <option value="COURIER">Courier</option>
+      </select>
+      <div style="flex:1;"></div>
+      <!-- Column configurator -->
+      <div class="col-cfg-wrap">
+        <button class="act-btn" onclick="toggleColPanel()" id="colConfigBtn" title="Configure Columns">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+          Columns
+        </button>
+        <div class="col-config-panel" id="colConfigPanel">
+          <div class="col-cfg-title">Columns <span style="font-size:10px;font-weight:400;color:var(--text-3);">drag to reorder</span></div>
+          <div class="col-cfg-hint">☑ visible &nbsp;·&nbsp; drag ⠿ or use ↑↓ to reorder</div>
+          <div class="col-cfg-list" id="colCfgList"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Table -->
-    <div class="table-wrap">
-      <table class="bpo-list-table">
-        <thead>
-          <tr>
-            <th style="width:36px;"></th>
-            <th>PO # / DATE</th>
-            <th>CUSTOMER</th>
-            <th>BUYER PO #</th>
-            <th>DELIVERY DATE</th>
-            <th>STYLES</th>
-            <th class="num">TOTAL QTY</th>
-            <th class="num">NET VALUE</th>
-            <th>STATUS</th>
-            <th>ACTIONS</th>
-          </tr>
-        </thead>
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="bpo-list-table" id="mainTable">
+        <thead id="tableHead"></thead>
         <tbody id="poTableBody"></tbody>
       </table>
       <div id="emptyState" class="empty-state" style="display:none;">
@@ -282,94 +316,94 @@
 <div class="toast-area" id="toastArea"></div>
 
 <script>
-/* ══════════════════════════════════════
-   SAMPLE DATA
-══════════════════════════════════════ */
 const BUYER_POS = [
-  {
-    id:1, poNum:'BPO-2026-0001', txnDate:'2026-04-02',
-    customer:'ARYAN CLOTHING COMPANY', customerKey:'ARYAN', custInit:'AC', custColor:'#6366f1',
-    buyerPoNum:'ARC/2026/PO-001', delivDate:'2026-06-15',
-    styles:['Basic Round Neck Tee','V-Neck Polo'], styleCount:2,
-    totalQty:4800, netValue:576000,
-    status:'Approved', approver:'Mayukh Ghatak', approvedOn:'2026-04-05',
-    shippingMethod:'SEA', location:'Mumbai HO / Tirupur Unit'
-  },
-  {
-    id:2, poNum:'BPO-2026-0002', txnDate:'2026-04-08',
-    customer:'DELTA FASHIONS LTD', customerKey:'DELTA', custInit:'DF', custColor:'#0891b2',
-    buyerPoNum:'DFL-Q2-2026-009', delivDate:'2026-07-01',
-    styles:['Cargo Shorts'], styleCount:1,
-    totalQty:2400, netValue:312000,
-    status:'Open', approver:'—', approvedOn:'—',
-    shippingMethod:'AIR', location:'Bengaluru Warehouse'
-  },
-  {
-    id:3, poNum:'BPO-2026-0003', txnDate:'2026-04-12',
-    customer:'ZARA INDIA SOURCING', customerKey:'ZARA', custInit:'ZI', custColor:'#16a34a',
-    buyerPoNum:'ZARA/IND/26-Q2/034', delivDate:'2026-05-30',
-    styles:['Knit Jogger','Bomber Jacket','Basic Round Neck Tee'], styleCount:3,
-    totalQty:9600, netValue:1440000,
-    status:'Approved', approver:'Rajan Mehta', approvedOn:'2026-04-14',
-    shippingMethod:'SEA', location:'Delhi DC / Mumbai HO'
-  },
-  {
-    id:4, poNum:'BPO-2026-0004', txnDate:'2026-04-18',
-    customer:'ARYAN CLOTHING COMPANY', customerKey:'ARYAN', custInit:'AC', custColor:'#6366f1',
-    buyerPoNum:'ARC/2026/PO-002', delivDate:'2026-08-01',
-    styles:['V-Neck Polo','Cargo Shorts'], styleCount:2,
-    totalQty:3600, netValue:468000,
-    status:'Draft', approver:'—', approvedOn:'—',
-    shippingMethod:'COURIER', location:'Mumbai HO'
-  },
-  {
-    id:5, poNum:'BPO-2026-0005', txnDate:'2026-04-22',
-    customer:'DELTA FASHIONS LTD', customerKey:'DELTA', custInit:'DF', custColor:'#0891b2',
-    buyerPoNum:'DFL-Q2-2026-015', delivDate:'2026-06-20',
-    styles:['Basic Round Neck Tee'], styleCount:1,
-    totalQty:1200, netValue:144000,
-    status:'Cancelled', approver:'—', approvedOn:'—',
-    shippingMethod:'AIR', location:'Bengaluru Warehouse'
-  },
-  {
-    id:6, poNum:'BPO-2026-0006', txnDate:'2026-04-25',
-    customer:'ZARA INDIA SOURCING', customerKey:'ZARA', custInit:'ZI', custColor:'#16a34a',
-    buyerPoNum:'ZARA/IND/26-Q2/041', delivDate:'2026-09-10',
-    styles:['Bomber Jacket','Knit Jogger'], styleCount:2,
-    totalQty:6000, netValue:900000,
-    status:'Open', approver:'—', approvedOn:'—',
-    shippingMethod:'SEA', location:'Delhi DC'
-  },
-  {
-    id:7, poNum:'BPO-2026-0007', txnDate:'2026-03-15',
-    customer:'ARYAN CLOTHING COMPANY', customerKey:'ARYAN', custInit:'AC', custColor:'#6366f1',
-    buyerPoNum:'ARC/2026/PO-X01', delivDate:'2026-05-01',
-    styles:['Basic Round Neck Tee','Cargo Shorts','V-Neck Polo'], styleCount:3,
-    totalQty:7200, netValue:864000,
-    status:'Closed', approver:'Mayukh Ghatak', approvedOn:'2026-03-18',
-    shippingMethod:'SEA', location:'Mumbai HO'
-  },
+  {id:1,poNum:'BPO-2026-0001',txnDate:'2026-04-02',customer:'ARYAN CLOTHING COMPANY',customerKey:'ARYAN',custInit:'AC',custColor:'#6366f1',buyerPoNum:'ARC/2026/PO-001',piNum:'PI-2026-001',delivDate:'2026-06-15',exDate:'2026-05-20',exLocation:'Tirupur',shippingTerms:'FOB',styles:['Basic Round Neck Tee','V-Neck Polo'],styleCount:2,totalQty:4800,netValue:576000,status:'Approved',approver:'Mayukh Ghatak',approvedOn:'2026-04-05',shippingMethod:'SEA',location:'Mumbai HO / Tirupur Unit'},
+  {id:2,poNum:'BPO-2026-0002',txnDate:'2026-04-08',customer:'DELTA FASHIONS LTD',customerKey:'DELTA',custInit:'DF',custColor:'#0891b2',buyerPoNum:'DFL-Q2-2026-009',piNum:'PI-2026-009',delivDate:'2026-07-01',exDate:'2026-06-10',exLocation:'Bengaluru',shippingTerms:'CIF',styles:['Cargo Shorts'],styleCount:1,totalQty:2400,netValue:312000,status:'Open',approver:'—',approvedOn:'—',shippingMethod:'AIR',location:'Bengaluru Warehouse'},
+  {id:3,poNum:'BPO-2026-0003',txnDate:'2026-04-12',customer:'ZARA INDIA SOURCING',customerKey:'ZARA',custInit:'ZI',custColor:'#16a34a',buyerPoNum:'ZARA/IND/26-Q2/034',piNum:'PI-2026-034',delivDate:'2026-05-30',exDate:'2026-05-01',exLocation:'Mumbai',shippingTerms:'EXW',styles:['Knit Jogger','Bomber Jacket','Basic Round Neck Tee'],styleCount:3,totalQty:9600,netValue:1440000,status:'Approved',approver:'Rajan Mehta',approvedOn:'2026-04-14',shippingMethod:'SEA',location:'Delhi DC / Mumbai HO'},
+  {id:4,poNum:'BPO-2026-0004',txnDate:'2026-04-18',customer:'ARYAN CLOTHING COMPANY',customerKey:'ARYAN',custInit:'AC',custColor:'#6366f1',buyerPoNum:'ARC/2026/PO-002',piNum:'',delivDate:'2026-08-01',exDate:'2026-07-10',exLocation:'Tirupur',shippingTerms:'FOB',styles:['V-Neck Polo','Cargo Shorts'],styleCount:2,totalQty:3600,netValue:468000,status:'Draft',approver:'—',approvedOn:'—',shippingMethod:'COURIER',location:'Mumbai HO'},
+  {id:5,poNum:'BPO-2026-0005',txnDate:'2026-04-22',customer:'DELTA FASHIONS LTD',customerKey:'DELTA',custInit:'DF',custColor:'#0891b2',buyerPoNum:'DFL-Q2-2026-015',piNum:'PI-2026-015',delivDate:'2026-06-20',exDate:'2026-05-28',exLocation:'Bengaluru',shippingTerms:'CIF',styles:['Basic Round Neck Tee'],styleCount:1,totalQty:1200,netValue:144000,status:'Cancelled',approver:'—',approvedOn:'—',shippingMethod:'AIR',location:'Bengaluru Warehouse'},
+  {id:6,poNum:'BPO-2026-0006',txnDate:'2026-04-25',customer:'ZARA INDIA SOURCING',customerKey:'ZARA',custInit:'ZI',custColor:'#16a34a',buyerPoNum:'ZARA/IND/26-Q2/041',piNum:'PI-2026-041',delivDate:'2026-09-10',exDate:'2026-08-20',exLocation:'Delhi',shippingTerms:'EXW',styles:['Bomber Jacket','Knit Jogger'],styleCount:2,totalQty:6000,netValue:900000,status:'Open',approver:'—',approvedOn:'—',shippingMethod:'SEA',location:'Delhi DC'},
+  {id:7,poNum:'BPO-2026-0007',txnDate:'2026-03-15',customer:'ARYAN CLOTHING COMPANY',customerKey:'ARYAN',custInit:'AC',custColor:'#6366f1',buyerPoNum:'ARC/2026/PO-X01',piNum:'PI-2026-X01',delivDate:'2026-05-01',exDate:'2026-04-10',exLocation:'Tirupur',shippingTerms:'FOB',styles:['Basic Round Neck Tee','Cargo Shorts','V-Neck Polo'],styleCount:3,totalQty:7200,netValue:864000,status:'Closed',approver:'Mayukh Ghatak',approvedOn:'2026-03-18',shippingMethod:'SEA',location:'Mumbai HO'},
 ];
 
-/* ══════════════════════════════════════
-   STATE
-══════════════════════════════════════ */
 let activeTab = 'All';
 const fmt = n => '₹' + n.toLocaleString('en-IN');
 const fmtDate = s => { if(!s||s==='—') return '—'; const d=new Date(s); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); };
+const statusCls = {'Draft':'sp-draft','Open':'sp-open','Approved':'sp-approved','Closed':'sp-closed','Cancelled':'sp-cancelled'};
 
-const statusCls = {
-  'Draft':'sp-draft','Open':'sp-open','Approved':'sp-approved',
-  'Closed':'sp-closed','Cancelled':'sp-cancelled'
-};
+/* ── Column definitions (order = display order; visible = default) ── */
+let COL_DEFS = [
+  {id:'buyerPoNum', label:'Buyer PO #',     visible:true,  num:false},
+  {id:'piNum',      label:'PI Number',       visible:false, num:false},
+  {id:'delivDate',  label:'Delivery Date',   visible:true,  num:false},
+  {id:'exDate',     label:'Ex Date',         visible:false, num:false},
+  {id:'exLocation', label:'Ex Location',     visible:false, num:false},
+  {id:'location',   label:'Ship To',         visible:true,  num:false},
+  {id:'shipping',   label:'Ship Method',     visible:false, num:false},
+  {id:'shippingTerms',label:'Shipping Terms',visible:false, num:false},
+  {id:'styles',     label:'Styles',          visible:true,  num:false},
+  {id:'qty',        label:'Total Qty',       visible:true,  num:true},
+  {id:'value',      label:'Net Value',       visible:true,  num:true},
+  {id:'approver',   label:'Approved By',     visible:false, num:false},
+];
 
-/* ══════════════════════════════════════
-   RENDER
-══════════════════════════════════════ */
+let dragSrcIdx = null;
+
+function renderColPanel() {
+  const list = document.getElementById('colCfgList');
+  list.innerHTML = COL_DEFS.map((c,i) => `
+    <div class="col-cfg-row" draggable="true" data-idx="${i}"
+         ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
+         ondragleave="dragLeave(event)" ondrop="dropCol(event,${i})" ondragend="dragEnd(event)">
+      <span class="col-cfg-drag" title="Drag to reorder">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a2 2 0 11.001 4.001A2 2 0 017 2zm0 6a2 2 0 11.001 4.001A2 2 0 017 6zm0 6a2 2 0 11.001 4.001A2 2 0 0113 2zm6 0a2 2 0 11.001 4.001A2 2 0 0113 6zm0 6a2 2 0 11.001 4.001A2 2 0 0113 14z"/></svg>
+      </span>
+      <input type="checkbox" id="col-${c.id}" ${c.visible?'checked':''} onchange="toggleColVisible(${i})">
+      <label for="col-${c.id}">${c.label}</label>
+      <div class="col-cfg-arrows">
+        <button onclick="moveCol(${i},-1)" title="Move up" ${i===0?'disabled':''}>▲</button>
+        <button onclick="moveCol(${i},1)" title="Move down" ${i===COL_DEFS.length-1?'disabled':''}>▼</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleColVisible(i) { COL_DEFS[i].visible = !COL_DEFS[i].visible; applyFilter(); }
+
+function moveCol(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= COL_DEFS.length) return;
+  [COL_DEFS[i], COL_DEFS[j]] = [COL_DEFS[j], COL_DEFS[i]];
+  renderColPanel(); applyFilter();
+}
+
+function dragStart(e, i) { dragSrcIdx = i; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function dragOver(e, i)  { e.preventDefault(); e.dataTransfer.dropEffect='move'; e.currentTarget.classList.add('drag-over'); }
+function dragLeave(e)    { e.currentTarget.classList.remove('drag-over'); }
+function dragEnd(e)      { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.col-cfg-row').forEach(r=>r.classList.remove('drag-over')); }
+function dropCol(e, i) {
+  e.preventDefault();
+  if (dragSrcIdx === null || dragSrcIdx === i) return;
+  const moved = COL_DEFS.splice(dragSrcIdx, 1)[0];
+  COL_DEFS.splice(i, 0, moved);
+  dragSrcIdx = null;
+  renderColPanel(); applyFilter();
+}
+
+function buildHeader() {
+  let h = `<tr><th style="width:36px;"></th><th>PO # / DATE</th><th>CUSTOMER</th>`;
+  COL_DEFS.forEach(c => {
+    if (c.visible) h += `<th${c.num?' class="num"':''}>${c.label.toUpperCase()}</th>`;
+  });
+  h += `<th>STATUS</th><th>ACTIONS</th></tr>`;
+  document.getElementById('tableHead').innerHTML = h;
+}
+
 function applyFilter() {
-  const q      = document.getElementById('searchInput').value.toLowerCase();
-  const cust   = document.getElementById('filterCustomer').value;
-  const month  = document.getElementById('filterMonth').value;
+  buildHeader();
+  const q     = document.getElementById('searchInput').value.toLowerCase();
+  const cust  = document.getElementById('filterCustomer').value;
+  const month = document.getElementById('filterMonth').value;
+  const ship  = document.getElementById('filterShipping').value;
 
   let rows = BUYER_POS.filter(p => {
     if (activeTab !== 'All') {
@@ -379,59 +413,68 @@ function applyFilter() {
     if (q && !p.poNum.toLowerCase().includes(q) && !p.customer.toLowerCase().includes(q) && !p.buyerPoNum.toLowerCase().includes(q)) return false;
     if (cust && p.customerKey !== cust) return false;
     if (month && !p.txnDate.startsWith(month)) return false;
+    if (ship && p.shippingMethod !== ship) return false;
     return true;
   });
 
   const tbody = document.getElementById('poTableBody');
   const empty = document.getElementById('emptyState');
+  if (!rows.length) { tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
 
-  if (!rows.length) {
-    tbody.innerHTML = '';
-    empty.style.display = '';
-    return;
-  }
-  empty.style.display = 'none';
+  const cellRenderers = {
+    buyerPoNum:     p => `<td style="font-size:12px;color:var(--text-2);">${p.buyerPoNum}</td>`,
+    piNum:          p => `<td style="font-size:12px;color:var(--text-3);">${p.piNum||'—'}</td>`,
+    delivDate:      p => `<td style="font-size:12px;">${fmtDate(p.delivDate)}</td>`,
+    exDate:         p => `<td style="font-size:12px;">${fmtDate(p.exDate)}</td>`,
+    exLocation:     p => `<td style="font-size:12px;">${p.exLocation||'—'}</td>`,
+    location:       p => `<td style="font-size:12px;color:var(--text-2);">${p.location}</td>`,
+    shipping:       p => `<td><span style="font-size:11px;background:var(--gray-100);padding:2px 7px;border-radius:var(--r-full);font-weight:600;">${p.shippingMethod}</span></td>`,
+    shippingTerms:  p => `<td style="font-size:12px;">${p.shippingTerms||'—'}</td>`,
+    styles:         p => { const sl=p.styles.slice(0,2).join(', ')+(p.styleCount>2?` +${p.styleCount-2}`:''); return `<td><div style="font-size:12px;">${sl}</div><div style="font-size:11px;color:var(--text-3);margin-top:1px;">${p.styleCount} style${p.styleCount!==1?'s':''}</div></td>`; },
+    qty:            p => `<td class="num" style="font-weight:700;">${p.totalQty.toLocaleString('en-IN')}</td>`,
+    value:          p => `<td class="num" style="font-weight:700;">${fmt(p.netValue)}</td>`,
+    approver:       p => `<td style="font-size:12px;">${p.approver}</td>`,
+  };
 
   tbody.innerHTML = rows.map(p => {
     const cls = statusCls[p.status] || 'sp-draft';
-    const styleList = p.styles.slice(0,2).join(', ') + (p.styleCount > 2 ? ` +${p.styleCount-2} more` : '');
+    const waMsg = encodeURIComponent(`Hi, please review Buyer PO ${p.poNum} (${p.buyerPoNum}) for ${p.customer}. Delivery: ${fmtDate(p.delivDate)}. Total Qty: ${p.totalQty.toLocaleString()} pcs | Value: ${fmt(p.netValue)}.`);
+    const mailSubj = encodeURIComponent(`Buyer PO ${p.poNum} — Approval Request`);
+    const mailBody = encodeURIComponent(`Dear Team,\n\nPlease find and review Buyer PO ${p.poNum} (Buyer Ref: ${p.buyerPoNum}) for ${p.customer}.\n\nDelivery Date: ${fmtDate(p.delivDate)}\nTotal Qty: ${p.totalQty.toLocaleString()} pcs\nNet Value: ${fmt(p.netValue)}\n\nKindly approve at your earliest.\n\nRegards,\nStitch ERP`);
+    const cells = COL_DEFS.filter(c=>c.visible).map(c => cellRenderers[c.id] ? cellRenderers[c.id](p) : '').join('');
+
     return `<tr>
       <td><div class="c-av" style="background:${p.custColor}22;color:${p.custColor};">${p.custInit}</div></td>
       <td>
         <div style="font-weight:700;color:var(--brand-600);font-size:13px;">${p.poNum}</div>
-        <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">${fmtDate(p.txnDate)}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${fmtDate(p.txnDate)}</div>
       </td>
       <td>
-        <div style="font-weight:600;">${p.customer}</div>
-        <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">
-          <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;vertical-align:middle;margin-right:2px;"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>${p.location}
-        </div>
+        <div style="font-weight:600;font-size:13px;">${p.customer}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${p.shippingMethod} · ${p.location.split('/')[0].trim()}</div>
       </td>
-      <td style="font-size:12.5px;color:var(--text-2);">${p.buyerPoNum}</td>
-      <td style="font-size:12.5px;">${fmtDate(p.delivDate)}</td>
-      <td>
-        <div style="font-size:12.5px;">${styleList}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${p.styleCount} style${p.styleCount!==1?'s':''} · ${p.shippingMethod}</div>
-      </td>
-      <td class="num" style="font-weight:700;">${p.totalQty.toLocaleString('en-IN')}</td>
-      <td class="num" style="font-weight:700;">${fmt(p.netValue)}</td>
+      ${cells}
       <td><span class="sp ${cls}">${p.status}</span></td>
       <td>
         <div class="row-actions">
-          <button class="act-btn" onclick="location.href='buyer-po.html'" title="View">
+          <button class="icon-action" onclick="location.href='buyer-po.html'" title="View">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
-            View
           </button>
-          ${p.status === 'Draft' || p.status === 'Open' ? `
-          <button class="act-btn" onclick="location.href='buyer-po.html'" title="Edit">
-            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
-            Edit
-          </button>` : ''}
-          ${p.status === 'Open' ? `
-          <button class="act-btn" style="background:#f0fdf4;color:#166534;border-color:#bbf7d0;" onclick="approveOrder(${p.id},'${p.poNum}')" title="Approve">
-            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Approve
-          </button>` : ''}
+          ${p.status==='Draft'||p.status==='Open'?`<button class="icon-action" onclick="location.href='buyer-po.html'" title="Edit"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>`:''}
+          ${p.status==='Open'?`<button class="icon-action" style="border-color:#bbf7d0;color:#166534;background:#f0fdf4;" onclick="approveOrder(${p.id},'${p.poNum}')" title="Approve"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></button>`:''}
+          <button class="icon-action pdf" title="Download PDF" onclick="toast('Generating PDF for ${p.poNum}…','info')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="icon-action excel" title="Export to Excel" onclick="toast('Exporting ${p.poNum} to Excel…','info')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="icon-action email" title="Send for Approval via Email" onclick="window.location.href='mailto:approvals@company.com?subject=${mailSubj}&body=${mailBody}'">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          </button>
+          <button class="icon-action wa" title="Send on WhatsApp" onclick="window.open('https://wa.me/?text=${waMsg}','_blank')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </button>
         </div>
       </td>
     </tr>`;
@@ -439,67 +482,73 @@ function applyFilter() {
 }
 
 function updateStatCards() {
-  const all   = BUYER_POS.length;
-  const draft = BUYER_POS.filter(p=>p.status==='Draft').length;
-  const open  = BUYER_POS.filter(p=>p.status==='Open').length;
-  const appr  = BUYER_POS.filter(p=>p.status==='Approved').length;
-  const cc    = BUYER_POS.filter(p=>p.status==='Closed'||p.status==='Cancelled').length;
-  const canc  = BUYER_POS.filter(p=>p.status==='Cancelled').length;
-
-  document.getElementById('sc-total').textContent    = all;
-  document.getElementById('sc-draft-cnt').textContent = draft;
-  document.getElementById('sc-open-cnt').textContent  = open;
-  document.getElementById('sc-approved-cnt').textContent = appr;
-  document.getElementById('sc-closed-cnt').textContent = cc;
-
-  document.getElementById('tc-All').textContent       = all;
-  document.getElementById('tc-Draft').textContent     = draft;
-  document.getElementById('tc-Open').textContent      = open;
-  document.getElementById('tc-Approved').textContent  = appr;
-  document.getElementById('tc-Closed').textContent    = cc;
-  document.getElementById('tc-Cancelled').textContent = canc;
+  const all  = BUYER_POS.length;
+  const draft= BUYER_POS.filter(p=>p.status==='Draft').length;
+  const open = BUYER_POS.filter(p=>p.status==='Open').length;
+  const appr = BUYER_POS.filter(p=>p.status==='Approved').length;
+  const cc   = BUYER_POS.filter(p=>p.status==='Closed'||p.status==='Cancelled').length;
+  const canc = BUYER_POS.filter(p=>p.status==='Cancelled').length;
+  document.getElementById('sc-total').textContent=all;
+  document.getElementById('sc-draft-cnt').textContent=draft;
+  document.getElementById('sc-open-cnt').textContent=open;
+  document.getElementById('sc-approved-cnt').textContent=appr;
+  document.getElementById('sc-closed-cnt').textContent=cc;
+  document.getElementById('tc-All').textContent=all;
+  document.getElementById('tc-Draft').textContent=draft;
+  document.getElementById('tc-Open').textContent=open;
+  document.getElementById('tc-Approved').textContent=appr;
+  document.getElementById('tc-Closed').textContent=cc;
+  document.getElementById('tc-Cancelled').textContent=canc;
 }
 
 function setTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tb-' + tab)?.classList.add('active');
-  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-  document.getElementById('sc-' + tab)?.classList.add('active');
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tb-'+tab)?.classList.add('active');
+  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('sc-'+tab)?.classList.add('active');
   applyFilter();
 }
 
-function approveOrder(id, poNum) {
-  const po = BUYER_POS.find(p=>p.id===id);
-  if (!po) return;
-  po.status = 'Approved';
-  po.approver = 'Mayukh Ghatak';
-  po.approvedOn = new Date().toISOString().split('T')[0];
-  updateStatCards();
-  applyFilter();
-  toast(`Buyer PO ${poNum} approved`, 'success');
+function approveOrder(id,poNum) {
+  const po=BUYER_POS.find(p=>p.id===id); if(!po) return;
+  po.status='Approved'; po.approver='Mayukh Ghatak'; po.approvedOn=new Date().toISOString().split('T')[0];
+  updateStatCards(); applyFilter();
+  toast(`Buyer PO ${poNum} approved`,'success');
 }
 
-function toast(msg, type='info') {
-  const area = document.getElementById('toastArea');
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>${msg}`;
+function toggleColPanel() {
+  const panel=document.getElementById('colConfigPanel');
+  const isOpen = panel.classList.contains('open');
+  if (!isOpen) { renderColPanel(); panel.classList.add('open'); }
+  else { panel.classList.remove('open'); }
+  if (!isOpen) {
+    setTimeout(() => {
+      document.addEventListener('click', function outsideClick(e) {
+        if (!document.getElementById('colConfigBtn').contains(e.target) && !panel.contains(e.target)) {
+          panel.classList.remove('open');
+          document.removeEventListener('click', outsideClick);
+        }
+      });
+    }, 0);
+  }
+}
+
+function toast(msg,type='info'){
+  const area=document.getElementById('toastArea');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>${msg}`;
   area.appendChild(el);
-  setTimeout(()=>el.remove(), 3000);
+  setTimeout(()=>el.remove(),3000);
 }
 
-function toggleGroup(el) {
-  const g = el.closest('.nav-group');
-  const o = g.classList.contains('open');
-  document.querySelectorAll('.nav-group.open').forEach(x => {
-    if (x !== g) { x.classList.remove('open'); x.querySelector('.nav-parent')?.classList.remove('open'); }
-  });
-  g.classList.toggle('open', !o);
-  el.classList.toggle('open', !o);
+function toggleGroup(el){
+  const g=el.closest('.nav-group');const o=g.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent')?.classList.remove('open');}});
+  g.classList.toggle('open',!o);el.classList.toggle('open',!o);
 }
 
-/* Init */
 updateStatCards();
 applyFilter();
 </script>
