@@ -704,86 +704,106 @@ body.dragging-chip * { cursor: grabbing !important; }
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-name">C-Edge ERP</div>
-      <div class="brand-sub">Stitch Manufacturing Suite</div>
+      <div class="brand-logo">C</div>
+      <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Production Suite</div></div>
     </div>
     <nav class="sidebar-nav">
+
       <div class="nav-section">Sales</div>
       <div class="nav-group">
-        <div class="nav-parent" onclick="toggleNav(this)">
-          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">shopping_bag</span></span>
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
           <span class="nav-parent-label">Buyer Orders</span>
-          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child" href="#">Order Entry</a>
-          <a class="nav-child" href="#">Order List</a>
-          <a class="nav-child" href="#">Buyer Wise Summary</a>
+          <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+          <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
         </div>
       </div>
 
       <div class="nav-section">Procurement</div>
       <div class="nav-group">
-        <div class="nav-parent active-group open" onclick="toggleNav(this)">
-          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">inventory_2</span></span>
-          <span class="nav-parent-label">Purchase</span>
-          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+          <span class="nav-parent-label">Purchase Orders</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child" href="purchase-order.html">Purchase Orders</a>
-          <a class="nav-child" href="po-receipts.html">GRN — Receipts</a>
-          <a class="nav-child" href="grn-approval.html">GRN Approval</a>
+          <a class="nav-child" href="purchase-order-list.html">PO List</a>
+          <a class="nav-child" href="purchase-order.html">Create PO</a>
+          <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+          <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
           <a class="nav-child" href="grn-qc.html">QC Inspection</a>
         </div>
       </div>
 
       <div class="nav-section">Production</div>
-      <div class="nav-group open">
-        <div class="nav-parent open active-group" onclick="toggleNav(this)">
-          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">precision_manufacturing</span></span>
-          <span class="nav-parent-label">Planning & TnA</span>
-          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+          <span class="nav-parent-label">Production Orders</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child active" href="#">Workflow Designer</a>
+          <a class="nav-child" href="production-order-list.html">Production Order List</a>
+          <a class="nav-child" href="production-order.html">Create Production Order</a>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+          <span class="nav-parent-label">Planning & TnA</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child active" href="workflow-designer.html">Workflow Designer</a>
           <a class="nav-child" href="#">TnA Calendar</a>
-          <a class="nav-child" href="#">Work Orders</a>
-          <a class="nav-child" href="#">Production Tracker</a>
+          <a class="nav-child" href="#">Planning Board</a>
         </div>
       </div>
       <div class="nav-group">
-        <div class="nav-parent" onclick="toggleNav(this)">
-          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">content_cut</span></span>
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">content_cut</span></span>
           <span class="nav-parent-label">Cutting</span>
-          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child" href="#">Cutting Plans</a>
-          <a class="nav-child" href="#">Bundle Tracking</a>
+          <a class="nav-child" href="#">Cut Orders</a>
+          <a class="nav-child" href="#">Fabric Issue</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">sewing</span></span>
+          <span class="nav-parent-label">Sewing</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="#">Sewing Lines</a>
+          <a class="nav-child" href="#">Daily Output</a>
         </div>
       </div>
 
       <div class="nav-section">Masters</div>
       <div class="nav-group">
-        <div class="nav-parent" onclick="toggleNav(this)">
-          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px">tune</span></span>
+        <div class="nav-parent" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
           <span class="nav-parent-label">Master Data</span>
-          <span class="nav-chevron material-symbols-outlined" style="font-size:14px">chevron_right</span>
+          <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
         </div>
         <div class="nav-children">
-          <a class="nav-child" href="#">Vendors</a>
-          <a class="nav-child" href="#">Fabric Types</a>
-          <a class="nav-child" href="#">Colours & UOMs</a>
-          <a class="nav-child" href="#">Processes</a>
+          <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+          <a class="nav-child" href="masters-company.html">Company Settings</a>
+          <a class="nav-child" href="#">Style Master</a>
+          <a class="nav-child" href="#">Sewing Line Master</a>
         </div>
       </div>
+
     </nav>
     <div class="sidebar-footer">
       <div class="sf-avatar">MG</div>
-      <div class="sf-info">
-        <div class="sf-name">Mayukh Ghatak</div>
-        <div class="sf-role">Admin</div>
-      </div>
+      <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
     </div>
   </aside>
 
@@ -2088,14 +2108,24 @@ document.addEventListener('keydown', (ev) => {
    ACTIVITY GROUPS / SIDEBAR
    ═══════════════════════════════════════════════════════ */
 function toggleGroup(headerEl) {
+  // Handle nav sidebar groups (nav-parent inside nav-group)
+  const navGrp = headerEl.closest('.nav-group');
+  if (navGrp) {
+    navGrp.classList.toggle('open');
+    headerEl.classList.toggle('open');
+    headerEl.classList.toggle('active-group');
+    return;
+  }
+  // Handle activity library groups (act-group-header inside act-group)
   const group = headerEl.parentElement;
   group.classList.toggle('open');
 }
 
 function toggleNav(el) {
-  const group = el.parentElement;
-  group.classList.toggle('open');
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
   el.classList.toggle('open');
+  el.classList.toggle('active-group');
 }
 
 function filterLib(query) {
