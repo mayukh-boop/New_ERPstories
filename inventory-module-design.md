@@ -99,12 +99,95 @@ Lots are the physical identity of received goods:
 ## 6. Warehouse Structure
 
 ```
-warehouse (top-level location: Factory 1 Store, Factory 2 Store, Central Warehouse)
-  └── warehouse_zone (RM Zone, Fabric Zone, QC Hold Area, Finished Goods)
-        └── bin_location (optional, for future barcode scanning: Rack A / Shelf 2 / Bin 04)
+warehouse  (top-level: Factory 1 Store, Factory 2 Store, Central Warehouse)
+  └── warehouse_zone  (RM Zone, Fabric Zone, QC Hold Area, Finished Goods Zone)
+        └── bin_location  (Rack A / Shelf 2 / Bin 04 — physical slot for a lot/item)
 ```
 
-For Phase 1: only `warehouse` + `warehouse_zone` are required. `bin_location` is future.
+All three levels are required from Phase 1. Bin management is not "future" in a garment factory — fabric rolls and trim boxes are physically placed in specific rack slots and the system must track where each lot lives.
+
+---
+
+## 6A. Bin Location Management
+
+A **bin** is the smallest addressable physical slot in a warehouse. In a garment store it might be:
+- A rack position for fabric rolls: `Rack-A / Bay-3 / Shelf-2`
+- A shelf bin for trim boxes: `Shelf-B / Bin-07`
+- A pallet position in a finished goods area: `FG-Zone / Pallet-14`
+
+### Why Bin Management Matters
+
+| Problem Without Bins | How Bins Solve It |
+|---|---|
+| Store keepers waste time searching for a lot | Bin address printed on lot label — find it in seconds |
+| Same item in multiple locations causes pick errors | System shows exactly which bin(s) hold a specific lot |
+| Physical stock counts require walking the entire store | Count sheet sorted by bin address — one zone at a time |
+| FIFO is policy but not enforced physically | Issue Notes specify exact lot + bin — no accidental LIFO picks |
+| Fabric rolls from the same lot get split across locations | Bin shows partial lot qty — consolidation alerts possible |
+
+### Bin Addressing Scheme
+
+Bin code is a structured string composed of zone + aisle + rack + shelf + bin:
+
+```
+{ZONE_CODE}-{AISLE}-{RACK}{SHELF}-{BIN}
+Example:  FAB-A-R03S2-B04   →  Fabric Zone / Aisle A / Rack 03 Shelf 2 / Bin 04
+          RM-B-R01S1-B11    →  RM Zone / Aisle B / Rack 01 Shelf 1 / Bin 11
+          FG-P14            →  Finished Goods / Pallet 14 (flat structure)
+```
+
+The code format is configurable per warehouse — not all warehouses have the same depth of structure.
+
+### Bin States
+
+| State | Meaning |
+|---|---|
+| `EMPTY` | No stock assigned to this bin |
+| `OCCUPIED` | Has one or more lot assignments |
+| `RESERVED` | Pre-assigned for an incoming GRN / transfer (not yet received) |
+| `BLOCKED` | Temporarily unavailable (pest control, damage, inspection) |
+
+### Bin Capacity (Optional)
+
+Each bin can carry a `max_capacity_qty` and `max_capacity_uom`. The system warns (not blocks in Phase 1) if an assignment would exceed capacity. Useful for fabric rolls where a shelf physically holds only X rolls.
+
+### Lot-to-Bin Assignment
+
+- One lot can span **multiple bins** (e.g. 50 rolls of fabric split across Bin 04 and Bin 05)
+- One bin can hold **multiple lots** of the same item (e.g. two trim lots on the same shelf)
+- One bin must NOT hold lots of **different items** — the system enforces this (configurable per warehouse)
+- The `lot_bin_assignment` table is the join between lots and bins, carrying the qty stored in that specific bin
+
+### Bin Movement Types
+
+Two new movement types added to the ledger for bin-level moves that don't change warehouse or zone:
+
+| Movement Type | Direction | Meaning |
+|---|---|---|
+| `BIN_TRANSFER_OUT` | OUT | Lot leaves source bin (within same warehouse zone) |
+| `BIN_TRANSFER_IN` | IN | Lot arrives at destination bin (within same warehouse zone) |
+
+A bin transfer is a **zero net ledger change** at the warehouse level — stock doesn't leave the warehouse. It only updates `lot_bin_assignment` records and posts the two bin-level ledger entries for traceability.
+
+### Bin on Issue Notes
+
+When a Cutting Issue Note is created, the system suggests the exact bin(s) to pick from, applying FIFO:
+```
+oldest lot → bin address for that lot → pick from that bin first
+if qty in bin < required → suggest next bin from same lot or next lot
+```
+
+The Issue Note line carries: `lot_id`, `bin_location_id`, `pick_qty` — making it a precise pick instruction for the store keeper.
+
+### Bin in Stock Count
+
+Physical stock counts are always done **bin by bin**. The count sheet groups rows by bin address. The store keeper walks Bin 01 → Bin 02 → ... and enters the actual qty found in each bin. The system reconciles:
+- System qty per bin (from `lot_bin_assignment`) vs. physically counted qty
+- Variances are flagged per bin and consolidated per lot before adjustment approval
+
+### Bin Label / Barcode Support (Phase 2)
+
+Each bin has a QR / barcode label. Scanning a bin during receiving or counting brings up the bin's current contents. This is Phase 2 — Phase 1 builds the data model and UI; the scan API is added when mobile devices are introduced.
 
 ---
 
@@ -128,8 +211,12 @@ For Phase 1: only `warehouse` + `warehouse_zone` are required. `bin_location` is
 | `VENDOR_RETURN_DISPATCH` | OUT | `vendor_return` | Physical return to vendor |
 | `FINISHED_GOODS_IN` | IN | `production_order` | Completed garments enter FG store |
 | `FINISHED_GOODS_OUT` | OUT | `delivery_note` | Shipped to buyer |
+| `BIN_TRANSFER_OUT` | OUT | `bin_transfer` | Lot leaves source bin (same warehouse, no net change) |
+| `BIN_TRANSFER_IN` | IN | `bin_transfer` | Lot arrives at destination bin (same warehouse) |
 
 Virtual movements (RESERVATION, UNRESERVATION, ALLOCATION) do not move physical goods but change the "available to promise" calculation.
+
+Bin transfer movements (`BIN_TRANSFER_OUT` + `BIN_TRANSFER_IN`) are always posted as a pair. Net warehouse-level qty = zero. They exist solely for bin-level traceability and to keep `lot_bin_assignment` accurate.
 
 ---
 
@@ -196,6 +283,21 @@ Shows garment count at each stage: Cut → Sewing → Finished → Packed → Sh
 
 ### 9J. Stock Movement Ledger (Audit Trail)
 All movements for an item/lot/date range. Full traceability from GRN to consumption.
+
+### 9K. Bin Inventory View (Where Is Everything?)
+Filters: warehouse, zone, aisle, rack, item, lot
+Columns: Bin Code | Zone | Item | Lot # | Qty in Bin | UOM | Lot Received Date | Age (days) | Bin State
+Purpose: answers "what is physically sitting in Bin A-R03S2-B04 right now?"
+
+### 9L. Lot Location Finder
+Input: Lot number or Item + Lot
+Output: list of all bins holding that lot, with qty per bin and bin address
+Purpose: answers "I have lot LOT-2025-0042 to issue — where do I go to pick it?"
+
+### 9M. Bin Utilisation Report
+Filters: warehouse, zone
+Columns: Bin Code | State | Items Stored | Total Qty | Max Capacity | Utilisation % | Last Movement Date
+Purpose: identify empty bins (available for put-away), overcrowded bins, and bins with no movement in >60 days (potential dead stock location alert).
 
 ---
 
@@ -288,6 +390,23 @@ What it covers:
 - Style inventory views: how many units at each stage per PO
 - Free finished goods: finished units with no Delivery Note raised
 - Buyer PO completion: how much of a Buyer PO has been shipped
+
+### EPIC INV-12: Bin Location Management
+*Enables precise physical traceability — where exactly is each lot in the store.*
+
+What it covers:
+- `bin_location` table: warehouse → zone → bin hierarchy with code, capacity, state
+- `lot_bin_assignment` table: which lot is in which bin, with qty per bin
+- Bin master CRUD: create bins individually or bulk-import from Excel (rack layout sheet)
+- Bin state management: EMPTY → OCCUPIED → BLOCKED transitions
+- Put-away logic: on GRN receipt, system suggests the best available bin (by zone type and capacity) — store keeper confirms or overrides
+- Pick suggestion on Issue Notes: system resolves FIFO lot → bin address → pick qty per bin
+- Bin transfer: move stock within the same warehouse from one bin to another (`BIN_TRANSFER_OUT` + `BIN_TRANSFER_IN` ledger pair)
+- Bin inventory view (9K): current contents of any bin
+- Lot location finder (9L): given a lot, show all bins and qty per bin
+- Bin utilisation report (9M): occupancy, empty bins, stale bins
+- Capacity warning: alert when assignment would exceed `bin.max_capacity_qty`
+- Bin consolidation suggestion: identify bins holding partial qty of the same lot across multiple locations — suggest consolidation to reduce fragmentation
 
 ---
 
@@ -432,6 +551,63 @@ style_bom_line (
   notes                   TEXT,
   audit cols...
 )
+```
+
+### Bin Location & Lot-Bin Assignment
+```sql
+bin_location (
+  id                  BIGSERIAL PK,
+  warehouse_id        BIGINT NOT NULL,       -- FK → warehouse
+  warehouse_zone_id   BIGINT NOT NULL,       -- FK → warehouse_zone
+  bin_code            VARCHAR(30) UNIQUE NOT NULL,  -- e.g. FAB-A-R03S2-B04
+  aisle               VARCHAR(10),
+  rack                VARCHAR(10),
+  shelf               VARCHAR(10),
+  bin_seq             VARCHAR(10),           -- position within shelf
+  bin_type            VARCHAR(20),           -- RACK_SHELF | PALLET | FLOOR | CAGE
+  max_capacity_qty    DECIMAL(12,3),         -- optional physical limit
+  max_capacity_uom_id BIGINT,
+  allow_mixed_items   BOOLEAN DEFAULT FALSE, -- if true, different items can share this bin
+  state               VARCHAR(20) DEFAULT 'EMPTY',  -- EMPTY|OCCUPIED|RESERVED|BLOCKED
+  blocked_reason      TEXT,                  -- reason if state = BLOCKED
+  barcode             VARCHAR(50),           -- for future scanner support
+  is_active           BOOLEAN DEFAULT TRUE,
+  audit cols...
+)
+-- Index: (warehouse_id), (warehouse_zone_id), (state), (bin_code)
+
+lot_bin_assignment (
+  id               BIGSERIAL PK,
+  lot_id           BIGINT NOT NULL,          -- FK → lot_master
+  bin_location_id  BIGINT NOT NULL,          -- FK → bin_location
+  item_type        VARCHAR(10) NOT NULL,     -- FABRIC | RM (denormalised for fast queries)
+  item_id          BIGINT NOT NULL,
+  qty_in_bin       DECIMAL(12,3) NOT NULL,   -- current qty stored in this bin for this lot
+  uom_id           BIGINT NOT NULL,
+  put_away_date    DATE NOT NULL,            -- when stock was placed in this bin
+  put_away_by      BIGINT,                   -- user who confirmed put-away
+  last_pick_date   DATE,                     -- last time stock was picked from this bin
+  is_active        BOOLEAN DEFAULT TRUE,     -- false when qty_in_bin reaches 0
+  audit cols...
+  UNIQUE (lot_id, bin_location_id)           -- one row per lot-bin pair
+)
+-- Index: (lot_id), (bin_location_id), (item_type, item_id), (is_active)
+```
+
+**Key rules for `lot_bin_assignment`:**
+- `qty_in_bin` is updated on every movement that specifies `bin_location_id`
+- When `qty_in_bin` reaches 0: set `is_active = false`; bin state recalculated (`EMPTY` if all assignments inactive)
+- A bin's total occupied qty = `SUM(qty_in_bin WHERE is_active = true AND bin_location_id = ?)`
+- `allow_mixed_items = false` (default): INSERT to `lot_bin_assignment` fails if bin already has a different `item_id`
+
+**Add `bin_location_id` to the inventory ledger and issue note line:**
+```sql
+-- inventory_ledger: add column
+bin_location_id     BIGINT,   -- FK → bin_location (null for virtual movements)
+
+-- cutting_issue_note_line: add columns
+bin_location_id     BIGINT,   -- FK → bin_location (pick from this bin)
+pick_qty            DECIMAL(12,3)  -- qty to pick from this specific bin (may be < issued_qty if split across bins)
 ```
 
 ### Cutting Issue Note
