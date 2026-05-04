@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sewing Lines — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-active  {background:#f0fdf4;color:#166534;}
+.sp-inactive{background:#f3f4f6;color:#4b5563;}
+.sp-busy    {background:#fff7ed;color:#c2410c;}
+
+/* Machine status pills */
+.ms{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-full);font-size:10.5px;font-weight:600;white-space:nowrap;}
+.ms-available  {background:#f0fdf4;color:#166534;}
+.ms-assigned   {background:#eff6ff;color:#1e40af;}
+.ms-maintenance{background:#fef2f2;color:#991b1b;}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all var(--ease-md);}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.stat-card.active{border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.stat-num{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11.5px;color:var(--text-3);font-weight:500;}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:500;}
+
+/* Tab strip */
+.tab-strip{display:flex;gap:2px;border-bottom:2px solid var(--border2);margin-bottom:16px;}
+.tab-btn{padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:var(--r-sm) var(--r-sm) 0 0;display:flex;align-items:center;gap:6px;transition:color .15s;}
+.tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.tab-btn.active{color:var(--brand-600);border-bottom-color:var(--brand-500);}
+.tab-count{background:var(--brand-100);color:var(--brand-700);border-radius:var(--r-full);padding:1px 7px;font-size:11px;}
+
+/* Toolbar */
+.list-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:320px;}
+.search-wrap .material-symbols-outlined{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-3);pointer-events:none;}
+.search-input{height:34px;padding:0 10px 0 32px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;width:100%;outline:none;font-family:inherit;background:var(--surface);}
+.search-input:focus{border-color:var(--brand-500);}
+.filter-sel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:12.5px;outline:none;font-family:inherit;background:var(--surface);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.filter-sel:focus{border-color:var(--brand-500);}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+.sl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.sl-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 14px;border-bottom:2px solid var(--border2);background:var(--gray-50);white-space:nowrap;}
+.sl-table td{padding:11px 14px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.sl-table tr:last-child td{border-bottom:none;}
+.sl-table tr:hover td{background:var(--brand-50);}
+
+/* Capacity bar */
+.cap-bar-wrap{display:flex;align-items:center;gap:8px;min-width:130px;}
+.cap-bar-track{flex:1;height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.cap-bar-fill{height:100%;border-radius:3px;transition:width .3s;}
+.cap-pct{font-size:11.5px;font-weight:700;width:34px;text-align:right;flex-shrink:0;}
+
+/* Row actions */
+.row-actions{display:flex;align-items:center;gap:6px;}
+.act-btn{height:28px;padding:0 10px;font-size:12px;font-weight:600;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--text-2);transition:all .15s;white-space:nowrap;}
+.act-btn:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.act-btn.danger:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2;}
+.icon-action{width:28px;height:28px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;}
+.icon-action:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action .material-symbols-outlined{font-size:15px;}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border2);background:var(--gray-50);font-size:12.5px;color:var(--text-3);}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:12px;font-family:inherit;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.pag-btn:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.pag-btn.active{background:var(--brand-600);color:#fff;border-color:var(--brand-600);}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── Detail panel (slide-over) ── */
+.detail-overlay{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:500;display:none;backdrop-filter:blur(2px);}
+.detail-overlay.open{display:block;}
+.detail-panel{position:fixed;top:0;right:0;width:680px;height:100vh;background:var(--surface);box-shadow:-8px 0 40px rgba(0,0,0,.14);z-index:501;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.detail-panel.open{transform:translateX(0);}
+.dp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.dp-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.dp-close{width:32px;height:32px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.dp-close:hover{background:var(--gray-100);}
+.dp-close .material-symbols-outlined{font-size:18px;}
+.dp-body{flex:1;overflow-y:auto;padding:20px;}
+.dp-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border2);margin-bottom:18px;}
+.dp-tab{padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:var(--r-sm) var(--r-sm) 0 0;transition:color .15s;}
+.dp-tab:hover{color:var(--brand-600);}
+.dp-tab.active{color:var(--brand-600);border-bottom-color:var(--brand-500);}
+.dp-section{margin-bottom:20px;}
+.dp-sec-title{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;}
+.dp-field{display:flex;flex-direction:column;gap:3px;}
+.dp-label{font-size:10.5px;font-weight:600;color:var(--text-3);letter-spacing:.03em;}
+.dp-val{font-size:13px;color:var(--text-1);font-weight:500;}
+
+/* Assignment table inside panel */
+.assign-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.assign-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border2);background:var(--gray-50);}
+.assign-table td{padding:8px 10px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.assign-table tr:last-child td{border-bottom:none;}
+.assign-table tr:hover td{background:var(--brand-50);}
+
+/* Capacity table */
+.cap-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.cap-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border2);background:var(--gray-50);}
+.cap-table td{padding:8px 10px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.cap-table tr:last-child td{border-bottom:none;}
+.cap-table .num{text-align:right;}
+.cap-table input.ce{width:72px;border:none;border-bottom:1.5px solid var(--border);background:transparent;font-size:12.5px;color:var(--text-1);outline:none;padding:2px 4px;font-family:inherit;text-align:right;}
+.cap-table input.ce:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+
+/* Busy block badge */
+.busy-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-full);font-size:10.5px;font-weight:600;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;}
+
+/* Form modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:600;display:none;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.2);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.modal-close{width:30px;height:30px;border-radius:var(--r-sm);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.modal-close:hover{background:var(--gray-100);}
+.modal-close .material-symbols-outlined{font-size:18px;}
+.modal-body{padding:20px;}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray-50);}
+
+/* Form fields inside modal */
+.fl{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.fl label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.03em;}
+.fl label .req{color:var(--danger);margin-left:2px;}
+.fi{height:34px;border:1.5px solid transparent;border-bottom-color:var(--border);background:transparent;border-radius:0;font-size:13px;color:var(--text-1);padding:0 6px;width:100%;outline:none;font-family:inherit;transition:border-color .15s,background .15s;}
+.fi:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px;cursor:pointer;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fi-area{border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:var(--text-1);padding:8px 10px;width:100%;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s;min-height:60px;background:transparent;}
+.fi-area:focus{border-color:var(--brand-500);}
+.hint{font-size:11px;color:var(--text-3);margin-top:3px;}
+
+/* Info banner */
+.info-banner{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);margin-bottom:14px;font-size:12.5px;color:var(--brand-700);}
+.info-banner .material-symbols-outlined{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+/* Toast */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+        <a class="nav-child active" href="sewing-line.html">Sewing Lines</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+        <a class="nav-child" href="masters-operation.html">Operations</a>
+        <a class="nav-child" href="masters-aisle.html">Aisle / Location</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Sewing Lines</span>
+    <div class="topbar-right">
+      <button class="topbar-cta" onclick="openCreateModal()">
+        <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+        New Sewing Line
+      </button>
+      <button class="topbar-icon-btn" title="Notifications">
+        <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page heading -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">Sewing Lines</div>
+        <div class="ph-sub">Define production lines per factory, assign machines &amp; operators, manage daily capacity</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openCreateModal()" style="margin-top:8px;">
+        <span class="material-symbols-outlined" style="font-size:14px;">add</span>
+        New Sewing Line
+      </button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card active" id="sc-All" onclick="setTab('All')">
+        <div class="stat-num" id="sc-total">8</div>
+        <div class="stat-label">Total Lines</div>
+        <div class="stat-sub" style="color:var(--text-3);">All factories</div>
+      </div>
+      <div class="stat-card" id="sc-ACTIVE" onclick="setTab('ACTIVE')">
+        <div class="stat-num" style="color:#166534;" id="sc-active-cnt">6</div>
+        <div class="stat-label">Active</div>
+        <div class="stat-sub" style="color:#166534;">Running today</div>
+      </div>
+      <div class="stat-card" id="sc-BUSY" onclick="setTab('BUSY')">
+        <div class="stat-num" style="color:#c2410c;" id="sc-busy-cnt">1</div>
+        <div class="stat-label">Busy / Holiday</div>
+        <div class="stat-sub" style="color:#c2410c;">Blocked dates</div>
+      </div>
+      <div class="stat-card" id="sc-INACTIVE" onclick="setTab('INACTIVE')">
+        <div class="stat-num" style="color:#9ca3af;" id="sc-inactive-cnt">1</div>
+        <div class="stat-label">Inactive</div>
+        <div class="stat-sub" style="color:#9ca3af;">Not in use</div>
+      </div>
+    </div>
+
+    <!-- Tab strip -->
+    <div class="tab-strip">
+      <button class="tab-btn active" id="tb-All"      onclick="setTab('All')">All <span class="tab-count" id="tc-All">8</span></button>
+      <button class="tab-btn"        id="tb-ACTIVE"   onclick="setTab('ACTIVE')">Active <span class="tab-count" id="tc-ACTIVE">6</span></button>
+      <button class="tab-btn"        id="tb-BUSY"     onclick="setTab('BUSY')">Busy <span class="tab-count" id="tc-BUSY">1</span></button>
+      <button class="tab-btn"        id="tb-INACTIVE" onclick="setTab('INACTIVE')">Inactive <span class="tab-count" id="tc-INACTIVE">1</span></button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input class="search-input" id="searchInput" placeholder="Search line name or factory…" oninput="renderTable()">
+      </div>
+      <select class="filter-sel" id="filterFactory" onchange="renderTable()">
+        <option value="">All Factories</option>
+        <option value="Factory 1 — Tirupur">Factory 1 — Tirupur</option>
+        <option value="Factory 2 — Chennai">Factory 2 — Chennai</option>
+        <option value="Factory 3 — Bangalore">Factory 3 — Bangalore</option>
+      </select>
+      <select class="filter-sel" id="filterStatus" onchange="renderTable()">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="BUSY">Busy</option>
+        <option value="INACTIVE">Inactive</option>
+      </select>
+      <div style="flex:1;"></div>
+      <button class="act-btn" onclick="openMachineModal()" title="Machine Master">
+        <span class="material-symbols-outlined" style="font-size:15px;">settings</span>
+        Machine Master
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="sl-table">
+        <thead>
+          <tr>
+            <th>Line Name</th>
+            <th>Factory / Location</th>
+            <th>Machines Assigned</th>
+            <th>Operators</th>
+            <th>Base Capacity (pcs/day)</th>
+            <th>Today's Utilisation</th>
+            <th>Status</th>
+            <th style="width:160px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none;padding:50px 20px;">
+        <span class="material-symbols-outlined" style="font-size:48px;color:var(--gray-300);display:block;text-align:center;margin-bottom:12px;">conveyor_belt</span>
+        <h3 style="text-align:center;font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px;">No Sewing Lines found</h3>
+        <p style="text-align:center;font-size:13px;color:var(--text-3);margin-bottom:14px;">Try adjusting your filters or create a new sewing line.</p>
+        <div style="text-align:center;"><button class="btn btn-primary btn-sm" onclick="openCreateModal()">Create Sewing Line</button></div>
+      </div>
+      <div class="pagination">
+        <span id="paginationInfo">Showing 8 of 8 lines</span>
+        <div class="pag-btns">
+          <button class="pag-btn" disabled>&laquo;</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn" disabled>&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════ DETAIL SLIDE-OVER ════════ -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <div>
+      <div class="dp-title" id="dpTitle">Line A</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:2px;" id="dpSubtitle">Factory 1 — Tirupur</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="sp sp-active" id="dpStatus">Active</span>
+      <button class="dp-close" onclick="closeDetail()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+  </div>
+  <div class="dp-body">
+    <div class="dp-tabs">
+      <button class="dp-tab active" onclick="switchDpTab(this,'overview')">Overview</button>
+      <button class="dp-tab" onclick="switchDpTab(this,'machines')">Machines</button>
+      <button class="dp-tab" onclick="switchDpTab(this,'operators')">Operators</button>
+      <button class="dp-tab" onclick="switchDpTab(this,'capacity')">Daily Capacity</button>
+    </div>
+
+    <!-- Overview tab -->
+    <div id="dp-overview">
+      <div class="dp-section">
+        <div class="dp-sec-title">Line Details</div>
+        <div class="dp-grid">
+          <div class="dp-field"><div class="dp-label">Line Name</div><div class="dp-val" id="dv-name">Line A</div></div>
+          <div class="dp-field"><div class="dp-label">Factory / Location</div><div class="dp-val" id="dv-loc">Factory 1 — Tirupur</div></div>
+          <div class="dp-field"><div class="dp-label">Base Capacity (pcs/day)</div><div class="dp-val" id="dv-cap">480</div></div>
+          <div class="dp-field"><div class="dp-label">Machines Assigned</div><div class="dp-val" id="dv-machines">6</div></div>
+          <div class="dp-field"><div class="dp-label">Operators Assigned</div><div class="dp-val" id="dv-operators">8</div></div>
+          <div class="dp-field"><div class="dp-label">Status</div><div class="dp-val" id="dv-status">Active</div></div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">Today's Capacity</div>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--border2);">
+          <div style="text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:var(--brand-600);" id="dv-booked">320</div>
+            <div style="font-size:10.5px;color:var(--text-3);font-weight:600;margin-top:2px;">Booked (pcs)</div>
+          </div>
+          <div style="flex:1;">
+            <div class="cap-bar-track" style="height:10px;border-radius:5px;">
+              <div class="cap-bar-fill" id="dv-capbar" style="width:67%;background:var(--brand-500);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:11px;color:var(--text-3);">0</span>
+              <span style="font-size:11px;font-weight:700;color:var(--brand-700);" id="dv-cappct">67%</span>
+              <span style="font-size:11px;color:var(--text-3);" id="dv-capmax">480 pcs</span>
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#6b7280;" id="dv-available">160</div>
+            <div style="font-size:10.5px;color:var(--text-3);font-weight:600;margin-top:2px;">Available (pcs)</div>
+          </div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title" style="margin-bottom:8px;">
+          Busy Blocks
+          <button class="act-btn" style="height:24px;font-size:11.5px;" onclick="openBusyModal()">
+            <span class="material-symbols-outlined" style="font-size:13px;">add</span> Add Block
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="busyList">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border:1px solid #fed7aa;border-radius:var(--r-sm);">
+            <div>
+              <span class="busy-badge">Busy</span>
+              <span style="font-size:12.5px;color:var(--text-1);margin-left:8px;font-weight:500;">05 May — 06 May 2025</span>
+            </div>
+            <span style="font-size:12px;color:var(--text-3);">Factory maintenance</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:8px;">
+        <button class="btn btn-primary btn-sm" onclick="openEditModal()">
+          <span class="material-symbols-outlined" style="font-size:14px;">edit</span> Edit Line
+        </button>
+        <button class="act-btn danger" style="height:32px;" onclick="showToast('Line deactivated','info')">
+          <span class="material-symbols-outlined" style="font-size:14px;">pause_circle</span> Deactivate
+        </button>
+      </div>
+    </div>
+
+    <!-- Machines tab -->
+    <div id="dp-machines" style="display:none;">
+      <div class="info-banner">
+        <span class="material-symbols-outlined">info</span>
+        One machine can be assigned to only one line at a time. Reassignment requires unassigning from the current line first.
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--text-3);">6 machines assigned</div>
+        <button class="act-btn" style="height:28px;" onclick="openAssignMachineModal()">
+          <span class="material-symbols-outlined" style="font-size:14px;">add</span> Assign Machine
+        </button>
+      </div>
+      <table class="assign-table">
+        <thead>
+          <tr>
+            <th>Machine #</th>
+            <th>Type</th>
+            <th>Assigned From</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MCH-001</strong></td>
+            <td>Single Needle</td>
+            <td>01 Jan 2025</td>
+            <td><span style="color:var(--text-3);">—</span></td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+          <tr>
+            <td><strong>MCH-002</strong></td>
+            <td>Single Needle</td>
+            <td>01 Jan 2025</td>
+            <td><span style="color:var(--text-3);">—</span></td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+          <tr>
+            <td><strong>MCH-003</strong></td>
+            <td>Overlock</td>
+            <td>15 Jan 2025</td>
+            <td><span style="color:var(--text-3);">—</span></td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+          <tr>
+            <td><strong>MCH-004</strong></td>
+            <td>Flatlock</td>
+            <td>01 Feb 2025</td>
+            <td>30 Jun 2025</td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+          <tr>
+            <td><strong>MCH-007</strong></td>
+            <td>Button Hole</td>
+            <td>10 Mar 2025</td>
+            <td><span style="color:var(--text-3);">—</span></td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+          <tr>
+            <td><strong>MCH-011</strong></td>
+            <td>Bar Tack</td>
+            <td>01 Apr 2025</td>
+            <td><span style="color:var(--text-3);">—</span></td>
+            <td><span class="ms ms-assigned">Assigned</span></td>
+            <td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Machine unassigned','info')">Unassign</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Operators tab -->
+    <div id="dp-operators" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--text-3);">8 operators assigned</div>
+        <button class="act-btn" style="height:28px;" onclick="openAssignOperatorModal()">
+          <span class="material-symbols-outlined" style="font-size:14px;">add</span> Assign Operator
+        </button>
+      </div>
+      <table class="assign-table">
+        <thead>
+          <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Assigned From</th>
+            <th>Assigned To</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>EMP-0021</td><td>Ravi Kumar</td><td>Senior Operator</td><td>01 Jan 2025</td><td>—</td><td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Operator unassigned','info')">Unassign</button></td></tr>
+          <tr><td>EMP-0022</td><td>Priya S.</td><td>Operator</td><td>01 Jan 2025</td><td>—</td><td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Operator unassigned','info')">Unassign</button></td></tr>
+          <tr><td>EMP-0035</td><td>Murugan T.</td><td>Operator</td><td>01 Feb 2025</td><td>—</td><td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Operator unassigned','info')">Unassign</button></td></tr>
+          <tr><td>EMP-0041</td><td>Selvi R.</td><td>Helper</td><td>01 Feb 2025</td><td>30 Jun 2025</td><td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Operator unassigned','info')">Unassign</button></td></tr>
+          <tr><td>EMP-0052</td><td>Arjun M.</td><td>Operator</td><td>01 Mar 2025</td><td>—</td><td><button class="act-btn danger" style="height:24px;font-size:11px;" onclick="showToast('Operator unassigned','info')">Unassign</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Daily Capacity tab -->
+    <div id="dp-capacity" style="display:none;">
+      <div class="info-banner">
+        <span class="material-symbols-outlined">info</span>
+        Base capacity is auto-calculated as machines × efficiency. You can override individual dates. Booked capacity is updated automatically by the Planning Board.
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--text-3);">Showing May 2025</div>
+        <div style="display:flex;gap:6px;">
+          <button class="act-btn" style="height:28px;"><span class="material-symbols-outlined" style="font-size:14px;">chevron_left</span></button>
+          <button class="act-btn" style="height:28px;"><span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span></button>
+        </div>
+      </div>
+      <table class="cap-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th class="num">Base (pcs)</th>
+            <th class="num">Override (pcs)</th>
+            <th class="num">Booked (pcs)</th>
+            <th class="num">Available (pcs)</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01 May</td><td style="color:var(--text-3);">Thu</td><td class="num">480</td><td class="num"><input class="ce" value="480"></td><td class="num" style="color:var(--brand-600);">320</td><td class="num" style="color:#16a34a;">160</td><td></td></tr>
+          <tr><td>02 May</td><td style="color:var(--text-3);">Fri</td><td class="num">480</td><td class="num"><input class="ce" value="480"></td><td class="num" style="color:var(--brand-600);">480</td><td class="num" style="color:#dc2626;">0</td><td></td></tr>
+          <tr><td>03 May</td><td style="color:var(--text-3);">Sat</td><td class="num">240</td><td class="num"><input class="ce" value="240"></td><td class="num" style="color:var(--brand-600);">120</td><td class="num" style="color:#16a34a;">120</td><td><span style="font-size:11px;color:var(--text-3);">Half day</span></td></tr>
+          <tr style="background:#fef9f0;"><td>04 May</td><td style="color:#c2410c;font-weight:600;">Sun</td><td class="num" style="color:var(--text-3);">0</td><td class="num"><input class="ce" value="0"></td><td class="num" style="color:var(--text-3);">0</td><td class="num">—</td><td><span class="busy-badge">Holiday</span></td></tr>
+          <tr style="background:#fef9f0;"><td>05 May</td><td style="color:var(--text-3);">Mon</td><td class="num">480</td><td class="num"><input class="ce" value="0"></td><td class="num" style="color:var(--text-3);">0</td><td class="num">—</td><td><span class="busy-badge">Maintenance</span></td></tr>
+          <tr><td>06 May</td><td style="color:var(--text-3);">Tue</td><td class="num">480</td><td class="num"><input class="ce" value="480"></td><td class="num" style="color:var(--brand-600);">200</td><td class="num" style="color:#16a34a;">280</td><td></td></tr>
+          <tr><td>07 May</td><td style="color:var(--text-3);">Wed</td><td class="num">480</td><td class="num"><input class="ce" value="480"></td><td class="num" style="color:var(--brand-600);">480</td><td class="num" style="color:#dc2626;">0</td><td></td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+        <button class="btn btn-primary btn-sm" onclick="showToast('Capacity overrides saved','success')">Save Overrides</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════ CREATE / EDIT LINE MODAL ════════ -->
+<div class="modal-backdrop" id="lineModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="lineModalTitle">Create Sewing Line</div>
+      <button class="modal-close" onclick="closeLineModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="g2">
+        <div class="fl">
+          <label>Line Name <span class="req">*</span></label>
+          <input class="fi" placeholder="e.g. Line A" id="fLineName">
+        </div>
+        <div class="fl">
+          <label>Factory / Location <span class="req">*</span></label>
+          <select class="fi" id="fLineFactory">
+            <option value="">Select factory…</option>
+            <option>Factory 1 — Tirupur</option>
+            <option>Factory 2 — Chennai</option>
+            <option>Factory 3 — Bangalore</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="fl">
+          <label>Base Capacity (pcs/day) <span class="req">*</span></label>
+          <input class="fi" type="number" placeholder="e.g. 480" id="fLineCap">
+          <div class="hint">Can be overridden per date in Daily Capacity tab</div>
+        </div>
+        <div class="fl">
+          <label>Status</label>
+          <select class="fi" id="fLineStatus">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="fl">
+        <label>Notes</label>
+        <textarea class="fi-area" placeholder="Optional notes about this line…" id="fLineNotes"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeLineModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveLine()">Save Line</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSIGN MACHINE MODAL ════════ -->
+<div class="modal-backdrop" id="assignMachineModal">
+  <div class="modal" style="width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">Assign Machine</div>
+      <button class="modal-close" onclick="document.getElementById('assignMachineModal').classList.remove('open')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="info-banner">
+        <span class="material-symbols-outlined">info</span>
+        Only machines with status <strong>Available</strong> can be assigned. A machine already on another line must be unassigned first.
+      </div>
+      <div class="fl">
+        <label>Machine <span class="req">*</span></label>
+        <select class="fi">
+          <option value="">Search or select available machine…</option>
+          <option>MCH-015 — Single Needle (Available)</option>
+          <option>MCH-016 — Overlock (Available)</option>
+          <option>MCH-020 — Flatlock (Available)</option>
+        </select>
+      </div>
+      <div class="g2">
+        <div class="fl">
+          <label>Assigned From <span class="req">*</span></label>
+          <input class="fi" type="date" value="2025-05-04">
+        </div>
+        <div class="fl">
+          <label>Assigned To</label>
+          <input class="fi" type="date">
+          <div class="hint">Leave blank for indefinite assignment</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('assignMachineModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Machine assigned to Line A','success');document.getElementById('assignMachineModal').classList.remove('open')">Assign Machine</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSIGN OPERATOR MODAL ════════ -->
+<div class="modal-backdrop" id="assignOperatorModal">
+  <div class="modal" style="width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">Assign Operator</div>
+      <button class="modal-close" onclick="document.getElementById('assignOperatorModal').classList.remove('open')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="fl">
+        <label>Employee <span class="req">*</span></label>
+        <select class="fi">
+          <option value="">Search employee…</option>
+          <option>EMP-0060 — Kavitha M. (Operator)</option>
+          <option>EMP-0061 — Senthil K. (Operator)</option>
+          <option>EMP-0062 — Devi R. (Helper)</option>
+        </select>
+      </div>
+      <div class="g2">
+        <div class="fl">
+          <label>Assigned From <span class="req">*</span></label>
+          <input class="fi" type="date" value="2025-05-04">
+        </div>
+        <div class="fl">
+          <label>Assigned To</label>
+          <input class="fi" type="date">
+          <div class="hint">Leave blank for indefinite assignment</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('assignOperatorModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Operator assigned to Line A','success');document.getElementById('assignOperatorModal').classList.remove('open')">Assign Operator</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ BUSY BLOCK MODAL ════════ -->
+<div class="modal-backdrop" id="busyModal">
+  <div class="modal" style="width:440px;">
+    <div class="modal-head">
+      <div class="modal-title">Mark Dates as Busy</div>
+      <button class="modal-close" onclick="document.getElementById('busyModal').classList.remove('open')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="g2">
+        <div class="fl">
+          <label>From Date <span class="req">*</span></label>
+          <input class="fi" type="date" value="2025-05-04">
+        </div>
+        <div class="fl">
+          <label>To Date <span class="req">*</span></label>
+          <input class="fi" type="date" value="2025-05-04">
+        </div>
+      </div>
+      <div class="fl">
+        <label>Reason <span class="req">*</span></label>
+        <select class="fi">
+          <option>Factory Maintenance</option>
+          <option>Public Holiday</option>
+          <option>Power Outage</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="fl">
+        <label>Notes</label>
+        <textarea class="fi-area" placeholder="Optional details…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('busyModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Busy block saved','success');document.getElementById('busyModal').classList.remove('open')">Save Block</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MACHINE MASTER MODAL ════════ -->
+<div class="modal-backdrop" id="machineModal">
+  <div class="modal" style="width:700px;max-width:95vw;">
+    <div class="modal-head">
+      <div class="modal-title">Machine Master</div>
+      <button class="modal-close" onclick="document.getElementById('machineModal').classList.remove('open')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:12.5px;color:var(--text-3);">18 machines registered across all locations</div>
+        <button class="act-btn" onclick="showToast('Add machine form — coming soon','info')">
+          <span class="material-symbols-outlined" style="font-size:14px;">add</span> Add Machine
+        </button>
+      </div>
+      <table class="assign-table">
+        <thead>
+          <tr>
+            <th>Machine #</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Current Line</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>MCH-001</strong></td><td>Single Needle</td><td>Factory 1 — Tirupur</td><td><span class="ms ms-assigned">Assigned</span></td><td>Line A</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+          <tr><td><strong>MCH-002</strong></td><td>Single Needle</td><td>Factory 1 — Tirupur</td><td><span class="ms ms-assigned">Assigned</span></td><td>Line A</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+          <tr><td><strong>MCH-005</strong></td><td>Overlock</td><td>Factory 1 — Tirupur</td><td><span class="ms ms-available">Available</span></td><td>—</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+          <tr><td><strong>MCH-008</strong></td><td>Single Needle</td><td>Factory 2 — Chennai</td><td><span class="ms ms-assigned">Assigned</span></td><td>Line C</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+          <tr><td><strong>MCH-010</strong></td><td>Flatlock</td><td>Factory 2 — Chennai</td><td><span class="ms ms-maintenance">Maintenance</span></td><td>—</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+          <tr><td><strong>MCH-015</strong></td><td>Single Needle</td><td>Factory 1 — Tirupur</td><td><span class="ms ms-available">Available</span></td><td>—</td><td><button class="act-btn" style="height:24px;font-size:11px;">Edit</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('machineModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+const LINES = [
+  { id:1, name:'Line A', location:'Factory 1 — Tirupur', machines:6, operators:8, base_capacity:480, booked:320, status:'ACTIVE' },
+  { id:2, name:'Line B', location:'Factory 1 — Tirupur', machines:5, operators:7, base_capacity:400, booked:400, status:'ACTIVE' },
+  { id:3, name:'Line C', location:'Factory 2 — Chennai',  machines:4, operators:6, base_capacity:320, booked:160, status:'ACTIVE' },
+  { id:4, name:'Line D', location:'Factory 2 — Chennai',  machines:4, operators:5, base_capacity:320, booked:0,   status:'BUSY'   },
+  { id:5, name:'Line E', location:'Factory 3 — Bangalore',machines:6, operators:8, base_capacity:480, booked:240, status:'ACTIVE' },
+  { id:6, name:'Line F', location:'Factory 3 — Bangalore',machines:3, operators:4, base_capacity:240, booked:240, status:'ACTIVE' },
+  { id:7, name:'Line G', location:'Factory 1 — Tirupur', machines:5, operators:7, base_capacity:400, booked:120, status:'ACTIVE' },
+  { id:8, name:'Line H', location:'Factory 2 — Chennai',  machines:0, operators:0, base_capacity:0,   booked:0,   status:'INACTIVE'},
+];
+
+let activeTab = 'All';
+
+function setTab(t) {
+  activeTab = t;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tb-' + t).classList.add('active');
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  const sc = document.getElementById('sc-' + t);
+  if (sc) sc.classList.add('active');
+  renderTable();
+}
+
+function capColor(pct) {
+  if (pct >= 95) return '#dc2626';
+  if (pct >= 75) return '#d97706';
+  return '#16a34a';
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const fLoc = document.getElementById('filterFactory').value;
+  const fSt  = document.getElementById('filterStatus').value;
+
+  const filtered = LINES.filter(l => {
+    if (activeTab !== 'All' && l.status !== activeTab) return false;
+    if (fSt && l.status !== fSt) return false;
+    if (fLoc && l.location !== fLoc) return false;
+    if (q && !l.name.toLowerCase().includes(q) && !l.location.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const tb = document.getElementById('tableBody');
+  const es = document.getElementById('emptyState');
+
+  if (!filtered.length) { tb.innerHTML=''; es.style.display='block'; return; }
+  es.style.display = 'none';
+
+  tb.innerHTML = filtered.map(l => {
+    const pct = l.base_capacity ? Math.round(l.base_capacity > 0 ? (l.booked / l.base_capacity) * 100 : 0) : 0;
+    const col = capColor(pct);
+    const statusHtml = l.status === 'ACTIVE'
+      ? '<span class="sp sp-active">Active</span>'
+      : l.status === 'BUSY'
+      ? '<span class="sp sp-busy">Busy</span>'
+      : '<span class="sp sp-inactive">Inactive</span>';
+
+    return `<tr style="cursor:pointer;" onclick="openDetail(${l.id})">
+      <td><strong>${l.name}</strong></td>
+      <td>${l.location}</td>
+      <td>${l.machines > 0 ? l.machines + ' machines' : '<span style="color:var(--text-3);">None</span>'}</td>
+      <td>${l.operators > 0 ? l.operators + ' operators' : '<span style="color:var(--text-3);">None</span>'}</td>
+      <td>${l.base_capacity > 0 ? l.base_capacity.toLocaleString() + ' pcs' : '<span style="color:var(--text-3);">—</span>'}</td>
+      <td>
+        <div class="cap-bar-wrap">
+          <div class="cap-bar-track"><div class="cap-bar-fill" style="width:${pct}%;background:${col};"></div></div>
+          <span class="cap-pct" style="color:${col};">${l.base_capacity > 0 ? pct + '%' : '—'}</span>
+        </div>
+      </td>
+      <td>${statusHtml}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="row-actions">
+          <button class="act-btn" onclick="openDetail(${l.id})">
+            <span class="material-symbols-outlined" style="font-size:13px;">open_in_full</span> View
+          </button>
+          <span class="icon-action" title="Edit" onclick="openEditModal()">
+            <span class="material-symbols-outlined">edit</span>
+          </span>
+          <span class="icon-action" title="Busy block" onclick="openBusyModal()">
+            <span class="material-symbols-outlined">event_busy</span>
+          </span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('paginationInfo').textContent = `Showing ${filtered.length} of ${LINES.length} lines`;
+}
+
+function openDetail(id) {
+  const l = LINES.find(x => x.id === id);
+  if (!l) return;
+  const pct = l.base_capacity > 0 ? Math.round((l.booked / l.base_capacity) * 100) : 0;
+  const col = capColor(pct);
+  document.getElementById('dpTitle').textContent = l.name;
+  document.getElementById('dpSubtitle').textContent = l.location;
+  document.getElementById('dpStatus').textContent = l.status === 'ACTIVE' ? 'Active' : l.status === 'BUSY' ? 'Busy' : 'Inactive';
+  document.getElementById('dpStatus').className = 'sp ' + (l.status === 'ACTIVE' ? 'sp-active' : l.status === 'BUSY' ? 'sp-busy' : 'sp-inactive');
+  document.getElementById('dv-name').textContent = l.name;
+  document.getElementById('dv-loc').textContent = l.location;
+  document.getElementById('dv-cap').textContent = l.base_capacity ? l.base_capacity.toLocaleString() + ' pcs/day' : '—';
+  document.getElementById('dv-machines').textContent = l.machines;
+  document.getElementById('dv-operators').textContent = l.operators;
+  document.getElementById('dv-status').textContent = l.status;
+  document.getElementById('dv-booked').textContent = l.booked.toLocaleString();
+  document.getElementById('dv-available').textContent = (l.base_capacity - l.booked).toLocaleString();
+  document.getElementById('dv-capbar').style.width = pct + '%';
+  document.getElementById('dv-capbar').style.background = col;
+  document.getElementById('dv-cappct').textContent = pct + '%';
+  document.getElementById('dv-cappct').style.color = col;
+  document.getElementById('dv-capmax').textContent = l.base_capacity.toLocaleString() + ' pcs';
+  switchDpTab(null, 'overview');
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+function switchDpTab(btn, name) {
+  ['overview','machines','operators','capacity'].forEach(t => {
+    document.getElementById('dp-' + t).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.dp-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.dp-tab').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + name + "'")) b.classList.add('active');
+    });
+  }
+}
+
+function openCreateModal() {
+  document.getElementById('lineModalTitle').textContent = 'Create Sewing Line';
+  document.getElementById('fLineName').value = '';
+  document.getElementById('fLineFactory').value = '';
+  document.getElementById('fLineCap').value = '';
+  document.getElementById('fLineStatus').value = 'ACTIVE';
+  document.getElementById('fLineNotes').value = '';
+  document.getElementById('lineModal').classList.add('open');
+}
+function openEditModal() {
+  document.getElementById('lineModalTitle').textContent = 'Edit Sewing Line';
+  document.getElementById('fLineName').value = 'Line A';
+  document.getElementById('fLineFactory').value = 'Factory 1 — Tirupur';
+  document.getElementById('fLineCap').value = '480';
+  document.getElementById('fLineStatus').value = 'ACTIVE';
+  document.getElementById('lineModal').classList.add('open');
+}
+function closeLineModal() { document.getElementById('lineModal').classList.remove('open'); }
+function saveLine() {
+  const n = document.getElementById('fLineName').value.trim();
+  const f = document.getElementById('fLineFactory').value;
+  if (!n || !f) { showToast('Line name and factory are required','error'); return; }
+  showToast('Sewing line saved successfully', 'success');
+  closeLineModal();
+}
+function openMachineModal()        { document.getElementById('machineModal').classList.add('open'); }
+function openAssignMachineModal()  { document.getElementById('assignMachineModal').classList.add('open'); }
+function openAssignOperatorModal() { document.getElementById('assignOperatorModal').classList.add('open'); }
+function openBusyModal()           { document.getElementById('busyModal').classList.add('open'); }
+
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+}
+
+function showToast(msg, type='info') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">${type==='success'?'check_circle':type==='error'?'error':'info'}</span>${msg}`;
+  area.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+renderTable();
+</script>
+</body>
+</html>
