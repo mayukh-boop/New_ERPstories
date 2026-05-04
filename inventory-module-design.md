@@ -762,6 +762,7 @@ Phase 4 — Advanced Operations
 | `warehouse-transfer.html` | INV-09 | Transfer note, in-transit tracker |
 | `stock-count.html` | INV-10 | Count sheet, system vs. physical, variance approval |
 | `wip-tracker.html` | INV-11 | WIP stage funnel per PO, free FG count |
+| `inventory-config.html` | INV Config | Tenant inventory settings screen — tier presets + individual flag toggles; ADMIN/SUPER_ADMIN only |
 
 ---
 
@@ -780,4 +781,414 @@ Phase 4 — Advanced Operations
 
 ---
 
-*This document is the single source of truth for the Inventory epic. Review open questions (Section 17) with the business before writing Jira stories. Once answered, use this document to populate the Jira epic and stories directly — every section maps to at least one story.*
+## 18. Configurability — Per-Tenant Feature Flags
+
+The inventory module must serve customers ranging from a small single-warehouse trim store to a large export house with multiple factories, QC labs, and bin-level tracking. The same codebase and the same database schema must support all of them — no forks, no separate builds, no conditionally-compiled editions.
+
+This section defines how configurability is implemented across all three layers: database, backend (Spring Boot), and frontend (React).
+
+---
+
+### 18A. The Config Table
+
+`inventory_config` lives in the **tenant schema** (not `public`). One row per tenant, provisioned with safe defaults when a new tenant registers via `TenantDefaultDataService.seedDefaultData()`.
+
+```sql
+inventory_config (
+  id                        BIGSERIAL PK,
+
+  -- Lot & Bin
+  lot_tracking_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
+  bin_management_enabled    BOOLEAN NOT NULL DEFAULT FALSE,
+
+  -- Warehouse
+  multi_warehouse_enabled   BOOLEAN NOT NULL DEFAULT FALSE,
+  default_warehouse_id      BIGINT,                              -- FK → warehouse (used when multi_warehouse=false)
+
+  -- QC
+  qc_mode                   VARCHAR(10) NOT NULL DEFAULT 'INLINE', -- INLINE | QC_HOLD | BOTH
+
+  -- BOM & Reservation
+  bom_approval_required     BOOLEAN NOT NULL DEFAULT TRUE,
+  reservation_mode          VARCHAR(10) NOT NULL DEFAULT 'MANUAL', -- MANUAL | AUTO
+  reservation_on_po_create  BOOLEAN NOT NULL DEFAULT FALSE,       -- auto-reserve on PO creation if reservation_mode=AUTO
+
+  -- Issue Notes
+  issue_note_approval_required BOOLEAN NOT NULL DEFAULT TRUE,     -- store keeper → supervisor approval step
+  allow_negative_stock      BOOLEAN NOT NULL DEFAULT FALSE,       -- block or warn on over-issue
+
+  -- Ageing Thresholds (days) — configurable per customer's commercial norms
+  ageing_fresh_days         INTEGER NOT NULL DEFAULT 60,
+  ageing_ageing_days        INTEGER NOT NULL DEFAULT 120,
+  ageing_critical_days      INTEGER NOT NULL DEFAULT 180,
+  -- > ageing_critical_days = DEAD_STOCK
+
+  -- Costing
+  costing_method            VARCHAR(15) NOT NULL DEFAULT 'NONE',  -- NONE | FIFO_COST | WEIGHTED_AVG
+
+  -- Bin Rules
+  allow_mixed_bin_items     BOOLEAN NOT NULL DEFAULT FALSE,       -- override bin_location.allow_mixed_items default
+
+  -- Capacity Enforcement
+  bin_capacity_enforce      BOOLEAN NOT NULL DEFAULT FALSE,       -- false=warn, true=hard block on over-capacity
+
+  audit cols...
+  -- single-row constraint: only one config row per tenant schema
+)
+```
+
+**Why in the tenant schema, not public?** Each tenant's schema is already isolated by `TenantConnectionProvider`. Placing config here means no `tenant_id` filter is ever needed — the schema itself is the boundary. This follows the same rule used for all master tables.
+
+---
+
+### 18B. Backend Implementation (Spring Boot 3 / Java 21)
+
+#### 18B-1. Entity & Repository
+
+`InventoryConfig` entity has no `@Table(schema = "public")` — it routes to the active tenant schema automatically.
+
+```java
+// entity/inventory/InventoryConfig.java
+@Entity
+@Table(name = "inventory_config")
+@Getter @Setter @Builder
+public class InventoryConfig {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private boolean lotTrackingEnabled;
+    private boolean binManagementEnabled;
+    private boolean multiWarehouseEnabled;
+    private Long defaultWarehouseId;
+
+    @Enumerated(EnumType.STRING)
+    private QcMode qcMode;                     // INLINE | QC_HOLD | BOTH
+
+    private boolean bomApprovalRequired;
+
+    @Enumerated(EnumType.STRING)
+    private ReservationMode reservationMode;   // MANUAL | AUTO
+
+    private boolean reservationOnPoCreate;
+    private boolean issueNoteApprovalRequired;
+    private boolean allowNegativeStock;
+    private int ageingFreshDays;
+    private int ageingAgeingDays;
+    private int ageingCriticalDays;
+
+    @Enumerated(EnumType.STRING)
+    private CostingMethod costingMethod;       // NONE | FIFO_COST | WEIGHTED_AVG
+
+    private boolean allowMixedBinItems;
+    private boolean binCapacityEnforce;
+}
+```
+
+#### 18B-2. Config Service (Cached per Tenant)
+
+`InventoryConfigService` is a Spring `@Service`. It caches the config for each tenant in a `ConcurrentHashMap<String, InventoryConfig>` (keyed by `tenantSchema`). The cache entry is invalidated when the config is updated via `PUT /api/v1/inventory/config`.
+
+```java
+// service/inventory/InventoryConfigService.java
+@Service
+@RequiredArgsConstructor
+public class InventoryConfigService {
+
+    private final InventoryConfigRepository configRepository;
+    private final ConcurrentHashMap<String, InventoryConfig> cache = new ConcurrentHashMap<>();
+
+    public InventoryConfig getConfig() {
+        String schema = TenantContext.getSchema();               // reads ThreadLocal set by JwtAuthenticationFilter
+        return cache.computeIfAbsent(schema, s ->
+            configRepository.findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory config not seeded for tenant"))
+        );
+    }
+
+    public void invalidateCache() {
+        cache.remove(TenantContext.getSchema());
+    }
+
+    public InventoryConfig update(UpdateInventoryConfigRequest request) {
+        InventoryConfig config = getConfig();
+        // MapStruct mapper applies request fields to config entity
+        inventoryConfigMapper.updateFromRequest(request, config);
+        InventoryConfig saved = configRepository.save(config);
+        invalidateCache();
+        return saved;
+    }
+}
+```
+
+**Why `ConcurrentHashMap` and not Spring Cache / Redis?** The cache is tenant-scoped and lives in the JVM. `computeIfAbsent` is thread-safe without a lock. A Redis layer would add network latency to every stock movement — the config changes at most a few times a year, so in-memory is the right trade-off for Phase 1.
+
+#### 18B-3. Guard Pattern in Every Service That Has a Flag Dependency
+
+Every service method that depends on a config flag checks it first and throws `ValidationException` with a machine-readable error code if disabled. The controller layer does not check flags — only the service does.
+
+```java
+// Example: InventoryMovementService — bin assignment on GRN receipt
+public void postGrnReceipt(GrnReceiptRequest request) {
+    InventoryConfig config = inventoryConfigService.getConfig();
+
+    if (request.getBinLocationId() != null && !config.isBinManagementEnabled()) {
+        throw new ValidationException("BIN_MANAGEMENT_DISABLED",
+            "Bin assignment is not enabled for this tenant");
+    }
+    if (request.getLotId() == null && config.isLotTrackingEnabled()) {
+        throw new ValidationException("LOT_REQUIRED",
+            "Lot tracking is enabled — lotId is required");
+    }
+    // ... proceed with movement posting
+}
+```
+
+#### 18B-4. Seeding on Tenant Registration
+
+`TenantDefaultDataService.seedDefaultData()` (already called at registration) gains one new step: seed `inventory_config` with conservative defaults.
+
+```java
+// In TenantDefaultDataService.seedDefaultData()
+private void seedInventoryConfig() {
+    InventoryConfig config = InventoryConfig.builder()
+        .lotTrackingEnabled(true)
+        .binManagementEnabled(false)
+        .multiWarehouseEnabled(false)
+        .qcMode(QcMode.INLINE)
+        .bomApprovalRequired(true)
+        .reservationMode(ReservationMode.MANUAL)
+        .reservationOnPoCreate(false)
+        .issueNoteApprovalRequired(true)
+        .allowNegativeStock(false)
+        .ageingFreshDays(60)
+        .ageingAgeingDays(120)
+        .ageingCriticalDays(180)
+        .costingMethod(CostingMethod.NONE)
+        .allowMixedBinItems(false)
+        .binCapacityEnforce(false)
+        .build();
+    inventoryConfigRepository.save(config);
+}
+```
+
+This call runs inside a `@Transactional` block with `TenantContext` already set — same pattern as all other seed calls in that method.
+
+#### 18B-5. Config API Endpoints
+
+Guarded by `ADMIN` or `SUPER_ADMIN` role. `SUPER_ADMIN` can update config for any tenant; `ADMIN` can only read/update their own tenant's config.
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| `GET` | `/api/v1/inventory/config` | Any authenticated | Fetch active config for caller's tenant |
+| `PUT` | `/api/v1/inventory/config` | `ADMIN` or `SUPER_ADMIN` | Update config fields (full replacement) |
+
+Response follows the standard `ApiResponse<InventoryConfigDTO>` wrapper.
+
+`InventoryConfigDTO` is the read-safe DTO (never expose the entity directly — Backend CLAUDE.md DTO Pattern). MapStruct mapper: `InventoryConfigMapper`.
+
+#### 18B-6. Flyway Migration
+
+Config table is provisioned in `db/migration/tenant/` (not `public/`) so it is created in every tenant schema when the schema is provisioned.
+
+```sql
+-- db/migration/tenant/V_INV_01__inventory_config.sql
+CREATE TABLE IF NOT EXISTS inventory_config (
+    id                           BIGSERIAL PRIMARY KEY,
+    lot_tracking_enabled         BOOLEAN NOT NULL DEFAULT TRUE,
+    bin_management_enabled       BOOLEAN NOT NULL DEFAULT FALSE,
+    multi_warehouse_enabled      BOOLEAN NOT NULL DEFAULT FALSE,
+    default_warehouse_id         BIGINT,
+    qc_mode                      VARCHAR(10) NOT NULL DEFAULT 'INLINE',
+    bom_approval_required        BOOLEAN NOT NULL DEFAULT TRUE,
+    reservation_mode             VARCHAR(10) NOT NULL DEFAULT 'MANUAL',
+    reservation_on_po_create     BOOLEAN NOT NULL DEFAULT FALSE,
+    issue_note_approval_required BOOLEAN NOT NULL DEFAULT TRUE,
+    allow_negative_stock         BOOLEAN NOT NULL DEFAULT FALSE,
+    ageing_fresh_days            INTEGER NOT NULL DEFAULT 60,
+    ageing_ageing_days           INTEGER NOT NULL DEFAULT 120,
+    ageing_critical_days         INTEGER NOT NULL DEFAULT 180,
+    costing_method               VARCHAR(15) NOT NULL DEFAULT 'NONE',
+    allow_mixed_bin_items        BOOLEAN NOT NULL DEFAULT FALSE,
+    bin_capacity_enforce         BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_by                   BIGINT,
+    updated_by                   BIGINT
+);
+```
+
+The migration creates the table; `seedInventoryConfig()` inserts the single row. This separation keeps migrations idempotent (the table creation is safe on re-run) while the data seeding runs only once at tenant registration time.
+
+---
+
+### 18C. Frontend Implementation (React 19 / TypeScript)
+
+#### 18C-1. Config Type
+
+```ts
+// src/types/inventory.ts
+export interface InventoryConfig {
+  lotTrackingEnabled:         boolean;
+  binManagementEnabled:       boolean;
+  multiWarehouseEnabled:      boolean;
+  defaultWarehouseId:         number | null;
+  qcMode:                     'INLINE' | 'QC_HOLD' | 'BOTH';
+  bomApprovalRequired:        boolean;
+  reservationMode:            'MANUAL' | 'AUTO';
+  reservationOnPoCreate:      boolean;
+  issueNoteApprovalRequired:  boolean;
+  allowNegativeStock:         boolean;
+  ageingFreshDays:            number;
+  ageingAgeingDays:           number;
+  ageingCriticalDays:         number;
+  costingMethod:              'NONE' | 'FIFO_COST' | 'WEIGHTED_AVG';
+  allowMixedBinItems:         boolean;
+  binCapacityEnforce:         boolean;
+}
+```
+
+#### 18C-2. Config Hook (TanStack React Query)
+
+```ts
+// src/hooks/useInventoryConfig.ts
+import { useQuery } from '@tanstack/react-query';
+import { inventoryApi } from '@/api/inventory';
+
+export function useInventoryConfig() {
+  return useQuery({
+    queryKey: ['inventory-config'],
+    queryFn: inventoryApi.getConfig,
+    staleTime: 10 * 60 * 1000,   // 10 min — config changes rarely
+    gcTime:    30 * 60 * 1000,
+  });
+}
+```
+
+The `queryKey` is tenant-scoped implicitly — the Axios interceptor attaches the JWT (which carries `tenantSchema`) on every request, so each tenant's JWT session returns its own config from the backend.
+
+#### 18C-3. Conditional UI Pattern
+
+Config is consumed at the component level using the hook. Fields, columns, and nav items that depend on a flag are conditionally rendered — never just hidden with CSS (hidden DOM still submits form values).
+
+```tsx
+// Example: GRN Receipt line — LOT and BIN fields
+const { data: config } = useInventoryConfig();
+
+{config?.lotTrackingEnabled && (
+  <MasterFormField
+    label="Lot Number"
+    fieldType="text"
+    required
+    {...register('lotNumber')}
+    error={errors.lotNumber?.message}
+  />
+)}
+
+{config?.binManagementEnabled && (
+  <MasterFormField
+    label="Put-Away Bin"
+    fieldType="dropdown"
+    options={binOptions}
+    required
+    control={control}
+    name="binLocationId"
+    error={errors.binLocationId?.message}
+  />
+)}
+```
+
+Columns in stock views (lot #, bin code, costing value) are likewise conditionally included in the table column definition array before rendering — not toggled with `hidden` class.
+
+#### 18C-4. Config Admin Screen
+
+A dedicated settings screen at `/settings/inventory-config` (guarded to `ADMIN` and `SUPER_ADMIN`) allows updating all flags via a form. Uses `React Hook Form + Zod` resolver, `MasterFormField` for all fields. Submit calls `PUT /api/v1/inventory/config`. On success, React Query's `invalidateQueries(['inventory-config'])` flushes the frontend cache so the updated config is fetched on next use.
+
+Prototype file: `inventory-config.html` (to be built — see Section 16 update below).
+
+---
+
+### 18D. Progressive Tier Model (Onboarding Reference)
+
+These are the three common customer profiles. The SUPER_ADMIN sets flags during tenant onboarding via the config screen. Defaults already match Tier 1 — so a new tenant gets a working system without any configuration.
+
+| Flag | Tier 1 — Simple Store | Tier 2 — Mid-Size Factory | Tier 3 — Large Export House |
+|------|-----------------------|--------------------------|------------------------------|
+| `lot_tracking_enabled` | `false` | `true` | `true` |
+| `bin_management_enabled` | `false` | `false` | `true` |
+| `multi_warehouse_enabled` | `false` | `false` | `true` |
+| `qc_mode` | `INLINE` | `INLINE` | `BOTH` |
+| `bom_approval_required` | `false` | `true` | `true` |
+| `reservation_mode` | `MANUAL` | `MANUAL` | `AUTO` |
+| `issue_note_approval_required` | `false` | `true` | `true` |
+| `allow_negative_stock` | `true` | `false` | `false` |
+| `costing_method` | `NONE` | `NONE` | `WEIGHTED_AVG` |
+| `bin_capacity_enforce` | `false` | `false` | `true` |
+
+**Tier 1**: GRN → stock in → issue out. No lots, no bins, no approvals. Staff just record what came in and went out.
+
+**Tier 2**: Full lot traceability, ageing reports, FIFO allocation, BOM-driven issue notes with supervisor approval.
+
+**Tier 3**: All of the above plus multi-warehouse with inter-warehouse transfers, bin-level put-away and pick instructions, auto-reservation on PO creation, weighted average costing, bin capacity hard enforcement.
+
+---
+
+### 18E. What Changes Per Flag — Full Impact Matrix
+
+| Flag | Backend Impact | Frontend Impact |
+|------|---------------|-----------------|
+| `lot_tracking_enabled = false` | `lot_id` not required on movement posts; `lot_master` not created on GRN receipt | Lot # column hidden in all stock views; LOT field removed from GRN and issue note lines |
+| `lot_tracking_enabled = true` | `lot_id` required on all physical movements (GRN_RECEIPT, ISSUE_TO_CUTTING, QC_PASS); `lot_master` row auto-created on GRN receipt | Lot # column visible; LOT field required in forms; ageing report available |
+| `bin_management_enabled = false` | `bin_location_id` ignored on all movement posts; put-away step skipped after GRN approval | Bin column hidden; bin assignment step removed from GRN flow; views 9K/9L/9M not shown in nav |
+| `bin_management_enabled = true` | `bin_location_id` required on physical movements; `lot_bin_assignment` updated on every movement; bin state recalculated | Bin code column shown; put-away UI shown post-GRN; pick suggestion shown on issue notes; bin views 9K/9L/9M in nav |
+| `multi_warehouse_enabled = false` | All movements default to `default_warehouse_id`; warehouse param optional on API calls; inter-warehouse transfer endpoints return `403` | Warehouse selector hidden on all documents; transfer nav item not shown |
+| `multi_warehouse_enabled = true` | Warehouse required on all movement posts; inter-warehouse transfer endpoints active | Warehouse selector shown; transfer module in nav |
+| `qc_mode = INLINE` | Only `acceptedQty / rejectedQty` inline fields on GRN lines; `QC_HOLD` movement type blocked | GRN shows inline accept/reject fields; QC Inspection page not in nav |
+| `qc_mode = QC_HOLD` | GRN posts full qty as `QC_HOLD`; inline accept/reject fields blocked | GRN has no inline QC fields; QC Inspection page shown in nav |
+| `qc_mode = BOTH` | GRN line has a QC mode toggle: INLINE or HOLD per line | Toggle shown on each GRN line; both inspection page and inline fields available |
+| `bom_approval_required = false` | BOM status skips DRAFT → goes directly to ACTIVE on save | No approval button/status shown in BOM form |
+| `reservation_mode = AUTO` | On PO creation, system immediately calls reservation engine for all BOM lines | "Reserve" button hidden; stock coverage shown as auto-calculated |
+| `reservation_mode = MANUAL` | No auto-reservation; planner explicitly calls `POST /inventory/reserve` | "Reserve" button visible on production order detail |
+| `issue_note_approval_required = false` | Issue note goes from DRAFT directly to ISSUED on submit | No "Submit for Approval" step; direct "Issue" button |
+| `allow_negative_stock = false` | `InventoryMovementService.postMovement()` throws `ValidationException("INSUFFICIENT_STOCK")` if free qty < issued qty | Issue Note shows real-time stock warning; Issue button disabled when qty insufficient |
+| `allow_negative_stock = true` | Movement posts regardless of current balance; warning logged | Warning badge shown on issue note but Issue button remains enabled |
+| `costing_method = NONE` | `unit_cost` not stored on ledger; no value columns computed | Value column hidden in ageing report and stock views |
+| `costing_method = WEIGHTED_AVG` | Weighted avg unit cost recalculated on every GRN receipt and write-off | Value column visible; ageing report shows stock value at risk |
+| `bin_capacity_enforce = false` | Over-capacity bin assignment logs a warning but posts | Capacity warning badge shown on bin selector |
+| `bin_capacity_enforce = true` | Over-capacity bin assignment throws `ValidationException("BIN_CAPACITY_EXCEEDED")` | Bin selector disables over-capacity bins; hard error shown |
+
+---
+
+### 18F. Multi-Tenancy Alignment — Rules to Follow
+
+These rules align with the existing multi-tenancy architecture (Backend CLAUDE.md — Multi-Tenancy Strategy):
+
+1. **`inventory_config` has NO `tenant_id` column.** The schema is the isolation boundary. `TenantConnectionProvider` routes all queries to the correct tenant schema. Adding a `tenant_id` filter would be an anti-pattern.
+
+2. **`InventoryConfigService` reads `TenantContext.getSchema()` for cache keying** — not `TenantContext.getTenantId()`. This is the only place schema is read directly; all other inventory services go through `inventoryConfigService.getConfig()`.
+
+3. **Seeding runs inside `TenantDefaultDataService.seedDefaultData()`** with `TenantContext` pre-set. Never seed from outside this method — it is the single entry point for all per-tenant defaults.
+
+4. **Config migration lives in `db/migration/tenant/`**, not `db/migration/public/`. This ensures it is applied to every tenant schema via `TenantSchemaService.provisionTenantSchema()`.
+
+5. **SUPER_ADMIN can read and update any tenant's config** by using their cross-tenant access. `ADMIN` can only operate on their own schema (enforced naturally — their JWT routes all queries to their schema).
+
+6. **The config endpoint `GET /api/v1/inventory/config` is NOT under `/masters/`** — it is a module-level setting, not a master data record. Path: `/api/v1/inventory/config`.
+
+7. **Cache invalidation is tenant-scoped.** When `PUT /api/v1/inventory/config` is called, only the calling tenant's entry is evicted from `InventoryConfigService.cache`. Other tenants' cached configs are unaffected.
+
+8. **All timestamps follow the UTC storage rule**: `created_at`, `updated_at` stored as `TIMESTAMPTZ` in PostgreSQL UTC. Serialised to IST at the Jackson layer — no changes needed in `inventory_config` beyond the standard audit column pattern.
+
+---
+
+### 18G. SUPER_ADMIN Onboarding Screen
+
+When SUPER_ADMIN provisions a new tenant, a dedicated onboarding wizard step (after tenant registration) sets the inventory tier. Options:
+
+- **Quick Setup** — SUPER_ADMIN selects a tier (Simple / Mid-Size / Large) and the backend applies the matching preset values from Section 18D.
+- **Custom Setup** — SUPER_ADMIN sets each flag individually.
+
+Backend: `POST /api/v1/inventory/config/apply-preset` body `{ "preset": "TIER_1" | "TIER_2" | "TIER_3" }` — reads the preset map and applies it via the existing `update()` method. This endpoint is `SUPER_ADMIN` only.
+
+---
+
+*Section 18 added 2026-05-04. Review with backend team before writing INV-01 Jira stories — the config table must be provisioned before any other inventory table is built.*
