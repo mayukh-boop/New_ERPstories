@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Board — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --col-w: 52px;   /* width of each date column */
+  --row-h: 80px;   /* height of each line row */
+  --pin-w: 180px;  /* frozen left column width */
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Page layout override: board needs full height ── */
+.main { display: flex; flex-direction: column; overflow: hidden; }
+.page { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 !important; }
+
+/* ── Board toolbar strip ── */
+.board-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-bottom: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0; flex-wrap: wrap;
+}
+.board-title { font-size: 15px; font-weight: 700; color: var(--text-1); margin-right: 4px; }
+.board-sub   { font-size: 12px; color: var(--text-3); }
+
+/* View toggle */
+.view-toggle { display:flex; gap:2px; background:var(--gray-100); border-radius:var(--r-sm); padding:3px; }
+.vt-btn { padding:5px 12px; border-radius:4px; font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:inherit; color:var(--text-3); background:transparent; transition:all .15s; display:flex; align-items:center; gap:5px; }
+.vt-btn.active { background:var(--surface); color:var(--brand-700); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+.vt-btn .material-symbols-outlined { font-size:15px; }
+
+/* Filter selects */
+.filter-sel { height:32px; padding:0 26px 0 9px; border:1.5px solid var(--border); border-radius:var(--r-md); font-size:12px; outline:none; font-family:inherit; background:var(--surface); appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 7px center; }
+.filter-sel:focus { border-color:var(--brand-500); }
+
+/* Nav buttons */
+.nav-btn { height:32px; padding:0 10px; border:1.5px solid var(--border); border-radius:var(--r-md); background:var(--surface); cursor:pointer; display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-2); transition:all .15s; }
+.nav-btn:hover { border-color:var(--brand-400); color:var(--brand-700); background:var(--brand-50); }
+.nav-btn .material-symbols-outlined { font-size:16px; }
+.today-btn { background:var(--brand-50); border-color:var(--brand-300); color:var(--brand-700); }
+
+/* Legend */
+.legend { display:flex; align-items:center; gap:10px; margin-left:auto; }
+.leg-item { display:flex; align-items:center; gap:4px; font-size:11px; color:var(--text-3); font-weight:500; }
+.leg-dot { width:10px; height:10px; border-radius:2px; }
+
+/* ── Board body: unassigned pool + grid ── */
+.board-body { flex:1; display:flex; overflow:hidden; }
+
+/* Unassigned pool (left panel) */
+.pool-panel {
+  width: 220px; flex-shrink:0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.pool-head {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.pool-head-title { font-size: 11px; font-weight: 700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); }
+.pool-count { display:inline-flex; align-items:center; justify-content:center; background:var(--brand-100); color:var(--brand-700); border-radius:var(--r-full); padding:1px 7px; font-size:11px; font-weight:700; margin-left:6px; }
+.pool-search { margin:8px 10px 6px; position:relative; }
+.pool-search input { width:100%; height:28px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-size:12px; padding:0 8px 0 26px; outline:none; font-family:inherit; background:var(--gray-50); }
+.pool-search input:focus { border-color:var(--brand-500); background:#fff; }
+.pool-search .material-symbols-outlined { position:absolute; left:6px; top:50%; transform:translateY(-50%); font-size:15px; color:var(--text-3); pointer-events:none; }
+.pool-list { flex:1; overflow-y:auto; padding:4px 8px 8px; display:flex; flex-direction:column; gap:6px; }
+
+/* Planning card (pool + on board) */
+.pcard {
+  border-radius: var(--r-md);
+  border-left: 4px solid;
+  padding: 7px 9px;
+  cursor: grab;
+  user-select: none;
+  background: var(--surface);
+  border-top: 1px solid; border-right: 1px solid; border-bottom: 1px solid;
+  transition: box-shadow .15s, transform .1s;
+  position: relative;
+}
+.pcard:active { cursor: grabbing; box-shadow: 0 6px 20px rgba(0,0,0,.18); transform: rotate(1.5deg) scale(1.02); }
+.pcard.dragging { opacity:.5; }
+.pcard.on-track  { border-left-color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; }
+.pcard.at-risk   { border-left-color:#d97706; border-color:#fde68a; background:#fffbeb; }
+.pcard.overdue   { border-left-color:#dc2626; border-color:#fca5a5; background:#fef2f2; }
+.pcard.unassigned{ border-left-color:#6366f1; border-color:#c7d2fe; background:#eef2ff; }
+.pcard-num  { font-size:10.5px; font-weight:700; color:var(--text-2); letter-spacing:.02em; }
+.pcard-style{ font-size:11.5px; font-weight:700; color:var(--text-1); margin:2px 0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pcard-meta { font-size:10.5px; color:var(--text-3); display:flex; flex-wrap:wrap; gap:4px; margin-top:3px; }
+.pcard-meta span { display:flex; align-items:center; gap:2px; }
+.pcard-meta .material-symbols-outlined { font-size:12px; }
+.pcard-actions { display:flex; gap:4px; margin-top:6px; }
+.pcard-btn { height:22px; padding:0 7px; font-size:10.5px; font-weight:600; border-radius:3px; border:1px solid rgba(0,0,0,.1); background:rgba(255,255,255,.7); cursor:pointer; font-family:inherit; color:var(--text-2); transition:all .12s; }
+.pcard-btn:hover { background:#fff; color:var(--brand-700); border-color:var(--brand-300); }
+.pcard-btn.split:hover { color:#7c3aed; border-color:#c4b5fd; background:#f5f3ff; }
+
+/* ── Calendar grid ── */
+.board-grid-wrap {
+  flex: 1; overflow: auto; position: relative;
+  background: var(--bg);
+}
+
+.board-grid {
+  display: grid;
+  /* columns: frozen line label + N date columns */
+  min-width: max-content;
+}
+
+/* Header row: date labels */
+.grid-header {
+  display: contents;
+}
+.gh-corner {
+  position: sticky; left: 0; top: 0; z-index: 30;
+  width: var(--pin-w); min-width: var(--pin-w);
+  background: var(--gray-50);
+  border-right: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  padding: 8px 12px;
+  font-size: 10.5px; font-weight: 700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3);
+  display: flex; align-items: center;
+}
+.gh-date {
+  width: var(--col-w); min-width: var(--col-w);
+  text-align: center;
+  padding: 6px 2px;
+  font-size: 10.5px; font-weight: 600; color: var(--text-3);
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border2);
+  background: var(--gray-50);
+  position: sticky; top:0; z-index:20;
+  cursor: default;
+}
+.gh-date.today { background:var(--brand-100); color:var(--brand-700); font-weight:800; }
+.gh-date.weekend { background:#f8f9fa; color:#94a3b8; }
+.gh-date-day  { font-size:9px; display:block; margin-bottom:1px; }
+.gh-date-num  { font-size:13px; font-weight:800; display:block; line-height:1; }
+
+/* Line row */
+.grid-row { display: contents; }
+.gr-label {
+  position: sticky; left:0; z-index:10;
+  width: var(--pin-w); min-width: var(--pin-w);
+  background: var(--surface);
+  border-right: 2px solid var(--border);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 12px;
+  display: flex; flex-direction:column; justify-content:center; gap:2px;
+}
+.gr-label-name  { font-size:12.5px; font-weight:700; color:var(--text-1); }
+.gr-label-loc   { font-size:10.5px; color:var(--text-3); }
+.gr-label-cap   { font-size:10.5px; }
+
+/* Individual date cell */
+.gr-cell {
+  width: var(--col-w); min-width: var(--col-w);
+  height: var(--row-h);
+  border-right: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+  background: #fff;
+  position: relative;
+  vertical-align: top;
+  transition: background .1s;
+}
+.gr-cell.weekend { background:#fafafa; }
+.gr-cell.today-col { background:#f0f6ff; }
+.gr-cell.busy { background: repeating-linear-gradient(45deg,#fff7ed,#fff7ed 4px,#fef3c7 4px,#fef3c7 8px); }
+.gr-cell.drop-target { background:var(--brand-50); outline:2px dashed var(--brand-400); outline-offset:-2px; }
+
+/* Placed card block spanning multiple columns */
+.placed-block {
+  position: absolute;
+  top: 6px; left: 2px;
+  height: calc(var(--row-h) - 14px);
+  border-radius: var(--r-sm);
+  border-left: 4px solid;
+  padding: 4px 7px;
+  cursor: grab;
+  overflow: hidden;
+  z-index: 5;
+  transition: box-shadow .15s;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.placed-block:hover { box-shadow: 0 3px 12px rgba(0,0,0,.18); z-index:6; }
+.placed-block:active { cursor:grabbing; }
+.pb-on-track  { background:#dcfce7; border-left-color:#16a34a; border:1px solid #bbf7d0; border-left:4px solid #16a34a; }
+.pb-at-risk   { background:#fef9c3; border-left-color:#d97706; border:1px solid #fde68a; border-left:4px solid #d97706; }
+.pb-overdue   { background:#fee2e2; border-left-color:#dc2626; border:1px solid #fca5a5; border-left:4px solid #dc2626; }
+.pb-num   { font-size:9.5px; font-weight:700; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pb-style { font-size:10.5px; font-weight:700; color:var(--text-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pb-qty   { font-size:9.5px; color:var(--text-3); }
+
+/* Busy stripe overlay */
+.busy-label {
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-size:9px; font-weight:700; color:#92400e; text-transform:uppercase; letter-spacing:.06em;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  pointer-events:none;
+}
+
+/* ── Capacity bar in each cell (bottom strip) ── */
+.cap-strip {
+  position: absolute; bottom:0; left:0; right:0; height:4px;
+  border-radius:0 0 2px 2px; overflow:hidden;
+}
+.cap-strip-fill { height:100%; transition:width .3s; }
+
+/* ── Modals ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:600;display:none;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.2);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.modal-close{width:30px;height:30px;border-radius:var(--r-sm);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.modal-close:hover{background:var(--gray-100);}
+.modal-close .material-symbols-outlined{font-size:18px;}
+.modal-body{padding:20px;}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray-50);}
+
+/* form fields */
+.fl{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.fl label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.03em;}
+.fl label .req{color:var(--danger);margin-left:2px;}
+.fi{height:34px;border:1.5px solid transparent;border-bottom-color:var(--border);background:transparent;border-radius:0;font-size:13px;color:var(--text-1);padding:0 6px;width:100%;outline:none;font-family:inherit;transition:border-color .15s,background .15s;}
+.fi:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px;cursor:pointer;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.hint{font-size:11px;color:var(--text-3);margin-top:3px;}
+.info-banner{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);margin-bottom:14px;font-size:12.5px;color:var(--brand-700);}
+.info-banner .material-symbols-outlined{font-size:18px;flex-shrink:0;margin-top:1px;}
+.warn-banner{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-sm);margin-bottom:14px;font-size:12.5px;color:#92400e;}
+.warn-banner .material-symbols-outlined{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+/* card detail panel */
+.detail-overlay{position:fixed;inset:0;background:rgba(15,23,42,.3);z-index:500;display:none;backdrop-filter:blur(1px);}
+.detail-overlay.open{display:block;}
+.detail-panel{position:fixed;top:0;right:0;width:400px;height:100vh;background:var(--surface);box-shadow:-6px 0 32px rgba(0,0,0,.12);z-index:501;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.detail-panel.open{transform:translateX(0);}
+.dp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.dp-title{font-size:14px;font-weight:700;color:var(--text-1);}
+.dp-close{width:30px;height:30px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.dp-close:hover{background:var(--gray-100);}
+.dp-close .material-symbols-outlined{font-size:17px;}
+.dp-body{flex:1;overflow-y:auto;padding:16px;}
+.dp-row{display:flex;flex-direction:column;gap:3px;margin-bottom:12px;}
+.dp-label{font-size:10.5px;font-weight:600;color:var(--text-3);letter-spacing:.03em;}
+.dp-val{font-size:13px;color:var(--text-1);font-weight:500;}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;}
+.dp-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+
+/* Toast */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);} .toast.warn{background:#d97706;}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+        <a class="nav-child" href="sewing-line.html">Sewing Lines</a>
+        <a class="nav-child active" href="planning-board.html">Planning Board</a>
+      </div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Planning Board</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications"><span class="material-symbols-outlined" style="font-size:20px;">notifications</span></button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Board toolbar -->
+    <div class="board-toolbar">
+      <div>
+        <div class="board-title">Planning Board</div>
+        <div class="board-sub" id="boardSubtitle">Factory 1 — Tirupur &nbsp;·&nbsp; May 2025</div>
+      </div>
+
+      <!-- View toggle -->
+      <div class="view-toggle" style="margin-left:12px;">
+        <button class="vt-btn" onclick="setView('org')" id="vt-org">
+          <span class="material-symbols-outlined">corporate_fare</span> Org
+        </button>
+        <button class="vt-btn active" onclick="setView('location')" id="vt-location">
+          <span class="material-symbols-outlined">factory</span> Location
+        </button>
+        <button class="vt-btn" onclick="setView('line')" id="vt-line">
+          <span class="material-symbols-outlined">view_list</span> Line
+        </button>
+      </div>
+
+      <select class="filter-sel" id="filterFactory" onchange="renderBoard()">
+        <option value="all">All Factories</option>
+        <option value="F1" selected>Factory 1 — Tirupur</option>
+        <option value="F2">Factory 2 — Chennai</option>
+        <option value="F3">Factory 3 — Bangalore</option>
+      </select>
+
+      <!-- Date navigation -->
+      <button class="nav-btn" onclick="shiftWeek(-2)"><span class="material-symbols-outlined">chevron_left</span></button>
+      <button class="nav-btn today-btn" onclick="goToday()">Today</button>
+      <button class="nav-btn" onclick="shiftWeek(2)"><span class="material-symbols-outlined">chevron_right</span></button>
+
+      <!-- Month label -->
+      <span style="font-size:13px;font-weight:700;color:var(--text-1);min-width:100px;" id="monthLabel">May 2025</span>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#16a34a;"></div>On Track</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#d97706;"></div>At Risk</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div>Overdue</div>
+        <div class="leg-item"><div class="leg-dot" style="background:repeating-linear-gradient(45deg,#fef3c7,#fef3c7 3px,#fff7ed 3px,#fff7ed 6px);border:1px solid #fed7aa;"></div>Busy</div>
+      </div>
+    </div>
+
+    <!-- Board body -->
+    <div class="board-body">
+
+      <!-- Unassigned card pool -->
+      <div class="pool-panel">
+        <div class="pool-head">
+          <span class="pool-head-title">Unassigned</span>
+          <span class="pool-count" id="poolCount">5</span>
+        </div>
+        <div class="pool-search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" id="poolSearch" placeholder="Search cards…" oninput="renderPool()">
+        </div>
+        <div class="pool-list" id="poolList"
+             ondragover="event.preventDefault(); event.currentTarget.style.background='#f0f6ff';"
+             ondragleave="event.currentTarget.style.background='';"
+             ondrop="dropToPool(event)">
+        </div>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="board-grid-wrap" id="boardWrap">
+        <div class="board-grid" id="boardGrid"></div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════ ASSIGN MODAL ════════ -->
+<div class="modal-backdrop" id="assignModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Assign Card to Line</div>
+      <button class="modal-close" onclick="closeAssignModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div id="assignCardSummary" style="padding:10px 14px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);margin-bottom:16px;font-size:13px;color:var(--brand-800);font-weight:500;"></div>
+      <div class="g2">
+        <div class="fl">
+          <label>Sewing Line <span class="req">*</span></label>
+          <select class="fi" id="asgLine">
+            <option value="">Select line…</option>
+            <option value="LineA">Line A — Factory 1 Tirupur</option>
+            <option value="LineB">Line B — Factory 1 Tirupur</option>
+            <option value="LineC">Line C — Factory 2 Chennai</option>
+            <option value="LineE">Line E — Factory 3 Bangalore</option>
+          </select>
+        </div>
+        <div class="fl">
+          <label>Start Date <span class="req">*</span></label>
+          <input class="fi" type="date" id="asgStart">
+        </div>
+      </div>
+      <div id="capacityCheck" style="display:none;" class="info-banner">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="capacityCheckMsg"></span>
+      </div>
+      <div id="capacityWarn" style="display:none;" class="warn-banner">
+        <span class="material-symbols-outlined">warning</span>
+        <span id="capacityWarnMsg"></span>
+      </div>
+      <div class="fl">
+        <label>Notes</label>
+        <input class="fi" type="text" id="asgNotes" placeholder="Optional planning note…">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeAssignModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmAssign()">
+        <span class="material-symbols-outlined" style="font-size:14px;">check</span> Confirm Assignment
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SPLIT MODAL ════════ -->
+<div class="modal-backdrop" id="splitModal">
+  <div class="modal" style="width:440px;">
+    <div class="modal-head">
+      <div class="modal-title">Split Card</div>
+      <button class="modal-close" onclick="document.getElementById('splitModal').classList.remove('open')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="info-banner">
+        <span class="material-symbols-outlined">info</span>
+        Splitting reduces this card's quantity and creates a new unassigned card with the remainder. Both can be assigned independently.
+      </div>
+      <div id="splitCardSummary" style="padding:10px 14px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:14px;font-size:13px;color:var(--text-1);"></div>
+      <div class="g2">
+        <div class="fl">
+          <label>Keep on this card (pcs) <span class="req">*</span></label>
+          <input class="fi" type="number" id="splitKeep" oninput="updateSplitRemainder()">
+        </div>
+        <div class="fl">
+          <label>New card (pcs)</label>
+          <input class="fi" type="number" id="splitNew" readonly style="color:var(--text-3);">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('splitModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmSplit()">Split Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CARD DETAIL PANEL ════════ -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <div class="dp-title" id="dpTitle">PRD-2025-0042</div>
+    <button class="dp-close" onclick="closeDetail()"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div class="dp-body">
+    <div style="margin-bottom:14px;" id="dpStatusRow"></div>
+    <div class="dp-grid" style="margin-bottom:16px;">
+      <div class="dp-row"><div class="dp-label">Style</div><div class="dp-val" id="dp-style">—</div></div>
+      <div class="dp-row"><div class="dp-label">Colour</div><div class="dp-val" id="dp-colour">—</div></div>
+      <div class="dp-row"><div class="dp-label">Total Qty</div><div class="dp-val" id="dp-qty">—</div></div>
+      <div class="dp-row"><div class="dp-label">Delivery Date</div><div class="dp-val" id="dp-delivery">—</div></div>
+      <div class="dp-row"><div class="dp-label">TnA Sewing Start</div><div class="dp-val" id="dp-tnastart">—</div></div>
+      <div class="dp-row"><div class="dp-label">TnA Sewing End</div><div class="dp-val" id="dp-tnaend">—</div></div>
+      <div class="dp-row"><div class="dp-label">Buyer PO Ref</div><div class="dp-val" id="dp-bpo">—</div></div>
+      <div class="dp-row"><div class="dp-label">Assigned Line</div><div class="dp-val" id="dp-line">—</div></div>
+    </div>
+    <div class="dp-row" style="margin-bottom:16px;">
+      <div class="dp-label">Assignment Period</div>
+      <div class="dp-val" id="dp-period">—</div>
+    </div>
+    <div class="dp-row">
+      <div class="dp-label">TnA Deviation</div>
+      <div class="dp-val" id="dp-deviation">—</div>
+    </div>
+  </div>
+  <div class="dp-foot">
+    <button class="btn btn-primary btn-sm" onclick="openAssignFromDetail()">
+      <span class="material-symbols-outlined" style="font-size:14px;">edit_calendar</span> Reassign
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="openSplitFromDetail()">
+      <span class="material-symbols-outlined" style="font-size:14px;">call_split</span> Split
+    </button>
+    <button class="btn btn-ghost btn-sm" style="color:#dc2626;border-color:#fca5a5;" onclick="unassignCard(); closeDetail();">
+      <span class="material-symbols-outlined" style="font-size:14px;">undo</span> Unassign
+    </button>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+
+const TODAY = new Date(2025, 4, 4); // May 4 2025
+
+const LINES = [
+  { id:'LineA', name:'Line A', factory:'F1', factoryName:'Factory 1 — Tirupur',  baseCap:480 },
+  { id:'LineB', name:'Line B', factory:'F1', factoryName:'Factory 1 — Tirupur',  baseCap:400 },
+  { id:'LineG', name:'Line G', factory:'F1', factoryName:'Factory 1 — Tirupur',  baseCap:400 },
+  { id:'LineC', name:'Line C', factory:'F2', factoryName:'Factory 2 — Chennai',   baseCap:320 },
+  { id:'LineD', name:'Line D', factory:'F2', factoryName:'Factory 2 — Chennai',   baseCap:320 },
+  { id:'LineE', name:'Line E', factory:'F3', factoryName:'Factory 3 — Bangalore', baseCap:480 },
+  { id:'LineF', name:'Line F', factory:'F3', factoryName:'Factory 3 — Bangalore', baseCap:240 },
+];
+
+/* busy blocks: { lineId, from (Date), to (Date), reason } */
+const BUSY_BLOCKS = [
+  { lineId:'LineA', from:new Date(2025,4,5), to:new Date(2025,4,6), reason:'Maintenance' },
+  { lineId:'LineD', from:new Date(2025,4,4), to:new Date(2025,4,10), reason:'Holiday' },
+];
+
+/* planning_card data */
+let CARDS = [
+  { id:'C1', poNum:'PRD-2025-0042', style:'SS-2025-POLO-01', colour:'Navy', qty:4800, delivery:'15 Jul 2025', bpo:'BPO-2025-0101', tnaStart:new Date(2025,4,5), tnaEnd:new Date(2025,4,22), status:'on-track', lineId:'LineA', assignStart:new Date(2025,4,7), assignEnd:new Date(2025,4,17) },
+  { id:'C2', poNum:'PRD-2025-0040', style:'SS-2025-TSHIRT-07', colour:'White', qty:8400, delivery:'10 Jun 2025', bpo:'BPO-2025-0098', tnaStart:new Date(2025,4,1), tnaEnd:new Date(2025,4,18), status:'overdue', lineId:'LineB', assignStart:new Date(2025,4,1), assignEnd:new Date(2025,4,21) },
+  { id:'C3', poNum:'PRD-2025-0041', style:'AW-2025-JACKET-03', colour:'Black', qty:1200, delivery:'30 Aug 2025', bpo:'—', tnaStart:new Date(2025,4,12), tnaEnd:new Date(2025,4,28), status:'at-risk', lineId:'LineG', assignStart:new Date(2025,4,12), assignEnd:new Date(2025,4,25) },
+  { id:'C4', poNum:'PRD-2025-0039', style:'SS-2025-DRESS-02', colour:'Red', qty:2600, delivery:'20 Sep 2025', bpo:'BPO-2025-0115', tnaStart:new Date(2025,4,20), tnaEnd:new Date(2025,5,8), status:'on-track', lineId:null, assignStart:null, assignEnd:null },
+  { id:'C5', poNum:'PRD-2025-0043', style:'AW-2025-HOODIE-01', colour:'Grey', qty:3200, delivery:'01 Sep 2025', bpo:'BPO-2025-0120', tnaStart:new Date(2025,4,15), tnaEnd:new Date(2025,5,2), status:'on-track', lineId:null, assignStart:null, assignEnd:null },
+  { id:'C6', poNum:'PRD-2025-0044', style:'SS-2025-SHORTS-04', colour:'Khaki', qty:1800, delivery:'25 Jun 2025', bpo:'BPO-2025-0122', tnaStart:new Date(2025,4,3), tnaEnd:new Date(2025,4,15), status:'at-risk', lineId:null, assignStart:null, assignEnd:null },
+  { id:'C7', poNum:'PRD-2025-0045', style:'AW-2025-COAT-02', colour:'Camel', qty:600, delivery:'15 Nov 2025', bpo:'—', tnaStart:new Date(2025,4,25), tnaEnd:new Date(2025,5,15), status:'on-track', lineId:null, assignStart:null, assignEnd:null },
+  { id:'C8', poNum:'PRD-2025-0046', style:'SS-2025-POLO-02', colour:'White', qty:2400, delivery:'20 Jul 2025', bpo:'BPO-2025-0130', tnaStart:new Date(2025,4,8), tnaEnd:new Date(2025,4,24), status:'on-track', lineId:'LineE', assignStart:new Date(2025,4,8), assignEnd:new Date(2025,4,22) },
+];
+
+/* view state */
+let currentView = 'location';
+let viewStart = new Date(2025, 4, 1); // May 1
+const NUM_DAYS = 28;
+
+let dragCardId = null;
+let openCardId = null;
+let pendingAssignCardId = null;
+let pendingDropLineId = null;
+let pendingDropDate = null;
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function fmtDate(d) { return d ? d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',yyyy:'numeric'}) : '—'; }
+function isBusy(lineId, date) {
+  return BUSY_BLOCKS.some(b => b.lineId === lineId && date >= b.from && date <= b.to);
+}
+function statusColor(s) { return s==='on-track'?'#16a34a':s==='at-risk'?'#d97706':'#dc2626'; }
+function statusLabel(s) { return s==='on-track'?'On Track':s==='at-risk'?'At Risk':'Overdue'; }
+function statusBg(s)    { return s==='on-track'?'#f0fdf4':s==='at-risk'?'#fffbeb':'#fef2f2'; }
+function calcDaysNeeded(qty, cap) { return cap > 0 ? Math.ceil(qty / cap) : 0; }
+
+/* ═══════════════════════════════════════════════════════
+   VIEW SWITCHING
+═══════════════════════════════════════════════════════ */
+function setView(v) {
+  currentView = v;
+  ['org','location','line'].forEach(x => {
+    document.getElementById('vt-'+x).classList.toggle('active', x===v);
+  });
+  renderBoard();
+}
+
+function filteredLines() {
+  const fac = document.getElementById('filterFactory').value;
+  if (fac === 'all') return LINES;
+  if (currentView === 'org') return LINES;
+  return LINES.filter(l => l.factory === fac);
+}
+
+function shiftWeek(n) { viewStart = addDays(viewStart, n * 7); renderBoard(); }
+function goToday()    { viewStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); renderBoard(); }
+
+/* ═══════════════════════════════════════════════════════
+   BOARD RENDER
+═══════════════════════════════════════════════════════ */
+function renderBoard() {
+  const lines = filteredLines();
+  const fac = document.getElementById('filterFactory');
+  const facLabel = fac.options[fac.selectedIndex].text;
+  document.getElementById('boardSubtitle').textContent = `${facLabel} · ${viewStart.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}`;
+  document.getElementById('monthLabel').textContent = viewStart.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+  // Build date array
+  const dates = [];
+  for (let i = 0; i < NUM_DAYS; i++) dates.push(addDays(viewStart, i));
+
+  const grid = document.getElementById('boardGrid');
+  grid.style.gridTemplateColumns = `var(--pin-w) repeat(${NUM_DAYS}, var(--col-w))`;
+
+  let html = '';
+
+  // Header row
+  html += `<div class="gh-corner">Sewing Line</div>`;
+  dates.forEach(d => {
+    const isToday = sameDay(d, TODAY);
+    const isWE = d.getDay() === 0 || d.getDay() === 6;
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    html += `<div class="gh-date ${isToday?'today':''} ${isWE?'weekend':''}">
+      <span class="gh-date-day">${dayNames[d.getDay()]}</span>
+      <span class="gh-date-num">${d.getDate()}</span>
+    </div>`;
+  });
+
+  // Line rows
+  lines.forEach(line => {
+    // Assigned cards for this line
+    const lineCards = CARDS.filter(c => c.lineId === line.id);
+
+    html += `<div class="gr-label">
+      <div class="gr-label-name">${line.name}</div>
+      <div class="gr-label-loc">${line.factoryName}</div>
+      <div class="gr-label-cap" style="color:var(--text-3);">${line.baseCap.toLocaleString()} pcs/day</div>
+    </div>`;
+
+    dates.forEach((d, di) => {
+      const isWE = d.getDay() === 0 || d.getDay() === 6;
+      const isToday = sameDay(d, TODAY);
+      const busy = isBusy(line.id, d);
+
+      // capacity bar
+      const bookedPcs = lineCards
+        .filter(c => c.assignStart && c.assignEnd && d >= c.assignStart && d <= c.assignEnd)
+        .reduce((sum, c) => sum + (line.baseCap > 0 ? Math.min(c.qty / calcDaysNeeded(c.qty, line.baseCap), line.baseCap) : 0), 0);
+      const capPct = line.baseCap > 0 ? Math.min(100, Math.round((bookedPcs / line.baseCap) * 100)) : 0;
+      const capCol = capPct >= 95 ? '#dc2626' : capPct >= 75 ? '#d97706' : '#16a34a';
+
+      html += `<div class="gr-cell ${isWE?'weekend':''} ${isToday?'today-col':''} ${busy?'busy':''}"
+        data-line="${line.id}" data-date="${d.toISOString()}"
+        ondragover="onCellDragOver(event,this)"
+        ondragleave="onCellDragLeave(this)"
+        ondrop="onCellDrop(event,this,'${line.id}','${d.toISOString()}')"
+        onclick="onCellClick(this,'${line.id}','${d.toISOString()}')">
+        ${busy ? `<div class="busy-label">Busy</div>` : ''}
+        <div class="cap-strip"><div class="cap-strip-fill" style="width:${capPct}%;background:${capCol};"></div></div>
+      </div>`;
+    });
+
+    // Overlay placed blocks — inject after so they span cells
+    lineCards.forEach(card => {
+      if (!card.assignStart || !card.assignEnd) return;
+      // find column index
+      const startIdx = dates.findIndex(d => sameDay(d, card.assignStart));
+      const endIdx   = dates.findIndex(d => sameDay(d, card.assignEnd));
+      if (startIdx < 0) return;
+      const colSpan = Math.max(1, (endIdx < 0 ? NUM_DAYS - startIdx : endIdx - startIdx + 1));
+      // We'll position via JS after render
+    });
+  });
+
+  grid.innerHTML = html;
+
+  // Overlay placed blocks via JS positioning
+  const gridEl = document.getElementById('boardGrid');
+  lines.forEach((line, li) => {
+    const lineCards = CARDS.filter(c => c.lineId === line.id && c.assignStart && c.assignEnd);
+    lineCards.forEach(card => {
+      const startIdx = dates.findIndex(d => sameDay(d, card.assignStart));
+      const endIdx   = dates.findIndex(d => sameDay(d, card.assignEnd));
+      if (startIdx < 0) return;
+      const cols = Math.max(1, (endIdx < 0 ? NUM_DAYS - startIdx : endIdx - startIdx + 1));
+      const pinW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pin-w'));
+      const colW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col-w'));
+      const rowH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--row-h'));
+
+      const block = document.createElement('div');
+      block.className = `placed-block pb-${card.status}`;
+      block.style.cssText = `
+        left: ${pinW + startIdx * colW + 3}px;
+        top: ${(li + 1) * rowH + 6}px;
+        width: ${cols * colW - 6}px;
+      `;
+      block.setAttribute('draggable','true');
+      block.dataset.cardId = card.id;
+      block.innerHTML = `
+        <div>
+          <div class="pb-num">${card.poNum}</div>
+          <div class="pb-style">${card.style} / ${card.colour}</div>
+        </div>
+        <div class="pb-qty">${card.qty.toLocaleString()} pcs · ${fmtDate(card.assignStart)} – ${fmtDate(card.assignEnd)}</div>
+      `;
+      block.addEventListener('dragstart', e => { dragCardId = card.id; block.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+      block.addEventListener('dragend', () => { dragCardId = null; block.classList.remove('dragging'); });
+      block.addEventListener('click', e => { e.stopPropagation(); openCardDetail(card.id); });
+      gridEl.appendChild(block);
+    });
+  });
+
+  renderPool();
+}
+
+/* ═══════════════════════════════════════════════════════
+   POOL RENDER
+═══════════════════════════════════════════════════════ */
+function renderPool() {
+  const q = (document.getElementById('poolSearch').value || '').toLowerCase();
+  const unassigned = CARDS.filter(c => !c.lineId && (
+    !q || c.poNum.toLowerCase().includes(q) || c.style.toLowerCase().includes(q)
+  ));
+  document.getElementById('poolCount').textContent = CARDS.filter(c => !c.lineId).length;
+
+  document.getElementById('poolList').innerHTML = unassigned.map(c => `
+    <div class="pcard unassigned" draggable="true" data-card-id="${c.id}"
+      ondragstart="poolDragStart(event,'${c.id}')"
+      ondragend="poolDragEnd(event)">
+      <div class="pcard-num">${c.poNum}</div>
+      <div class="pcard-style">${c.style} / ${c.colour}</div>
+      <div class="pcard-meta">
+        <span><span class="material-symbols-outlined">straighten</span>${c.qty.toLocaleString()} pcs</span>
+        <span><span class="material-symbols-outlined">event</span>Del: ${c.delivery}</span>
+        <span><span class="material-symbols-outlined">timeline</span>Sew: ${fmtDate(c.tnaStart)}–${fmtDate(c.tnaEnd)}</span>
+        ${c.bpo !== '—' ? `<span><span class="material-symbols-outlined">receipt_long</span>${c.bpo}</span>` : ''}
+      </div>
+      <div class="pcard-actions">
+        <button class="pcard-btn" onclick="event.stopPropagation(); openAssignModal('${c.id}')">Assign</button>
+        <button class="pcard-btn split" onclick="event.stopPropagation(); openSplitModal('${c.id}')">Split</button>
+        <button class="pcard-btn" onclick="event.stopPropagation(); openCardDetail('${c.id}')">Details</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   DRAG & DROP
+═══════════════════════════════════════════════════════ */
+function poolDragStart(e, cardId) {
+  dragCardId = cardId;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function poolDragEnd(e) { dragCardId = null; }
+
+function onCellDragOver(e, cell) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  cell.classList.add('drop-target');
+}
+function onCellDragLeave(cell) { cell.classList.remove('drop-target'); }
+
+function onCellDrop(e, cell, lineId, dateISO) {
+  e.preventDefault();
+  cell.classList.remove('drop-target');
+  if (!dragCardId) return;
+  const line = LINES.find(l => l.id === lineId);
+  const date = new Date(dateISO);
+  if (isBusy(lineId, date)) {
+    showToast('That date is marked Busy on this line', 'error');
+    return;
+  }
+  pendingAssignCardId = dragCardId;
+  pendingDropLineId = lineId;
+  pendingDropDate = date;
+  openAssignModal(dragCardId, lineId, date);
+}
+
+function onCellClick(cell, lineId, dateISO) {
+  // do nothing on empty cell click in this prototype
+}
+
+function dropToPool(e) {
+  e.preventDefault();
+  e.currentTarget.style.background = '';
+  if (!dragCardId) return;
+  const card = CARDS.find(c => c.id === dragCardId);
+  if (!card) return;
+  card.lineId = null; card.assignStart = null; card.assignEnd = null;
+  showToast(`${card.poNum} moved back to Unassigned`, 'info');
+  renderBoard();
+}
+
+/* ═══════════════════════════════════════════════════════
+   ASSIGN MODAL
+═══════════════════════════════════════════════════════ */
+function openAssignModal(cardId, lineId, date) {
+  const card = CARDS.find(c => c.id === cardId);
+  pendingAssignCardId = cardId;
+  document.getElementById('assignCardSummary').innerHTML =
+    `<strong>${card.poNum}</strong> — ${card.style} / ${card.colour}<br>
+     <span style="font-size:12px;color:var(--text-3);">${card.qty.toLocaleString()} pcs &nbsp;·&nbsp; TnA Sewing: ${fmtDate(card.tnaStart)} – ${fmtDate(card.tnaEnd)} &nbsp;·&nbsp; Delivery: ${card.delivery}</span>`;
+  if (lineId) document.getElementById('asgLine').value = lineId;
+  if (date) document.getElementById('asgStart').value = date.toISOString().split('T')[0];
+  document.getElementById('capacityCheck').style.display = 'none';
+  document.getElementById('capacityWarn').style.display = 'none';
+
+  // auto-check capacity
+  if (lineId) checkCapacity(cardId, lineId, date);
+
+  document.getElementById('assignModal').classList.add('open');
+}
+
+function closeAssignModal() {
+  document.getElementById('assignModal').classList.remove('open');
+  pendingAssignCardId = null; pendingDropLineId = null; pendingDropDate = null;
+}
+
+function checkCapacity(cardId, lineId, startDate) {
+  const card = CARDS.find(c => c.id === cardId);
+  const line = LINES.find(l => l.id === lineId);
+  if (!card || !line) return;
+  const daysNeeded = calcDaysNeeded(card.qty, line.baseCap);
+  const endDate = addDays(startDate, daysNeeded - 1);
+
+  // Check for busy conflicts
+  let busyConflict = false;
+  for (let i = 0; i < daysNeeded; i++) {
+    if (isBusy(lineId, addDays(startDate, i))) { busyConflict = true; break; }
+  }
+
+  if (busyConflict) {
+    document.getElementById('capacityWarn').style.display = 'flex';
+    document.getElementById('capacityWarnMsg').textContent =
+      `This line has busy blocks within the required ${daysNeeded}-day window. Suggested start: please check the board or choose a different date.`;
+    document.getElementById('capacityCheck').style.display = 'none';
+  } else {
+    document.getElementById('capacityCheck').style.display = 'flex';
+    document.getElementById('capacityCheckMsg').textContent =
+      `${card.qty.toLocaleString()} pcs ÷ ${line.baseCap} pcs/day = ${daysNeeded} days needed. Ends ${fmtDate(endDate)}. Capacity looks available.`;
+    document.getElementById('capacityWarn').style.display = 'none';
+  }
+}
+
+function confirmAssign() {
+  const cardId = pendingAssignCardId;
+  const lineId = document.getElementById('asgLine').value;
+  const startStr = document.getElementById('asgStart').value;
+  if (!cardId || !lineId || !startStr) { showToast('Line and start date are required', 'error'); return; }
+
+  const card = CARDS.find(c => c.id === cardId);
+  const line = LINES.find(l => l.id === lineId);
+  const startDate = new Date(startStr);
+  const daysNeeded = calcDaysNeeded(card.qty, line.baseCap);
+  const endDate = addDays(startDate, daysNeeded - 1);
+
+  card.lineId = lineId;
+  card.assignStart = startDate;
+  card.assignEnd = endDate;
+
+  showToast(`${card.poNum} assigned to ${line.name} · ${fmtDate(startDate)} – ${fmtDate(endDate)} · TnA sewing dates updated`, 'success');
+  closeAssignModal();
+  renderBoard();
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPLIT MODAL
+═══════════════════════════════════════════════════════ */
+let splitCardId = null;
+function openSplitModal(cardId) {
+  splitCardId = cardId;
+  const card = CARDS.find(c => c.id === cardId);
+  document.getElementById('splitCardSummary').textContent = `${card.poNum} — ${card.style} / ${card.colour} — ${card.qty.toLocaleString()} pcs`;
+  document.getElementById('splitKeep').value = '';
+  document.getElementById('splitNew').value = card.qty;
+  document.getElementById('splitModal').classList.add('open');
+}
+function updateSplitRemainder() {
+  const card = CARDS.find(c => c.id === splitCardId);
+  const keep = parseInt(document.getElementById('splitKeep').value) || 0;
+  document.getElementById('splitNew').value = Math.max(0, card.qty - keep);
+}
+function confirmSplit() {
+  const card = CARDS.find(c => c.id === splitCardId);
+  const keep = parseInt(document.getElementById('splitKeep').value);
+  if (!keep || keep <= 0 || keep >= card.qty) { showToast('Keep qty must be between 1 and ' + (card.qty - 1), 'error'); return; }
+  const remainder = card.qty - keep;
+  card.qty = keep;
+  const newCard = { ...card, id:'C'+Date.now(), qty: remainder, lineId:null, assignStart:null, assignEnd:null };
+  CARDS.push(newCard);
+  showToast(`Card split: ${keep.toLocaleString()} pcs kept, ${remainder.toLocaleString()} pcs → new unassigned card`, 'success');
+  document.getElementById('splitModal').classList.remove('open');
+  renderBoard();
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD DETAIL
+═══════════════════════════════════════════════════════ */
+function openCardDetail(cardId) {
+  openCardId = cardId;
+  const card = CARDS.find(c => c.id === cardId);
+  document.getElementById('dpTitle').textContent = card.poNum;
+  const col = statusColor(card.status);
+  const bg  = statusBg(card.status);
+  document.getElementById('dpStatusRow').innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;background:${bg};color:${col};">${statusLabel(card.status)}</span>`;
+  document.getElementById('dp-style').textContent = card.style;
+  document.getElementById('dp-colour').textContent = card.colour;
+  document.getElementById('dp-qty').textContent = card.qty.toLocaleString() + ' pcs';
+  document.getElementById('dp-delivery').textContent = card.delivery;
+  document.getElementById('dp-tnastart').textContent = fmtDate(card.tnaStart);
+  document.getElementById('dp-tnaend').textContent = fmtDate(card.tnaEnd);
+  document.getElementById('dp-bpo').textContent = card.bpo;
+  const line = LINES.find(l => l.id === card.lineId);
+  document.getElementById('dp-line').textContent = card.lineId ? (line ? line.name + ' — ' + line.factoryName : card.lineId) : 'Unassigned';
+  document.getElementById('dp-period').textContent = card.assignStart ? `${fmtDate(card.assignStart)} – ${fmtDate(card.assignEnd)}` : '—';
+
+  // deviation
+  let devText = '—';
+  if (card.assignStart && card.tnaStart) {
+    const diff = Math.round((card.assignStart - card.tnaStart) / 86400000);
+    devText = diff === 0 ? '0 days (on plan)' : diff > 0 ? `+${diff} days late vs TnA` : `${diff} days early vs TnA`;
+  }
+  document.getElementById('dp-deviation').innerHTML = devText;
+
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+  openCardId = null;
+}
+function openAssignFromDetail() { closeDetail(); openAssignModal(openCardId); }
+function openSplitFromDetail()  { closeDetail(); openSplitModal(openCardId); }
+function unassignCard() {
+  const card = CARDS.find(c => c.id === openCardId);
+  if (!card) return;
+  card.lineId = null; card.assignStart = null; card.assignEnd = null;
+  showToast(`${card.poNum} unassigned`, 'info');
+  renderBoard();
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+}
+
+function showToast(msg, type='info') {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const icons = { success:'check_circle', error:'error', info:'info', warn:'warning' };
+  t.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">${icons[type]||'info'}</span>${msg}`;
+  area.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* Initial render */
+renderBoard();
+</script>
+</body>
+</html>
