@@ -668,21 +668,17 @@ function renderBoard() {
           </div>
         </td>`;
       } else {
-        // Empty droppable cell
+        // Empty droppable cell — NO inline drag handlers; handled by delegation on boardWrap
         const isWE = d.getDay()===0||d.getDay()===6;
         const isToday = sameDay(d,TODAY);
         const busy = isBusy(line.id,d);
-        // capacity
         const bookedPcs = assigned.filter(c=>c.assignStart&&c.assignEnd&&d>=c.assignStart&&d<=c.assignEnd)
           .reduce((s,c)=>s+Math.min(c.qty/daysNeeded(c.qty,line.cap),line.cap),0);
         const pct = line.cap>0 ? Math.min(100,Math.round(bookedPcs/line.cap*100)) : 0;
         const capCol = pct>=95?'#dc2626':pct>=75?'#d97706':'#16a34a';
         html += `<td class="td-cell ${isWE?'weekend':''} ${isToday?'today-col':''} ${busy?'busy':''}"
-          data-line="${line.id}" data-date="${d.toISOString()}"
-          ondragover="onCellDragOver(event,this)"
-          ondragleave="onCellDragLeave(this)"
-          ondrop="onCellDrop(event,this,'${line.id}','${d.toISOString()}')">
-          ${busy?'<div class="busy-lbl">Busy</div>':''}
+          data-line="${line.id}" data-date="${d.toISOString()}">
+          ${busy?'<span class="busy-lbl">Busy</span>':''}
           <div class="cap-strip"><div class="cap-fill" style="width:${pct}%;background:${capCol};"></div></div>
         </td>`;
       }
@@ -723,61 +719,95 @@ function renderPool() {
 
 /* ════════════════════════════════════
    DRAG & DROP
+   Pool cards use inline ondragstart.
+   Cell dragover/drop uses delegation
+   on boardWrap to avoid child-element
+   dragleave flicker problems.
 ════════════════════════════════════ */
 function onPoolCardDragStart(e, cardId) {
   dragCardId = cardId;
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', cardId);
-  setTimeout(() => { const el = document.querySelector(`[data-card-id="${cardId}"].pcard`); if(el) el.classList.add('dragging-from-pool'); }, 0);
+  setTimeout(() => {
+    const el = document.querySelector(`.pcard[data-card-id="${cardId}"]`);
+    if (el) el.classList.add('dragging-from-pool');
+  }, 0);
 }
 function onBoardCardDragStart(e, cardId) {
   dragCardId = cardId;
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', cardId);
-  setTimeout(() => { const el = document.querySelector(`.placed-card[data-card-id="${cardId}"]`); if(el) el.classList.add('dragging'); }, 0);
+  setTimeout(() => {
+    const el = document.querySelector(`.placed-card[data-card-id="${cardId}"]`);
+    if (el) el.classList.add('dragging');
+  }, 0);
 }
 function onDragEnd(e) {
   dragCardId = null;
-  document.querySelectorAll('.dragging,.dragging-from-pool').forEach(el=>el.classList.remove('dragging','dragging-from-pool'));
+  document.querySelectorAll('.dragging,.dragging-from-pool').forEach(el => el.classList.remove('dragging','dragging-from-pool'));
+  clearDropOver();
 }
 
-function onCellDragOver(e, td) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.dataTransfer.dropEffect = 'move';
-  td.classList.add('drop-over');
+let _currentDropTd = null;
+function clearDropOver() {
+  if (_currentDropTd) { _currentDropTd.classList.remove('drop-over'); _currentDropTd = null; }
 }
-function onCellDragLeave(td) { td.classList.remove('drop-over'); }
 
-function onCellDrop(e, td, lineId, dateISO) {
-  e.preventDefault();
-  e.stopPropagation();
-  td.classList.remove('drop-over');
-  const cid = dragCardId || e.dataTransfer.getData('text/plain');
-  if (!cid) return;
-  dragCardId = null;
-  const startDate = new Date(dateISO);
-  assignCard(cid, lineId, startDate);
+function initBoardDelegation() {
+  const wrap = document.getElementById('boardWrap');
+
+  wrap.addEventListener('dragover', function(e) {
+    const td = e.target.closest('td.td-cell');
+    if (!td) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (td !== _currentDropTd) {
+      clearDropOver();
+      _currentDropTd = td;
+      td.classList.add('drop-over');
+    }
+  });
+
+  wrap.addEventListener('dragleave', function(e) {
+    // Only clear if leaving the wrap entirely (not just moving between child elements)
+    if (!wrap.contains(e.relatedTarget)) {
+      clearDropOver();
+    }
+  });
+
+  wrap.addEventListener('drop', function(e) {
+    const td = e.target.closest('td.td-cell');
+    if (!td) return;
+    e.preventDefault();
+    clearDropOver();
+    const cid = dragCardId || e.dataTransfer.getData('text/plain');
+    if (!cid) return;
+    dragCardId = null;
+    const lineId  = td.dataset.line;
+    const dateISO = td.dataset.date;
+    if (!lineId || !dateISO) return;
+    assignCard(cid, lineId, new Date(dateISO));
+  });
 }
 
 /* Drop back to pool = unassign */
 function onPoolDragOver(e) {
   e.preventDefault();
-  e.stopPropagation();
   e.dataTransfer.dropEffect = 'move';
   document.getElementById('poolPanel').classList.add('pool-drop-active');
 }
 function onPoolDragLeave(e) {
-  document.getElementById('poolPanel').classList.remove('pool-drop-active');
+  if (!document.getElementById('poolPanel').contains(e.relatedTarget)) {
+    document.getElementById('poolPanel').classList.remove('pool-drop-active');
+  }
 }
 function onDropToPool(e) {
   e.preventDefault();
-  e.stopPropagation();
   document.getElementById('poolPanel').classList.remove('pool-drop-active');
   const cid = dragCardId || e.dataTransfer.getData('text/plain');
   dragCardId = null;
   if (!cid) return;
-  const card = CARDS.find(c=>c.id===cid);
+  const card = CARDS.find(c => c.id === cid);
   if (card && card.lineId) unassignCard(cid);
 }
 
@@ -905,6 +935,7 @@ function showToast(msg,type='info') {
 }
 
 renderBoard();
+initBoardDelegation();
 </script>
 </body>
 </html>
