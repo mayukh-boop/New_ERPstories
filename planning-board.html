@@ -727,12 +727,14 @@ function renderPool() {
 function onPoolCardDragStart(e, cardId) {
   dragCardId = cardId;
   e.dataTransfer.effectAllowed = 'move';
-  e.currentTarget.classList.add('dragging-from-pool');
+  e.dataTransfer.setData('text/plain', cardId);
+  setTimeout(() => { const el = document.querySelector(`[data-card-id="${cardId}"].pcard`); if(el) el.classList.add('dragging-from-pool'); }, 0);
 }
 function onBoardCardDragStart(e, cardId) {
   dragCardId = cardId;
   e.dataTransfer.effectAllowed = 'move';
-  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.setData('text/plain', cardId);
+  setTimeout(() => { const el = document.querySelector(`.placed-card[data-card-id="${cardId}"]`); if(el) el.classList.add('dragging'); }, 0);
 }
 function onDragEnd(e) {
   dragCardId = null;
@@ -740,8 +742,8 @@ function onDragEnd(e) {
 }
 
 function onCellDragOver(e, td) {
-  if (!dragCardId) return;
   e.preventDefault();
+  e.stopPropagation();
   e.dataTransfer.dropEffect = 'move';
   td.classList.add('drop-over');
 }
@@ -749,17 +751,20 @@ function onCellDragLeave(td) { td.classList.remove('drop-over'); }
 
 function onCellDrop(e, td, lineId, dateISO) {
   e.preventDefault();
+  e.stopPropagation();
   td.classList.remove('drop-over');
-  if (!dragCardId) return;
-  const startDate = new Date(dateISO);
-  assignCard(dragCardId, lineId, startDate);
+  const cid = dragCardId || e.dataTransfer.getData('text/plain');
+  if (!cid) return;
   dragCardId = null;
+  const startDate = new Date(dateISO);
+  assignCard(cid, lineId, startDate);
 }
 
 /* Drop back to pool = unassign */
 function onPoolDragOver(e) {
-  if (!dragCardId) return;
   e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
   document.getElementById('poolPanel').classList.add('pool-drop-active');
 }
 function onPoolDragLeave(e) {
@@ -767,11 +772,13 @@ function onPoolDragLeave(e) {
 }
 function onDropToPool(e) {
   e.preventDefault();
+  e.stopPropagation();
   document.getElementById('poolPanel').classList.remove('pool-drop-active');
-  if (!dragCardId) return;
-  const card = CARDS.find(c=>c.id===dragCardId);
-  if (card && card.lineId) unassignCard(dragCardId);
+  const cid = dragCardId || e.dataTransfer.getData('text/plain');
   dragCardId = null;
+  if (!cid) return;
+  const card = CARDS.find(c=>c.id===cid);
+  if (card && card.lineId) unassignCard(cid);
 }
 
 /* ════════════════════════════════════
@@ -818,7 +825,7 @@ function renderTnaPanel(cardId) {
     html += `<div class="tna-stage${isSew?' sewing-stage':''}" ${datesChanged?'id="tna-sewing-row"':''}>
       <div class="tna-stage-name">
         <span class="material-symbols-outlined tna-stage-icon" style="color:${isSew?'var(--brand-600)':row.type==='SYSTEM'?'#7c3aed':'#64748b'};">
-          ${isSew?'sewing':'${row.type==="SYSTEM"?"deployed_code_history":"engineering"}'}
+          ${isSew?'sewing':row.type==='SYSTEM'?'deployed_code_history':'engineering'}
         </span>
         ${row.stage}
         ${isSew?'<span style="font-size:9.5px;background:var(--brand-100);color:var(--brand-700);padding:1px 6px;border-radius:9999px;font-weight:700;margin-left:4px;">SEWING</span>':''}
