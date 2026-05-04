@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Configuration — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+  /* ── Page-specific styles ── */
+
+  .config-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Left nav */
+  .config-nav {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    position: sticky;
+    top: 0;
+  }
+  .config-nav-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .config-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    border-left: 3px solid transparent;
+    transition: all var(--ease);
+  }
+  .config-nav-item:hover { background: var(--gray-50); color: var(--text-1); }
+  .config-nav-item.active {
+    background: var(--brand-50);
+    color: var(--brand-700);
+    border-left-color: var(--brand-600);
+    font-weight: 600;
+  }
+  .config-nav-item .material-symbols-outlined { font-size: 18px; }
+
+  /* Right content sections */
+  .config-sections { display: flex; flex-direction: column; gap: 20px; }
+
+  .config-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .config-section-head {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .config-section-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .config-section-icon .material-symbols-outlined { font-size: 20px; }
+  .icon-blue   { background: var(--info-bg);    color: var(--info); }
+  .icon-green  { background: var(--success-bg); color: var(--success); }
+  .icon-amber  { background: var(--warning-bg); color: var(--warning); }
+  .icon-purple { background: var(--brand-50);   color: var(--brand-600); }
+  .icon-slate  { background: var(--gray-100);   color: var(--gray-500); }
+
+  .config-section-title { font-size: 15px; font-weight: 700; color: var(--text-1); }
+  .config-section-desc  { font-size: 12.5px; color: var(--text-3); margin-top: 1px; }
+
+  .config-rows { padding: 4px 0; }
+
+  /* Individual config row */
+  .config-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border2);
+    gap: 16px;
+    transition: background var(--ease);
+  }
+  .config-row:last-child { border-bottom: none; }
+  .config-row:hover { background: #fafbff; }
+
+  .config-row-info { flex: 1; min-width: 0; }
+  .config-row-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-1);
+  }
+  .config-row-hint {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+  .config-row-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: var(--r-full);
+    margin-left: 8px;
+    text-transform: uppercase;
+  }
+  .badge-tier2 { background: #dbeafe; color: #1e40af; }
+  .badge-tier3 { background: #ede9fe; color: #5b21b6; }
+
+  .config-row-control { flex-shrink: 0; }
+
+  /* Toggle switch */
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggle-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    min-width: 28px;
+  }
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--gray-200);
+    border-radius: var(--r-full);
+    transition: background 200ms ease;
+  }
+  .toggle input:checked ~ .toggle-track { background: var(--brand-600); }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 200ms ease;
+  }
+  .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+  /* Select control in config row */
+  .config-select {
+    height: 36px;
+    padding: 0 28px 0 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-1);
+    background: var(--surface);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--ease), box-shadow var(--ease);
+    min-width: 160px;
+  }
+  .config-select:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+  /* Number input */
+  .config-number {
+    width: 80px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-1);
+    background: var(--surface);
+    outline: none;
+    text-align: right;
+    transition: border-color var(--ease), box-shadow var(--ease);
+  }
+  .config-number:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+  .config-number-unit {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  /* Tier preset cards */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .tier-card {
+    border: 2px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px;
+    cursor: pointer;
+    transition: all var(--ease-md);
+    position: relative;
+    background: var(--surface);
+  }
+  .tier-card:hover { border-color: var(--brand-400); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+  .tier-card.selected { border-color: var(--brand-600); background: var(--brand-50); }
+
+  .tier-check {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--brand-600);
+    color: white;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  .tier-card.selected .tier-check { display: flex; }
+  .tier-check .material-symbols-outlined { font-size: 14px; }
+
+  .tier-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: var(--r-full);
+    margin-bottom: 10px;
+    display: inline-block;
+  }
+  .tier-1-badge { background: var(--gray-100); color: var(--gray-600); }
+  .tier-2-badge { background: #dbeafe; color: #1e40af; }
+  .tier-3-badge { background: #ede9fe; color: #5b21b6; }
+
+  .tier-name { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+  .tier-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  .tier-features {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tier-feature {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-2);
+  }
+  .tier-feature .material-symbols-outlined {
+    font-size: 14px;
+    color: var(--success);
+  }
+  .tier-feature.off .material-symbols-outlined { color: var(--gray-300); }
+  .tier-feature.off { color: var(--text-3); }
+
+  .tier-note {
+    padding: 10px 24px;
+    background: var(--info-bg);
+    border-bottom: 1px solid var(--border2);
+    font-size: 12.5px;
+    color: var(--info);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tier-note .material-symbols-outlined { font-size: 16px; flex-shrink: 0; }
+
+  /* Ageing thresholds visual */
+  .ageing-bar {
+    display: flex;
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    height: 8px;
+    margin-top: 10px;
+    gap: 1px;
+  }
+  .ageing-seg { flex: 1; }
+  .ag-fresh   { background: #16a34a; }
+  .ag-ageing  { background: #ca8a04; }
+  .ag-critical { background: #ea580c; }
+  .ag-dead    { background: #dc2626; }
+
+  .ageing-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .ageing-lbl {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-3);
+  }
+
+  /* Sticky save bar */
+  .save-bar {
+    position: sticky;
+    bottom: 0;
+    left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    z-index: 10;
+    margin-top: 20px;
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+  }
+  .save-bar-msg {
+    font-size: 12.5px;
+    color: var(--text-3);
+    flex: 1;
+  }
+  .unsaved-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--warning);
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* Info callout */
+  .callout {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--r);
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin: 16px 24px;
+  }
+  .callout .material-symbols-outlined { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-info { background: var(--info-bg); color: #1e40af; border: 1px solid #bfdbfe; }
+  .callout-warn { background: var(--warning-bg); color: #92400e; border: 1px solid #fde68a; }
+
+  /* Sub-row indented (dependent field) */
+  .config-row.dependent {
+    padding-left: 48px;
+    background: var(--gray-50);
+    border-left: 3px solid var(--border2);
+  }
+  .config-row.dependent .config-row-label { font-weight: 500; font-size: 13px; }
+
+  /* SUPER_ADMIN only label */
+  .admin-only-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: var(--r-full);
+    background: #fef3c7;
+    color: #92400e;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 900px) {
+    .config-layout { grid-template-columns: 1fr; }
+    .config-nav { position: static; }
+    .tier-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">C-Edge ERP</div>
+      <div class="brand-sub">Garment Suite</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-group">
+        <div class="nav-parent">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px;color:var(--sidebar-text)">dashboard</span></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-section">Inventory</div>
+      <div class="nav-group open">
+        <div class="nav-parent open active-group">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px">inventory_2</span></span>
+          <span class="nav-parent-label">Inventory</span>
+          <svg class="nav-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+        </div>
+        <div class="nav-children">
+          <div class="nav-child">Stock Dashboard</div>
+          <div class="nav-child">RM Stock</div>
+          <div class="nav-child">Fabric Stock</div>
+          <div class="nav-child">Lot Ledger</div>
+          <div class="nav-child">BOM Management</div>
+          <div class="nav-child">Issue Notes</div>
+          <div class="nav-child">Ageing Report</div>
+          <div class="nav-child active">Config & Settings</div>
+        </div>
+      </div>
+      <div class="nav-section">Settings</div>
+      <div class="nav-group">
+        <div class="nav-parent">
+          <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:18px">settings</span></span>
+          <span class="nav-parent-label">System Settings</span>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sf-avatar">SA</div>
+      <div class="sf-info">
+        <div class="sf-name">Super Admin</div>
+        <div class="sf-role">SUPER_ADMIN</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="material-symbols-outlined" style="font-size:20px;color:var(--text-3)">settings</span>
+      <span class="topbar-module">Inventory Configuration</span>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Notifications">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><path d="M10 2a6 6 0 016 6c0 3.5 1 5 1 5H3s1-1.5 1-5a6 6 0 016-6z"/><path d="M8.5 17a1.5 1.5 0 003 0"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="page">
+
+      <!-- Page header -->
+      <div class="ph" style="margin-bottom:20px">
+        <div>
+          <div class="ph-title">Inventory Module Configuration</div>
+          <div class="ph-sub">Control which inventory features are active for this tenant. Changes take effect immediately after saving.</div>
+        </div>
+        <div class="ph-actions">
+          <!-- SUPER_ADMIN sees this; ADMIN does not -->
+          <span class="badge badge-yellow" style="font-size:11px;padding:4px 10px;">
+            <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;margin-right:3px">admin_panel_settings</span>
+            SUPER_ADMIN view
+          </span>
+        </div>
+      </div>
+
+      <div class="config-layout">
+
+        <!-- ── Left nav ── -->
+        <div class="config-nav">
+          <div class="config-nav-header">Sections</div>
+          <div class="config-nav-item active" onclick="scrollTo('sec-tier')">
+            <span class="material-symbols-outlined">rocket_launch</span>
+            Quick Setup
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-lot')">
+            <span class="material-symbols-outlined">qr_code</span>
+            Lot & Bin Tracking
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-warehouse')">
+            <span class="material-symbols-outlined">warehouse</span>
+            Warehouse
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-qc')">
+            <span class="material-symbols-outlined">verified</span>
+            QC Mode
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-bom')">
+            <span class="material-symbols-outlined">receipt_long</span>
+            BOM & Reservation
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-issue')">
+            <span class="material-symbols-outlined">assignment_turned_in</span>
+            Issue Notes
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-ageing')">
+            <span class="material-symbols-outlined">schedule</span>
+            Ageing Thresholds
+          </div>
+          <div class="config-nav-item" onclick="scrollTo('sec-costing')">
+            <span class="material-symbols-outlined">payments</span>
+            Costing
+          </div>
+        </div>
+
+        <!-- ── Right sections ── -->
+        <div class="config-sections">
+
+          <!-- ══ Quick Setup ══ -->
+          <div class="config-section" id="sec-tier">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-purple">
+                <span class="material-symbols-outlined">rocket_launch</span>
+              </div>
+              <div>
+                <div class="config-section-title">Quick Setup — Apply a Tier Preset</div>
+                <div class="config-section-desc">Select a preset to fill all settings at once. You can fine-tune individual flags below after applying.</div>
+              </div>
+            </div>
+
+            <div class="tier-note">
+              <span class="material-symbols-outlined">info</span>
+              Presets only update the form fields below — nothing is saved until you click <strong>Save Configuration</strong>.
+            </div>
+
+            <div class="tier-grid">
+              <!-- Tier 1 -->
+              <div class="tier-card" id="tier1" onclick="applyTier(1)">
+                <div class="tier-check"><span class="material-symbols-outlined">check</span></div>
+                <div class="tier-badge tier-1-badge">Tier 1</div>
+                <div class="tier-name">Simple Store</div>
+                <div class="tier-desc">Basic in/out. No lots, no bins, no approvals. For small operations getting started.</div>
+                <div class="tier-features">
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Lot tracking</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Bin management</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Multi-warehouse</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> BOM approval</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Issue note approval</div>
+                </div>
+              </div>
+
+              <!-- Tier 2 -->
+              <div class="tier-card selected" id="tier2" onclick="applyTier(2)">
+                <div class="tier-check"><span class="material-symbols-outlined">check</span></div>
+                <div class="tier-badge tier-2-badge">Tier 2</div>
+                <div class="tier-name">Mid-Size Factory</div>
+                <div class="tier-desc">Lot traceability, ageing reports, BOM approvals, FIFO allocation. Most factories start here.</div>
+                <div class="tier-features">
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Lot tracking</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Bin management</div>
+                  <div class="tier-feature off"><span class="material-symbols-outlined">close</span> Multi-warehouse</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> BOM approval</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Issue note approval</div>
+                </div>
+              </div>
+
+              <!-- Tier 3 -->
+              <div class="tier-card" id="tier3" onclick="applyTier(3)">
+                <div class="tier-check"><span class="material-symbols-outlined">check</span></div>
+                <div class="tier-badge tier-3-badge">Tier 3</div>
+                <div class="tier-name">Large Export House</div>
+                <div class="tier-desc">Full module: bins, multi-warehouse, auto-reservation, weighted avg costing, hard capacity enforcement.</div>
+                <div class="tier-features">
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Lot tracking</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Bin management</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Multi-warehouse</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Auto-reservation</div>
+                  <div class="tier-feature"><span class="material-symbols-outlined">check</span> Weighted avg costing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ Lot & Bin Tracking ══ -->
+          <div class="config-section" id="sec-lot">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-blue">
+                <span class="material-symbols-outlined">qr_code</span>
+              </div>
+              <div>
+                <div class="config-section-title">Lot & Bin Tracking</div>
+                <div class="config-section-desc">Control how deeply individual material batches and physical locations are tracked.</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">
+                    Lot Tracking
+                  </div>
+                  <div class="config-row-hint">Every GRN receipt creates a lot number (LOT-YYYY-NNNN). All stock movements carry the lot ID. Required for ageing reports and FIFO allocation.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="lotTracking" checked onchange="markUnsaved(); syncDependent('lotTracking','binMgmt')">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row dependent" id="row-binMgmt">
+                <div class="config-row-info">
+                  <div class="config-row-label">
+                    Bin Management
+                    <span class="config-row-badge badge-tier3">Tier 3</span>
+                  </div>
+                  <div class="config-row-hint">Requires Lot Tracking ON. Each lot is assigned to a physical bin (FAB-A-R03S2-B04). Pick suggestions on Issue Notes. Bin-by-bin stock counts.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="binMgmt" onchange="markUnsaved(); syncDependent('binMgmt','binCapEnforce')">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row dependent" id="row-binCapEnforce" style="padding-left:72px">
+                <div class="config-row-info">
+                  <div class="config-row-label">Hard-Enforce Bin Capacity</div>
+                  <div class="config-row-hint">If ON: assignment exceeding max capacity is blocked with an error. If OFF: warning only.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="binCapEnforce" onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row dependent" id="row-mixedBin" style="padding-left:72px">
+                <div class="config-row-info">
+                  <div class="config-row-label">Allow Mixed Items in One Bin</div>
+                  <div class="config-row-hint">Default OFF — one bin holds one item type only. Turn ON only for cage-style storage where mixing is physically unavoidable.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="mixedBin" onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══ Warehouse ══ -->
+          <div class="config-section" id="sec-warehouse">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-slate">
+                <span class="material-symbols-outlined">warehouse</span>
+              </div>
+              <div>
+                <div class="config-section-title">Warehouse</div>
+                <div class="config-section-desc">Single vs. multi-warehouse operation. Inter-warehouse transfers are only available when multi-warehouse is enabled.</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">
+                    Multi-Warehouse
+                    <span class="config-row-badge badge-tier3">Tier 3</span>
+                  </div>
+                  <div class="config-row-hint">When OFF: all movements use the default warehouse and the warehouse selector is hidden on all documents. When ON: warehouse is required on every document and inter-warehouse transfer is enabled.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="multiWarehouse" onchange="markUnsaved(); toggleDefaultWarehouse()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row dependent" id="row-defaultWarehouse">
+                <div class="config-row-info">
+                  <div class="config-row-label">Default Warehouse</div>
+                  <div class="config-row-hint">Used for all movements when multi-warehouse is OFF.</div>
+                </div>
+                <div class="config-row-control">
+                  <select class="config-select" id="defaultWarehouse" onchange="markUnsaved()">
+                    <option value="">— Select warehouse —</option>
+                    <option value="1" selected>Main Fabric Store</option>
+                    <option value="2">RM Store</option>
+                    <option value="3">FG Warehouse</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══ QC Mode ══ -->
+          <div class="config-section" id="sec-qc">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-green">
+                <span class="material-symbols-outlined">verified</span>
+              </div>
+              <div>
+                <div class="config-section-title">QC Mode</div>
+                <div class="config-section-desc">Controls how quality inspection is handled at GRN receipt. Aligns with tickets NE-14A (Inline) and NE-14B (QC Hold).</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">Inspection Mode</div>
+                  <div class="config-row-hint">
+                    <strong>INLINE</strong> — Accept/reject quantities directly on the GRN line at the dock. No separate QC step.<br>
+                    <strong>QC_HOLD</strong> — Full received qty goes to QC Hold area. QC Inspector reviews separately on the QC Inspection page.<br>
+                    <strong>BOTH</strong> — Each GRN line has a mode toggle: inspector chooses inline or hold per line.
+                  </div>
+                </div>
+                <div class="config-row-control">
+                  <select class="config-select" id="qcMode" onchange="markUnsaved()" style="min-width:140px">
+                    <option value="INLINE" selected>INLINE</option>
+                    <option value="QC_HOLD">QC_HOLD</option>
+                    <option value="BOTH">BOTH</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══ BOM & Reservation ══ -->
+          <div class="config-section" id="sec-bom">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-purple">
+                <span class="material-symbols-outlined">receipt_long</span>
+              </div>
+              <div>
+                <div class="config-section-title">BOM & Reservation</div>
+                <div class="config-section-desc">Controls the Style BOM approval workflow and how material is reserved against production orders.</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">BOM Approval Required</div>
+                  <div class="config-row-hint">When ON: a Style BOM must be ADMIN-approved (DRAFT → ACTIVE) before it can drive reservations or Cutting Issue Notes. When OFF: BOM becomes ACTIVE immediately on save.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="bomApproval" checked onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">Reservation Mode</div>
+                  <div class="config-row-hint">
+                    <strong>MANUAL</strong> — Planner explicitly reserves free stock via the Reserve action. "Reserve" button visible on production order detail.<br>
+                    <strong>AUTO</strong> — System auto-reserves from free stock (FIFO) when a Production Order is created. Reserve button hidden on UI.
+                  </div>
+                </div>
+                <div class="config-row-control">
+                  <select class="config-select" id="reservationMode" onchange="markUnsaved(); toggleReservationOnPo()">
+                    <option value="MANUAL" selected>MANUAL</option>
+                    <option value="AUTO">AUTO</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="config-row dependent" id="row-reservationOnPo">
+                <div class="config-row-info">
+                  <div class="config-row-label">
+                    Auto-Reserve on Production Order Creation
+                    <span class="config-row-badge badge-tier3">Tier 3</span>
+                  </div>
+                  <div class="config-row-hint">Only applicable when Reservation Mode = AUTO. Triggers reservation immediately when a PO is created — no manual step needed.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="reservationOnPo" disabled onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">Allow Negative Stock</div>
+                  <div class="config-row-hint">When OFF (recommended): Issue Note is blocked if issued qty would exceed available balance. When ON: warning is shown but movement posts regardless. Useful during system go-live when opening balances are incomplete.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="negativeStock" onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+            <div class="callout callout-warn">
+              <span class="material-symbols-outlined">warning</span>
+              Enabling Allow Negative Stock means issued quantities are not validated against available balance. Only enable during data migration or opening balance setup — disable before going live.
+            </div>
+          </div>
+
+          <!-- ══ Issue Notes ══ -->
+          <div class="config-section" id="sec-issue">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-amber">
+                <span class="material-symbols-outlined">assignment_turned_in</span>
+              </div>
+              <div>
+                <div class="config-section-title">Issue Notes</div>
+                <div class="config-section-desc">Controls the Cutting Issue Note approval workflow before stock physically leaves the store.</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">Issue Note Approval Required</div>
+                  <div class="config-row-hint">When ON: Store Keeper creates DRAFT → submits for approval → Supervisor approves → issued. When OFF: Store Keeper creates and issues directly (DRAFT → ISSUED), no approval step.</div>
+                </div>
+                <div class="config-row-control">
+                  <label class="toggle">
+                    <input type="checkbox" id="issueApproval" checked onchange="markUnsaved()">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══ Ageing Thresholds ══ -->
+          <div class="config-section" id="sec-ageing">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-amber">
+                <span class="material-symbols-outlined">schedule</span>
+              </div>
+              <div>
+                <div class="config-section-title">Ageing Thresholds</div>
+                <div class="config-section-desc">Days since lot receipt date. Determines the ageing band shown on the Ageing Report and triggers automated alerts. Thresholds are computed at query time — not stored on the lot.</div>
+              </div>
+            </div>
+
+            <div class="config-rows">
+
+              <div class="config-row" style="align-items:flex-start; padding-top:18px; padding-bottom:18px">
+                <div class="config-row-info" style="flex:1">
+
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px">
+
+                    <div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <div style="width:10px;height:10px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
+                        <div class="config-row-label" style="font-size:12.5px">Fresh (0 – X days)</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:12px;color:var(--text-3)">0 –</span>
+                        <input type="number" class="config-number" id="freshDays" value="60" min="1" max="365" onchange="markUnsaved(); updateAgeingBar()">
+                        <span class="config-number-unit">days</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <div style="width:10px;height:10px;border-radius:50%;background:#ca8a04;flex-shrink:0"></div>
+                        <div class="config-row-label" style="font-size:12.5px">Ageing (X – Y days)</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <input type="number" class="config-number" id="ageingDays" value="120" min="1" max="365" onchange="markUnsaved(); updateAgeingBar()">
+                        <span class="config-number-unit">days</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <div style="width:10px;height:10px;border-radius:50%;background:#ea580c;flex-shrink:0"></div>
+                        <div class="config-row-label" style="font-size:12.5px">Critical (Y – Z days)</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <input type="number" class="config-number" id="criticalDays" value="180" min="1" max="730" onchange="markUnsaved(); updateAgeingBar()">
+                        <span class="config-number-unit">days</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div style="padding:0 2px">
+                    <div class="ageing-bar" id="ageingBar">
+                      <div class="ageing-seg ag-fresh" id="seg-fresh"  style="flex:60"></div>
+                      <div class="ageing-seg ag-ageing" id="seg-ageing" style="flex:60"></div>
+                      <div class="ageing-seg ag-critical" id="seg-critical" style="flex:60"></div>
+                      <div class="ageing-seg ag-dead" id="seg-dead" style="flex:60"></div>
+                    </div>
+                    <div class="ageing-labels">
+                      <span class="ageing-lbl" id="lbl-0">0d</span>
+                      <span class="ageing-lbl" id="lbl-fresh" style="color:#16a34a">60d</span>
+                      <span class="ageing-lbl" id="lbl-ageing" style="color:#ca8a04">120d</span>
+                      <span class="ageing-lbl" id="lbl-critical" style="color:#ea580c">180d</span>
+                      <span class="ageing-lbl" style="color:#dc2626">Dead Stock</span>
+                    </div>
+                  </div>
+
+                  <div class="callout callout-info" style="margin:12px 0 0">
+                    <span class="material-symbols-outlined">info</span>
+                    <span>Dead Stock = any lot older than <strong id="dead-stock-label">180 days</strong>. An automated daily alert notifies ADMIN users when lots cross into Critical or Dead Stock bands.</span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══ Costing ══ -->
+          <div class="config-section" id="sec-costing">
+            <div class="config-section-head">
+              <div class="config-section-icon icon-green">
+                <span class="material-symbols-outlined">payments</span>
+              </div>
+              <div>
+                <div class="config-section-title">Costing Method</div>
+                <div class="config-section-desc">Controls whether inventory value is computed and shown on stock views and ageing reports. Unit cost is taken from the GRN line at receipt time.</div>
+              </div>
+            </div>
+            <div class="config-rows">
+
+              <div class="config-row">
+                <div class="config-row-info">
+                  <div class="config-row-label">Costing Method</div>
+                  <div class="config-row-hint">
+                    <strong>NONE</strong> — Qty only. No value column on any report. Fastest and simplest.<br>
+                    <strong>FIFO_COST</strong> — First-in-first-out costing. Value of stock = cost of oldest lots first.<br>
+                    <strong>WEIGHTED_AVG</strong> — Weighted average unit cost recalculated on every receipt and write-off.
+                    <span class="config-row-badge badge-tier3" style="margin-left:0;display:inline-block;margin-top:4px">Tier 3 recommended</span>
+                  </div>
+                </div>
+                <div class="config-row-control">
+                  <select class="config-select" id="costingMethod" onchange="markUnsaved()" style="min-width:160px">
+                    <option value="NONE" selected>NONE — Qty only</option>
+                    <option value="FIFO_COST">FIFO Cost</option>
+                    <option value="WEIGHTED_AVG">Weighted Average</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+            <div class="callout callout-info" style="margin:0">
+              <span class="material-symbols-outlined">info</span>
+              When costing method is not NONE, the Ageing Report shows <strong>Value at Risk</strong> (balance qty × unit cost) and the Stock Dashboard shows <strong>Unallocated Value</strong>.
+            </div>
+          </div>
+
+          <!-- ── Sticky Save Bar ── -->
+          <div class="save-bar">
+            <div class="save-bar-msg" id="saveMsg">
+              <span class="unsaved-dot" id="unsavedDot" style="display:none"></span>
+              <span id="saveMsgText">All settings saved.</span>
+            </div>
+            <button class="btn btn-outline" onclick="resetForm()">
+              <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
+              Reset
+            </button>
+            <button class="btn btn-primary" onclick="saveConfig()">
+              <span class="material-symbols-outlined" style="font-size:16px">save</span>
+              Save Configuration
+            </button>
+          </div>
+
+        </div><!-- /config-sections -->
+      </div><!-- /config-layout -->
+    </div><!-- /page -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── Toast ── -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- ── Confirm Modal ── -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="confirmTitle">Apply Tier 2 Preset?</div>
+        <div class="modal-sub">This will overwrite all current settings in the form.</div>
+      </div>
+      <button class="modal-x" onclick="closeModal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="confirmBody" style="font-size:13px;color:var(--text-2);line-height:1.6">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="confirmOkBtn" onclick="confirmApply()">Apply Preset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── State ──
+  let unsaved = false;
+  let pendingTier = null;
+
+  const TIERS = {
+    1: {
+      lotTracking: false, binMgmt: false, binCapEnforce: false, mixedBin: false,
+      multiWarehouse: false,
+      qcMode: 'INLINE',
+      bomApproval: false, reservationMode: 'MANUAL', reservationOnPo: false, negativeStock: true,
+      issueApproval: false,
+      freshDays: 60, ageingDays: 120, criticalDays: 180,
+      costingMethod: 'NONE'
+    },
+    2: {
+      lotTracking: true, binMgmt: false, binCapEnforce: false, mixedBin: false,
+      multiWarehouse: false,
+      qcMode: 'INLINE',
+      bomApproval: true, reservationMode: 'MANUAL', reservationOnPo: false, negativeStock: false,
+      issueApproval: true,
+      freshDays: 60, ageingDays: 120, criticalDays: 180,
+      costingMethod: 'NONE'
+    },
+    3: {
+      lotTracking: true, binMgmt: true, binCapEnforce: true, mixedBin: false,
+      multiWarehouse: true,
+      qcMode: 'BOTH',
+      bomApproval: true, reservationMode: 'AUTO', reservationOnPo: true, negativeStock: false,
+      issueApproval: true,
+      freshDays: 60, ageingDays: 120, criticalDays: 180,
+      costingMethod: 'WEIGHTED_AVG'
+    }
+  };
+
+  function applyTier(n) {
+    pendingTier = n;
+    const titles = { 1: 'Apply Tier 1 — Simple Store?', 2: 'Apply Tier 2 — Mid-Size Factory?', 3: 'Apply Tier 3 — Large Export House?' };
+    document.getElementById('confirmTitle').textContent = titles[n];
+    const t = TIERS[n];
+    document.getElementById('confirmBody').innerHTML = `
+      <p>The following settings will be applied:</p>
+      <ul style="margin-top:10px;display:flex;flex-direction:column;gap:5px;padding-left:0;list-style:none">
+        ${row('Lot Tracking', t.lotTracking)}
+        ${row('Bin Management', t.binMgmt)}
+        ${row('Multi-Warehouse', t.multiWarehouse)}
+        ${row('BOM Approval', t.bomApproval)}
+        ${row('Reservation Mode', null, t.reservationMode)}
+        ${row('Allow Negative Stock', t.negativeStock)}
+        ${row('Issue Note Approval', t.issueApproval)}
+        ${row('QC Mode', null, t.qcMode)}
+        ${row('Costing Method', null, t.costingMethod)}
+      </ul>`;
+    openModal();
+  }
+
+  function row(label, bool, val) {
+    let display;
+    if (val !== undefined) {
+      display = `<span style="background:var(--gray-100);padding:1px 8px;border-radius:4px;font-size:12px;font-weight:600">${val}</span>`;
+    } else {
+      display = bool
+        ? `<span style="color:var(--success);font-weight:600">ON</span>`
+        : `<span style="color:var(--text-3);font-weight:600">OFF</span>`;
+    }
+    return `<li style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border2);font-size:12.5px"><span style="color:var(--text-2)">${label}</span>${display}</li>`;
+  }
+
+  function confirmApply() {
+    const t = TIERS[pendingTier];
+    setCheck('lotTracking', t.lotTracking);
+    setCheck('binMgmt', t.binMgmt && t.lotTracking);
+    setCheck('binCapEnforce', t.binCapEnforce);
+    setCheck('mixedBin', t.mixedBin);
+    setCheck('multiWarehouse', t.multiWarehouse);
+    setSelect('qcMode', t.qcMode);
+    setCheck('bomApproval', t.bomApproval);
+    setSelect('reservationMode', t.reservationMode);
+    setCheck('reservationOnPo', t.reservationOnPo);
+    setCheck('negativeStock', t.negativeStock);
+    setCheck('issueApproval', t.issueApproval);
+    document.getElementById('freshDays').value = t.freshDays;
+    document.getElementById('ageingDays').value = t.ageingDays;
+    document.getElementById('criticalDays').value = t.criticalDays;
+    setSelect('costingMethod', t.costingMethod);
+
+    // Update dependent states
+    syncDependent('lotTracking','binMgmt');
+    syncDependent('binMgmt','binCapEnforce');
+    toggleDefaultWarehouse();
+    toggleReservationOnPo();
+    updateAgeingBar();
+
+    // Update tier card selection
+    [1,2,3].forEach(n => document.getElementById('tier'+n).classList.toggle('selected', n === pendingTier));
+
+    markUnsaved();
+    closeModal();
+    toast('Tier ' + pendingTier + ' preset applied — review settings below then save.', 'info');
+  }
+
+  function setCheck(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.checked = val;
+  }
+  function setSelect(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+
+  // Dependent field: disable child toggle if parent is OFF
+  function syncDependent(parentId, childId) {
+    const parent = document.getElementById(parentId);
+    const child = document.getElementById(childId);
+    if (!parent || !child) return;
+    child.disabled = !parent.checked;
+    if (!parent.checked) child.checked = false;
+  }
+
+  function toggleDefaultWarehouse() {
+    const mw = document.getElementById('multiWarehouse').checked;
+    const row = document.getElementById('row-defaultWarehouse');
+    if (row) row.style.display = mw ? 'none' : 'flex';
+  }
+
+  function toggleReservationOnPo() {
+    const mode = document.getElementById('reservationMode').value;
+    const el = document.getElementById('reservationOnPo');
+    const row = document.getElementById('row-reservationOnPo');
+    if (el) el.disabled = (mode !== 'AUTO');
+    if (mode !== 'AUTO' && el) el.checked = false;
+    if (row) row.style.opacity = mode === 'AUTO' ? '1' : '0.45';
+  }
+
+  // ── Ageing bar ──
+  function updateAgeingBar() {
+    const f = parseInt(document.getElementById('freshDays').value) || 60;
+    const a = parseInt(document.getElementById('ageingDays').value) || 120;
+    const c = parseInt(document.getElementById('criticalDays').value) || 180;
+    const dead = 60; // visual weight for "dead stock" segment
+
+    document.getElementById('seg-fresh').style.flex = f;
+    document.getElementById('seg-ageing').style.flex = Math.max(a - f, 1);
+    document.getElementById('seg-critical').style.flex = Math.max(c - a, 1);
+    document.getElementById('seg-dead').style.flex = dead;
+
+    document.getElementById('lbl-fresh').textContent = f + 'd';
+    document.getElementById('lbl-ageing').textContent = a + 'd';
+    document.getElementById('lbl-critical').textContent = c + 'd';
+    document.getElementById('dead-stock-label').textContent = c + ' days';
+  }
+
+  // ── Unsaved state ──
+  function markUnsaved() {
+    unsaved = true;
+    document.getElementById('unsavedDot').style.display = 'inline-block';
+    document.getElementById('saveMsgText').textContent = 'You have unsaved changes.';
+    document.getElementById('saveMsgText').style.color = 'var(--warning)';
+  }
+
+  function markSaved() {
+    unsaved = false;
+    document.getElementById('unsavedDot').style.display = 'none';
+    document.getElementById('saveMsgText').textContent = 'All settings saved.';
+    document.getElementById('saveMsgText').style.color = 'var(--text-3)';
+  }
+
+  // ── Save (simulated) ──
+  function saveConfig() {
+    const config = {
+      lotTrackingEnabled:         document.getElementById('lotTracking').checked,
+      binManagementEnabled:       document.getElementById('binMgmt').checked,
+      binCapacityEnforce:         document.getElementById('binCapEnforce').checked,
+      allowMixedBinItems:         document.getElementById('mixedBin').checked,
+      multiWarehouseEnabled:      document.getElementById('multiWarehouse').checked,
+      qcMode:                     document.getElementById('qcMode').value,
+      bomApprovalRequired:        document.getElementById('bomApproval').checked,
+      reservationMode:            document.getElementById('reservationMode').value,
+      reservationOnPoCreate:      document.getElementById('reservationOnPo').checked,
+      allowNegativeStock:         document.getElementById('negativeStock').checked,
+      issueNoteApprovalRequired:  document.getElementById('issueApproval').checked,
+      ageingFreshDays:            parseInt(document.getElementById('freshDays').value),
+      ageingAgeingDays:           parseInt(document.getElementById('ageingDays').value),
+      ageingCriticalDays:         parseInt(document.getElementById('criticalDays').value),
+      costingMethod:              document.getElementById('costingMethod').value,
+    };
+    console.log('PUT /api/v1/inventory/config →', config);
+    // Simulate API call
+    setTimeout(() => {
+      markSaved();
+      toast('Inventory configuration saved successfully.', 'success');
+    }, 400);
+  }
+
+  function resetForm() {
+    // Re-apply Tier 2 as default reset
+    pendingTier = 2;
+    confirmApply();
+    markSaved();
+    toast('Settings reset to saved values.', 'info');
+  }
+
+  // ── Modal ──
+  function openModal() { document.getElementById('confirmModal').classList.add('open'); }
+  function closeModal() { document.getElementById('confirmModal').classList.remove('open'); }
+  document.getElementById('confirmModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ── Toast ──
+  function toast(msg, type = 'success') {
+    const icons = {
+      success: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 4L6 12 2 8"/></svg>',
+      error:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8"/></svg>',
+      info:    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="8" cy="8" r="6"/><path d="M8 7v5M8 5v.5"/></svg>'
+    };
+    const el = document.createElement('div');
+    el.className = `toast ${type === 'info' ? '' : type}`;
+    el.innerHTML = (icons[type] || icons.info) + msg;
+    document.getElementById('toastArea').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // ── Nav scroll ──
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.config-nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  // ── Init ──
+  updateAgeingBar();
+  toggleDefaultWarehouse();
+  toggleReservationOnPo();
+  syncDependent('lotTracking','binMgmt');
+  syncDependent('binMgmt','binCapEnforce');
+</script>
+</body>
+</html>
