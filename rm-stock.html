@@ -11,165 +11,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RM Masters & Stock — C-Edge ERP</title>
+<title>RM Masters &amp; Stock — C-Edge ERP</title>
 <link rel="stylesheet" href="design-system.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <style>
-  .type-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 9px; border-radius: var(--r-full);
-    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-  }
-  .type-fabric    { background:#eff6ff; color:#1d4ed8; }
-  .type-trim      { background:#f0fdf4; color:#15803d; }
-  .type-thread    { background:#fdf4ff; color:#7e22ce; }
-  .type-lining    { background:#fff7ed; color:#c2410c; }
-  .type-accessory { background:#fef9c3; color:#854d0e; }
-  .type-packaging { background:#f0f9ff; color:#0369a1; }
-  .type-other     { background:var(--gray-100); color:var(--gray-600); }
+/* ── Match purchase-order-list light theme ── */
+:root {
+  --sidebar-bg:     #ffffff;
+  --sidebar-hover:  rgba(91,95,199,0.07);
+  --sidebar-active: rgba(91,95,199,0.12);
+  --sidebar-text:   #64748b;
+  --brand-500: #5b5fc7;
+  --brand-600: #4f52b2;
+  --brand-700: #3d40a0;
+  --bg:     #f5f6fa;
+  --border: #e8eaf0;
+  --border2:#f0f2f7;
+}
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #1e1f2e !important; font-weight: 800 !important; }
+.brand-sub  { color: #8892a4 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #a0aec0 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #3d4462 !important; font-weight: 500 !important; }
+.nav-parent-icon  { color: #8892a4 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover  { background: var(--sidebar-hover)  !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #a0aec0 !important; }
+.sidebar-footer  { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #1e1f2e  !important; }
+.sf-role { color: #8892a4  !important; }
+.sf-avatar { background: var(--brand-500) !important; }
+.topbar { border-bottom: 1px solid #dde0ea !important; box-shadow: 0 1px 4px rgba(91,95,199,0.06) !important; }
 
-  .filter-tabs {
-    display: flex; gap: 4px;
-    background: var(--gray-100); border-radius: var(--r);
-    padding: 4px;
-  }
-  .tab-pill {
-    padding: 5px 13px; border-radius: 7px; border: none;
-    font-size: 12.5px; font-weight: 500; cursor: pointer;
-    background: transparent; color: var(--text-2);
-    transition: all var(--ease);
-  }
-  .tab-pill.active {
-    background: var(--surface); color: var(--brand-600);
-    box-shadow: var(--shadow-sm); font-weight: 600;
-  }
-  .tab-pill:hover:not(.active) { background: var(--gray-200); }
+/* ── Stat cards ── */
+.stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:16px 18px;
+  box-shadow:var(--shadow-sm); cursor:pointer;
+  transition:all var(--ease-md);
+}
+.stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.stat-card.active { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.1); }
+.stat-num   { font-size:26px; font-weight:800; color:var(--text-1); line-height:1; margin-bottom:4px; }
+.stat-label { font-size:11.5px; color:var(--text-3); font-weight:500; }
+.stat-sub   { font-size:11px; margin-top:6px; font-weight:500; }
 
-  /* Stock status pills */
-  .stock-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11.5px; font-weight: 600; padding: 2px 9px;
-    border-radius: var(--r-full);
-  }
-  .stock-ok    { background: var(--success-bg); color: var(--success); }
-  .stock-low   { background: var(--warning-bg); color: var(--warning); }
-  .stock-out   { background: var(--danger-bg);  color: var(--danger); }
-  .stock-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: currentColor;
-  }
+/* ── Tab strip ── */
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 28px; background:var(--surface); }
+.tab-item {
+  padding:11px 16px; font-size:12.5px; font-weight:500;
+  color:var(--text-3); cursor:pointer; border:none; background:transparent;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:all var(--ease); font-family:inherit; display:flex; align-items:center; gap:6px;
+}
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600); border-bottom-color:var(--brand-600); font-weight:600; }
+.tab-count {
+  min-width:18px; height:18px; padding:0 5px;
+  background:var(--gray-200); border-radius:var(--r-full);
+  font-size:10px; font-weight:700; color:var(--text-2);
+  display:flex; align-items:center; justify-content:center;
+}
+.tab-item.active .tab-count { background:var(--brand-100); color:var(--brand-700); }
 
-  /* Alert banner */
-  .alert-strip {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 16px; border-radius: var(--r);
-    background: var(--warning-bg); border: 1px solid #fde68a;
-    color: var(--warning); font-size: 13px; font-weight: 500;
-    margin-bottom: 16px;
-  }
-  .alert-strip .material-symbols-outlined { font-size: 18px; }
+/* ── Type badge ── */
+.type-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 9px; border-radius:var(--r-full);
+  font-size:11px; font-weight:600; letter-spacing:0.02em;
+}
+.type-fabric    { background:#eff6ff; color:#1d4ed8; }
+.type-trim      { background:#f0fdf4; color:#15803d; }
+.type-thread    { background:#fdf4ff; color:#7e22ce; }
+.type-lining    { background:#fff7ed; color:#c2410c; }
+.type-accessory { background:#fef9c3; color:#854d0e; }
+.type-packaging { background:#f0f9ff; color:#0369a1; }
+.type-other     { background:var(--gray-100); color:var(--gray-600); }
 
-  /* Stock summary bar */
-  .stock-bar-wrap {
-    display: flex; gap: 1px; height: 6px; border-radius: var(--r-full);
-    overflow: hidden; background: var(--gray-200); width: 80px; flex-shrink: 0;
-  }
-  .stock-bar-fill { height: 100%; transition: width 0.3s ease; }
-  .bar-ok  { background: var(--success); }
-  .bar-low { background: var(--warning); }
-  .bar-out { background: var(--danger); }
+/* ── Stock status pills ── */
+.stock-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; font-weight:600; padding:2px 9px;
+  border-radius:var(--r-full);
+}
+.stock-ok  { background:var(--success-bg); color:var(--success); }
+.stock-low { background:var(--warning-bg); color:var(--warning); }
+.stock-out { background:var(--danger-bg);  color:var(--danger); }
+.stock-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
 
-  /* Stock position panel (slide-in from right) */
-  .detail-panel {
-    position: fixed; top: 0; right: 0; bottom: 0;
-    width: 420px; background: var(--surface); z-index: 200;
-    box-shadow: -8px 0 32px rgba(0,0,0,0.10);
-    transform: translateX(100%); transition: transform 280ms ease;
-    display: flex; flex-direction: column;
-  }
-  .detail-panel.open { transform: translateX(0); }
-  .panel-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 199;
-    opacity: 0; pointer-events: none; transition: opacity 280ms ease;
-  }
-  .panel-overlay.open { opacity: 1; pointer-events: auto; }
+/* ── Stock bar ── */
+.stock-bar-wrap { display:flex; height:5px; border-radius:var(--r-full); overflow:hidden; background:var(--gray-200); width:72px; flex-shrink:0; }
+.stock-bar-fill { height:100%; transition:width 0.3s; }
+.bar-ok  { background:var(--success); }
+.bar-low { background:var(--warning); }
+.bar-out { background:var(--danger); }
 
-  .panel-header {
-    padding: 18px 20px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px;
-  }
-  .panel-header h3 { font-size: 15px; font-weight: 700; flex: 1; }
-  .panel-close { border: none; background: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: var(--r-sm); }
-  .panel-close:hover { background: var(--gray-100); color: var(--text-1); }
+/* ── Column configurator ── */
+.col-panel-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.18);z-index:299;display:none; }
+.col-panel-overlay.open { display:block; }
+.col-panel {
+  position:fixed;top:0;right:-400px;bottom:0;width:380px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.10);z-index:300;
+  display:flex;flex-direction:column;transition:right 0.25s ease;
+}
+.col-panel.open { right:0; }
+.col-panel-head {
+  padding:18px 20px 14px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;
+}
+.col-panel-title { font-size:15px;font-weight:700;color:var(--text-1); }
+.col-panel-sub   { font-size:11.5px;color:var(--text-3);margin-top:2px; }
+.col-panel-close {
+  width:28px;height:28px;border:none;background:var(--gray-100);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease);
+}
+.col-panel-close:hover { background:var(--gray-200);color:var(--text-1); }
+.col-panel-close svg { width:14px;height:14px; }
+.col-panel-groups { flex:1;overflow-y:auto;padding:12px 0; }
+.col-group-label {
+  font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-3);padding:10px 20px 4px;
+}
+.col-row {
+  display:flex;align-items:center;gap:10px;
+  padding:8px 20px;cursor:default;
+  transition:background var(--ease);user-select:none;
+}
+.col-row:hover { background:var(--gray-50); }
+.col-row.dragging { opacity:0.4; }
+.col-row.drag-over { background:var(--brand-50);border-top:2px solid var(--brand-500); }
+.drag-handle {
+  cursor:grab;color:var(--text-3);flex-shrink:0;display:flex;align-items:center;
+  padding:2px;border-radius:3px;transition:color var(--ease);
+}
+.drag-handle:active { cursor:grabbing; }
+.drag-handle:hover  { color:var(--text-1); }
+.drag-handle svg { width:14px;height:14px; }
+.col-toggle {
+  width:36px;height:20px;background:var(--gray-300);border-radius:10px;
+  position:relative;cursor:pointer;transition:background var(--ease);
+  flex-shrink:0;border:none;
+}
+.col-toggle.on { background:var(--brand-500); }
+.col-toggle::after {
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;background:#fff;border-radius:50%;
+  transition:transform var(--ease);box-shadow:0 1px 3px rgba(0,0,0,0.15);
+}
+.col-toggle.on::after { transform:translateX(16px); }
+.col-row-label { font-size:13px;font-weight:500;color:var(--text-1);flex:1; }
+.col-row-tag {
+  font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+  padding:1px 6px;border-radius:var(--r-full);
+}
+.col-row-tag.locked { background:var(--gray-100);color:var(--text-3); }
+.col-panel-foot {
+  padding:14px 20px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;justify-content:space-between;flex-shrink:0;
+}
+.col-cfg-btn {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-size:12.5px;font-weight:500;
+  color:var(--text-2);background:var(--surface);cursor:pointer;
+  transition:all var(--ease);font-family:inherit;
+}
+.col-cfg-btn:hover { border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50); }
+.col-cfg-btn svg { width:14px;height:14px; }
 
-  .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
+/* ── Detail panel ── */
+.detail-panel-overlay { position:fixed;inset:0;background:rgba(15,15,35,0.22);z-index:400;display:none; }
+.detail-panel-overlay.open { display:block; }
+.detail-panel {
+  position:fixed;top:0;right:-500px;bottom:0;width:480px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-12px 0 48px rgba(0,0,0,0.12);z-index:401;
+  display:flex;flex-direction:column;transition:right 0.28s cubic-bezier(.4,0,.2,1);
+}
+.detail-panel.open { right:0; }
+.dp-head {
+  padding:20px 24px 16px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;
+}
+.dp-head-left { display:flex;flex-direction:column;gap:4px; }
+.dp-title { font-size:16px;font-weight:800;color:var(--text-1);letter-spacing:-0.01em; }
+.dp-meta  { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.dp-close {
+  width:30px;height:30px;border:none;background:var(--gray-100);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease);
+}
+.dp-close:hover { background:var(--gray-200);color:var(--text-1); }
+.dp-close svg { width:15px;height:15px; }
+.dp-body { flex:1;overflow-y:auto;padding:24px; }
+.dp-section { margin-bottom:22px; }
+.dp-section-title {
+  font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2);
+}
+.dp-kpi-row { display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px; }
+.dp-kpi {
+  background:var(--gray-50);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:12px 14px;
+}
+.dp-kpi-val   { font-size:20px;font-weight:800;color:var(--text-1);line-height:1.1;margin-bottom:3px; }
+.dp-kpi-label { font-size:11px;color:var(--text-3);font-weight:500; }
+.dp-kpi.warn  { background:var(--warning-bg);border-color:#fde68a; }
+.dp-kpi.warn .dp-kpi-val { color:var(--warning); }
+.dp-kpi.danger { background:var(--danger-bg);border-color:#fca5a5; }
+.dp-kpi.danger .dp-kpi-val { color:var(--danger); }
+.dp-field-row { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px; }
+.dp-field { background:var(--gray-50);border-radius:var(--r-sm);padding:10px 12px; }
+.dp-field-label { font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px; }
+.dp-field-val   { font-size:13px;font-weight:500;color:var(--text-1); }
+.dp-foot {
+  padding:14px 24px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
 
-  .kpi-row {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-    margin-bottom: 20px;
-  }
-  .kpi-card {
-    padding: 14px 16px; border: 1px solid var(--border);
-    border-radius: var(--r); background: var(--gray-50);
-  }
-  .kpi-card .kpi-val {
-    font-size: 22px; font-weight: 700; color: var(--text-1);
-    line-height: 1.1; margin-bottom: 3px;
-  }
-  .kpi-card .kpi-label { font-size: 11.5px; color: var(--text-3); font-weight: 500; }
-  .kpi-card.kpi-warn { background: var(--warning-bg); border-color: #fde68a; }
-  .kpi-card.kpi-warn .kpi-val { color: var(--warning); }
+/* ── Movement list ── */
+.mov-row {
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--r);
+  background:var(--gray-50);border:1px solid var(--border2);
+  font-size:12.5px;margin-bottom:6px;
+}
+.mov-icon { width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
+.mov-icon.in  { background:var(--success-bg);color:var(--success); }
+.mov-icon.out { background:var(--danger-bg); color:var(--danger); }
+.mov-qty { font-weight:700;margin-left:auto; }
+.mov-qty.pos { color:var(--success); }
+.mov-qty.neg { color:var(--danger); }
+.mov-date { font-size:11px;color:var(--text-3);margin-left:8px; }
 
-  .panel-section-title {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px;
-  }
+/* ── Lot badge ── */
+.lot-badge {
+  display:inline-flex;align-items:center;gap:3px;
+  padding:1px 7px;border-radius:var(--r-full);
+  font-size:10px;font-weight:600;
+  background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;
+}
 
-  .movement-list { display: flex; flex-direction: column; gap: 8px; }
-  .movement-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px; border-radius: var(--r);
-    background: var(--gray-50); border: 1px solid var(--border2);
-    font-size: 12.5px;
-  }
-  .movement-row .mov-icon {
-    width: 28px; height: 28px; border-radius: var(--r-sm);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; flex-shrink: 0;
-  }
-  .mov-in  { background: var(--success-bg); color: var(--success); }
-  .mov-out { background: var(--danger-bg);  color: var(--danger); }
-  .mov-adj { background: var(--info-bg);    color: var(--info); }
-  .mov-date { margin-left: auto; color: var(--text-3); font-size: 11.5px; }
-  .mov-qty  { font-weight: 700; }
-  .mov-qty.pos { color: var(--success); }
-  .mov-qty.neg { color: var(--danger); }
+/* ── Action menu ── */
+.am-wrap { position:relative;display:inline-block; }
+.action-menu {
+  position:absolute;right:0;top:calc(100% + 4px);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--shadow-lg);
+  z-index:100;min-width:150px;padding:4px;display:none;
+}
+.action-menu.open { display:block; }
+.am-item {
+  display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2);cursor:pointer;
+  transition:background var(--ease);
+}
+.am-item:hover { background:var(--gray-50);color:var(--text-1); }
+.am-item.danger:hover { background:var(--danger-bg);color:var(--danger); }
+.am-sep { height:1px;background:var(--border2);margin:4px 0; }
 
-  .config-note {
-    display: flex; align-items: flex-start; gap: 8px;
-    padding: 10px 12px; border-radius: var(--r);
-    background: var(--info-bg); border: 1px solid #bfdbfe;
-    color: var(--info); font-size: 12px; margin-bottom: 16px;
-  }
-  .config-note .material-symbols-outlined { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-  /* Lot badge shown in table when lot_tracking = ON */
-  .lot-badge {
-    display: inline-flex; align-items: center; gap: 3px;
-    padding: 1px 7px; border-radius: var(--r-full);
-    font-size: 10.5px; font-weight: 600;
-    background: #f0fdf4; color: #15803d;
-    border: 1px solid #bbf7d0;
-  }
-
-  .num { font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric:tabular-nums; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="brand-logo">C</div>
     <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
@@ -256,220 +371,178 @@
     <div class="sf-avatar">MG</div>
     <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
   </div>
-  </aside>
+</aside>
 
-  <!-- MAIN -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="topbar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
-        </button>
-        <nav class="breadcrumb">
-          <a href="inventory-dashboard.html">Inventory</a>
-          <span>›</span>
-          <span>RM Masters &amp; Stock</span>
-        </nav>
-      </div>
-      <div class="topbar-right">
-        <button class="btn btn-ghost btn-sm" title="Notifications">
-          <span class="material-symbols-outlined" style="font-size:18px;">notifications</span>
-        </button>
-        <div class="topbar-avatar">MG</div>
-      </div>
-    </header>
+<!-- ── Main ── -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">RM Masters &amp; Stock</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" onclick="exportCSV()" title="Export CSV">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <button class="topbar-cta" onclick="openModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Add Material
+      </button>
+    </div>
+  </header>
 
-    <div class="page">
+  <main class="page" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
 
-      <!-- Page header -->
-      <div class="page-header">
+    <!-- Stat cards + toolbar -->
+    <div style="padding:24px 28px 0;">
+      <div class="ph" style="margin-bottom:16px;">
         <div>
-          <h1 class="page-title">RM Masters &amp; Stock</h1>
-          <p class="page-subtitle">Define raw material master records, minimum stock levels, reorder thresholds, and supplier linkages</p>
+          <div class="ph-title">RM Masters &amp; Stock</div>
+          <div class="ph-sub">Define materials, minimum stock thresholds, reorder points and supplier linkages</div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-ghost" onclick="exportCSV()">
-            <span class="material-symbols-outlined" style="font-size:16px;">download</span>
-            Export
-          </button>
-          <button class="btn btn-primary" onclick="openModal()">
-            <span class="material-symbols-outlined" style="font-size:16px;">add</span>
-            Add Material
-          </button>
-        </div>
-      </div>
-
-      <!-- Low-stock alert strip (shows when there are alerts) -->
-      <div class="alert-strip" id="alertStrip">
-        <span class="material-symbols-outlined">warning</span>
-        <span id="alertText">5 materials are below minimum stock level — review reorder requirements</span>
-        <button class="btn btn-ghost btn-sm" style="margin-left:auto;color:var(--warning);border-color:var(--warning);" onclick="setStockFilter('low')">
-          View Low Stock
-        </button>
-      </div>
-
-      <!-- Summary KPI row -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="kpiRow">
-        <div class="card" style="padding:16px 20px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;">Total Materials</div>
-          <div style="font-size:26px;font-weight:800;color:var(--text-1);line-height:1;" id="kpiTotal">18</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;" id="kpiActive">16 active</div>
-        </div>
-        <div class="card" style="padding:16px 20px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;">In Stock</div>
-          <div style="font-size:26px;font-weight:800;color:var(--success);line-height:1;" id="kpiOk">10</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Above minimum</div>
-        </div>
-        <div class="card" style="padding:16px 20px;border-left:3px solid var(--warning);">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;">Low Stock</div>
-          <div style="font-size:26px;font-weight:800;color:var(--warning);line-height:1;" id="kpiLow">5</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Below minimum</div>
-        </div>
-        <div class="card" style="padding:16px 20px;border-left:3px solid var(--danger);">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;">Out of Stock</div>
-          <div style="font-size:26px;font-weight:800;color:var(--danger);line-height:1;" id="kpiOut">3</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Zero on-hand</div>
-        </div>
-      </div>
-
-      <!-- Main table card -->
-      <div class="card">
-        <div class="toolbar">
-          <div class="filter-tabs">
-            <button class="tab-pill active" onclick="setType('All',this)">All</button>
-            <button class="tab-pill" onclick="setType('Fabric',this)">Fabric</button>
-            <button class="tab-pill" onclick="setType('Trim',this)">Trims</button>
-            <button class="tab-pill" onclick="setType('Thread',this)">Thread</button>
-            <button class="tab-pill" onclick="setType('Lining',this)">Lining</button>
-            <button class="tab-pill" onclick="setType('Accessory',this)">Accessory</button>
-            <button class="tab-pill" onclick="setType('Packaging',this)">Packaging</button>
-          </div>
-          <div style="display:flex;gap:8px;margin-left:auto;align-items:center;">
-            <select class="filter-select" id="stockFilter" onchange="render()">
-              <option value="">All Stock</option>
-              <option value="ok">In Stock</option>
-              <option value="low">Low Stock</option>
-              <option value="out">Out of Stock</option>
+        <div class="ph-actions">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="position:relative;">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              <input class="form-control" id="searchInput" type="text" placeholder="Search name or code…" style="padding-left:32px;height:36px;width:210px;" oninput="render()">
+            </div>
+            <select class="filter-select" id="typeFilter" onchange="render()" style="height:36px;">
+              <option value="">All Types</option>
+              <option>Fabric</option><option>Trim</option><option>Thread</option>
+              <option>Lining</option><option>Accessory</option><option>Packaging</option><option>Other</option>
             </select>
-            <select class="filter-select" id="statusFilter" onchange="render()">
+            <select class="filter-select" id="statusFilter" onchange="render()" style="height:36px;">
               <option value="">All Status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
-            <div style="position:relative;">
-              <input class="search-input" id="searchInput" type="text" placeholder="Search by name or code…" oninput="render()" style="width:220px;">
-              <span class="material-symbols-outlined" style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-3);pointer-events:none;">search</span>
-            </div>
+            <button class="col-cfg-btn" onclick="openColPanel()">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+              Columns
+            </button>
           </div>
         </div>
+      </div>
 
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width:44px;"></th>
-              <th>Material</th>
-              <th>Code</th>
-              <th>Type</th>
-              <th>UOM</th>
-              <th>On-Hand</th>
-              <th>Min Stock</th>
-              <th>Reorder Qty</th>
-              <th>Lead Time</th>
-              <th>Supplier</th>
-              <th>Stock Status</th>
-              <th style="width:90px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="rmBody"></tbody>
-        </table>
+      <div class="stat-grid">
+        <div class="stat-card" onclick="setStockTab('all',this)" id="sc-all">
+          <div class="stat-num" id="sn-all">0</div>
+          <div class="stat-label">Total Active</div>
+          <div class="stat-sub" style="color:var(--text-3);">All materials</div>
+        </div>
+        <div class="stat-card" onclick="setStockTab('ok',this)" id="sc-ok">
+          <div class="stat-num" id="sn-ok" style="color:var(--success);">0</div>
+          <div class="stat-label">In Stock</div>
+          <div class="stat-sub" style="color:var(--success);">Above minimum</div>
+        </div>
+        <div class="stat-card" onclick="setStockTab('low',this)" id="sc-low">
+          <div class="stat-num" id="sn-low" style="color:var(--warning);">0</div>
+          <div class="stat-label">Low Stock</div>
+          <div class="stat-sub" style="color:var(--warning);">Below minimum</div>
+        </div>
+        <div class="stat-card" onclick="setStockTab('out',this)" id="sc-out">
+          <div class="stat-num" id="sn-out" style="color:var(--danger);">0</div>
+          <div class="stat-label">Out of Stock</div>
+          <div class="stat-sub" style="color:var(--danger);">Zero on-hand</div>
+        </div>
+        <div class="stat-card" onclick="setStockTab('inactive',this)" id="sc-inactive">
+          <div class="stat-num" id="sn-inactive" style="color:var(--text-3);">0</div>
+          <div class="stat-label">Inactive</div>
+          <div class="stat-sub" style="color:var(--text-3);">Deactivated</div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Tab strip -->
+    <div class="tab-strip">
+      <button class="tab-item active" onclick="setStockTab('all',null,this)" id="tab-all">
+        All <span class="tab-count" id="tc-all">0</span>
+      </button>
+      <button class="tab-item" onclick="setStockTab('ok',null,this)" id="tab-ok">
+        In Stock <span class="tab-count" id="tc-ok">0</span>
+      </button>
+      <button class="tab-item" onclick="setStockTab('low',null,this)" id="tab-low">
+        Low Stock <span class="tab-count" id="tc-low">0</span>
+      </button>
+      <button class="tab-item" onclick="setStockTab('out',null,this)" id="tab-out">
+        Out of Stock <span class="tab-count" id="tc-out">0</span>
+      </button>
+      <button class="tab-item" onclick="setStockTab('inactive',null,this)" id="tab-inactive">
+        Inactive <span class="tab-count" id="tc-inactive">0</span>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+      <div class="card" style="margin-top:16px;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="rmTable">
+            <thead id="tableHead"><tr></tr></thead>
+            <tbody id="rmBody"></tbody>
+          </table>
+        </div>
         <div class="pager" id="pager"></div>
       </div>
+    </div>
 
-    </div><!-- /page -->
-  </div><!-- /main -->
+  </main>
+</div><!-- /main -->
 </div><!-- /app -->
 
-<!-- ══════════════════════════════════════════
-     STOCK DETAIL PANEL (right slide-in)
-══════════════════════════════════════════ -->
-<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
-<div class="detail-panel" id="detailPanel">
-  <div class="panel-header">
-    <div style="width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:18px;" id="panelIcon">🧵</div>
-    <h3 id="panelTitle">Material Name</h3>
-    <button class="panel-close" onclick="closePanel()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
-  </div>
-  <div class="panel-body">
-
-    <!-- Config-gated lot note -->
-    <div class="config-note" id="lotNote" style="display:none;">
-      <span class="material-symbols-outlined">info</span>
-      <span>Lot tracking is <strong>enabled</strong> — stock is tracked at lot level. FIFO allocation applies.</span>
-    </div>
-
-    <!-- KPI row -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-val" id="pOnHand">—</div>
-        <div class="kpi-label">On-Hand Qty</div>
-      </div>
-      <div class="kpi-card" id="pReservedCard">
-        <div class="kpi-val" id="pReserved">—</div>
-        <div class="kpi-label">Reserved Qty</div>
-      </div>
-      <div class="kpi-card" id="pAvailCard">
-        <div class="kpi-val" id="pAvail">—</div>
-        <div class="kpi-label">Available</div>
-      </div>
-      <div class="kpi-card kpi-warn" id="pMinCard">
-        <div class="kpi-val" id="pMin">—</div>
-        <div class="kpi-label">Min Stock</div>
-      </div>
-    </div>
-
-    <!-- Reorder info -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
-      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);background:var(--gray-50);">
-        <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Reorder Qty</div>
-        <div style="font-size:15px;font-weight:700;" id="pReorderQty">—</div>
-      </div>
-      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);background:var(--gray-50);">
-        <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Lead Time</div>
-        <div style="font-size:15px;font-weight:700;" id="pLeadTime">—</div>
-      </div>
-    </div>
-
-    <!-- Supplier -->
-    <div style="margin-bottom:20px;">
-      <div class="panel-section-title">Primary Supplier</div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);" id="pSupplierRow">
-        <span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-600);">business</span>
-        <span id="pSupplier" style="font-size:13px;font-weight:600;">—</span>
-      </div>
-    </div>
-
-    <!-- Recent movements -->
+<!-- ══════════════════════════════════════
+     COLUMN CONFIGURATOR PANEL
+══════════════════════════════════════ -->
+<div class="col-panel-overlay" id="colOverlay" onclick="closeColPanel()"></div>
+<div class="col-panel" id="colPanel">
+  <div class="col-panel-head">
     <div>
-      <div class="panel-section-title">Recent Movements</div>
-      <div class="movement-list" id="pMovements"></div>
+      <div class="col-panel-title">Configure Columns</div>
+      <div class="col-panel-sub">Drag to reorder · toggle to show/hide</div>
     </div>
-
-  </div>
-  <!-- Panel footer actions -->
-  <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;">
-    <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="editFromPanel()">
-      <span class="material-symbols-outlined" style="font-size:15px;">edit</span> Edit
+    <button class="col-panel-close" onclick="closeColPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
     </button>
-    <button class="btn btn-primary btn-sm" style="flex:1;" onclick="closePanel()">
-      <span class="material-symbols-outlined" style="font-size:15px;">add_shopping_cart</span> Raise PO
+  </div>
+  <div class="col-panel-groups" id="colRows"></div>
+  <div class="col-panel-foot">
+    <button class="btn btn-ghost btn-sm" onclick="resetColumns()">Reset to default</button>
+    <button class="btn btn-primary btn-sm" onclick="closeColPanel()">Apply</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DETAIL SLIDE PANEL
+══════════════════════════════════════ -->
+<div class="detail-panel-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <div class="dp-head-left">
+      <div class="dp-title" id="dpTitle">—</div>
+      <div class="dp-meta" id="dpMeta"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-ghost btn-sm" onclick="editFromDetail()">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Edit
+      </button>
+      <button class="dp-close" onclick="closeDetail()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+  <div class="dp-foot">
+    <button class="btn btn-ghost btn-sm" onclick="closeDetail()">Close</button>
+    <button class="btn btn-primary btn-sm" onclick="closeDetail()">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+      Raise PO
     </button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
+<!-- ══════════════════════════════════════
      ADD / EDIT MODAL
-══════════════════════════════════════════ -->
+══════════════════════════════════════ -->
 <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
 <div class="modal" id="modal" style="max-width:620px;">
   <div class="modal-header">
@@ -479,7 +552,6 @@
     </button>
   </div>
   <div class="modal-body">
-
     <div class="form-grid-2">
       <div class="form-group">
         <label class="form-label">Material Name <span style="color:var(--danger)">*</span></label>
@@ -490,87 +562,57 @@
         <input class="form-control" id="fCode" type="text" placeholder="e.g. FAB-COT-001">
       </div>
     </div>
-
     <div class="form-grid-3">
       <div class="form-group">
         <label class="form-label">Type <span style="color:var(--danger)">*</span></label>
         <select class="form-control" id="fType">
           <option value="">Select type…</option>
-          <option>Fabric</option>
-          <option>Trim</option>
-          <option>Thread</option>
-          <option>Lining</option>
-          <option>Accessory</option>
-          <option>Packaging</option>
-          <option>Other</option>
+          <option>Fabric</option><option>Trim</option><option>Thread</option>
+          <option>Lining</option><option>Accessory</option><option>Packaging</option><option>Other</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">UOM <span style="color:var(--danger)">*</span></label>
         <select class="form-control" id="fUOM">
           <option value="">Select UOM…</option>
-          <option>Meter</option>
-          <option>Yard</option>
-          <option>Kilogram</option>
-          <option>Gram</option>
-          <option>Pieces</option>
-          <option>Roll</option>
-          <option>Bundle</option>
-          <option>Cone</option>
-          <option>Box</option>
+          <option>Meter</option><option>Yard</option><option>Kilogram</option><option>Gram</option>
+          <option>Pieces</option><option>Roll</option><option>Bundle</option><option>Cone</option><option>Box</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">Status</label>
-        <select class="form-control" id="fStatus">
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
+        <select class="form-control" id="fStatus"><option>Active</option><option>Inactive</option></select>
       </div>
     </div>
-
     <hr style="border:none;border-top:1px solid var(--border2);margin:4px 0 16px;">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:12px;">Stock Thresholds</div>
-
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:12px;">Stock Thresholds</div>
     <div class="form-grid-3">
       <div class="form-group">
-        <label class="form-label">Minimum Stock Qty <span style="color:var(--danger)">*</span></label>
-        <input class="form-control num" id="fMinStock" type="number" min="0" step="1" placeholder="0">
+        <label class="form-label">Min Stock Qty <span style="color:var(--danger)">*</span></label>
+        <input class="form-control num" id="fMinStock" type="number" min="0" placeholder="0">
         <div class="form-hint">Alert fires below this</div>
       </div>
       <div class="form-group">
         <label class="form-label">Reorder Qty</label>
-        <input class="form-control num" id="fReorderQty" type="number" min="0" step="1" placeholder="0">
+        <input class="form-control num" id="fReorderQty" type="number" min="0" placeholder="0">
         <div class="form-hint">Suggested PO quantity</div>
       </div>
       <div class="form-group">
         <label class="form-label">Lead Time (days)</label>
-        <input class="form-control num" id="fLeadTime" type="number" min="0" step="1" placeholder="7">
-        <div class="form-hint">Supplier lead time</div>
+        <input class="form-control num" id="fLeadTime" type="number" min="0" placeholder="7">
       </div>
     </div>
-
     <hr style="border:none;border-top:1px solid var(--border2);margin:4px 0 16px;">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:12px;">Supplier</div>
-
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:12px;">Supplier</div>
     <div class="form-group">
       <label class="form-label">Primary Supplier</label>
       <select class="form-control" id="fSupplier">
         <option value="">No supplier linked</option>
-        <option>Ramesh Textiles Pvt Ltd</option>
-        <option>Krishna Fabrics</option>
-        <option>Sai Thread House</option>
-        <option>National Trims Co.</option>
-        <option>Bombay Accessories Ltd</option>
-        <option>Global Packaging Solutions</option>
+        <option>Ramesh Textiles Pvt Ltd</option><option>Krishna Fabrics</option>
+        <option>Sai Thread House</option><option>National Trims Co.</option>
+        <option>Bombay Accessories Ltd</option><option>Global Packaging Solutions</option>
       </select>
     </div>
-
-    <div class="form-group" style="margin-top:4px;">
-      <label class="form-label">Description / Notes</label>
-      <textarea class="form-control" id="fDesc" rows="2" placeholder="Optional notes about this material…" style="resize:vertical;"></textarea>
-    </div>
-
     <div id="formError" style="display:none;padding:10px 12px;background:var(--danger-bg);border:1px solid #fecaca;border-radius:var(--r);color:var(--danger);font-size:13px;margin-top:8px;"></div>
   </div>
   <div class="modal-footer">
@@ -579,20 +621,16 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     DELETE CONFIRM MODAL
-══════════════════════════════════════════ -->
+<!-- Deactivate confirm -->
 <div class="modal-backdrop" id="delBackdrop" onclick="closeDelModal()"></div>
 <div class="modal" id="delModal" style="max-width:420px;">
   <div class="modal-header">
     <h2 class="modal-title">Deactivate Material?</h2>
-    <button class="modal-close" onclick="closeDelModal()">
-      <span class="material-symbols-outlined" style="font-size:20px;">close</span>
-    </button>
+    <button class="modal-close" onclick="closeDelModal()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
   </div>
   <div class="modal-body">
     <p style="color:var(--text-2);font-size:13.5px;line-height:1.6;">
-      Deactivating <strong id="delName"></strong> will prevent new inventory movements for this material. Historical records will be preserved.
+      Deactivating <strong id="delName"></strong> will prevent new inventory movements. Historical records are preserved.
     </p>
   </div>
   <div class="modal-footer">
@@ -602,133 +640,136 @@
 </div>
 
 <script>
-/* ══════════════════════════════════════════
-   DATA
-══════════════════════════════════════════ */
-
-// Simulated inventory_config flags (from useInventoryConfig() hook in real app)
+/* ═══════════════════════════════════ DATA ══════════════════════════════════ */
 const CONFIG = { lotTracking: true };
 
 const MATERIALS = [
-  { id:1, name:'Cotton Twill Fabric', code:'FAB-COT-001', type:'Fabric',    uom:'Meter',  onHand:1250, reserved:200, minStock:500,  reorderQty:1000, leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',   status:'Active',   icon:'🧵' },
-  { id:2, name:'Polyester Interlock', code:'FAB-POL-002', type:'Fabric',    uom:'Meter',  onHand:340,  reserved:50,  minStock:400,  reorderQty:800,  leadDays:10, supplier:'Krishna Fabrics',           status:'Active',   icon:'🧵' },
-  { id:3, name:'Denim Woven Fabric',  code:'FAB-DEN-003', type:'Fabric',    uom:'Meter',  onHand:0,    reserved:0,   minStock:300,  reorderQty:600,  leadDays:14, supplier:'Krishna Fabrics',           status:'Active',   icon:'🧵' },
-  { id:4, name:'Cotton Jersey',       code:'FAB-JER-004', type:'Fabric',    uom:'Meter',  onHand:890,  reserved:120, minStock:400,  reorderQty:800,  leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',   status:'Active',   icon:'🧵' },
-  { id:5, name:'Polyester Thread #40',code:'THR-POL-001', type:'Thread',    uom:'Cone',   onHand:85,   reserved:10,  minStock:100,  reorderQty:200,  leadDays:5,  supplier:'Sai Thread House',          status:'Active',   icon:'🪢' },
-  { id:6, name:'Cotton Thread #60',   code:'THR-COT-002', type:'Thread',    uom:'Cone',   onHand:42,   reserved:5,   minStock:80,   reorderQty:150,  leadDays:5,  supplier:'Sai Thread House',          status:'Active',   icon:'🪢' },
-  { id:7, name:'Metal Button 15mm',   code:'TRM-BUT-001', type:'Trim',      uom:'Pieces', onHand:3200, reserved:500, minStock:2000, reorderQty:5000, leadDays:3,  supplier:'National Trims Co.',        status:'Active',   icon:'🔘' },
-  { id:8, name:'Zip 20cm Silver',     code:'TRM-ZIP-002', type:'Trim',      uom:'Pieces', onHand:680,  reserved:100, minStock:1000, reorderQty:2000, leadDays:4,  supplier:'National Trims Co.',        status:'Active',   icon:'🔗' },
-  { id:9, name:'Woven Label (brand)', code:'TRM-LBL-003', type:'Trim',      uom:'Pieces', onHand:5400, reserved:800, minStock:3000, reorderQty:6000, leadDays:6,  supplier:'National Trims Co.',        status:'Active',   icon:'🏷️' },
-  { id:10,name:'Polyester Lining',    code:'LIN-POL-001', type:'Lining',    uom:'Meter',  onHand:0,    reserved:0,   minStock:200,  reorderQty:400,  leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',   status:'Active',   icon:'📄' },
-  { id:11,name:'Satin Lining',        code:'LIN-SAT-002', type:'Lining',    uom:'Meter',  onHand:120,  reserved:20,  minStock:150,  reorderQty:300,  leadDays:9,  supplier:'Krishna Fabrics',           status:'Active',   icon:'📄' },
-  { id:12,name:'Shoulder Pad (foam)', code:'ACC-SHP-001', type:'Accessory', uom:'Pieces', onHand:240,  reserved:0,   minStock:100,  reorderQty:200,  leadDays:5,  supplier:'Bombay Accessories Ltd',    status:'Active',   icon:'🔷' },
-  { id:13,name:'Boning Tape',         code:'ACC-BON-002', type:'Accessory', uom:'Meter',  onHand:0,    reserved:0,   minStock:50,   reorderQty:100,  leadDays:8,  supplier:'Bombay Accessories Ltd',    status:'Active',   icon:'📏' },
-  { id:14,name:'Hang Tag Printed',    code:'PKG-TAG-001', type:'Packaging', uom:'Pieces', onHand:8200, reserved:1000,minStock:5000, reorderQty:10000,leadDays:2,  supplier:'Global Packaging Solutions', status:'Active',   icon:'🏷️' },
-  { id:15,name:'Polybag 40x60cm',     code:'PKG-BAG-002', type:'Packaging', uom:'Pieces', onHand:3600, reserved:400, minStock:2000, reorderQty:4000, leadDays:2,  supplier:'Global Packaging Solutions', status:'Active',   icon:'🛍️' },
-  { id:16,name:'Carton Box Master',   code:'PKG-BOX-003', type:'Packaging', uom:'Pieces', onHand:180,  reserved:30,  minStock:200,  reorderQty:400,  leadDays:3,  supplier:'Global Packaging Solutions', status:'Active',   icon:'📦' },
-  { id:17,name:'Velvet Ribbon 12mm',  code:'TRM-RIB-004', type:'Trim',      uom:'Meter',  onHand:450,  reserved:50,  minStock:200,  reorderQty:400,  leadDays:7,  supplier:'National Trims Co.',        status:'Inactive', icon:'🎀' },
-  { id:18,name:'Ramie Blend Fabric',  code:'FAB-RAM-005', type:'Fabric',    uom:'Meter',  onHand:0,    reserved:0,   minStock:300,  reorderQty:600,  leadDays:21, supplier:'',                          status:'Inactive', icon:'🧵' },
+  { id:1,  name:'Cotton Twill Fabric',  code:'FAB-COT-001', type:'Fabric',    uom:'Meter',  onHand:1250, reserved:200, minStock:500,  reorderQty:1000, leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',    status:'Active',   icon:'🧵' },
+  { id:2,  name:'Polyester Interlock',  code:'FAB-POL-002', type:'Fabric',    uom:'Meter',  onHand:340,  reserved:50,  minStock:400,  reorderQty:800,  leadDays:10, supplier:'Krishna Fabrics',            status:'Active',   icon:'🧵' },
+  { id:3,  name:'Denim Woven Fabric',   code:'FAB-DEN-003', type:'Fabric',    uom:'Meter',  onHand:0,    reserved:0,   minStock:300,  reorderQty:600,  leadDays:14, supplier:'Krishna Fabrics',            status:'Active',   icon:'🧵' },
+  { id:4,  name:'Cotton Jersey',        code:'FAB-JER-004', type:'Fabric',    uom:'Meter',  onHand:890,  reserved:120, minStock:400,  reorderQty:800,  leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',    status:'Active',   icon:'🧵' },
+  { id:5,  name:'Polyester Thread #40', code:'THR-POL-001', type:'Thread',    uom:'Cone',   onHand:85,   reserved:10,  minStock:100,  reorderQty:200,  leadDays:5,  supplier:'Sai Thread House',           status:'Active',   icon:'🪢' },
+  { id:6,  name:'Cotton Thread #60',    code:'THR-COT-002', type:'Thread',    uom:'Cone',   onHand:42,   reserved:5,   minStock:80,   reorderQty:150,  leadDays:5,  supplier:'Sai Thread House',           status:'Active',   icon:'🪢' },
+  { id:7,  name:'Metal Button 15mm',    code:'TRM-BUT-001', type:'Trim',      uom:'Pieces', onHand:3200, reserved:500, minStock:2000, reorderQty:5000, leadDays:3,  supplier:'National Trims Co.',         status:'Active',   icon:'🔘' },
+  { id:8,  name:'Zip 20cm Silver',      code:'TRM-ZIP-002', type:'Trim',      uom:'Pieces', onHand:680,  reserved:100, minStock:1000, reorderQty:2000, leadDays:4,  supplier:'National Trims Co.',         status:'Active',   icon:'🔗' },
+  { id:9,  name:'Woven Label (brand)',  code:'TRM-LBL-003', type:'Trim',      uom:'Pieces', onHand:5400, reserved:800, minStock:3000, reorderQty:6000, leadDays:6,  supplier:'National Trims Co.',         status:'Active',   icon:'🏷️' },
+  { id:10, name:'Polyester Lining',     code:'LIN-POL-001', type:'Lining',    uom:'Meter',  onHand:0,    reserved:0,   minStock:200,  reorderQty:400,  leadDays:7,  supplier:'Ramesh Textiles Pvt Ltd',    status:'Active',   icon:'📄' },
+  { id:11, name:'Satin Lining',         code:'LIN-SAT-002', type:'Lining',    uom:'Meter',  onHand:120,  reserved:20,  minStock:150,  reorderQty:300,  leadDays:9,  supplier:'Krishna Fabrics',            status:'Active',   icon:'📄' },
+  { id:12, name:'Shoulder Pad (foam)',  code:'ACC-SHP-001', type:'Accessory', uom:'Pieces', onHand:240,  reserved:0,   minStock:100,  reorderQty:200,  leadDays:5,  supplier:'Bombay Accessories Ltd',     status:'Active',   icon:'🔷' },
+  { id:13, name:'Boning Tape',          code:'ACC-BON-002', type:'Accessory', uom:'Meter',  onHand:0,    reserved:0,   minStock:50,   reorderQty:100,  leadDays:8,  supplier:'Bombay Accessories Ltd',     status:'Active',   icon:'📏' },
+  { id:14, name:'Hang Tag Printed',     code:'PKG-TAG-001', type:'Packaging', uom:'Pieces', onHand:8200, reserved:1000,minStock:5000, reorderQty:10000,leadDays:2,  supplier:'Global Packaging Solutions', status:'Active',   icon:'🏷️' },
+  { id:15, name:'Polybag 40x60cm',      code:'PKG-BAG-002', type:'Packaging', uom:'Pieces', onHand:3600, reserved:400, minStock:2000, reorderQty:4000, leadDays:2,  supplier:'Global Packaging Solutions', status:'Active',   icon:'🛍️' },
+  { id:16, name:'Carton Box Master',    code:'PKG-BOX-003', type:'Packaging', uom:'Pieces', onHand:180,  reserved:30,  minStock:200,  reorderQty:400,  leadDays:3,  supplier:'Global Packaging Solutions', status:'Active',   icon:'📦' },
+  { id:17, name:'Velvet Ribbon 12mm',   code:'TRM-RIB-004', type:'Trim',      uom:'Meter',  onHand:450,  reserved:50,  minStock:200,  reorderQty:400,  leadDays:7,  supplier:'National Trims Co.',         status:'Inactive', icon:'🎀' },
+  { id:18, name:'Ramie Blend Fabric',   code:'FAB-RAM-005', type:'Fabric',    uom:'Meter',  onHand:0,    reserved:0,   minStock:300,  reorderQty:600,  leadDays:21, supplier:'',                           status:'Inactive', icon:'🧵' },
 ];
 
-// Sample recent movements per material
 const MOVEMENTS = {
-  1: [{type:'in',  label:'GRN Receipt',    qty:'+500 m',  date:'02 May'},
-      {type:'out', label:'Issue Note',     qty:'-80 m',   date:'01 May'},
-      {type:'out', label:'Issue Note',     qty:'-120 m',  date:'29 Apr'},
-      {type:'in',  label:'GRN Receipt',    qty:'+300 m',  date:'25 Apr'}],
-  2: [{type:'out', label:'Issue Note',     qty:'-60 m',   date:'03 May'},
-      {type:'in',  label:'GRN Receipt',    qty:'+200 m',  date:'28 Apr'}],
-  3: [{type:'out', label:'Write-Off',      qty:'-50 m',   date:'10 Apr'},
-      {type:'out', label:'Issue Note',     qty:'-200 m',  date:'05 Apr'}],
-  5: [{type:'in',  label:'GRN Receipt',    qty:'+50 cones',date:'01 May'},
-      {type:'out', label:'Issue Note',     qty:'-15 cones',date:'30 Apr'}],
+  1:  [{dir:'in',  label:'GRN Receipt',  qty:'+500 m',    date:'02 May'},{dir:'out',label:'Issue Note', qty:'-80 m',    date:'01 May'},{dir:'out',label:'Issue Note',  qty:'-120 m',   date:'29 Apr'}],
+  2:  [{dir:'out', label:'Issue Note',   qty:'-60 m',     date:'03 May'},{dir:'in', label:'GRN Receipt',qty:'+200 m',   date:'28 Apr'}],
+  3:  [{dir:'out', label:'Write-Off',    qty:'-50 m',     date:'10 Apr'},{dir:'out',label:'Issue Note', qty:'-200 m',   date:'05 Apr'}],
+  5:  [{dir:'in',  label:'GRN Receipt',  qty:'+50 cones', date:'01 May'},{dir:'out',label:'Issue Note', qty:'-15 cones',date:'30 Apr'}],
+  7:  [{dir:'in',  label:'GRN Receipt',  qty:'+2000 pcs', date:'30 Apr'},{dir:'out',label:'Issue Note', qty:'-300 pcs', date:'28 Apr'}],
 };
 
-/* ══════════════════════════════════════════
-   STATE
-══════════════════════════════════════════ */
-let currentType = 'All';
+/* ═══════════════════════════ COLUMN CONFIG ════════════════════════════════ */
+const DEFAULT_COLS = [
+  { key:'icon',      label:'',             locked:true,  visible:true  },
+  { key:'name',      label:'Material',     locked:true,  visible:true  },
+  { key:'code',      label:'Code',         locked:false, visible:true  },
+  { key:'type',      label:'Type',         locked:false, visible:true  },
+  { key:'uom',       label:'UOM',          locked:false, visible:true  },
+  { key:'available', label:'Available',    locked:false, visible:true  },
+  { key:'onHand',    label:'On-Hand',      locked:false, visible:true  },
+  { key:'reserved',  label:'Reserved',     locked:false, visible:false },
+  { key:'minStock',  label:'Min Stock',    locked:false, visible:true  },
+  { key:'reorderQty',label:'Reorder Qty',  locked:false, visible:true  },
+  { key:'leadDays',  label:'Lead Time',    locked:false, visible:true  },
+  { key:'supplier',  label:'Supplier',     locked:false, visible:true  },
+  { key:'stockStatus',label:'Stock Status',locked:false, visible:true  },
+  { key:'actions',   label:'Actions',      locked:true,  visible:true  },
+];
+
+let COLS = DEFAULT_COLS.map(c => ({...c}));
+
+/* ═══════════════════════════ STATE ════════════════════════════════════════ */
+let stockTab    = 'all';
+let page        = 1;
 let editingId   = null;
-let panelMatId  = null;
+let detailId    = null;
 let deactivateId= null;
-let page = 1;
 const PAGE_SIZE = 10;
 
-/* ══════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════ */
+/* ═══════════════════════════ HELPERS ══════════════════════════════════════ */
 function stockStatus(m) {
   const avail = m.onHand - m.reserved;
-  if (avail <= 0) return 'out';
-  if (avail < m.minStock) return 'low';
+  if (avail <= 0)          return 'out';
+  if (avail < m.minStock)  return 'low';
   return 'ok';
 }
+function typeClass(t) { return 'type-' + t.toLowerCase().replace(/[^a-z]/g,''); }
+function stockLabel(s) { return {ok:'In Stock',low:'Low Stock',out:'Out of Stock'}[s]; }
 
-function stockLabel(s) {
-  return { ok:'In Stock', low:'Low Stock', out:'Out of Stock' }[s];
-}
-
-function typeClass(t) {
-  return 'type-' + t.toLowerCase().replace(/[^a-z]/g,'');
-}
-
-/* ══════════════════════════════════════════
-   FILTER + RENDER
-══════════════════════════════════════════ */
-function setType(t, el) {
-  currentType = t;
-  document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+/* ═══════════════════════════ TABS / STAT CARDS ════════════════════════════ */
+function setStockTab(key, card, tab) {
+  stockTab = key;
   page = 1;
+  // highlight stat card
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  if (card) card.classList.add('active');
+  // highlight tab
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  const tabEl = tab || document.getElementById('tab-' + key);
+  if (tabEl) tabEl.classList.add('active');
   render();
 }
 
-function setStockFilter(val) {
-  document.getElementById('stockFilter').value = val;
-  render();
-}
-
+/* ═══════════════════════════ FILTER ═══════════════════════════════════════ */
 function getFiltered() {
-  const q      = document.getElementById('searchInput').value.toLowerCase();
-  const sf     = document.getElementById('stockFilter').value;
-  const stf    = document.getElementById('statusFilter').value;
+  const q   = document.getElementById('searchInput').value.toLowerCase();
+  const tf  = document.getElementById('typeFilter').value;
+  const stf = document.getElementById('statusFilter').value;
   return MATERIALS.filter(m => {
-    if (currentType !== 'All' && m.type !== currentType) return false;
-    if (stf && m.status !== stf) return false;
-    if (sf) { const s = stockStatus(m); if (s !== sf) return false; }
+    const s     = stockStatus(m);
+    const avail = m.onHand - m.reserved;
+    if (stockTab === 'ok'       && (s !== 'ok' || m.status !== 'Active')) return false;
+    if (stockTab === 'low'      && (s !== 'low' || m.status !== 'Active')) return false;
+    if (stockTab === 'out'      && (s !== 'out' || m.status !== 'Active')) return false;
+    if (stockTab === 'inactive' && m.status !== 'Inactive') return false;
+    if (stockTab === 'all'      && stf && m.status !== stf) return false;
+    if (tf && m.type !== tf) return false;
     if (q && !m.name.toLowerCase().includes(q) && !m.code.toLowerCase().includes(q)) return false;
     return true;
   });
 }
 
+/* ═══════════════════════════ RENDER ═══════════════════════════════════════ */
 function render() {
+  const active   = MATERIALS.filter(m => m.status === 'Active');
+  const inactive = MATERIALS.filter(m => m.status === 'Inactive');
+  const counts   = { all: active.length, ok: 0, low: 0, out: 0, inactive: inactive.length };
+  active.forEach(m => { counts[stockStatus(m)]++; });
+
+  // Update stat cards
+  ['all','ok','low','out','inactive'].forEach(k => {
+    document.getElementById('sn-'+k).textContent = counts[k];
+    document.getElementById('tc-'+k).textContent = counts[k];
+  });
+
   const filtered = getFiltered();
   const total    = filtered.length;
+  const visibleCols = COLS.filter(c => c.visible);
+
+  // Render thead
+  document.getElementById('tableHead').innerHTML = '<tr>' +
+    visibleCols.map(c => `<th style="${c.key==='icon'?'width:44px;':c.key==='actions'?'width:90px;text-align:right;':''}">${c.label}</th>`).join('') +
+    '</tr>';
+
   const pageData = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+  const tbody    = document.getElementById('rmBody');
 
-  // Update KPIs
-  const all = MATERIALS.filter(m => m.status === 'Active');
-  document.getElementById('kpiTotal').textContent = MATERIALS.length;
-  document.getElementById('kpiActive').textContent = all.length + ' active';
-  document.getElementById('kpiOk').textContent  = all.filter(m => stockStatus(m) === 'ok').length;
-  document.getElementById('kpiLow').textContent  = all.filter(m => stockStatus(m) === 'low').length;
-  document.getElementById('kpiOut').textContent  = all.filter(m => stockStatus(m) === 'out').length;
-
-  // Alert strip
-  const lowCount = all.filter(m => stockStatus(m) === 'low').length;
-  const outCount = all.filter(m => stockStatus(m) === 'out').length;
-  const alertStrip = document.getElementById('alertStrip');
-  if (lowCount + outCount > 0) {
-    alertStrip.style.display = 'flex';
-    document.getElementById('alertText').textContent =
-      `${lowCount + outCount} material${lowCount + outCount > 1 ? 's are' : ' is'} below minimum stock level — review reorder requirements`;
-  } else {
-    alertStrip.style.display = 'none';
-  }
-
-  const tbody = document.getElementById('rmBody');
   if (pageData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text-3);">No materials found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${visibleCols.length}" style="text-align:center;padding:48px 20px;color:var(--text-3);">No materials match the current filter</td></tr>`;
     document.getElementById('pager').innerHTML = '';
     return;
   }
@@ -737,255 +778,288 @@ function render() {
     const avail  = m.onHand - m.reserved;
     const s      = stockStatus(m);
     const pct    = m.minStock > 0 ? Math.min(100, Math.round(avail / m.minStock * 100)) : 100;
-    const barCls = s === 'ok' ? 'bar-ok' : s === 'low' ? 'bar-low' : 'bar-out';
-    const lotTag = CONFIG.lotTracking ? `<span class="lot-badge"><span class="material-symbols-outlined" style="font-size:10px;">layers</span>Lot</span>` : '';
-    return `
-      <tr onclick="openPanel(${m.id})" style="cursor:pointer;">
-        <td style="font-size:20px;text-align:center;">${m.icon}</td>
-        <td>
+    const barCls = {ok:'bar-ok',low:'bar-low',out:'bar-out'}[s];
+
+    const cells = visibleCols.map(c => {
+      switch(c.key) {
+        case 'icon':      return `<td style="font-size:20px;text-align:center;">${m.icon}</td>`;
+        case 'name':      return `<td>
           <div style="font-weight:600;font-size:13px;">${m.name}</div>
-          <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">${lotTag}</div>
-        </td>
-        <td><code style="font-size:11.5px;color:var(--brand-700);background:var(--brand-50);padding:1px 6px;border-radius:4px;">${m.code}</code></td>
-        <td><span class="type-badge ${typeClass(m.type)}">${m.type}</span></td>
-        <td style="color:var(--text-2);">${m.uom}</td>
-        <td>
+          ${CONFIG.lotTracking ? `<span class="lot-badge" style="margin-top:3px;"><span class="material-symbols-outlined" style="font-size:10px;">layers</span>Lot tracked</span>` : ''}
+        </td>`;
+        case 'code':      return `<td><code style="font-size:11.5px;color:var(--brand-700);background:var(--brand-50);padding:1px 6px;border-radius:4px;">${m.code}</code></td>`;
+        case 'type':      return `<td><span class="type-badge ${typeClass(m.type)}">${m.type}</span></td>`;
+        case 'uom':       return `<td style="color:var(--text-2);">${m.uom}</td>`;
+        case 'available': return `<td>
           <div class="num" style="font-weight:600;">${avail.toLocaleString()}</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+          <div style="display:flex;align-items:center;gap:5px;margin-top:4px;">
             <div class="stock-bar-wrap"><div class="stock-bar-fill ${barCls}" style="width:${pct}%;"></div></div>
-            <span style="font-size:11px;color:var(--text-3);">${pct}%</span>
+            <span style="font-size:10.5px;color:var(--text-3);">${pct}%</span>
           </div>
-        </td>
-        <td class="num" style="color:${s !== 'ok' ? 'var(--warning)' : 'var(--text-2)'};">${m.minStock.toLocaleString()}</td>
-        <td class="num" style="color:var(--text-2);">${m.reorderQty.toLocaleString()}</td>
-        <td style="color:var(--text-2);">${m.leadDays}d</td>
-        <td style="font-size:12.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.supplier || '<span style="color:var(--text-3)">—</span>'}</td>
-        <td>
-          <span class="stock-pill stock-${s}">
-            <span class="stock-dot"></span>${stockLabel(s)}
-          </span>
-        </td>
-        <td onclick="event.stopPropagation()">
-          <div style="display:flex;gap:4px;">
-            <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" title="Edit" onclick="openModal(${m.id})">
-              <span class="material-symbols-outlined" style="font-size:15px;">edit</span>
+        </td>`;
+        case 'onHand':    return `<td class="num" style="color:var(--text-1);">${m.onHand.toLocaleString()}</td>`;
+        case 'reserved':  return `<td class="num" style="color:var(--text-2);">${m.reserved.toLocaleString()}</td>`;
+        case 'minStock':  return `<td class="num" style="color:${s!=='ok'?'var(--warning)':'var(--text-2)'};">${m.minStock.toLocaleString()}</td>`;
+        case 'reorderQty':return `<td class="num" style="color:var(--text-2);">${m.reorderQty.toLocaleString()}</td>`;
+        case 'leadDays':  return `<td style="color:var(--text-2);">${m.leadDays}d</td>`;
+        case 'supplier':  return `<td style="font-size:12.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.supplier||'<span style="color:var(--text-3)">—</span>'}</td>`;
+        case 'stockStatus':return `<td><span class="stock-pill stock-${s}"><span class="stock-dot"></span>${stockLabel(s)}</span></td>`;
+        case 'actions':   return `<td style="text-align:right;" onclick="event.stopPropagation()">
+          <div class="am-wrap">
+            <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="toggleMenu(this,${m.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
             </button>
-            <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" title="Deactivate" onclick="openDelModal(${m.id})">
-              <span class="material-symbols-outlined" style="font-size:15px;">block</span>
-            </button>
+            <div class="action-menu" id="menu-${m.id}">
+              <div class="am-item" onclick="openDetail(${m.id});closeAllMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                View Details
+              </div>
+              <div class="am-item" onclick="openModal(${m.id});closeAllMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                Edit
+              </div>
+              <div class="am-sep"></div>
+              <div class="am-item danger" onclick="openDelModal(${m.id});closeAllMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clip-rule="evenodd"/></svg>
+                Deactivate
+              </div>
+            </div>
           </div>
-        </td>
-      </tr>`;
+        </td>`;
+        default: return '<td></td>';
+      }
+    }).join('');
+
+    return `<tr onclick="openDetail(${m.id})" style="cursor:pointer;">${cells}</tr>`;
   }).join('');
 
   // Pager
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  let p = `<span style="color:var(--text-3);font-size:12.5px;">Showing ${(page-1)*PAGE_SIZE+1}–${Math.min(page*PAGE_SIZE, total)} of ${total}</span>`;
+  let p = `<span style="color:var(--text-3);font-size:12.5px;">Showing ${(page-1)*PAGE_SIZE+1}–${Math.min(page*PAGE_SIZE,total)} of ${total}</span>`;
   p += `<div style="display:flex;gap:4px;margin-left:auto;">`;
-  p += `<button class="btn btn-ghost btn-sm" ${page===1?'disabled':''} onclick="goPage(${page-1})">‹ Prev</button>`;
-  for (let i = 1; i <= totalPages; i++) {
-    p += `<button class="btn btn-sm ${i===page?'btn-primary':'btn-ghost'}" onclick="goPage(${i})">${i}</button>`;
-  }
-  p += `<button class="btn btn-ghost btn-sm" ${page===totalPages?'disabled':''} onclick="goPage(${page+1})">Next ›</button>`;
-  p += `</div>`;
+  p += `<button class="btn btn-ghost btn-sm" ${page===1?'disabled':''} onclick="goPage(${page-1})">‹</button>`;
+  for (let i=1;i<=totalPages;i++) p += `<button class="btn btn-sm ${i===page?'btn-primary':'btn-ghost'}" onclick="goPage(${i})">${i}</button>`;
+  p += `<button class="btn btn-ghost btn-sm" ${page===totalPages?'disabled':''} onclick="goPage(${page+1})">›</button></div>`;
   document.getElementById('pager').innerHTML = p;
 }
+function goPage(n) { page=n; render(); }
 
-function goPage(n) { page = n; render(); }
+/* ═══════════════════════════ ACTION MENU ══════════════════════════════════ */
+function toggleMenu(btn, id) {
+  closeAllMenus();
+  document.getElementById('menu-'+id).classList.toggle('open');
+}
+function closeAllMenus() {
+  document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open'));
+}
+document.addEventListener('click', closeAllMenus);
 
-/* ══════════════════════════════════════════
-   DETAIL PANEL
-══════════════════════════════════════════ */
-function openPanel(id) {
-  const m = MATERIALS.find(x => x.id === id);
+/* ═══════════════════════════ DETAIL PANEL ═════════════════════════════════ */
+function openDetail(id) {
+  const m     = MATERIALS.find(x=>x.id===id);
   if (!m) return;
-  panelMatId = id;
-
+  detailId    = id;
   const avail = m.onHand - m.reserved;
   const s     = stockStatus(m);
 
-  document.getElementById('panelIcon').textContent  = m.icon;
-  document.getElementById('panelTitle').textContent = m.name;
-  document.getElementById('pOnHand').textContent    = m.onHand.toLocaleString() + ' ' + m.uom;
-  document.getElementById('pReserved').textContent  = m.reserved.toLocaleString() + ' ' + m.uom;
-  document.getElementById('pAvail').textContent     = avail.toLocaleString() + ' ' + m.uom;
-  document.getElementById('pMin').textContent       = m.minStock.toLocaleString() + ' ' + m.uom;
-  document.getElementById('pReorderQty').textContent= m.reorderQty.toLocaleString() + ' ' + m.uom;
-  document.getElementById('pLeadTime').textContent  = m.leadDays + ' days';
-  document.getElementById('pSupplier').textContent  = m.supplier || 'No supplier linked';
+  document.getElementById('dpTitle').textContent = m.name;
+  document.getElementById('dpMeta').innerHTML =
+    `<code style="font-size:11px;color:var(--brand-700);background:var(--brand-50);padding:1px 6px;border-radius:4px;">${m.code}</code>
+     <span class="type-badge ${typeClass(m.type)}">${m.type}</span>
+     <span class="stock-pill stock-${s}"><span class="stock-dot"></span>${stockLabel(s)}</span>`;
 
-  // KPI colour for min stock card
-  const minCard = document.getElementById('pMinCard');
-  minCard.className = 'kpi-card' + (s !== 'ok' ? ' kpi-warn' : '');
-
-  // Lot note
-  document.getElementById('lotNote').style.display = CONFIG.lotTracking ? 'flex' : 'none';
-
-  // Recent movements
   const movs = MOVEMENTS[id] || [];
-  document.getElementById('pMovements').innerHTML = movs.length === 0
-    ? `<div style="color:var(--text-3);font-size:13px;text-align:center;padding:16px;">No recent movements</div>`
-    : movs.map(mv => `
-      <div class="movement-row">
-        <div class="mov-icon ${mv.type === 'in' ? 'mov-in' : mv.type === 'out' ? 'mov-out' : 'mov-adj'}">
-          <span class="material-symbols-outlined" style="font-size:14px;">${mv.type === 'in' ? 'arrow_downward' : 'arrow_upward'}</span>
-        </div>
-        <div>
-          <div style="font-weight:600;font-size:12.5px;">${mv.label}</div>
-        </div>
-        <span class="mov-qty ${mv.type === 'in' ? 'pos' : 'neg'}">${mv.qty}</span>
-        <span class="mov-date">${mv.date}</span>
-      </div>`).join('');
+  document.getElementById('dpBody').innerHTML = `
+    ${CONFIG.lotTracking ? `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--r);background:var(--info-bg);border:1px solid #bfdbfe;color:var(--info);font-size:12px;margin-bottom:16px;">
+      <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+      Lot tracking is <strong>enabled</strong> — stock tracked at lot level. FIFO allocation applies.
+    </div>` : ''}
+
+    <div class="dp-section">
+      <div class="dp-section-title">Stock Position</div>
+      <div class="dp-kpi-row">
+        <div class="dp-kpi"><div class="dp-kpi-val num">${m.onHand.toLocaleString()} <span style="font-size:13px;font-weight:500;color:var(--text-3);">${m.uom}</span></div><div class="dp-kpi-label">On-Hand</div></div>
+        <div class="dp-kpi"><div class="dp-kpi-val num">${avail.toLocaleString()} <span style="font-size:13px;font-weight:500;color:var(--text-3);">${m.uom}</span></div><div class="dp-kpi-label">Available</div></div>
+        <div class="dp-kpi"><div class="dp-kpi-val num">${m.reserved.toLocaleString()} <span style="font-size:13px;font-weight:500;color:var(--text-3);">${m.uom}</span></div><div class="dp-kpi-label">Reserved</div></div>
+        <div class="dp-kpi ${s!=='ok'?'warn':''}"><div class="dp-kpi-val num">${m.minStock.toLocaleString()} <span style="font-size:13px;font-weight:500;">${m.uom}</span></div><div class="dp-kpi-label">Min Stock</div></div>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-section-title">Reorder Configuration</div>
+      <div class="dp-field-row">
+        <div class="dp-field"><div class="dp-field-label">Reorder Qty</div><div class="dp-field-val num">${m.reorderQty.toLocaleString()} ${m.uom}</div></div>
+        <div class="dp-field"><div class="dp-field-label">Lead Time</div><div class="dp-field-val">${m.leadDays} days</div></div>
+      </div>
+      <div class="dp-field"><div class="dp-field-label">Primary Supplier</div><div class="dp-field-val">${m.supplier||'—'}</div></div>
+    </div>
+
+    <div class="dp-section">
+      <div class="dp-section-title">Recent Movements</div>
+      ${movs.length===0 ? `<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px;">No recent movements</div>` :
+        movs.map(mv=>`
+          <div class="mov-row">
+            <div class="mov-icon ${mv.dir}">
+              <span class="material-symbols-outlined" style="font-size:14px;">${mv.dir==='in'?'arrow_downward':'arrow_upward'}</span>
+            </div>
+            <span style="font-weight:600;font-size:12.5px;">${mv.label}</span>
+            <span class="mov-qty ${mv.dir==='in'?'pos':'neg'}">${mv.qty}</span>
+            <span class="mov-date">${mv.date}</span>
+          </div>`).join('')}
+    </div>`;
 
   document.getElementById('detailPanel').classList.add('open');
-  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('detailOverlay').classList.add('open');
 }
-
-function closePanel() {
+function closeDetail() {
   document.getElementById('detailPanel').classList.remove('open');
-  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+function editFromDetail() { closeDetail(); if (detailId) openModal(detailId); }
+
+/* ═══════════════════════════ COLUMN PANEL ═════════════════════════════════ */
+function openColPanel() {
+  renderColRows();
+  document.getElementById('colPanel').classList.add('open');
+  document.getElementById('colOverlay').classList.add('open');
+}
+function closeColPanel() {
+  document.getElementById('colPanel').classList.remove('open');
+  document.getElementById('colOverlay').classList.remove('open');
+  render();
+}
+function resetColumns() {
+  COLS = DEFAULT_COLS.map(c=>({...c}));
+  renderColRows();
+  render();
 }
 
-function editFromPanel() {
-  closePanel();
-  if (panelMatId) openModal(panelMatId);
+function renderColRows() {
+  const container = document.getElementById('colRows');
+  container.innerHTML = '<div class="col-group-label">Table Columns</div>' +
+    COLS.map((c,i) => `
+      <div class="col-row" draggable="${!c.locked}" data-idx="${i}"
+           ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
+           ondrop="dropCol(event,${i})" ondragend="dragEnd(event)">
+        <div class="drag-handle" style="${c.locked?'opacity:0.2;cursor:default;':''}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/></svg>
+        </div>
+        <span class="col-row-label">${c.label||'—'}</span>
+        ${c.locked ? `<span class="col-row-tag locked">locked</span>` : ''}
+        <button class="col-toggle ${c.visible?'on':''}" ${c.locked?'disabled':''} onclick="toggleCol(${i})"></button>
+      </div>`).join('');
 }
 
-/* ══════════════════════════════════════════
-   ADD / EDIT MODAL
-══════════════════════════════════════════ */
+function toggleCol(i) {
+  if (!COLS[i].locked) COLS[i].visible = !COLS[i].visible;
+  renderColRows();
+}
+
+let dragSrc = null;
+function dragStart(e,i) { dragSrc=i; e.currentTarget.classList.add('dragging'); }
+function dragEnd(e)  { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.col-row').forEach(r=>r.classList.remove('drag-over')); }
+function dragOver(e,i) {
+  if (COLS[i].locked) return;
+  e.preventDefault();
+  document.querySelectorAll('.col-row').forEach(r=>r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function dropCol(e,i) {
+  e.preventDefault();
+  if (dragSrc===null||dragSrc===i||COLS[dragSrc].locked||COLS[i].locked) return;
+  const tmp=COLS[dragSrc]; COLS.splice(dragSrc,1); COLS.splice(i,0,tmp);
+  dragSrc=null;
+  renderColRows();
+}
+
+/* ═══════════════════════════ ADD/EDIT MODAL ═══════════════════════════════ */
 function openModal(id) {
-  editingId = id || null;
-  document.getElementById('formError').style.display = 'none';
-  document.getElementById('modalTitle').textContent = id ? 'Edit Material' : 'Add Raw Material';
-  document.getElementById('saveBtn').textContent    = id ? 'Save Changes' : 'Save Material';
-
+  editingId = id||null;
+  document.getElementById('formError').style.display='none';
+  document.getElementById('modalTitle').textContent = id?'Edit Material':'Add Raw Material';
+  document.getElementById('saveBtn').textContent    = id?'Save Changes':'Save Material';
   if (id) {
-    const m = MATERIALS.find(x => x.id === id);
-    document.getElementById('fName').value      = m.name;
-    document.getElementById('fCode').value      = m.code;
-    document.getElementById('fType').value      = m.type;
-    document.getElementById('fUOM').value       = m.uom;
-    document.getElementById('fStatus').value    = m.status;
-    document.getElementById('fMinStock').value  = m.minStock;
-    document.getElementById('fReorderQty').value= m.reorderQty;
-    document.getElementById('fLeadTime').value  = m.leadDays;
-    document.getElementById('fSupplier').value  = m.supplier;
-    document.getElementById('fDesc').value      = '';
+    const m=MATERIALS.find(x=>x.id===id);
+    document.getElementById('fName').value      =m.name;
+    document.getElementById('fCode').value      =m.code;
+    document.getElementById('fType').value      =m.type;
+    document.getElementById('fUOM').value       =m.uom;
+    document.getElementById('fStatus').value    =m.status;
+    document.getElementById('fMinStock').value  =m.minStock;
+    document.getElementById('fReorderQty').value=m.reorderQty;
+    document.getElementById('fLeadTime').value  =m.leadDays;
+    document.getElementById('fSupplier').value  =m.supplier;
   } else {
-    ['fName','fCode','fMinStock','fReorderQty','fLeadTime','fDesc'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('fType').value    = '';
-    document.getElementById('fUOM').value     = '';
-    document.getElementById('fStatus').value  = 'Active';
-    document.getElementById('fSupplier').value= '';
+    ['fName','fCode','fMinStock','fReorderQty','fLeadTime'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fType').value=''; document.getElementById('fUOM').value='';
+    document.getElementById('fStatus').value='Active'; document.getElementById('fSupplier').value='';
   }
-
   document.getElementById('modal').classList.add('open');
   document.getElementById('modalBackdrop').classList.add('open');
-  document.getElementById('fName').focus();
+  setTimeout(()=>document.getElementById('fName').focus(),50);
 }
-
 function closeModal() {
   document.getElementById('modal').classList.remove('open');
   document.getElementById('modalBackdrop').classList.remove('open');
-  editingId = null;
+  editingId=null;
 }
-
 function saveModal() {
-  const name     = document.getElementById('fName').value.trim();
-  const code     = document.getElementById('fCode').value.trim();
-  const type     = document.getElementById('fType').value;
-  const uom      = document.getElementById('fUOM').value;
-  const minStock = parseInt(document.getElementById('fMinStock').value) || 0;
-  const errEl    = document.getElementById('formError');
-
-  if (!name || !code || !type || !uom) {
-    errEl.textContent = 'Material name, code, type, and UOM are required.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  const name=document.getElementById('fName').value.trim();
+  const code=document.getElementById('fCode').value.trim();
+  const type=document.getElementById('fType').value;
+  const uom =document.getElementById('fUOM').value;
+  const errEl=document.getElementById('formError');
+  if (!name||!code||!type||!uom) { errEl.textContent='Material name, code, type and UOM are required.'; errEl.style.display='block'; return; }
   if (editingId) {
-    const m = MATERIALS.find(x => x.id === editingId);
-    m.name       = name;
-    m.code       = code;
-    m.type       = type;
-    m.uom        = uom;
-    m.status     = document.getElementById('fStatus').value;
-    m.minStock   = minStock;
-    m.reorderQty = parseInt(document.getElementById('fReorderQty').value) || 0;
-    m.leadDays   = parseInt(document.getElementById('fLeadTime').value) || 0;
-    m.supplier   = document.getElementById('fSupplier').value;
+    const m=MATERIALS.find(x=>x.id===editingId);
+    Object.assign(m,{name,code,type,uom,status:document.getElementById('fStatus').value,
+      minStock:+document.getElementById('fMinStock').value||0,
+      reorderQty:+document.getElementById('fReorderQty').value||0,
+      leadDays:+document.getElementById('fLeadTime').value||0,
+      supplier:document.getElementById('fSupplier').value});
   } else {
-    MATERIALS.push({
-      id: MATERIALS.length + 1,
-      name, code, type, uom,
-      onHand: 0, reserved: 0,
-      minStock,
-      reorderQty: parseInt(document.getElementById('fReorderQty').value) || 0,
-      leadDays:   parseInt(document.getElementById('fLeadTime').value) || 0,
-      supplier:   document.getElementById('fSupplier').value,
-      status: document.getElementById('fStatus').value,
-      icon: type === 'Fabric' ? '🧵' : type === 'Thread' ? '🪢' : type === 'Trim' ? '🔘' : type === 'Lining' ? '📄' : type === 'Packaging' ? '📦' : '🔷',
-    });
+    MATERIALS.push({id:MATERIALS.length+1,name,code,type,uom,onHand:0,reserved:0,
+      minStock:+document.getElementById('fMinStock').value||0,
+      reorderQty:+document.getElementById('fReorderQty').value||0,
+      leadDays:+document.getElementById('fLeadTime').value||0,
+      supplier:document.getElementById('fSupplier').value,
+      status:document.getElementById('fStatus').value,
+      icon:type==='Fabric'?'🧵':type==='Thread'?'🪢':type==='Trim'?'🔘':type==='Lining'?'📄':'📦'});
   }
-
-  closeModal();
-  render();
+  closeModal(); render();
 }
 
-/* ══════════════════════════════════════════
-   DEACTIVATE MODAL
-══════════════════════════════════════════ */
+/* ═══════════════════════════ DEACTIVATE MODAL ═════════════════════════════ */
 function openDelModal(id) {
-  deactivateId = id;
-  const m = MATERIALS.find(x => x.id === id);
-  document.getElementById('delName').textContent = m.name;
+  deactivateId=id;
+  document.getElementById('delName').textContent=MATERIALS.find(x=>x.id===id).name;
   document.getElementById('delModal').classList.add('open');
   document.getElementById('delBackdrop').classList.add('open');
 }
-
 function closeDelModal() {
   document.getElementById('delModal').classList.remove('open');
   document.getElementById('delBackdrop').classList.remove('open');
-  deactivateId = null;
+  deactivateId=null;
 }
-
 function confirmDeactivate() {
   if (!deactivateId) return;
-  const m = MATERIALS.find(x => x.id === deactivateId);
-  m.status = 'Inactive';
-  closeDelModal();
-  render();
+  MATERIALS.find(x=>x.id===deactivateId).status='Inactive';
+  closeDelModal(); render();
 }
 
-/* ══════════════════════════════════════════
-   EXPORT
-══════════════════════════════════════════ */
+/* ═══════════════════════════ EXPORT ═══════════════════════════════════════ */
 function exportCSV() {
-  const rows = [['Code','Name','Type','UOM','On-Hand','Reserved','Available','Min Stock','Reorder Qty','Lead Days','Supplier','Status']];
-  MATERIALS.forEach(m => {
-    rows.push([m.code, m.name, m.type, m.uom, m.onHand, m.reserved, m.onHand-m.reserved,
-               m.minStock, m.reorderQty, m.leadDays, m.supplier, m.status]);
-  });
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv,' + encodeURIComponent(csv);
-  a.download = 'rm-stock.csv';
-  a.click();
+  const rows=[['Code','Name','Type','UOM','On-Hand','Reserved','Available','Min Stock','Reorder Qty','Lead Days','Supplier','Status']];
+  MATERIALS.forEach(m=>rows.push([m.code,m.name,m.type,m.uom,m.onHand,m.reserved,m.onHand-m.reserved,m.minStock,m.reorderQty,m.leadDays,m.supplier,m.status]));
+  const a=document.createElement('a');
+  a.href='data:text/csv,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download='rm-stock.csv'; a.click();
 }
 
-/* ══════════════════════════════════════════
-   SIDEBAR TOGGLE
-══════════════════════════════════════════ */
-function toggleGroup(el) {
-  const group = el.closest('.nav-group');
-  group.classList.toggle('open');
-}
+/* ═══════════════════════════ SIDEBAR TOGGLE ═══════════════════════════════ */
+function toggleGroup(el) { el.closest('.nav-group').classList.toggle('open'); }
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
+/* ═══════════════════════════ INIT ═════════════════════════════════════════ */
 render();
 </script>
 </body>
