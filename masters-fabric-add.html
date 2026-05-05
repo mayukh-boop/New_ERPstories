@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Fabric — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ── Light purple theme (matches PO pages) ── */
+:root{--sidebar-bg:#ffffff;--sidebar-hover:rgba(91,95,199,.07);--sidebar-active:rgba(91,95,199,.12);--brand-500:#5b5fc7;--brand-600:#4f52b2;--brand-700:#3d40a0;--bg:#f5f6fa;--border:#e8eaf0;--border2:#f0f2f7;}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}
+.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}
+.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}
+.sf-role{color:#8892a4!important;}
+.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+/* ══ Page overrides ══ */
+.page { padding: 28px 32px 60px; }
+
+/* ══ Section cards ══ */
+.sec-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #eaecf0;
+  box-shadow: 0 1px 6px rgba(0,0,0,.05);
+  padding: 24px 24px 8px;
+  margin-bottom: 16px;
+}
+
+/* ══ Field group ══ */
+.fg { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.fl { font-size: 13px; font-weight: 500; color: #374151; display: flex; align-items: center; gap: 3px; }
+.fl .req { color: #ef4444; }
+
+/* ══ Modern inputs ══ */
+.inp {
+  width: 100%; height: 44px; padding: 0 14px;
+  background: #f3f4f6; border: 1.5px solid #e5e7eb;
+  border-radius: 10px; font-size: 13.5px; font-family: inherit;
+  color: #111827; outline: none;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  appearance: none;
+}
+.inp:focus { border-color: var(--brand-500); background: #fff; box-shadow: 0 0 0 3px rgba(91,95,199,.12); }
+.inp::placeholder { color: #9ca3af; }
+.inp.invalid { border-color: #ef4444; background: #fef2f2; }
+select.inp {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  padding-right: 36px; cursor: pointer;
+}
+textarea.inp { height: auto; min-height: 100px; padding: 12px 14px; resize: vertical; }
+
+/* ══ Input + button row ══ */
+.ir { display: flex; gap: 8px; align-items: flex-start; }
+.ir .inp { flex: 1; }
+
+/* ══ Add button (solid blue) ══ */
+.btn-add {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: var(--brand-500); color: #fff; border: none;
+  border-radius: 10px; font-size: 22px; font-weight: 300;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 150ms ease; font-family: inherit; line-height: 1;
+}
+.btn-add:hover { background: var(--brand-600); }
+.btn-add svg { width: 18px; height: 18px; }
+
+/* ══ Grids ══ */
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ══ Toggle ══ */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle-inp { display: none; }
+.toggle-knob {
+  position: relative; width: 50px; height: 28px;
+  background: #d1d5db; border-radius: 14px;
+  cursor: pointer; transition: background 150ms ease; flex-shrink: 0;
+}
+.toggle-knob::after {
+  content: ''; position: absolute;
+  width: 22px; height: 22px; background: #fff;
+  border-radius: 50%; top: 3px; left: 3px;
+  transition: transform 150ms ease; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.toggle-inp:checked ~ .toggle-knob { background: var(--brand-500); }
+.toggle-inp:checked ~ .toggle-knob::after { transform: translateX(22px); }
+.toggle-text { font-size: 13px; font-weight: 500; color: #374151; }
+.toggle-cell { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+/* ══ Inline add-new panel ══ */
+.dd-panel {
+  display: none; margin-top: 8px; padding: 14px 16px;
+  background: #eef2ff; border: 1px solid #c7d2fe;
+  border-radius: 10px;
+}
+.dd-panel.open { display: block; }
+.dd-panel-title { font-size: 11px; font-weight: 700; color: #4338ca; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; }
+.dd-panel-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ══ Multi-UOM table ══ */
+.muom-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.muom-table th { padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #6b7280; background: #f9fafb; text-align: left; border: 1px solid #e5e7eb; }
+.muom-table td { padding: 8px 12px; border: 1px solid #f3f4f6; vertical-align: middle; }
+.muom-table .inp { height: 34px; font-size: 13px; }
+.muom-block { margin-bottom: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+
+/* ══ Bottom split layout ══ */
+.split-wrap { display: flex; gap: 20px; align-items: flex-start; }
+.split-main { flex: 1; min-width: 0; }
+.split-side { width: 300px; flex-shrink: 0; }
+
+/* ══ Image upload ══ */
+.img-upload-box {
+  border: 2px dashed #c7d2fe; border-radius: 14px;
+  background: #f5f3ff; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center;
+  transition: border-color 150ms ease, background 150ms ease;
+  min-height: 200px;
+}
+.img-upload-box:hover, .img-upload-box.drag { border-color: #818cf8; background: #ede9fe; }
+.img-upload-box input { display: none; }
+.img-cloud-icon {
+  width: 56px; height: 56px; background: #ede9fe;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; color: #6366f1;
+}
+.img-cloud-icon svg { width: 26px; height: 26px; }
+.img-upload-title { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+.img-upload-sub { font-size: 12px; color: #9ca3af; }
+.img-preview-wrap { position: relative; display: inline-block; }
+.img-preview-wrap img { max-height: 180px; max-width: 100%; border-radius: 10px; border: 1px solid #e5e7eb; display: block; }
+.img-remove-btn {
+  position: absolute; top: -8px; right: -8px;
+  width: 22px; height: 22px; background: #ef4444; color: #fff;
+  border: none; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; line-height: 1;
+}
+.img-error { font-size: 12px; color: #ef4444; margin-top: 6px; display: none; }
+.img-label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; display: block; }
+
+/* ══ Page title ══ */
+.page-heading { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+
+/* ══ Inv-limit item list ══ */
+.inv-item-list { margin-top: 8px; }
+.inv-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+.inv-item-loc { font-weight: 500; flex: 1; }
+.inv-item-limit { color: #4b5563; min-width: 80px; }
+.inv-item-del { width: 26px; height: 26px; border: none; background: transparent; cursor: pointer; color: #9ca3af; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.inv-item-del:hover { background: #fee2e2; color: #ef4444; }
+.inv-item-del svg { width: 14px; height: 14px; }
+
+/* ══ Bottom action bar ══ */
+.form-action-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 8px;
+}
+
+/* ══ Responsive ══ */
+@media (max-width: 960px) {
+  .g3, .g4 { grid-template-columns: 1fr 1fr; }
+  .split-wrap { flex-direction: column; }
+  .split-side { width: 100%; }
+}
+@media (max-width: 600px) {
+  .g3, .g4, .g2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-name">Stitch ERP</div><div class="brand-sub">Enterprise Garment Platform</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zm8-8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child active" href="masters-fabric.html">Fabric Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">UOM Master</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><div class="sf-avatar">MG</div><div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div></div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-module">Masters</span>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg><span class="notif-dot"></span></button>
+      </div>
+    </header>
+
+    <main class="page">
+
+      <!-- Breadcrumb -->
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:10px;">
+        <a href="masters-list.html" style="color:#9ca3af;text-decoration:none;">Masters</a>
+        <span style="margin:0 6px;">›</span>
+        <a href="masters-fabric.html" style="color:#9ca3af;text-decoration:none;">Fabric Master</a>
+        <span style="margin:0 6px;">›</span>
+        <span style="color:#111827;">Create</span>
+      </div>
+
+      <div class="page-heading">Create Fabric</div>
+
+      <!-- ════ CARD 1: Core Identification ════ -->
+      <div class="sec-card">
+
+        <!-- Row 1: Fabric name | Color | Fabric type -->
+        <div class="g3">
+
+          <div class="fg">
+            <div class="fl">Fabric name <span class="req">*</span></div>
+            <input class="inp" id="fFabricName" type="text" placeholder="Enter fabric name">
+          </div>
+
+          <!-- Color + add new -->
+          <div class="fg">
+            <div class="fl">Color <span class="req">*</span></div>
+            <div class="ir">
+              <select class="inp" id="fColor">
+                <option value="">Select Color</option>
+                <option value="1|Jet Black|BLK-001">Jet Black (BLK-001)</option>
+                <option value="2|Ivory White|WHT-001">Ivory White (WHT-001)</option>
+                <option value="3|Navy Blue|NVY-002">Navy Blue (NVY-002)</option>
+                <option value="4|Olive Green|OLV-003">Olive Green (OLV-003)</option>
+                <option value="5|Coral Red|CRL-007">Coral Red (CRL-007)</option>
+                <option value="6|Stone Grey|GRY-005">Stone Grey (GRY-005)</option>
+                <option value="7|Indigo|IND-020">Indigo (IND-020)</option>
+                <option value="8|Dusty Rose|DRS-009">Dusty Rose (DRS-009)</option>
+                <option value="9|Camel Brown|CMB-006">Camel Brown (CMB-006)</option>
+                <option value="10|Off White|OFW-019">Off White (OFW-019)</option>
+              </select>
+              <button class="btn-add" type="button" onclick="togglePanel('colorPanel')" title="Add new color">+</button>
+            </div>
+            <div class="dd-panel" id="colorPanel">
+              <div class="dd-panel-title">Add New Color</div>
+              <div class="g2">
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Color Name <span class="req">*</span></div>
+                  <input class="inp" id="newColorName" type="text" placeholder="e.g. Royal Blue">
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Color Code</div>
+                  <input class="inp" id="newColorCode" type="text" placeholder="e.g. ROY-001">
+                </div>
+              </div>
+              <div class="dd-panel-actions">
+                <button class="btn btn-primary btn-sm" type="button" onclick="addNewColor()">Add Color</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('colorPanel')">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fl">Fabric type <span class="req">*</span></div>
+            <input class="inp" id="fFabricType" type="text" placeholder="e.g. Denim, Cotton">
+          </div>
+        </div>
+
+        <!-- Row 2: UOM | Multiple UOM | Fabric code -->
+        <div class="g3">
+
+          <!-- Primary UOM + add new -->
+          <div class="fg">
+            <div class="fl">Base UOM <span class="req">*</span></div>
+            <div class="ir">
+              <select class="inp" id="fUom">
+                <option value="">Select UOM</option>
+                <option value="Meters">Meters</option>
+                <option value="Kilograms">Kilograms</option>
+                <option value="Yards">Yards</option>
+                <option value="Pieces">Pieces</option>
+                <option value="Rolls">Rolls</option>
+              </select>
+              <button class="btn-add" type="button" onclick="togglePanel('uomPanel')" title="Add new UOM">+</button>
+            </div>
+            <div class="dd-panel" id="uomPanel">
+              <div class="dd-panel-title">Add New UOM</div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">UOM Name <span class="req">*</span></div>
+                <input class="inp" id="newUomName" type="text" placeholder="e.g. Bundles">
+              </div>
+              <div class="dd-panel-actions">
+                <button class="btn btn-primary btn-sm" type="button" onclick="addNewUom('fUom','newUomName','uomPanel',true)">Add UOM</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('uomPanel')">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiple UOM + add new -->
+          <div class="fg">
+            <div class="fl">Multiple UOM</div>
+            <div class="ir">
+              <select class="inp" id="fMultiUom">
+                <option value="">Select</option>
+                <option value="Meters">Meters</option>
+                <option value="Kilograms">Kilograms</option>
+                <option value="Yards">Yards</option>
+                <option value="Pieces">Pieces</option>
+                <option value="Rolls">Rolls</option>
+              </select>
+              <button class="btn-add" type="button" onclick="togglePanel('muomPanel')" title="Add new UOM">+</button>
+            </div>
+            <div class="dd-panel" id="muomPanel">
+              <div class="dd-panel-title">Add New UOM</div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">UOM Name <span class="req">*</span></div>
+                <input class="inp" id="newMuomName" type="text" placeholder="e.g. Bundles">
+              </div>
+              <div class="dd-panel-actions">
+                <button class="btn btn-primary btn-sm" type="button" onclick="addNewUom('fMultiUom','newMuomName','muomPanel',false)">Add UOM</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('muomPanel')">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fl">Fabric code</div>
+            <input class="inp" id="fFabricCode" type="text" placeholder="F-001">
+          </div>
+        </div>
+
+        <!-- Dynamic Multi-UOM denomination table -->
+        <div id="multiUomList"></div>
+
+      </div><!-- /card 1 -->
+
+
+      <!-- ════ CARD 2: Physical & Vendor Details ════ -->
+      <div class="sec-card">
+
+        <!-- Row 1: Count | Construction | Construction Type | Width -->
+        <div class="g4">
+          <div class="fg">
+            <div class="fl">Count</div>
+            <input class="inp" id="fCount" type="text" placeholder="e.g. 40s">
+          </div>
+          <div class="fg">
+            <div class="fl">Construction</div>
+            <input class="inp" id="fConstruction" type="text" placeholder="e.g. 100×80">
+          </div>
+          <!-- Construction Type + add new -->
+          <div class="fg">
+            <div class="fl">Construction type</div>
+            <div class="ir">
+              <select class="inp" id="fConstructionType">
+                <option value="">Select Type</option>
+                <option>Plain</option><option>Twill</option><option>Satin</option>
+                <option>Denim</option><option>Interlock</option><option>Crepe</option>
+                <option>Jacquard</option><option>Rib</option>
+              </select>
+              <button class="btn-add" type="button" onclick="togglePanel('ctPanel')" title="Add new type">+</button>
+            </div>
+            <div class="dd-panel" id="ctPanel">
+              <div class="dd-panel-title">Add New Construction Type</div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Name <span class="req">*</span></div>
+                <input class="inp" id="newCtName" type="text" placeholder="e.g. Terry">
+              </div>
+              <div class="dd-panel-actions">
+                <button class="btn btn-primary btn-sm" type="button" onclick="addNewSimple('fConstructionType','newCtName','ctPanel')">Add</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('ctPanel')">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <div class="fl">Width</div>
+            <input class="inp" id="fWidth" type="number" min="0" placeholder="inches">
+          </div>
+        </div>
+
+        <!-- Row 2: GSM | Fabric content | Allowance % | Vendors -->
+        <div class="g4">
+          <div class="fg">
+            <div class="fl">GSM</div>
+            <input class="inp" id="fGsm" type="number" min="0" placeholder="grams/sq.m">
+          </div>
+          <div class="fg">
+            <div class="fl">Fabric content</div>
+            <input class="inp" id="fFabricContent" type="text" placeholder="e.g. 100% Cotton">
+          </div>
+          <div class="fg">
+            <div class="fl">Allowance %</div>
+            <input class="inp" id="fAllowance" type="number" min="0" step="0.01" placeholder="5">
+          </div>
+          <!-- Vendors + create -->
+          <div class="fg">
+            <div class="fl">Vendors</div>
+            <div class="ir">
+              <select class="inp" id="fVendor">
+                <option value="">Select vendor</option>
+                <option>Sunrise Fabrics Pvt. Ltd.</option>
+                <option>Blue Ocean Exports</option>
+                <option>Horizon Trims Co.</option>
+                <option>Fashion Forward Ltd.</option>
+                <option>Global Threads LLC</option>
+              </select>
+              <button class="btn-add" type="button" onclick="openModal('vendorModal')" title="Create new vendor" style="width:44px;">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 9a3 3 0 100-6 3 3 0 000 6z"/><path d="M8 11a6 6 0 016 6H2a6 6 0 016-6z"/><path fill-rule="evenodd" d="M16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /card 2 -->
+
+
+      <!-- ════ CARD 3: Commercial + Roll Wise ════ -->
+      <div class="sec-card">
+        <div class="g4" style="align-items:end;">
+
+          <div class="fg">
+            <div class="fl">HSN</div>
+            <input class="inp" id="fHsn" type="text" placeholder="HSN code">
+          </div>
+          <div class="fg">
+            <div class="fl">GST %</div>
+            <input class="inp" id="fGst" type="number" min="0" step="0.01" placeholder="Tax percentage">
+          </div>
+          <div class="fg">
+            <div class="fl">Price</div>
+            <input class="inp" id="fPrice" type="number" min="0" step="0.01" placeholder="Per UOM">
+          </div>
+
+          <!-- Roll Wise toggle (4th column) -->
+          <div class="toggle-cell">
+            <div class="fl" style="margin-bottom:2px;">Update Roll wise</div>
+            <label class="toggle-wrap" style="margin-top:6px;">
+              <input class="toggle-inp" type="checkbox" id="fRollWise" checked onchange="updateRollInfo()">
+              <span class="toggle-knob"></span>
+              <span class="toggle-text" id="rollText">Enabled</span>
+            </label>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:3px;" id="rollSub">Inventory tracked per roll</div>
+          </div>
+
+        </div>
+      </div><!-- /card 3 -->
+
+
+      <!-- ════ CARD 4: Location + Inventory Limit + Remarks | Image ════ -->
+      <div class="sec-card" style="padding-bottom:24px;">
+        <div class="split-wrap">
+
+          <!-- Left: Location, Inventory Limit, Remarks -->
+          <div class="split-main">
+
+            <div class="g2">
+              <!-- Location -->
+              <div class="fg">
+                <div class="fl">Location <span class="req">*</span></div>
+                <select class="inp" id="fLocation">
+                  <option value="">Select Location</option>
+                  <option>Main Warehouse</option>
+                  <option>Store B</option>
+                  <option>Fabric Store</option>
+                  <option>Raw Material Store</option>
+                  <option>Finished Goods Warehouse</option>
+                </select>
+              </div>
+              <!-- Inventory Limit + add more -->
+              <div class="fg">
+                <div class="fl">Inventory limit</div>
+                <div class="ir">
+                  <input class="inp" id="fInventoryLimit" type="number" min="0" step="0.01" placeholder="Threshold">
+                  <button class="btn-add" type="button" onclick="addInvLimit()" title="Add location limit">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic inv limit list (multiple locations) -->
+            <div id="invLimitList"></div>
+
+            <!-- Remarks -->
+            <div class="fg" style="margin-top:4px;">
+              <div class="fl">Remarks</div>
+              <textarea class="inp" id="fRemarks" placeholder="Enter additional notes here..."></textarea>
+            </div>
+
+          </div>
+
+          <!-- Right: Image upload -->
+          <div class="split-side">
+            <label class="img-label">Image</label>
+            <div class="img-upload-box" id="imgDrop"
+              onclick="document.getElementById('imgInput').click()"
+              ondragover="event.preventDefault();this.classList.add('drag')"
+              ondragleave="this.classList.remove('drag')"
+              ondrop="handleDrop(event)">
+              <input type="file" id="imgInput" accept=".jpg,.jpeg,.png" onchange="handleImageSelect(this.files[0])">
+              <div id="imgPlaceholder">
+                <div class="img-cloud-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                </div>
+                <div class="img-upload-title">Upload Image</div>
+                <div class="img-upload-sub">PNG, JPG up to 1MB</div>
+              </div>
+              <div id="imgPreviewWrap" style="display:none;">
+                <div class="img-preview-wrap">
+                  <img id="imgPreview" src="" alt="Preview">
+                  <button class="img-remove-btn" type="button" onclick="event.stopPropagation();removeImage()" title="Remove">×</button>
+                </div>
+                <div id="imgFileName" style="font-size:12px;color:#9ca3af;margin-top:8px;"></div>
+              </div>
+            </div>
+            <div class="img-error" id="imgError"></div>
+          </div>
+
+        </div><!-- /split-wrap -->
+      </div><!-- /card 4 -->
+
+
+      <!-- ════ FORM ACTIONS ════ -->
+      <div class="form-action-bar">
+        <button class="btn btn-outline" type="button" onclick="location.href='masters-fabric.html'">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+          Back
+        </button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" type="button" onclick="saveFabric(true)">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            Save &amp; Add New
+          </button>
+          <button class="btn btn-primary" type="button" onclick="saveFabric(false)">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            Save
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══ Create Vendor Modal ══ -->
+<div class="modal-backdrop" id="vendorModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <div><div class="modal-title">Create New Vendor</div><div class="modal-sub">Add a vendor to use in Fabric Master</div></div>
+      <button class="modal-x" onclick="closeModal('vendorModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">Vendor Name <span class="req">*</span></label><input class="form-control" id="vName" type="text" placeholder="e.g. Sunrise Fabrics"></div>
+        <div class="form-group"><label class="form-label">Vendor Code</label><input class="form-control" id="vCode" type="text" placeholder="e.g. VND-006"></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">Contact Person</label><input class="form-control" id="vContact" type="text" placeholder="Ramesh Kumar"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="vPhone" type="text" placeholder="+91 98765 43210"></div>
+      </div>
+      <div class="form-group"><label class="form-label">GSTIN</label><input class="form-control" id="vGstin" type="text" placeholder="e.g. 27AABCS1429B1ZB" style="font-family:monospace;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('vendorModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewVendor()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Save Vendor
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══ State ══ */
+let multiUomItems = [];
+let invLimits = [];
+let selectedImage = null;
+
+/* ══ Panel toggle ══ */
+function togglePanel(id) {
+  const p = document.getElementById(id);
+  const isOpen = p.classList.contains('open');
+  document.querySelectorAll('.dd-panel.open').forEach(x => { if (x.id !== id) x.classList.remove('open'); });
+  p.classList.toggle('open', !isOpen);
+}
+
+/* ══ Roll wise ══ */
+function updateRollInfo() {
+  const on = document.getElementById('fRollWise').checked;
+  document.getElementById('rollText').textContent = on ? 'Enabled' : 'Disabled';
+  document.getElementById('rollSub').textContent = on ? 'Inventory tracked per roll' : 'Inventory tracked by UOM only';
+}
+
+/* ══ Add new Color ══ */
+function addNewColor() {
+  const name = document.getElementById('newColorName').value.trim();
+  if (!name) { toast('Color name is required', 'error'); return; }
+  const code = document.getElementById('newColorCode').value.trim();
+  const label = code ? `${name} (${code})` : name;
+  const val = `${Date.now()}|${name}|${code}`;
+  const sel = document.getElementById('fColor');
+  const opt = document.createElement('option'); opt.value = val; opt.textContent = label; sel.appendChild(opt); sel.value = val;
+  document.getElementById('newColorName').value = ''; document.getElementById('newColorCode').value = '';
+  togglePanel('colorPanel'); toast(`Color "${label}" added`, 'success');
+}
+
+/* ══ Add new UOM ══ */
+function addNewUom(selectId, inputId, panelId, syncToMulti) {
+  const name = document.getElementById(inputId).value.trim();
+  if (!name) { toast('UOM name is required', 'error'); return; }
+  [selectId, ...(syncToMulti ? ['fMultiUom'] : ['fUom'])].forEach(sid => {
+    const sel = document.getElementById(sid);
+    if (!sel) return;
+    if (![...sel.options].find(o => o.value === name)) {
+      const opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt);
+    }
+  });
+  document.getElementById(selectId).value = name;
+  document.getElementById(inputId).value = '';
+  togglePanel(panelId); toast(`UOM "${name}" added`, 'success');
+}
+
+/* ══ Add new simple (Construction Type) ══ */
+function addNewSimple(selectId, inputId, panelId) {
+  const name = document.getElementById(inputId).value.trim();
+  if (!name) { toast('Name is required', 'error'); return; }
+  const sel = document.getElementById(selectId);
+  const opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); sel.value = name;
+  document.getElementById(inputId).value = ''; togglePanel(panelId); toast(`"${name}" added`, 'success');
+}
+
+/* ══ Multiple UOM list ══ */
+document.getElementById('fMultiUom').addEventListener('change', function () {
+  const uomName = this.value;
+  if (!uomName) return;
+  if (multiUomItems.find(x => x.uom === uomName)) { toast(`${uomName} already in list`, 'error'); this.value = ''; return; }
+  const primaryUom = document.getElementById('fUom').value || 'Primary UOM';
+  multiUomItems.push({ id: Date.now(), uom: uomName, denomination: '' });
+  renderMultiUomList(primaryUom);
+  this.value = '';
+});
+
+function renderMultiUomList(primaryUom) {
+  const wrap = document.getElementById('multiUomList');
+  if (!multiUomItems.length) { wrap.innerHTML = ''; return; }
+  const pu = primaryUom || document.getElementById('fUom').value || 'Base UOM';
+  wrap.innerHTML = `<div class="muom-block"><table class="muom-table">
+    <thead><tr><th>Alternative UOM</th><th>Denomination</th><th style="width:50px;text-align:center;">✕</th></tr></thead>
+    <tbody>${multiUomItems.map(m => `<tr>
+      <td style="font-weight:500;color:#111827;">${m.uom}</td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap;">1 ${m.uom} =</span>
+        <input class="inp" style="height:34px;max-width:110px;" type="number" step="0.0001" min="0" value="${m.denomination}" placeholder="0.00" oninput="updateDenom(${m.id},this.value)">
+        <span style="font-size:12px;font-weight:600;color:var(--brand-600);white-space:nowrap;">${pu}</span>
+      </div></td>
+      <td style="text-align:center;"><button class="inv-item-del" type="button" onclick="removeMultiUom(${m.id})"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function updateDenom(id, val) { const m = multiUomItems.find(x => x.id === id); if (m) m.denomination = val; }
+function removeMultiUom(id) { multiUomItems = multiUomItems.filter(x => x.id !== id); renderMultiUomList(); }
+document.getElementById('fUom').addEventListener('change', () => renderMultiUomList());
+
+/* ══ Inventory Limit – add per location ══ */
+function addInvLimit() {
+  const loc = document.getElementById('fLocation').value;
+  const lim = document.getElementById('fInventoryLimit').value;
+  if (!loc) { toast('Select a location first', 'error'); document.getElementById('fLocation').classList.add('invalid'); return; }
+  document.getElementById('fLocation').classList.remove('invalid');
+  if (lim === '' || isNaN(parseFloat(lim))) { toast('Enter a valid inventory limit', 'error'); return; }
+  if (invLimits.find(x => x.location === loc)) { toast(`Limit for ${loc} already added`, 'error'); return; }
+  invLimits.push({ id: Date.now(), location: loc, limit: parseFloat(lim) });
+  document.getElementById('fInventoryLimit').value = '';
+  renderInvList();
+  toast(`Inventory limit for ${loc} added`, 'success');
+}
+
+function renderInvList() {
+  const wrap = document.getElementById('invLimitList');
+  if (!invLimits.length) { wrap.innerHTML = ''; return; }
+  const uom = document.getElementById('fUom').value || 'units';
+  wrap.innerHTML = invLimits.map(r => `<div class="inv-item">
+    <span class="inv-item-loc">${r.location}</span>
+    <span class="inv-item-limit">${r.limit.toLocaleString()} ${uom}</span>
+    <button class="inv-item-del" type="button" onclick="removeInvLimit(${r.id})" title="Remove"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+  </div>`).join('');
+}
+function removeInvLimit(id) { invLimits = invLimits.filter(x => x.id !== id); renderInvList(); }
+
+/* ══ Image upload ══ */
+function handleImageSelect(file) {
+  if (!file) return;
+  if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) { showImgErr('Only JPG, JPEG, or PNG files allowed.'); return; }
+  if (file.size > 1024 * 1024) { showImgErr('File size must not exceed 1 MB.'); return; }
+  clearImgErr();
+  const reader = new FileReader();
+  reader.onload = e => {
+    selectedImage = e.target.result;
+    document.getElementById('imgPreview').src = selectedImage;
+    document.getElementById('imgFileName').textContent = `${file.name}  ·  ${(file.size / 1024).toFixed(1)} KB`;
+    document.getElementById('imgPlaceholder').style.display = 'none';
+    document.getElementById('imgPreviewWrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function handleDrop(e) { e.preventDefault(); document.getElementById('imgDrop').classList.remove('drag'); handleImageSelect(e.dataTransfer.files[0]); }
+function removeImage() { selectedImage = null; document.getElementById('imgInput').value = ''; document.getElementById('imgPlaceholder').style.display = 'block'; document.getElementById('imgPreviewWrap').style.display = 'none'; clearImgErr(); }
+function showImgErr(m) { const el = document.getElementById('imgError'); el.textContent = m; el.style.display = 'block'; }
+function clearImgErr() { const el = document.getElementById('imgError'); el.textContent = ''; el.style.display = 'none'; }
+
+/* ══ Vendor creation ══ */
+function saveNewVendor() {
+  const name = document.getElementById('vName').value.trim();
+  if (!name) { toast('Vendor name is required', 'error'); return; }
+  const sel = document.getElementById('fVendor');
+  const opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); sel.value = name;
+  ['vName', 'vCode', 'vContact', 'vPhone', 'vGstin'].forEach(i => document.getElementById(i).value = '');
+  closeModal('vendorModal'); toast(`Vendor "${name}" created`, 'success');
+}
+
+/* ══ Save ══ */
+function saveFabric(addNew) {
+  const name = document.getElementById('fFabricName').value.trim();
+  const color = document.getElementById('fColor').value;
+  const type = document.getElementById('fFabricType').value.trim();
+  const uom = document.getElementById('fUom').value;
+  const location = document.getElementById('fLocation').value;
+
+  const mark = (id, err) => document.getElementById(id).classList.toggle('invalid', err);
+  mark('fFabricName', !name); mark('fColor', !color); mark('fFabricType', !type); mark('fUom', !uom); mark('fLocation', !location);
+
+  if (!name || !color || !type || !uom || !location) { toast('Please fill in all required fields', 'error'); return; }
+
+  toast('Fabric saved successfully', 'success');
+  if (addNew) {
+    setTimeout(() => {
+      ['fFabricName','fFabricCode','fFabricType','fCount','fConstruction','fWidth','fGsm','fFabricContent','fAllowance','fHsn','fGst','fPrice','fInventoryLimit','fRemarks'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('fColor').value = '';
+      document.getElementById('fUom').value = '';
+      document.getElementById('fMultiUom').value = '';
+      document.getElementById('fConstructionType').value = '';
+      document.getElementById('fLocation').value = '';
+      document.getElementById('fVendor').value = '';
+      document.getElementById('fRollWise').checked = true; updateRollInfo();
+      multiUomItems = []; renderMultiUomList();
+      invLimits = []; renderInvList();
+      removeImage();
+    }, 300);
+  } else {
+    setTimeout(() => location.href = 'masters-fabric.html', 800);
+  }
+}
+
+/* ══ Helpers ══ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg, type) {
+  const a = document.getElementById('toastArea'); const t = document.createElement('div');
+  t.className = `toast ${type}`; t.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> ${msg}`;
+  a.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
+function toggleGroup(el) {
+  const g = el.closest('.nav-group'); const o = g.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(x => { if (x !== g) { x.classList.remove('open'); x.querySelector('.nav-parent')?.classList.remove('open'); } });
+  g.classList.toggle('open', !o); el.classList.toggle('open', !o);
+}
+document.querySelectorAll('.modal-backdrop').forEach(bd => bd.addEventListener('click', e => { if (e.target === bd) closeModal(bd.id); }));
+</script>
+</body>
+</html>

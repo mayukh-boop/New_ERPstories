@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ══ Section card ══ */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:hidden;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border2);}
+.sec-hd-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px;}
+.sec-hd-title svg{width:15px;height:15px;color:var(--brand-500);}
+.sec-bd{padding:22px;}
+
+/* ══ Grid layouts ══ */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+
+/* ══ Form field ══ */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:0;}
+.fl{font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:4px;}
+.fl .req{color:#ef4444;font-size:14px;}
+.fl .hint{font-size:11px;color:var(--text-3);font-weight:400;margin-left:4px;}
+
+/* ══ Inputs ══ */
+.inp{width:100%;height:44px;padding:0 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp::placeholder{color:#9ca3af;}
+.inp.err{border-color:#ef4444;background:#fef2f2;}
+.inp:disabled,.inp.readonly{background:#f9fafb;color:#6b7280;cursor:not-allowed;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+textarea.inp{height:auto;padding:12px 14px;resize:vertical;}
+.err-msg{font-size:11.5px;color:#ef4444;display:none;margin-top:-2px;}
+.err-msg.show{display:block;}
+
+/* ══ Input+button row ══ */
+.ir{display:flex;gap:8px;align-items:flex-start;}
+.ir .inp{flex:1;}
+.btn-add{width:44px;height:44px;flex-shrink:0;background:var(--brand-600);color:#fff;border:none;border-radius:10px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.btn-add:hover{background:var(--brand-700);}
+.btn-add svg{width:18px;height:18px;}
+
+/* ══ Char counter ══ */
+.char-ctr{font-size:11px;color:var(--text-3);text-align:right;margin-top:3px;}
+.char-ctr.warn{color:#ef4444;}
+
+/* ══ Inline create panel ══ */
+.dd-panel{display:none;margin-top:8px;padding:14px 16px;background:#eef2ff;border:1px solid var(--brand-200);border-radius:10px;}
+.dd-panel.open{display:block;}
+.dd-pt{font-size:11px;font-weight:700;color:var(--brand-700);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.dd-pa{display:flex;gap:8px;margin-top:10px;}
+
+/* ══ Custom multi-select dropdown ══ */
+.ms-wrap{position:relative;}
+.ms-trigger{min-height:44px;padding:6px 36px 6px 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:5px;position:relative;transition:border-color .15s,background .15s;}
+.ms-trigger:focus{outline:none;border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.ms-trigger.open{border-color:var(--brand-500);background:#fff;}
+.ms-trigger.err{border-color:#ef4444;background:#fef2f2;}
+.ms-trigger-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280;}
+.ms-trigger-arrow svg{width:12px;height:12px;}
+.ms-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;background:var(--brand-100);color:var(--brand-700);white-space:nowrap;}
+.ms-chip-x{background:none;border:none;cursor:pointer;color:var(--brand-500);padding:0;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;}
+.ms-chip-x:hover{background:var(--brand-200);}
+.ms-placeholder{color:#9ca3af;font-size:13.5px;}
+.ms-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:240px;overflow-y:auto;}
+.ms-dropdown.open{display:block;}
+.ms-opt{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;transition:background .12s;}
+.ms-opt:hover{background:var(--brand-50);}
+.ms-opt input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.ms-opt-color{width:18px;height:18px;border-radius:4px;border:1.5px solid rgba(0,0,0,.12);flex-shrink:0;}
+.ms-divider{height:1px;background:var(--border2);margin:4px 0;}
+.ms-create-opt{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--brand-600);font-weight:600;transition:background .12s;}
+.ms-create-opt:hover{background:var(--brand-50);}
+.ms-create-opt svg{width:14px;height:14px;}
+
+/* ══ Size quantity table ══ */
+.sq-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.sq-table th{padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border:1px solid var(--border2);text-align:left;}
+.sq-table td{padding:7px 10px;border:1px solid var(--border2);vertical-align:middle;}
+.sq-table tr.dragging{opacity:.5;}
+.sq-table tr.drag-over td{border-top:2px solid var(--brand-500);}
+.drag-handle{cursor:grab;color:#d1d5db;padding:4px;display:flex;align-items:center;}
+.drag-handle:active{cursor:grabbing;}
+.drag-handle svg{width:16px;height:16px;}
+.size-badge{display:inline-flex;align-items:center;padding:3px 10px;background:var(--brand-50);color:var(--brand-700);border-radius:6px;font-size:12.5px;font-weight:600;border:1px solid var(--brand-200);}
+
+/* ══ BOM table ══ */
+.bom-table{width:100%;border-collapse:collapse;margin-top:8px;}
+.bom-table th{padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border:1px solid var(--border2);text-align:left;white-space:nowrap;}
+.bom-table td{padding:7px 8px;border:1px solid var(--border2);vertical-align:middle;}
+.bom-input{width:100%;height:34px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.bom-input:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(91,95,199,.1);}
+select.bom-input{padding-right:24px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;cursor:pointer;}
+.bom-del{width:30px;height:30px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.bom-del:hover{background:#fee2e2;color:#ef4444;}
+.bom-del svg{width:14px;height:14px;}
+.bom-add-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px dashed var(--border);border-radius:8px;font-size:12.5px;font-weight:600;color:var(--text-3);background:transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin-top:8px;}
+.bom-add-btn:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.bom-add-btn svg{width:14px;height:14px;}
+
+/* ══ Radio toggle ══ */
+.radio-group{display:flex;gap:6px;margin-bottom:14px;}
+.radio-opt{display:flex;align-items:center;gap:7px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-2);transition:all .15s;}
+.radio-opt input[type=radio]{accent-color:var(--brand-600);width:15px;height:15px;cursor:pointer;}
+.radio-opt.selected{border-color:var(--brand-500);background:var(--brand-50);color:var(--brand-700);}
+
+/* ══ Image upload ══ */
+.img-upload{border:2px dashed #c7d2fe;border-radius:14px;background:#f5f3ff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;transition:all .15s;min-height:180px;}
+.img-upload:hover,.img-upload.drag{border-color:#818cf8;background:#ede9fe;}
+.img-upload input{display:none;}
+.iup-icon{width:52px;height:52px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:#6366f1;}
+.iup-icon svg{width:24px;height:24px;}
+.iup-title{font-size:14px;font-weight:600;color:#374151;margin-bottom:3px;}
+.iup-sub{font-size:11.5px;color:#9ca3af;}
+.img-preview-wrap{position:relative;display:inline-block;}
+.img-preview-wrap img{max-height:200px;max-width:100%;border-radius:10px;border:1px solid var(--border);display:block;cursor:pointer;}
+.img-rm{position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:#ef4444;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;}
+
+/* ══ Attachments ══ */
+.att-zone{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:#fafbff;}
+.att-zone:hover{border-color:var(--brand-400);background:var(--brand-50);}
+.att-zone input{display:none;}
+.att-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.att-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f9fafb;border:1px solid var(--border2);border-radius:8px;font-size:12.5px;}
+.att-icon{width:30px;height:30px;border-radius:6px;background:var(--brand-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.att-icon svg{width:14px;height:14px;color:var(--brand-600);}
+.att-name{flex:1;font-weight:500;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.att-size{color:var(--text-3);font-size:11.5px;white-space:nowrap;}
+.att-del{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.att-del:hover{background:#fee2e2;color:#ef4444;}
+.att-del svg{width:13px;height:13px;}
+.att-dl{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#9ca3af;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.att-dl:hover{background:var(--brand-50);color:var(--brand-600);}
+.att-dl svg{width:13px;height:13px;}
+
+/* ══ Action bar ══ */
+.action-bar{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;}
+.btn{height:40px;padding:0 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-outline-green{background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;}.btn-outline-green:hover{background:#dcfce7;}
+.btn-outline-brand{background:var(--brand-50);color:var(--brand-700);border:1.5px solid var(--brand-200);}.btn-outline-brand:hover{background:var(--brand-100);}
+.btn svg{width:15px;height:15px;}
+
+/* ══ Production order link ══ */
+.po-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--brand-600);cursor:pointer;padding:8px 16px;border:1.5px solid var(--brand-200);border-radius:10px;background:var(--brand-50);transition:all .15s;text-decoration:none;}
+.po-link:hover{background:var(--brand-100);border-color:var(--brand-500);}
+.po-link svg{width:15px;height:15px;}
+
+/* ══ View mode badge ══ */
+.view-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:#fefce8;color:#854d0e;border-radius:9999px;font-size:12px;font-weight:600;border:1px solid #fde68a;}
+
+/* ══ Status pill ══ */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;border-radius:9999px;font-size:12px;font-weight:600;}
+.sp::before{content:'';width:7px;height:7px;border-radius:50%;display:inline-block;}
+.sp-awaiting{background:#f3f4f6;color:#4b5563;}.sp-awaiting::before{background:#9ca3af;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-rejected{background:#fef2f2;color:#991b1b;}.sp-rejected::before{background:#ef4444;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+
+/* ══ Image fullscreen ══ */
+.img-fs{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
+.img-fs.open{display:flex;}
+.img-fs-cl{position:fixed;top:20px;right:20px;width:42px;height:42px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:1001;}
+.img-fs-cl:hover{background:rgba(255,255,255,.3);}
+
+/* ══ Toast ══ */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;} .tt.e{background:#dc2626;} .tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+/* ══ Responsive ══ */
+@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.g3,.g4,.g2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Sample Management</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.994 1.994 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="sample-list.html">Sample List</a>
+        <a class="nav-child active" href="sample-create.html">Create Sample</a>
+      </div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-color.html">Color Master</a>
+        <a class="nav-child" href="masters-uom.html">UOM Master</a>
+        <a class="nav-child" href="masters-size.html">Size Master</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">RK</div>
+    <div class="sf-info">
+      <div class="sf-name">Ravi Kumar</div>
+      <div class="sf-role">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" id="topbarTitle">Create Sample</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph" style="margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div>
+          <div class="ph-title" id="pageTitle">Create New Sample</div>
+        </div>
+        <span id="statusBadge" style="display:none;"></span>
+        <span id="viewBadge" style="display:none;" class="view-badge">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>View Only
+        </span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;" id="headerLinks">
+        <a class="po-link" id="prodOrderLink" style="display:none;" href="#production-order?sampleId=" onclick="goToProductionOrder(event)">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/></svg>
+          Create Production Order
+        </a>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 1: MANDATORY FIELDS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"/></svg>
+          Sample Information
+        </div>
+      </div>
+      <div class="sec-bd">
+        <!-- Split: left fields | right image -->
+        <div style="display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:start;">
+
+          <!-- LEFT: all fields -->
+          <div style="display:flex;flex-direction:column;gap:18px;">
+
+            <!-- Sample No -->
+            <div class="fg">
+              <label class="fl">Sample No.</label>
+              <input type="text" class="inp" id="sampleNo" maxlength="100" placeholder="Leave blank to auto-generate">
+              <div class="err-msg" id="errSampleNo">Will be auto-generated on save.</div>
+              <div class="char-ctr" id="snoCounter">0 / 100</div>
+            </div>
+
+            <!-- Color multi-select -->
+            <div class="fg">
+              <label class="fl">Color</label>
+              <div class="ms-wrap" id="colorWrap">
+                <div class="ms-trigger" id="colorTrigger" tabindex="0" onclick="toggleColorDD()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleColorDD()">
+                  <span class="ms-placeholder" id="colorPlaceholder">Select colors…</span>
+                  <span class="ms-trigger-arrow"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg></span>
+                </div>
+                <div class="ms-dropdown" id="colorDD"></div>
+              </div>
+              <div class="err-msg" id="errColor">At least one color is required.</div>
+              <div class="dd-panel" id="newColorPanel">
+                <div class="dd-pt">+ Create New Color</div>
+                <div class="g2">
+                  <div class="fg"><label class="fl">Color Name</label><input type="text" class="inp" id="newColorName" placeholder="e.g. Coral"></div>
+                  <div class="fg"><label class="fl">Hex Code</label><input type="color" class="inp" id="newColorHex" style="height:44px;padding:4px;cursor:pointer;" value="#6366f1"></div>
+                </div>
+                <div class="dd-pa">
+                  <button class="btn btn-primary" style="height:36px;" onclick="saveNewColor()">Save Color</button>
+                  <button class="btn btn-ghost" style="height:36px;" onclick="document.getElementById('newColorPanel').classList.remove('open')">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sample Description -->
+            <div class="fg">
+              <label class="fl">Sample Description</label>
+              <textarea class="inp" id="description" rows="3" maxlength="200" placeholder="Fabric details, finish, style notes…" oninput="updateCounter('description','descCounter',200)"></textarea>
+              <div style="display:flex;justify-content:flex-end;"><span class="char-ctr" id="descCounter">0 / 200</span></div>
+            </div>
+
+            <!-- Category + UOM side by side -->
+            <div class="g2">
+
+              <!-- Sample Category -->
+              <div class="fg">
+                <label class="fl">Sample Category</label>
+                <div class="ir">
+                  <select class="inp" id="categorySelect">
+                    <option value="">Select category…</option>
+                    <option value="T-Shirt">T-Shirt</option>
+                    <option value="Polo">Polo</option>
+                    <option value="Hoodie">Hoodie</option>
+                    <option value="Jacket">Jacket</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Trouser">Trouser</option>
+                    <option value="Kurta">Kurta</option>
+                    <option value="Dress">Dress</option>
+                  </select>
+                  <button class="btn-add" title="Create new category" onclick="document.getElementById('newCatPanel').classList.toggle('open')">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                  </button>
+                </div>
+                <div class="dd-panel" id="newCatPanel">
+                  <div class="dd-pt">+ Create New Category</div>
+                  <div class="fg"><label class="fl">Category Name</label><input type="text" class="inp" id="newCatName" placeholder="e.g. Sweatshirt" maxlength="60"></div>
+                  <div class="dd-pa">
+                    <button class="btn btn-primary" style="height:36px;" onclick="saveNewCategory()">Save</button>
+                    <button class="btn btn-ghost" style="height:36px;" onclick="document.getElementById('newCatPanel').classList.remove('open')">Cancel</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- UOM -->
+              <div class="fg">
+                <label class="fl">UOM</label>
+                <div class="ir">
+                  <select class="inp" id="uomSelect">
+                    <option value="">Select UOM…</option>
+                    <option value="PCS">PCS – Pieces</option>
+                    <option value="MTR">MTR – Metres</option>
+                    <option value="KG">KG – Kilograms</option>
+                    <option value="YDS">YDS – Yards</option>
+                    <option value="SET">SET – Set</option>
+                    <option value="DZ">DZ – Dozen</option>
+                  </select>
+                  <button class="btn-add" title="Create new UOM" onclick="document.getElementById('newUOMPanel').classList.toggle('open')">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                  </button>
+                </div>
+                <div class="err-msg" id="errUOM">UOM is required.</div>
+                <div class="dd-panel" id="newUOMPanel">
+                  <div class="dd-pt">+ Create New UOM</div>
+                  <div class="g2">
+                    <div class="fg"><label class="fl">UOM Code</label><input type="text" class="inp" id="newUOMCode" placeholder="e.g. ROLL" maxlength="20"></div>
+                    <div class="fg"><label class="fl">UOM Name</label><input type="text" class="inp" id="newUOMName" placeholder="e.g. Roll" maxlength="50"></div>
+                  </div>
+                  <div class="dd-pa">
+                    <button class="btn btn-primary" style="height:36px;" onclick="saveNewUOM()">Save UOM</button>
+                    <button class="btn btn-ghost" style="height:36px;" onclick="document.getElementById('newUOMPanel').classList.remove('open')">Cancel</button>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /g2 category+uom -->
+          </div><!-- /left -->
+
+          <!-- RIGHT: Sample Image -->
+          <div class="fg">
+            <label class="fl">Sample Image</label>
+            <div id="imgUploadArea">
+              <label class="img-upload" id="imgDropZone" style="min-height:260px;" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleImgDrop(event)">
+                <input type="file" id="imgInput" accept="image/*" onchange="handleImgSelect(event)">
+                <div class="iup-icon">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="iup-title">Upload Sample Image</div>
+                <div class="iup-sub">PNG, JPG, JPEG</div>
+                <div class="iup-sub">Click or drag &amp; drop</div>
+              </label>
+            </div>
+            <div id="imgPreviewArea" style="display:none;text-align:center;margin-top:8px;">
+              <div class="img-preview-wrap">
+                <img id="imgPreview" src="" alt="Preview" onclick="openImgFullscreen()" style="max-width:100%;max-height:240px;border-radius:10px;border:1px solid var(--border);cursor:pointer;display:block;">
+                <button class="img-rm" onclick="removeImg()" title="Remove">✕</button>
+              </div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px;">Click to expand</div>
+            </div>
+          </div><!-- /right image -->
+
+        </div><!-- /split grid -->
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3: SIZE & QUANTITY ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+          Size &amp; Quantity
+        </div>
+        <span style="font-size:11.5px;color:var(--text-3);">Select sizes; drag rows to reorder</span>
+      </div>
+      <div class="sec-bd">
+        <!-- Size multi-select -->
+        <div class="fg" style="margin-bottom:0;">
+          <label class="fl">Sizes</label>
+          <div class="ir">
+            <div class="ms-wrap" style="flex:1;" id="sizeWrap">
+              <div class="ms-trigger" id="sizeTrigger" tabindex="0" onclick="toggleSizeDD()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleSizeDD()">
+                <span class="ms-placeholder" id="sizePlaceholder">Select sizes…</span>
+                <span class="ms-trigger-arrow"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg></span>
+              </div>
+              <div class="ms-dropdown" id="sizeDD"></div>
+            </div>
+            <button class="btn-add" title="Create new size" onclick="document.getElementById('newSizePanel').classList.toggle('open')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            </button>
+          </div>
+          <div class="dd-panel" id="newSizePanel">
+            <div class="dd-pt">+ Create New Size</div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Size Code</label><input type="text" class="inp" id="newSizeCode" placeholder="e.g. 3XL" maxlength="10"></div>
+              <div class="fg"><label class="fl">Size Name</label><input type="text" class="inp" id="newSizeName" placeholder="e.g. Triple Extra Large" maxlength="40"></div>
+            </div>
+            <div class="dd-pa">
+              <button class="btn btn-primary" style="height:36px;" onclick="saveNewSize()">Save Size</button>
+              <button class="btn btn-ghost" style="height:36px;" onclick="document.getElementById('newSizePanel').classList.remove('open')">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Size-Quantity table -->
+        <div id="sqTableWrap" style="display:none;margin-top:16px;">
+          <table class="sq-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"></th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="sqTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 4: BOM ALLOCATION ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+          BOM Allocation
+          <span style="font-size:11px;font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;">(optional — can be added during edit)</span>
+        </div>
+      </div>
+      <div class="sec-bd">
+
+        <!-- Existing / New radio -->
+        <div class="radio-group" id="bomRadioGroup">
+          <label class="radio-opt selected" id="radioExistingLabel">
+            <input type="radio" name="bomMode" value="existing" checked onchange="setBomMode('existing')">
+            Use Existing Materials
+          </label>
+          <label class="radio-opt" id="radioNewLabel">
+            <input type="radio" name="bomMode" value="new" onchange="setBomMode('new')">
+            Add New Materials
+          </label>
+        </div>
+
+        <!-- Existing BOM table -->
+        <div id="bomExistingWrap">
+          <table class="bom-table">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th>Material Type</th>
+                <th>Material Name</th>
+                <th style="width:120px;">Consumption</th>
+                <th style="width:120px;">UOM</th>
+                <th style="width:36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="bomExistingTbody"></tbody>
+          </table>
+          <button class="bom-add-btn" onclick="addBomExistingRow()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            Add Material Row
+          </button>
+        </div>
+
+        <!-- New BOM table -->
+        <div id="bomNewWrap" style="display:none;">
+          <table class="bom-table">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th style="width:150px;">Material Type</th>
+                <th>Material Name (Color)</th>
+                <th style="width:120px;">Consumption</th>
+                <th style="width:120px;">UOM</th>
+                <th style="width:36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="bomNewTbody"></tbody>
+          </table>
+          <button class="bom-add-btn" onclick="addBomNewRow()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            Add Material Row
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 5: REMARKS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"/></svg>
+          Remarks
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="fg">
+          <label class="fl">Remarks</label>
+          <textarea class="inp" id="remarks" rows="3" maxlength="500" placeholder="Any additional notes, instructions, or comments…" oninput="updateCounter('remarks','remCounter',500)"></textarea>
+          <div style="display:flex;justify-content:flex-end;"><span class="char-ctr" id="remCounter">0 / 500</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 6: ATTACHMENTS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>
+          Attachments
+        </div>
+        <span style="font-size:11.5px;color:var(--text-3);">PDF, DOC, XLS, PNG, JPG and more — multiple files allowed</span>
+      </div>
+      <div class="sec-bd">
+
+          <!-- Attachments only -->
+          <div class="fg">
+            <label class="att-zone" ondragover="event.preventDefault();this.style.borderColor='var(--brand-400)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleAttDrop(event)">
+              <input type="file" id="attInput" multiple accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip" onchange="handleAttSelect(event)">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:28px;height:28px;color:#d1d5db;margin-bottom:8px;"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>
+              <div style="font-size:13px;font-weight:600;color:var(--text-2);">Click or drag files here</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:3px;">PDF, DOC, XLS, PNG, JPG and more</div>
+            </label>
+            <div class="att-list" id="attList"></div>
+          </div>
+
+          <!-- Hidden stubs so JS references don't break -->
+          <input type="file" id="imgInput" accept="image/*" onchange="handleImgSelect(event)" style="display:none;">
+          <div id="imgUploadArea" style="display:none;"></div>
+          <div id="imgPreviewArea" style="display:none;">
+            <div class="img-preview-wrap">
+              <img id="imgPreview" src="" alt="Preview" onclick="openImgFullscreen()" style="display:none;">
+              <button class="img-rm" onclick="removeImg()" title="Remove">✕</button>
+            </div>
+          </div>
+
+      </div>
+    </div>
+
+    <!-- ══ ACTION BAR ══ -->
+    <div class="action-bar" id="actionBar">
+      <button class="btn btn-ghost" onclick="location.href='sample-list.html'">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+        Cancel
+      </button>
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center;" id="saveButtons">
+        <button class="btn btn-ghost" id="saveDraftBtn" onclick="saveSample('draft')">Save as Draft</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveSample('save')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Sample
+        </button>
+        <button class="btn btn-outline-green" id="moveToProductBtn" style="display:none;" onclick="moveToProduct()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+          Move to Product
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</div><!-- .app -->
+
+<!-- Image fullscreen -->
+<div class="img-fs" id="imgFs" onclick="closeImgFullscreen()">
+  <button class="img-fs-cl" onclick="closeImgFullscreen()">✕</button>
+  <img id="imgFsImg" src="" alt="Sample Image" onclick="event.stopPropagation()">
+</div>
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════
+   SESSION & PERMISSIONS
+══════════════════════════════════ */
+const SESSION = { name:'Ravi Kumar', role:'ADMIN' };
+const PERMS = {
+  SUPER_ADMIN: {create:true,edit:true,view:true,approve:true,delete:true},
+  ADMIN:       {create:true,edit:true,view:true,approve:true,delete:true},
+  USER_CREATE: {create:true,edit:true,view:true,approve:false,delete:false},
+  USER_VIEW:   {create:false,edit:false,view:true,approve:false,delete:false},
+  USER_APPROVE:{create:false,edit:false,view:true,approve:true,delete:false},
+};
+const can = a => (PERMS[SESSION.role]||{})[a]||false;
+
+/* ══════════════════════════════════
+   URL PARAMS / MODE
+══════════════════════════════════ */
+const params = new URLSearchParams(location.search);
+const MODE = params.get('mode') || 'create'; // create | edit | view
+const SAMPLE_ID = params.get('id') || null;
+
+/* ══════════════════════════════════
+   MASTER DATA
+══════════════════════════════════ */
+const colorOptions = [
+  {name:'Red',    hex:'#ef4444'}, {name:'Blue',   hex:'#3b82f6'},
+  {name:'Green',  hex:'#22c55e'}, {name:'Black',  hex:'#1f2937'},
+  {name:'White',  hex:'#f8fafc'}, {name:'Yellow', hex:'#eab308'},
+  {name:'Navy',   hex:'#1e3a8a'}, {name:'Orange', hex:'#f97316'},
+  {name:'Pink',   hex:'#ec4899'}, {name:'Purple', hex:'#8b5cf6'},
+  {name:'Grey',   hex:'#6b7280'}, {name:'Maroon', hex:'#7f1d1d'},
+  {name:'Teal',   hex:'#0d9488'}, {name:'Beige',  hex:'#d4a76a'},
+];
+
+const sizeOptions = [
+  {code:'XS', name:'Extra Small'}, {code:'S',  name:'Small'},
+  {code:'M',  name:'Medium'},      {code:'L',  name:'Large'},
+  {code:'XL', name:'Extra Large'}, {code:'XXL',name:'Double Extra Large'},
+  {code:'28', name:'28'},          {code:'30', name:'30'},
+  {code:'32', name:'32'},          {code:'34', name:'34'},
+  {code:'36', name:'36'},          {code:'38', name:'38'},
+];
+
+const materialTypes = ['Fabric','Accessory','Thread','Button','Elastic','Zipper','Label','Lining','Interlining'];
+
+const materialsByType = {
+  Fabric:       ['Cotton Twill','Denim 10 Oz','Polyester Mesh','Silk Charmeuse','Lycra Blend','Fleece','Oxford Weave','Jersey Knit'],
+  Accessory:    ['Metal Snap Button','Plastic Toggle','D-Ring','Aglet','Hook & Eye Set','Velcro 2cm','Drawcord 6mm'],
+  Thread:       ['Polyester Thread 40/2','Cotton Thread 50/3','Nylon Thread 70D','Core Spun Thread','Metallic Thread'],
+  Button:       ['Pearl Button 15mm','Coconut Button 18mm','Metal Button 20mm','Plastic Button 12mm','Toggle Button'],
+  Elastic:      ['Elastic Band 1"','Elastic Band 2"','Waistband Elastic 3"','Narrow Elastic 5mm'],
+  Zipper:       ['YKK Coil Zip 10cm','YKK Metal Zip 20cm','Invisible Zip 22cm','Open End Zip 60cm'],
+  Label:        ['Woven Main Label','Care Label','Size Label','Hangtag','Barcode Sticker'],
+  Lining:       ['Polyester Lining','Viscose Lining','Satin Lining','Mesh Lining'],
+  Interlining:  ['Woven Interlining','Non-woven Interlining','Fusible Interlining'],
+};
+
+/* ══════════════════════════════════
+   SELECTED STATE
+══════════════════════════════════ */
+let selectedColors = [];
+let selectedSizes  = [];
+let attachments    = [];
+let sampleImageFile = null;
+let sampleImageURL  = null;
+let bomExistingRows = [];
+let bomNewRows      = [];
+let bomMode         = 'existing';
+let sampleCounter   = 7; // for auto-gen
+
+/* ══════════════════════════════════
+   MOCK SAMPLE DATA (for edit/view)
+══════════════════════════════════ */
+const mockSamples = {
+  'SMP-2026-005': { sampleNo:'SMP-2026-005', colors:['Red'], uom:'PCS', category:'Polo', description:'Premium pique polo with 3-button placket. 220 GSM cotton.', sizes:[{code:'S',qty:2},{code:'M',qty:3},{code:'L',qty:2}], remarks:'Approved — ready for bulk.', status:'Approved', createdBy:'Priya Sharma', hasImage:true },
+  'SMP-2026-006': { sampleNo:'SMP-2026-006', colors:['Blue','Green'], uom:'PCS', category:'T-Shirt', description:'Round neck tee with raglan sleeve detail.', sizes:[{code:'M',qty:2},{code:'L',qty:2},{code:'XL',qty:1}], remarks:'', status:'Awaiting', createdBy:'Ravi Kumar', hasImage:false },
+  'SMP-2026-004': { sampleNo:'SMP-2026-004', colors:['Black','Grey'], uom:'SET', category:'Jacket', description:'Two-piece tracksuit set with zip-front jacket.', sizes:[{code:'L',qty:1},{code:'XL',qty:1}], remarks:'Pending QC review.', status:'Hold', createdBy:'Arun Nair', hasImage:false },
+};
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+function init() {
+  renderColorDropdown();
+  renderSizeDropdown();
+  addBomExistingRow(); // start with one empty existing row
+
+  if (MODE === 'edit' || MODE === 'view') {
+    const data = mockSamples[SAMPLE_ID];
+    if (data) populateForm(data);
+  }
+
+  applyModeRestrictions();
+}
+
+function populateForm(data) {
+  document.getElementById('sampleNo').value = data.sampleNo || '';
+
+  // Colors
+  selectedColors = [...(data.colors||[])];
+  renderColorTrigger();
+
+  // UOM
+  document.getElementById('uomSelect').value = data.uom || '';
+
+  // Category
+  document.getElementById('categorySelect').value = data.category || '';
+
+  // Description
+  const desc = document.getElementById('description');
+  desc.value = data.description || '';
+  updateCounter('description','descCounter',200);
+
+  // Sizes
+  if (data.sizes && data.sizes.length) {
+    selectedSizes = data.sizes.map(s => s.code);
+    renderSizeTrigger();
+    renderSqTable();
+    // Populate quantities
+    setTimeout(() => {
+      data.sizes.forEach(s => {
+        const inp = document.getElementById(`qty_${s.code}`);
+        if (inp) inp.value = s.qty;
+      });
+    }, 0);
+  }
+
+  // Remarks
+  const rem = document.getElementById('remarks');
+  rem.value = data.remarks || '';
+  updateCounter('remarks','remCounter',500);
+
+  // Status badge
+  const badge = document.getElementById('statusBadge');
+  badge.style.display = 'inline-flex';
+  badge.className = `sp sp-${(data.status||'awaiting').toLowerCase()}`;
+  badge.textContent = data.status;
+
+  // Image
+  if (data.hasImage) {
+    sampleImageURL = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='240'><rect width='300' height='240' fill='%23${(selectedColors[0]?colorOptions.find(c=>c.name===selectedColors[0])?.hex:'6366f1')||'6366f1'}'.replace('#','')}/><text x='150' y='120' text-anchor='middle' fill='white' font-size='20' font-family='sans-serif'>${data.sampleNo}</text></svg>`;
+    showImagePreview(sampleImageURL);
+  }
+}
+
+function applyModeRestrictions() {
+  const isView = MODE === 'view' || (!can('edit') && !can('create'));
+  const isEdit = MODE === 'edit';
+  const isCreate = MODE === 'create';
+
+  // Page title
+  document.getElementById('topbarTitle').textContent = isView ? 'View Sample' : isEdit ? 'Edit Sample' : 'Create Sample';
+  document.getElementById('pageTitle').textContent = isView ? 'View Sample' : isEdit ? 'Edit Sample' : 'Create New Sample';
+
+  if (isView) {
+    document.getElementById('viewBadge').style.display = 'inline-flex';
+    // Disable all inputs
+    document.querySelectorAll('.inp,.ms-trigger,.bom-input,.radio-opt input').forEach(el => {
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+    });
+    document.querySelectorAll('.btn-add,.bom-add-btn,.img-upload,.att-zone').forEach(el => {
+      el.style.pointerEvents = 'none'; el.style.opacity = '0.5';
+    });
+    document.getElementById('saveButtons').style.display = 'none';
+    document.getElementById('prodOrderLink').style.display = 'inline-flex';
+  }
+
+  if (isEdit) {
+    document.getElementById('prodOrderLink').style.display = 'inline-flex';
+    const s = mockSamples[SAMPLE_ID];
+    if (s && s.status === 'Approved') {
+      document.getElementById('moveToProductBtn').style.display = 'inline-flex';
+    }
+    // Update save button label
+    document.getElementById('saveBtn').innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>Update Sample`;
+  }
+
+  // Nav active state
+  if (isCreate) {
+    document.querySelector('.nav-child[href="sample-create.html"]').classList.add('active');
+  } else {
+    document.querySelector('.nav-child[href="sample-list.html"]').classList.add('active');
+    document.querySelector('.nav-child[href="sample-create.html"]')?.classList.remove('active');
+  }
+}
+
+/* ══════════════════════════════════
+   COLOR MULTI-SELECT
+══════════════════════════════════ */
+function renderColorDropdown() {
+  const dd = document.getElementById('colorDD');
+  dd.innerHTML = colorOptions.map(c => `
+    <label class="ms-opt">
+      <input type="checkbox" value="${c.name}" ${selectedColors.includes(c.name)?'checked':''} onchange="toggleColor('${c.name}')">
+      <span class="ms-opt-color" style="background:${c.hex};"></span>
+      <span>${c.name}</span>
+    </label>
+  `).join('') + `
+    <div class="ms-divider"></div>
+    <div class="ms-create-opt" onclick="event.stopPropagation();document.getElementById('colorDD').classList.remove('open');document.getElementById('colorTrigger').classList.remove('open');document.getElementById('newColorPanel').classList.toggle('open')">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+      Create New Color
+    </div>`;
+}
+
+function toggleColor(name) {
+  if (selectedColors.includes(name)) selectedColors = selectedColors.filter(c=>c!==name);
+  else selectedColors.push(name);
+  renderColorTrigger();
+}
+
+function renderColorTrigger() {
+  const trigger = document.getElementById('colorTrigger');
+  const ph = document.getElementById('colorPlaceholder');
+  // Remove existing chips
+  trigger.querySelectorAll('.ms-chip').forEach(c=>c.remove());
+  ph.style.display = selectedColors.length ? 'none' : '';
+  selectedColors.forEach(name => {
+    const c = colorOptions.find(x=>x.name===name);
+    const chip = document.createElement('span');
+    chip.className = 'ms-chip';
+    chip.innerHTML = `<span style="width:10px;height:10px;border-radius:2px;background:${c?c.hex:'#ccc'};display:inline-block;border:1px solid rgba(0,0,0,.15);"></span>${name}<button class="ms-chip-x" onclick="event.stopPropagation();removeColor('${name}')">×</button>`;
+    trigger.insertBefore(chip, trigger.querySelector('.ms-trigger-arrow'));
+  });
+  // Update checkbox states
+  document.querySelectorAll('#colorDD input[type=checkbox]').forEach(cb => {
+    cb.checked = selectedColors.includes(cb.value);
+  });
+  // Validate
+  if (selectedColors.length) {
+    document.getElementById('colorTrigger').classList.remove('err');
+    document.getElementById('errColor').classList.remove('show');
+  }
+}
+
+function removeColor(name) {
+  selectedColors = selectedColors.filter(c=>c!==name);
+  renderColorTrigger();
+}
+
+function toggleColorDD() {
+  if (MODE === 'view') return;
+  const dd = document.getElementById('colorDD');
+  const trigger = document.getElementById('colorTrigger');
+  const open = dd.classList.toggle('open');
+  trigger.classList.toggle('open', open);
+}
+
+function saveNewColor() {
+  const name = document.getElementById('newColorName').value.trim();
+  const hex  = document.getElementById('newColorHex').value;
+  if (!name) { toast('Color name is required.','e'); return; }
+  if (colorOptions.some(c=>c.name.toLowerCase()===name.toLowerCase())) { toast('Color already exists.','e'); return; }
+  colorOptions.push({name,hex});
+  selectedColors.push(name);
+  renderColorDropdown();
+  renderColorTrigger();
+  document.getElementById('newColorPanel').classList.remove('open');
+  document.getElementById('newColorName').value = '';
+  toast(`Color "${name}" created & selected.`,'s');
+}
+
+/* ══════════════════════════════════
+   SIZE MULTI-SELECT
+══════════════════════════════════ */
+function renderSizeDropdown() {
+  const dd = document.getElementById('sizeDD');
+  dd.innerHTML = sizeOptions.map(s => `
+    <label class="ms-opt">
+      <input type="checkbox" value="${s.code}" ${selectedSizes.includes(s.code)?'checked':''} onchange="toggleSize('${s.code}')">
+      <span>${s.code} — ${s.name}</span>
+    </label>
+  `).join('') + `
+    <div class="ms-divider"></div>
+    <div class="ms-create-opt" onclick="event.stopPropagation();document.getElementById('sizeDD').classList.remove('open');document.getElementById('sizeTrigger').classList.remove('open');document.getElementById('newSizePanel').classList.toggle('open')">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+      Create New Size
+    </div>`;
+}
+
+function toggleSize(code) {
+  if (selectedSizes.includes(code)) selectedSizes = selectedSizes.filter(s=>s!==code);
+  else selectedSizes.push(code);
+  renderSizeTrigger();
+  renderSqTable();
+}
+
+function renderSizeTrigger() {
+  const trigger = document.getElementById('sizeTrigger');
+  const ph = document.getElementById('sizePlaceholder');
+  trigger.querySelectorAll('.ms-chip').forEach(c=>c.remove());
+  ph.style.display = selectedSizes.length ? 'none' : '';
+  selectedSizes.forEach(code => {
+    const chip = document.createElement('span');
+    chip.className = 'ms-chip';
+    chip.innerHTML = `${code}<button class="ms-chip-x" onclick="event.stopPropagation();removeSize('${code}')">×</button>`;
+    trigger.insertBefore(chip, trigger.querySelector('.ms-trigger-arrow'));
+  });
+  document.querySelectorAll('#sizeDD input[type=checkbox]').forEach(cb => {
+    cb.checked = selectedSizes.includes(cb.value);
+  });
+}
+
+function removeSize(code) {
+  selectedSizes = selectedSizes.filter(s=>s!==code);
+  renderSizeTrigger();
+  renderSqTable();
+}
+
+function toggleSizeDD() {
+  if (MODE === 'view') return;
+  const dd = document.getElementById('sizeDD');
+  const trigger = document.getElementById('sizeTrigger');
+  const open = dd.classList.toggle('open');
+  trigger.classList.toggle('open', open);
+}
+
+function renderSqTable() {
+  const wrap = document.getElementById('sqTableWrap');
+  const tbody = document.getElementById('sqTbody');
+  if (!selectedSizes.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const viewMode = MODE === 'view';
+  tbody.innerHTML = selectedSizes.map((code, idx) => `
+    <tr draggable="${!viewMode}" data-size="${code}"
+        ondragstart="dragStart(event,${idx})"
+        ondragover="dragOver(event)"
+        ondrop="dragDrop(event,${idx})"
+        ondragend="dragEnd(event)">
+      <td>${viewMode ? '' : `<div class="drag-handle" title="Drag to reorder"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a1 1 0 00-.894.553L4 6H2a1 1 0 000 2h1v9a1 1 0 001 1h12a1 1 0 001-1V8h1a1 1 0 100-2h-2l-2.106-3.447A1 1 0 0013 2H7z"/></svg></div>`}</td>
+      <td><span class="size-badge">${code}</span></td>
+      <td><input type="number" class="bom-input" id="qty_${code}" min="0" value="1" placeholder="Qty" style="width:100px;" ${viewMode?'disabled':''}></td>
+      <td>${viewMode?'':
+        `<button class="bom-del" onclick="removeSize('${code}')" title="Remove size">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>`
+      }</td>
+    </tr>
+  `).join('');
+}
+
+/* ── Drag & Drop for sizes ── */
+let dragSrcIdx = null;
+function dragStart(e, idx) { dragSrcIdx = idx; e.currentTarget.classList.add('dragging'); }
+function dragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over')); }
+function dragDrop(e, targetIdx) {
+  e.preventDefault();
+  if (dragSrcIdx === null || dragSrcIdx === targetIdx) return;
+  const moved = selectedSizes.splice(dragSrcIdx, 1)[0];
+  selectedSizes.splice(targetIdx, 0, moved);
+  dragSrcIdx = null;
+  // Save quantities before re-render
+  const qtyMap = {};
+  selectedSizes.forEach(c => { const el = document.getElementById(`qty_${c}`); if (el) qtyMap[c]=el.value; });
+  renderSqTable();
+  // Restore quantities
+  Object.keys(qtyMap).forEach(c => { const el = document.getElementById(`qty_${c}`); if (el) el.value=qtyMap[c]; });
+}
+
+function saveNewSize() {
+  const code = document.getElementById('newSizeCode').value.trim().toUpperCase();
+  const name = document.getElementById('newSizeName').value.trim();
+  if (!code) { toast('Size code required.','e'); return; }
+  if (sizeOptions.some(s=>s.code===code)) { toast('Size already exists.','e'); return; }
+  sizeOptions.push({code,name:name||code});
+  selectedSizes.push(code);
+  renderSizeDropdown();
+  renderSizeTrigger();
+  renderSqTable();
+  document.getElementById('newSizePanel').classList.remove('open');
+  document.getElementById('newSizeCode').value = '';
+  document.getElementById('newSizeName').value = '';
+  toast(`Size "${code}" created & selected.`,'s');
+}
+
+/* ══════════════════════════════════
+   UOM / CATEGORY CREATES
+══════════════════════════════════ */
+function saveNewUOM() {
+  const code = document.getElementById('newUOMCode').value.trim().toUpperCase();
+  const name = document.getElementById('newUOMName').value.trim();
+  if (!code) { toast('UOM code required.','e'); return; }
+  const sel = document.getElementById('uomSelect');
+  if ([...sel.options].some(o=>o.value===code)) { toast('UOM already exists.','e'); return; }
+  const opt = document.createElement('option');
+  opt.value = code; opt.textContent = `${code} – ${name||code}`;
+  sel.add(opt); sel.value = code;
+  document.getElementById('newUOMPanel').classList.remove('open');
+  document.getElementById('newUOMCode').value = '';
+  document.getElementById('newUOMName').value = '';
+  toast(`UOM "${code}" saved & selected.`,'s');
+}
+
+function saveNewCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { toast('Category name required.','e'); return; }
+  const sel = document.getElementById('categorySelect');
+  if ([...sel.options].some(o=>o.value===name)) { toast('Category already exists.','e'); return; }
+  const opt = document.createElement('option');
+  opt.value = name; opt.textContent = name;
+  sel.add(opt); sel.value = name;
+  document.getElementById('newCatPanel').classList.remove('open');
+  document.getElementById('newCatName').value = '';
+  toast(`Category "${name}" created.`,'s');
+}
+
+/* ══════════════════════════════════
+   BOM ALLOCATION
+══════════════════════════════════ */
+function setBomMode(mode) {
+  bomMode = mode;
+  document.getElementById('bomExistingWrap').style.display = mode==='existing' ? '' : 'none';
+  document.getElementById('bomNewWrap').style.display     = mode==='new'      ? '' : 'none';
+  document.getElementById('radioExistingLabel').classList.toggle('selected', mode==='existing');
+  document.getElementById('radioNewLabel').classList.toggle('selected', mode==='new');
+}
+
+let bomExistingRowId = 0;
+function addBomExistingRow() {
+  const id = ++bomExistingRowId;
+  const tbody = document.getElementById('bomExistingTbody');
+  const viewMode = MODE === 'view';
+  const tr = document.createElement('tr');
+  tr.id = `bomERow${id}`;
+  tr.innerHTML = `
+    <td style="color:var(--text-3);font-weight:600;font-size:12px;text-align:center;">${tbody.rows.length+1}</td>
+    <td>
+      <select class="bom-input" id="bomEType${id}" onchange="updateBomMaterialName(${id})" ${viewMode?'disabled':''}>
+        <option value="">Select type…</option>
+        ${materialTypes.map(t=>`<option>${t}</option>`).join('')}
+      </select>
+    </td>
+    <td>
+      <select class="bom-input" id="bomEName${id}" ${viewMode?'disabled':''}>
+        <option value="">Select material…</option>
+      </select>
+    </td>
+    <td><input type="number" class="bom-input" id="bomECons${id}" min="0" step="0.01" placeholder="0.00" ${viewMode?'disabled':''}></td>
+    <td>
+      <select class="bom-input" id="bomEUOM${id}" ${viewMode?'disabled':''}>
+        <option value="">UOM…</option>
+        <option>PCS</option><option>MTR</option><option>KG</option><option>YDS</option><option>SET</option>
+      </select>
+    </td>
+    <td>${viewMode?'':
+      `<button class="bom-del" onclick="document.getElementById('bomERow${id}').remove();renumberBomRows('bomExistingTbody')" title="Remove row">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>`
+    }</td>`;
+  tbody.appendChild(tr);
+}
+
+function updateBomMaterialName(id) {
+  const type = document.getElementById(`bomEType${id}`).value;
+  const nameSelect = document.getElementById(`bomEName${id}`);
+  const materials = materialsByType[type] || [];
+  nameSelect.innerHTML = `<option value="">Select material…</option>` +
+    materials.map(m=>`<option>${m}</option>`).join('');
+}
+
+let bomNewRowId = 0;
+function addBomNewRow() {
+  const id = ++bomNewRowId;
+  const tbody = document.getElementById('bomNewTbody');
+  const viewMode = MODE === 'view';
+  const tr = document.createElement('tr');
+  tr.id = `bomNRow${id}`;
+  tr.innerHTML = `
+    <td style="color:var(--text-3);font-weight:600;font-size:12px;text-align:center;">${tbody.rows.length+1}</td>
+    <td>
+      <select class="bom-input" ${viewMode?'disabled':''}>
+        <option value="">Select type…</option>
+        ${materialTypes.map(t=>`<option>${t}</option>`).join('')}
+      </select>
+    </td>
+    <td><input type="text" class="bom-input" placeholder="Material name / color…" maxlength="100" ${viewMode?'disabled':''}></td>
+    <td><input type="number" class="bom-input" min="0" step="0.01" placeholder="0.00" ${viewMode?'disabled':''}></td>
+    <td>
+      <select class="bom-input" ${viewMode?'disabled':''}>
+        <option value="">UOM…</option>
+        <option>PCS</option><option>MTR</option><option>KG</option><option>YDS</option><option>SET</option>
+      </select>
+    </td>
+    <td>${viewMode?'':
+      `<button class="bom-del" onclick="document.getElementById('bomNRow${id}').remove();renumberBomRows('bomNewTbody')" title="Remove row">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>`
+    }</td>`;
+  tbody.appendChild(tr);
+}
+
+function renumberBomRows(tbodyId) {
+  document.querySelectorAll(`#${tbodyId} tr td:first-child`).forEach((td,i) => { td.textContent = i+1; });
+}
+
+/* ══════════════════════════════════
+   IMAGE UPLOAD
+══════════════════════════════════ */
+function handleImgSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Please select an image file.','e'); return; }
+  if (file.size > 5*1024*1024) { toast('Image must be under 5 MB.','e'); return; }
+  sampleImageFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => { sampleImageURL = ev.target.result; showImagePreview(sampleImageURL); };
+  reader.readAsDataURL(file);
+}
+
+function handleImgDrop(e) {
+  e.preventDefault();
+  document.getElementById('imgDropZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const fakeEvent = { target: { files: [file] } };
+    handleImgSelect(fakeEvent);
+  }
+}
+
+function showImagePreview(url) {
+  document.getElementById('imgUploadArea').style.display = 'none';
+  document.getElementById('imgPreview').src = url;
+  document.getElementById('imgPreviewArea').style.display = 'block';
+}
+
+function removeImg() {
+  sampleImageFile = null; sampleImageURL = null;
+  document.getElementById('imgInput').value = '';
+  document.getElementById('imgUploadArea').style.display = '';
+  document.getElementById('imgPreviewArea').style.display = 'none';
+}
+
+function openImgFullscreen() {
+  if (!sampleImageURL) return;
+  const fs = document.getElementById('imgFs');
+  document.getElementById('imgFsImg').src = sampleImageURL;
+  fs.classList.add('open');
+}
+
+function closeImgFullscreen() {
+  document.getElementById('imgFs').classList.remove('open');
+}
+
+/* ══════════════════════════════════
+   ATTACHMENTS
+══════════════════════════════════ */
+function handleAttSelect(e) { addAttachments(Array.from(e.target.files)); e.target.value=''; }
+function handleAttDrop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = 'var(--border)';
+  addAttachments(Array.from(e.dataTransfer.files));
+}
+
+function addAttachments(files) {
+  files.forEach(file => {
+    if (attachments.some(a=>a.name===file.name)) { toast(`"${file.name}" already added.`,'i'); return; }
+    attachments.push(file);
+  });
+  renderAttachments();
+}
+
+function renderAttachments() {
+  const list = document.getElementById('attList');
+  if (!attachments.length) { list.innerHTML=''; return; }
+  list.innerHTML = attachments.map((f,i) => {
+    const ext = f.name.split('.').pop().toUpperCase();
+    const size = f.size > 1024*1024 ? `${(f.size/1024/1024).toFixed(1)} MB` : `${Math.round(f.size/1024)} KB`;
+    return `
+      <div class="att-item">
+        <div class="att-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg></div>
+        <span class="att-name" title="${f.name}">${f.name}</span>
+        <span class="att-size">${ext} · ${size}</span>
+        <button class="att-dl" title="Download" onclick="toast('Downloading…','i')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
+        </button>
+        ${MODE!=='view'?`<button class="att-del" title="Remove" onclick="removeAtt(${i})">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+        </button>`:''}
+      </div>`;
+  }).join('');
+}
+
+function removeAtt(idx) { attachments.splice(idx,1); renderAttachments(); }
+
+/* ══════════════════════════════════
+   VALIDATION & SAVE
+══════════════════════════════════ */
+function validateForm() {
+  let valid = true;
+  // Color
+  if (!selectedColors.length) {
+    document.getElementById('colorTrigger').classList.add('err');
+    document.getElementById('errColor').classList.add('show');
+    valid = false;
+  }
+  // UOM
+  if (!document.getElementById('uomSelect').value) {
+    document.getElementById('uomSelect').classList.add('err');
+    document.getElementById('errUOM').classList.add('show');
+    valid = false;
+  } else {
+    document.getElementById('uomSelect').classList.remove('err');
+    document.getElementById('errUOM').classList.remove('show');
+  }
+  return valid;
+}
+
+function saveSample(type) {
+  if (!validateForm()) { toast('Please fill all required fields.','e'); return; }
+
+  // Auto-generate sample no if blank
+  let sampleNo = document.getElementById('sampleNo').value.trim();
+  if (!sampleNo) {
+    sampleNo = `SMP-2026-${String(sampleCounter++).padStart(3,'0')}`;
+    document.getElementById('sampleNo').value = sampleNo;
+    toast(`Sample No. auto-generated: ${sampleNo}`,'i');
+  }
+
+  const numColors = selectedColors.length;
+  if (numColors > 1 && type !== 'draft') {
+    toast(`${numColors} colors selected — ${numColors} separate product records will be created.`,'i');
+  }
+
+  setTimeout(() => {
+    toast(
+      MODE==='edit'
+        ? `Sample ${sampleNo} updated successfully.`
+        : type==='draft'
+          ? `Draft saved as ${sampleNo}.`
+          : `Sample ${sampleNo} created successfully.`,
+      's'
+    );
+    setTimeout(() => location.href='sample-list.html', 1500);
+  }, type==='draft' ? 200 : 500);
+}
+
+function moveToProduct() {
+  const sno = document.getElementById('sampleNo').value || SAMPLE_ID;
+  toast(`Navigating to Product page with ${sno} pre-populated…`,'i');
+  setTimeout(() => { location.href=`#product-create?sampleId=${SAMPLE_ID}`; }, 1200);
+}
+
+function goToProductionOrder(e) {
+  e.preventDefault();
+  const sno = SAMPLE_ID || document.getElementById('sampleNo').value;
+  toast(`Navigating to Production Order with sample ${sno} pre-selected…`,'i');
+}
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+function updateCounter(fieldId, counterId, max) {
+  const val = document.getElementById(fieldId).value.length;
+  const el = document.getElementById(counterId);
+  el.textContent = `${val} / ${max}`;
+  el.classList.toggle('warn', val >= max*0.9);
+}
+
+function toast(msg, type='s') {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `tt ${type}`;
+  const icons = {
+    s:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>',
+    e:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>',
+    i:'<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>',
+  };
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;">${icons[type]||icons.i}</svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(()=>el.remove(),4500);
+}
+
+function toggleGroup(el) {
+  const g = el.closest('.nav-group');
+  g.classList.toggle('open',!g.classList.contains('open'));
+  el.classList.toggle('open',!el.classList.contains('open'));
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#colorWrap')) {
+    document.getElementById('colorDD').classList.remove('open');
+    document.getElementById('colorTrigger').classList.remove('open');
+  }
+  if (!e.target.closest('#sizeWrap') && !e.target.closest('#newSizePanel')) {
+    document.getElementById('sizeDD').classList.remove('open');
+    document.getElementById('sizeTrigger').classList.remove('open');
+  }
+});
+
+/* ── Update sampleNo char counter ── */
+document.getElementById('sampleNo').addEventListener('input', function() {
+  document.getElementById('snoCounter').textContent = `${this.value.length} / 100`;
+});
+
+/* ── UOM validation on change ── */
+document.getElementById('uomSelect').addEventListener('change', function() {
+  if (this.value) {
+    this.classList.remove('err');
+    document.getElementById('errUOM').classList.remove('show');
+  }
+});
+
+/* ── Run init ── */
+init();
+</script>
+</body>
+</html>

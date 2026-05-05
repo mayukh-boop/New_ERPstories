@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Raw Material — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root{--sidebar-bg:#ffffff;--sidebar-hover:rgba(91,95,199,.07);--sidebar-active:rgba(91,95,199,.12);--brand-500:#5b5fc7;--brand-600:#4f52b2;--brand-700:#3d40a0;--bg:#f5f6fa;--border:#e8eaf0;--border2:#f0f2f7;}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}
+.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}
+.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}
+.sf-role{color:#8892a4!important;}
+.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+.page{padding:28px 32px 60px;}
+
+.sec-card{background:#fff;border-radius:16px;border:1px solid #eaecf0;box-shadow:0 1px 6px rgba(0,0,0,.05);padding:24px 24px 8px;margin-bottom:16px;}
+.sec-card-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#d1d5db;padding-bottom:12px;border-bottom:1px solid #f3f4f6;margin-bottom:20px;}
+
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.fl{font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:4px;}
+.fl .req{color:#ef4444;}
+
+.inp{width:100%;height:44px;padding:0 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;color:#111827;outline:none;transition:border-color 150ms ease,background 150ms ease,box-shadow 150ms ease;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp::placeholder{color:#9ca3af;}
+.inp.invalid{border-color:#ef4444;background:#fef2f2;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+textarea.inp{height:auto;min-height:90px;padding:12px 14px;resize:vertical;}
+
+.locked-field{height:44px;padding:0 14px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;color:#6b7280;display:flex;align-items:center;gap:8px;}
+.locked-hint{font-size:11.5px;color:#9ca3af;margin-top:4px;}
+.lock-svg{flex-shrink:0;color:#d1d5db;}
+
+.ir{display:flex;gap:8px;align-items:flex-start;}
+.ir .inp{flex:1;}
+.btn-add{width:44px;height:44px;flex-shrink:0;background:var(--brand-500);color:#fff;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 150ms ease;font-size:22px;font-weight:300;}
+.btn-add:hover{background:var(--brand-600);}
+.btn-add svg{width:18px;height:18px;}
+
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+.toggle-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.toggle-inp{display:none;}
+.toggle-knob{position:relative;width:50px;height:28px;background:#d1d5db;border-radius:14px;cursor:pointer;transition:background 150ms ease;flex-shrink:0;}
+.toggle-knob::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 150ms ease;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle-inp:checked~.toggle-knob{background:var(--brand-500);}
+.toggle-inp:checked~.toggle-knob::after{transform:translateX(22px);}
+.toggle-text{font-size:13px;font-weight:500;color:#374151;}
+.toggle-cell{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+
+.dd-panel{display:none;margin-top:8px;padding:14px 16px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;}
+.dd-panel.open{display:block;}
+.dd-panel-title{font-size:11px;font-weight:700;color:#4338ca;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.dd-panel-actions{display:flex;gap:8px;margin-top:10px;}
+
+.muom-table{width:100%;border-collapse:collapse;}
+.muom-table th{padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#6b7280;background:#f9fafb;text-align:left;border:1px solid #e5e7eb;}
+.muom-table td{padding:8px 12px;border:1px solid #f3f4f6;vertical-align:middle;}
+.muom-table .inp{height:34px;font-size:13px;}
+.muom-block{margin-bottom:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;}
+
+.split-wrap{display:flex;gap:20px;align-items:flex-start;}
+.split-main{flex:1;min-width:0;}
+.split-side{width:300px;flex-shrink:0;}
+
+.img-upload-box{border:2px dashed #c7d2fe;border-radius:14px;background:#f5f3ff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;transition:border-color 150ms ease,background 150ms ease;min-height:200px;}
+.img-upload-box:hover,.img-upload-box.drag{border-color:#818cf8;background:#ede9fe;}
+.img-upload-box input{display:none;}
+.img-cloud-icon{width:56px;height:56px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#6366f1;}
+.img-cloud-icon svg{width:26px;height:26px;}
+.img-upload-title{font-size:14px;font-weight:600;color:#374151;margin-bottom:4px;}
+.img-upload-sub{font-size:12px;color:#9ca3af;}
+.img-preview-wrap{position:relative;display:inline-block;}
+.img-preview-wrap img{max-height:180px;max-width:100%;border-radius:10px;border:1px solid #e5e7eb;display:block;}
+.img-remove-btn{position:absolute;top:-8px;right:-8px;width:22px;height:22px;background:#ef4444;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;}
+.img-error{font-size:12px;color:#ef4444;margin-top:6px;display:none;}
+.img-label{font-size:13px;font-weight:500;color:#374151;margin-bottom:6px;display:block;}
+
+.inv-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:6px;font-size:13px;}
+.inv-item-loc{font-weight:500;flex:1;}
+.inv-item-limit{color:#4b5563;min-width:80px;}
+.inv-item-del{width:26px;height:26px;border:none;background:transparent;cursor:pointer;color:#9ca3af;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.inv-item-del:hover{background:#fee2e2;color:#ef4444;}
+.inv-item-del svg{width:14px;height:14px;}
+
+/* Tabs */
+.tabs-bar{display:flex;border-bottom:2px solid #f3f4f6;margin-bottom:24px;}
+.tab-btn{padding:10px 22px;border:none;background:transparent;font-size:13px;font-weight:500;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 150ms ease;font-family:inherit;}
+.tab-btn:hover{color:#374151;}
+.tab-btn.active{color:#4f46e5;border-bottom-color:#4f46e5;font-weight:600;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* Inventory Limits tab */
+.inv-table{width:100%;border-collapse:collapse;}
+.inv-table thead tr{background:#f9fafb;border-bottom:1px solid #e5e7eb;}
+.inv-table thead th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;text-align:left;}
+.inv-table tbody tr{border-bottom:1px solid #f3f4f6;}
+.inv-table tbody tr:last-child{border-bottom:none;}
+.inv-table tbody tr:hover td{background:#fafbff;}
+.inv-table tbody td{padding:11px 14px;font-size:13px;color:#111827;vertical-align:middle;}
+.add-inv-row{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:500;color:#4f46e5;transition:background 150ms ease;border-top:1px solid #f3f4f6;}
+.add-inv-row:hover{background:#eef2ff;}
+
+.page-heading{font-size:22px;font-weight:700;color:#111827;margin-bottom:4px;}
+.form-action-bar{display:flex;align-items:center;justify-content:space-between;padding-top:20px;border-top:1px solid #f3f4f6;margin-top:8px;}
+
+/* Custom multi-select size dropdown */
+.custom-ms{position:relative;}
+.custom-ms-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none;}
+.custom-ms-btn.ms-disabled{opacity:0.45;cursor:not-allowed;pointer-events:none;}
+.custom-ms-panel{position:absolute;top:calc(100% + 4px);left:0;width:max-content;min-width:100%;background:#fff;border:1px solid #d1d5db;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:200;max-height:260px;overflow-y:auto;padding:4px 0;}
+.cms-group{font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.07em;padding:8px 12px 3px;text-transform:uppercase;}
+.cms-item{display:flex;align-items:center;gap:9px;padding:6px 14px;cursor:pointer;font-size:13px;color:#374151;white-space:nowrap;}
+.cms-item:hover{background:#f5f6fa;}
+.cms-item input[type=checkbox]{accent-color:var(--brand-500);width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+
+@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr;}.split-wrap{flex-direction:column;}.split-side{width:100%;}}
+@media(max-width:600px){.g3,.g4,.g2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-name">Stitch ERP</div><div class="brand-sub">Enterprise Garment Platform</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Core</div>
+      <div class="nav-group">
+        <div class="nav-parent" onclick="location.href='#'">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zm8-8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg></span>
+          <span class="nav-parent-label">Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+          <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-parent-label">Masters</span>
+          <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div class="nav-children">
+          <a class="nav-child" href="masters-list.html">All Masters</a>
+          <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
+          <a class="nav-child" href="masters-color.html">Color Master</a>
+          <a class="nav-child" href="masters-fabric.html">Fabric Master</a>
+          <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
+          <a class="nav-child" href="masters-company.html">Company Master</a>
+          <a class="nav-child" href="masters-size.html">Size Master</a>
+          <a class="nav-child" href="masters-uom.html">Base UOM Master</a>
+          <a class="nav-child active" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+          <a class="nav-child" href="masters-operation.html">Operations</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><div class="sf-avatar">MG</div><div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin Access</div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-module">Masters</span>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg><span class="notif-dot"></span></button>
+      </div>
+    </header>
+
+    <main class="page">
+
+      <!-- Breadcrumb -->
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:10px;">
+        <a href="masters-list.html" style="color:#9ca3af;text-decoration:none;">Masters</a>
+        <span style="margin:0 6px;">›</span>
+        <a href="masters-rawmaterial.html" style="color:#9ca3af;text-decoration:none;">Raw Material Master</a>
+        <span style="margin:0 6px;">›</span>
+        <span style="color:#111827;" id="breadName">Edit</span>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <div class="page-heading" id="pageTitle" style="margin-bottom:4px;">Edit Raw Material</div>
+          <div style="font-size:13px;color:#9ca3af;">Fields with <svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px;vertical-align:-1px;color:#d1d5db;"><path fill-rule="evenodd" d="M4 7V5a4 4 0 018 0v2h.5A1.5 1.5 0 0114 8.5v5A1.5 1.5 0 0112.5 15h-9A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm2-2a2 2 0 014 0v2H6V5z" clip-rule="evenodd"/></svg> cannot be changed after creation</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs-bar">
+        <button class="tab-btn active" onclick="switchTab('details',this)">Details</button>
+        <button class="tab-btn" onclick="switchTab('invLimits',this)">Inventory Limits</button>
+      </div>
+
+      <!-- ════ TAB 1: DETAILS ════ -->
+      <div class="tab-panel active" id="tab-details">
+
+        <!-- CARD 1: Core Identification -->
+        <div class="sec-card">
+          <div class="sec-card-title">Core Identification</div>
+
+          <!-- Row 1: RM Type (locked) | RM Name | RM Code -->
+          <div class="g3">
+            <div class="fg">
+              <div class="fl">
+                RM Type
+                <svg viewBox="0 0 16 16" fill="currentColor" class="lock-svg" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M4 7V5a4 4 0 018 0v2h.5A1.5 1.5 0 0114 8.5v5A1.5 1.5 0 0112.5 15h-9A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm2-2a2 2 0 014 0v2H6V5z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="locked-field" id="lockedRmType">—</div>
+              <div class="locked-hint">Fixed at creation — cannot be changed</div>
+            </div>
+            <div class="fg">
+              <div class="fl">RM Name <span class="req">*</span></div>
+              <input class="inp" id="fRmName" type="text" placeholder="Enter raw material name">
+            </div>
+            <div class="fg">
+              <div class="fl">RM Code</div>
+              <input class="inp" id="fRmCode" type="text" placeholder="e.g. RMY-001">
+            </div>
+          </div>
+
+          <!-- Row 2: Description | Shade Code -->
+          <div class="g2">
+            <div class="fg">
+              <div class="fl">Description</div>
+              <input class="inp" id="fDescription" type="text" placeholder="Enter description or specifications...">
+            </div>
+            <div class="fg">
+              <div class="fl">Shade Code</div>
+              <input class="inp" id="fShadeCode" type="text" placeholder="e.g. SHD-010">
+            </div>
+          </div>
+
+          <!-- Row 3: Color (locked) | UOM (locked) | Multiple UOM -->
+          <div class="g3">
+            <div class="fg">
+              <div class="fl">
+                Color
+                <svg viewBox="0 0 16 16" fill="currentColor" class="lock-svg" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M4 7V5a4 4 0 018 0v2h.5A1.5 1.5 0 0114 8.5v5A1.5 1.5 0 0112.5 15h-9A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm2-2a2 2 0 014 0v2H6V5z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="locked-field" id="lockedColor">—</div>
+              <div class="locked-hint">Fixed at creation — cannot be changed</div>
+            </div>
+            <div class="fg">
+              <div class="fl">
+                Base UOM
+                <svg viewBox="0 0 16 16" fill="currentColor" class="lock-svg" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M4 7V5a4 4 0 018 0v2h.5A1.5 1.5 0 0114 8.5v5A1.5 1.5 0 0112.5 15h-9A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm2-2a2 2 0 014 0v2H6V5z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="locked-field" id="lockedUom">—</div>
+              <div class="locked-hint">Base UOM is fixed at creation</div>
+            </div>
+            <!-- Multiple UOM + add new -->
+            <div class="fg">
+              <div class="fl">Multiple UOM</div>
+              <div class="ir">
+                <select class="inp" id="fMultiUom">
+                  <option value="">Select additional UOM</option>
+                  <option value="Meters">Meters</option>
+                  <option value="Kilograms">Kilograms</option>
+                  <option value="Pieces">Pieces</option>
+                  <option value="Yards">Yards</option>
+                  <option value="Rolls">Rolls</option>
+                  <option value="Grams">Grams</option>
+                  <option value="Litres">Litres</option>
+                </select>
+                <button class="btn-add" type="button" onclick="togglePanel('muomPanel')" title="Add new UOM">+</button>
+              </div>
+              <div class="dd-panel" id="muomPanel">
+                <div class="dd-panel-title">Add New UOM</div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">UOM Name <span class="req">*</span></div>
+                  <input class="inp" id="newMuomName" type="text" placeholder="e.g. Bundles">
+                </div>
+                <div class="dd-panel-actions">
+                  <button class="btn btn-primary btn-sm" type="button" onclick="addNewUom()">Add UOM</button>
+                  <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('muomPanel')">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-UOM denomination table -->
+          <div id="multiUomList"></div>
+
+          <!-- Scale Wise toggle + Size closed dropdown (inline) -->
+          <div style="display:flex;gap:20px;align-items:flex-end;padding-top:4px;padding-bottom:16px;">
+            <div class="toggle-cell" style="margin-bottom:0;flex-shrink:0;">
+              <div class="fl" style="margin-bottom:2px;">Scale Wise</div>
+              <label class="toggle-wrap" style="margin-top:6px;cursor:pointer;">
+                <input class="toggle-inp" type="checkbox" id="fScaleWise" onchange="onScaleWiseChange(this)">
+                <span class="toggle-knob"></span>
+                <span class="toggle-text" id="scaleWiseText">No</span>
+              </label>
+              <div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">Track by scale measurement</div>
+            </div>
+            <div class="fg" style="margin-bottom:0;flex:1;max-width:280px;">
+              <div class="fl">Size</div>
+              <div class="ir" style="align-items:center;">
+                <div class="custom-ms" id="sizeMultiWrap" style="flex:1;">
+                  <div class="inp custom-ms-btn ms-disabled" id="sizeDropBtn" onclick="toggleSizeDropdown(event)">
+                    <span id="sizeSelectedText" style="color:#9ca3af;">Select sizes</span>
+                    <svg viewBox="0 0 20 20" fill="currentColor" id="sizeChevron" style="width:15px;height:15px;flex-shrink:0;color:#9ca3af;transition:transform .15s;"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="custom-ms-panel" id="sizePanelDrop" style="display:none;">
+                    <div class="cms-group">Garment Sizes</div>
+                    <label class="cms-item"><input type="checkbox" value="XS" onchange="updateSizeSelected()"><span>XS</span></label>
+                    <label class="cms-item"><input type="checkbox" value="S" onchange="updateSizeSelected()"><span>S</span></label>
+                    <label class="cms-item"><input type="checkbox" value="M" onchange="updateSizeSelected()"><span>M</span></label>
+                    <label class="cms-item"><input type="checkbox" value="L" onchange="updateSizeSelected()"><span>L</span></label>
+                    <label class="cms-item"><input type="checkbox" value="XL" onchange="updateSizeSelected()"><span>XL</span></label>
+                    <label class="cms-item"><input type="checkbox" value="XXL" onchange="updateSizeSelected()"><span>XXL</span></label>
+                    <label class="cms-item"><input type="checkbox" value="XXXL" onchange="updateSizeSelected()"><span>XXXL</span></label>
+                    <div class="cms-group">Numeric Sizes</div>
+                    <label class="cms-item"><input type="checkbox" value="28" onchange="updateSizeSelected()"><span>28</span></label>
+                    <label class="cms-item"><input type="checkbox" value="30" onchange="updateSizeSelected()"><span>30</span></label>
+                    <label class="cms-item"><input type="checkbox" value="32" onchange="updateSizeSelected()"><span>32</span></label>
+                    <label class="cms-item"><input type="checkbox" value="34" onchange="updateSizeSelected()"><span>34</span></label>
+                    <label class="cms-item"><input type="checkbox" value="36" onchange="updateSizeSelected()"><span>36</span></label>
+                    <label class="cms-item"><input type="checkbox" value="38" onchange="updateSizeSelected()"><span>38</span></label>
+                    <label class="cms-item"><input type="checkbox" value="40" onchange="updateSizeSelected()"><span>40</span></label>
+                    <label class="cms-item"><input type="checkbox" value="42" onchange="updateSizeSelected()"><span>42</span></label>
+                    <label class="cms-item"><input type="checkbox" value="44" onchange="updateSizeSelected()"><span>44</span></label>
+                    <div class="cms-group">RM Specific</div>
+                    <label class="cms-item"><input type="checkbox" value="2cm" onchange="updateSizeSelected()"><span>2cm</span></label>
+                    <label class="cms-item"><input type="checkbox" value="3cm" onchange="updateSizeSelected()"><span>3cm</span></label>
+                    <label class="cms-item"><input type="checkbox" value="5cm" onchange="updateSizeSelected()"><span>5cm</span></label>
+                    <label class="cms-item"><input type="checkbox" value="18L" onchange="updateSizeSelected()"><span>18L</span></label>
+                    <label class="cms-item"><input type="checkbox" value="20L" onchange="updateSizeSelected()"><span>20L</span></label>
+                    <label class="cms-item"><input type="checkbox" value="24L" onchange="updateSizeSelected()"><span>24L</span></label>
+                    <label class="cms-item"><input type="checkbox" value="22cm" onchange="updateSizeSelected()"><span>22cm</span></label>
+                    <label class="cms-item"><input type="checkbox" value="30cm" onchange="updateSizeSelected()"><span>30cm</span></label>
+                    <label class="cms-item"><input type="checkbox" value="40s" onchange="updateSizeSelected()"><span>40s</span></label>
+                    <label class="cms-item"><input type="checkbox" value="60s" onchange="updateSizeSelected()"><span>60s</span></label>
+                    <label class="cms-item"><input type="checkbox" value="80s" onchange="updateSizeSelected()"><span>80s</span></label>
+                    <label class="cms-item"><input type="checkbox" value="Free Size" onchange="updateSizeSelected()"><span>Free Size</span></label>
+                  </div>
+                </div>
+                <button class="btn-add" type="button" id="btnSizeAdd" onclick="togglePanel('sizeAddPanel')" title="Add new size" disabled style="opacity:0.45;">+</button>
+              </div>
+              <div class="dd-panel" id="sizeAddPanel">
+                <div class="dd-panel-title">Add New Size</div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Size Value <span class="req">*</span></div>
+                  <input class="inp" id="newSizeName" type="text" placeholder="e.g. 4XL, 10cm">
+                </div>
+                <div class="dd-panel-actions">
+                  <button class="btn btn-primary btn-sm" type="button" onclick="addNewSize()">Add Size</button>
+                  <button class="btn btn-outline btn-sm" type="button" onclick="togglePanel('sizeAddPanel')">Cancel</button>
+                </div>
+              </div>
+              <div id="sizeHint" style="font-size:11.5px;color:#9ca3af;margin-top:4px;">Enable Scale Wise to select sizes</div>
+            </div>
+          </div>
+
+        </div><!-- /card 1 -->
+
+        <!-- CARD 2: Commercial Details -->
+        <div class="sec-card">
+          <div class="sec-card-title">Commercial Details</div>
+          <div class="g4">
+            <div class="fg">
+              <div class="fl">HSN <span class="req">*</span></div>
+              <input class="inp" id="fHsn" type="text" placeholder="HSN code">
+            </div>
+            <div class="fg">
+              <div class="fl">GST Rate (%) <span class="req">*</span></div>
+              <input class="inp" id="fGstRate" type="number" min="0" step="0.01" placeholder="e.g. 5, 12, 18">
+            </div>
+            <div class="fg">
+              <div class="fl">Price</div>
+              <input class="inp" id="fPrice" type="number" min="0" step="0.01" placeholder="Per UOM">
+            </div>
+            <div class="fg">
+              <div class="fl">Allowance %</div>
+              <input class="inp" id="fAllowance" type="number" min="0" step="0.01" placeholder="e.g. 3">
+            </div>
+          </div>
+          <div class="g4" style="align-items:end;">
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">Package Qty</div>
+              <input class="inp" id="fPackageQty" type="number" min="0" step="0.01" placeholder="Qty per package">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">Count</div>
+              <input class="inp" id="fCount" type="text" placeholder="e.g. 40s, 150D">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">GSM</div>
+              <input class="inp" id="fGsm" type="number" min="0" placeholder="grams/sq.m">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">BOM Status</div>
+              <label class="toggle-wrap" style="height:44px;cursor:pointer;">
+                <input class="toggle-inp" type="checkbox" id="fBomStatus" onchange="document.getElementById('bomStatusText').textContent=this.checked?'Yes':'No'">
+                <span class="toggle-knob"></span>
+                <span class="toggle-text" id="bomStatusText">No</span>
+              </label>
+            </div>
+          </div>
+        </div><!-- /card 2 -->
+
+        <!-- CARD 3: Inventory + Image -->
+        <div class="sec-card" style="padding-bottom:24px;">
+          <div class="sec-card-title">Inventory &amp; Media</div>
+          <div class="split-wrap">
+            <div class="split-main">
+              <div class="fg">
+                <div class="fl">
+                  Location
+                  <svg viewBox="0 0 16 16" fill="currentColor" class="lock-svg" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M4 7V5a4 4 0 018 0v2h.5A1.5 1.5 0 0114 8.5v5A1.5 1.5 0 0112.5 15h-9A1.5 1.5 0 012 13.5v-5A1.5 1.5 0 013.5 7H4zm2-2a2 2 0 014 0v2H6V5z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="locked-field" id="lockedLocation">—</div>
+                <div class="locked-hint">Use Inventory Limits tab to manage per-location limits</div>
+              </div>
+              <div class="fg">
+                <div class="fl">Inventory Limit</div>
+                <input class="inp" id="fInventoryLimit" type="number" min="0" step="0.01" placeholder="Threshold qty">
+              </div>
+            </div>
+            <div class="split-side">
+              <label class="img-label">Image Ref</label>
+              <div class="img-upload-box" id="imgDrop"
+                onclick="document.getElementById('imgInput').click()"
+                ondragover="event.preventDefault();this.classList.add('drag')"
+                ondragleave="this.classList.remove('drag')"
+                ondrop="handleDrop(event)">
+                <input type="file" id="imgInput" accept=".jpg,.jpeg,.png" onchange="handleImageSelect(this.files[0])">
+                <div id="imgPlaceholder">
+                  <div class="img-cloud-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                  </div>
+                  <div class="img-upload-title">Click to replace image</div>
+                  <div class="img-upload-sub">PNG, JPG up to 1MB</div>
+                </div>
+                <div id="imgPreviewWrap" style="display:none;">
+                  <div class="img-preview-wrap">
+                    <img id="imgPreview" src="" alt="Preview">
+                    <button class="img-remove-btn" type="button" onclick="event.stopPropagation();removeImage()" title="Remove">×</button>
+                  </div>
+                  <div id="imgFileName" style="font-size:12px;color:#9ca3af;margin-top:8px;"></div>
+                </div>
+              </div>
+              <div class="img-error" id="imgError"></div>
+            </div>
+          </div>
+        </div><!-- /card 3 -->
+
+        <!-- Action bar -->
+        <div class="form-action-bar">
+          <button class="btn btn-outline" type="button" onclick="location.href='masters-rawmaterial.html'">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+            Back
+          </button>
+          <button class="btn btn-primary" type="button" onclick="saveChanges()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            Save Changes
+          </button>
+        </div>
+
+      </div><!-- /tab-details -->
+
+      <!-- ════ TAB 2: INVENTORY LIMITS ════ -->
+      <div class="tab-panel" id="tab-invLimits">
+        <div class="sec-card" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div>
+              <div style="font-size:15px;font-weight:600;color:#111827;">Location-wise Inventory Limits</div>
+              <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Set maximum inventory limits per warehouse or store location</div>
+            </div>
+          </div>
+          <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+            <div style="overflow-x:auto;">
+              <table class="inv-table">
+                <thead>
+                  <tr>
+                    <th>LOCATION</th>
+                    <th>INVENTORY LIMIT</th>
+                    <th>UOM</th>
+                    <th style="text-align:right;">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody id="invBody"></tbody>
+              </table>
+            </div>
+            <div class="add-inv-row" onclick="openInvModal()">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              Add Location Inventory Limit
+            </div>
+          </div>
+        </div>
+        <div class="form-action-bar">
+          <button class="btn btn-outline" type="button" onclick="location.href='masters-rawmaterial.html'">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+            Back
+          </button>
+          <button class="btn btn-primary" type="button" onclick="saveChanges()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+            Save Changes
+          </button>
+        </div>
+      </div><!-- /tab-invLimits -->
+
+    </main>
+  </div>
+</div>
+
+<!-- Inventory Limit Modal -->
+<div class="modal-backdrop" id="invModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <div><div class="modal-title" id="invModalTitle">Add Location Limit</div><div class="modal-sub">Set inventory limit for a specific location</div></div>
+      <button class="modal-x" onclick="closeModal('invModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="invEditId">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">Location <span class="req">*</span></label>
+        <select class="form-control" id="invLocation">
+          <option value="">Select Location</option>
+          <option>Main Warehouse</option>
+          <option>Raw Material Store</option>
+          <option>Trimming Store</option>
+          <option>Store B</option>
+          <option>Finished Goods Warehouse</option>
+          <option>Branch Store - North</option>
+          <option>Branch Store - South</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Inventory Limit <span class="req">*</span></label>
+        <input class="form-control" id="invLimit" type="number" min="0" step="0.01" placeholder="e.g. 500">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('invModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInvLimit()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ── Sample record ── */
+const rm = {
+  id: 1, rmName: 'Grey Cotton Yarn', rmCode: 'RMY-001', rmType: 'Yarn',
+  color: { name: 'Stone Grey', code: 'GRY-005' },
+  uom: 'Kilograms', location: 'Raw Material Store',
+  sizes: ['40s', '60s'], shadeCode: 'SHD-010',
+  description: '100% cotton ring-spun yarn for knitting and weaving operations.',
+  hsn: '52041100', gstRate: 5, price: 220, allowance: 2,
+  packageQty: 50, count: '40s', gsm: null,
+  scaleWise: true, bomStatus: true, inventoryLimit: 500,
+  multipleUoms: [{ id: 1, uom: 'Grams', denomination: 1000 }]
+};
+
+let invLimits = [
+  { id: 1, location: 'Raw Material Store', limit: 500 },
+  { id: 2, location: 'Main Warehouse', limit: 200 }
+];
+let multiUomItems = rm.multipleUoms.map(x => ({ ...x }));
+let invEditId = null;
+let selectedImage = null;
+
+/* ── Load form ── */
+function loadRM() {
+  document.getElementById('breadName').textContent = rm.rmName;
+  document.getElementById('pageTitle').textContent = 'Edit — ' + rm.rmName;
+  document.getElementById('fRmName').value = rm.rmName;
+  document.getElementById('fRmCode').value = rm.rmCode || '';
+  document.getElementById('lockedRmType').textContent = rm.rmType;
+  document.getElementById('lockedColor').textContent = rm.color.code ? `${rm.color.name} (${rm.color.code})` : rm.color.name;
+  document.getElementById('lockedUom').textContent = rm.uom;
+  document.getElementById('lockedLocation').textContent = rm.location;
+  document.getElementById('fShadeCode').value = rm.shadeCode || '';
+  document.getElementById('fDescription').value = rm.description || '';
+  document.getElementById('fHsn').value = rm.hsn || '';
+  document.getElementById('fGstRate').value = rm.gstRate != null ? rm.gstRate : '';
+  document.getElementById('fPrice').value = rm.price != null ? rm.price : '';
+  document.getElementById('fAllowance').value = rm.allowance != null ? rm.allowance : '';
+  document.getElementById('fPackageQty').value = rm.packageQty != null ? rm.packageQty : '';
+  document.getElementById('fCount').value = rm.count || '';
+  document.getElementById('fGsm').value = rm.gsm != null ? rm.gsm : '';
+  document.getElementById('fInventoryLimit').value = rm.inventoryLimit != null ? rm.inventoryLimit : '';
+  document.getElementById('fBomStatus').checked = rm.bomStatus;
+  document.getElementById('bomStatusText').textContent = rm.bomStatus ? 'Yes' : 'No';
+  document.getElementById('fScaleWise').checked = rm.scaleWise;
+  document.getElementById('scaleWiseText').textContent = rm.scaleWise ? 'Yes' : 'No';
+  // Enable/disable Size custom dropdown; restore saved sizes
+  const dropBtn = document.getElementById('sizeDropBtn');
+  const sizeAddBtn = document.getElementById('btnSizeAdd');
+  const sizeHint = document.getElementById('sizeHint');
+  dropBtn.classList.toggle('ms-disabled', !rm.scaleWise);
+  if (sizeAddBtn) { sizeAddBtn.disabled = !rm.scaleWise; sizeAddBtn.style.opacity = rm.scaleWise ? '1' : '0.45'; }
+  if (sizeHint) sizeHint.style.display = rm.scaleWise ? 'none' : 'block';
+  const savedSizes = Array.isArray(rm.sizes) ? rm.sizes : (rm.size ? [rm.size] : []);
+  if (savedSizes.length) {
+    savedSizes.forEach(sz => { const cb = document.querySelector(`#sizePanelDrop input[value="${sz}"]`); if (cb) cb.checked = true; });
+    updateSizeSelected();
+  }
+  renderMultiUomList();
+  renderInvLimits();
+}
+
+/* ── Multiple UOM ── */
+document.getElementById('fMultiUom').addEventListener('change', function () {
+  const uomName = this.value;
+  if (!uomName) return;
+  if (multiUomItems.find(x => x.uom === uomName)) { toast(`${uomName} already in list`, 'error'); this.value = ''; return; }
+  multiUomItems.push({ id: Date.now(), uom: uomName, denomination: '' });
+  renderMultiUomList(); this.value = '';
+});
+
+function renderMultiUomList() {
+  const wrap = document.getElementById('multiUomList');
+  if (!multiUomItems.length) { wrap.innerHTML = ''; return; }
+  const pu = rm.uom || 'Base UOM';
+  wrap.innerHTML = `<div class="muom-block"><table class="muom-table">
+    <thead><tr><th>Alternative UOM</th><th>Denomination</th><th style="width:50px;text-align:center;">✕</th></tr></thead>
+    <tbody>${multiUomItems.map(m => `<tr>
+      <td style="font-weight:500;color:#111827;">${m.uom}</td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap;">1 ${m.uom} =</span>
+        <input class="inp" style="height:34px;max-width:110px;" type="number" step="0.0001" min="0" value="${m.denomination}" placeholder="0.00" oninput="updateDenom(${m.id},this.value)">
+        <span style="font-size:12px;font-weight:600;color:var(--brand-600);white-space:nowrap;">${pu}</span>
+      </div></td>
+      <td style="text-align:center;"><button class="inv-item-del" type="button" onclick="removeMultiUom(${m.id})"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function updateDenom(id, val) { const m = multiUomItems.find(x => x.id === id); if (m) m.denomination = val; }
+function removeMultiUom(id) { multiUomItems = multiUomItems.filter(x => x.id !== id); renderMultiUomList(); }
+
+/* ── Inventory Limits (tab 2) ── */
+function renderInvLimits() {
+  const tbody = document.getElementById('invBody');
+  if (!invLimits.length) {
+    tbody.innerHTML = `<tr><td colspan="4"><div style="padding:32px;text-align:center;"><div style="font-size:14px;font-weight:600;color:#374151;">No inventory limits set</div><div style="font-size:13px;color:#9ca3af;margin-top:4px;">Click "Add Location Inventory Limit" to add one</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = invLimits.map(r => `<tr>
+    <td style="font-weight:500;">${r.location}</td>
+    <td>${r.limit != null ? r.limit.toLocaleString() : '—'}</td>
+    <td style="color:#9ca3af;">${rm.uom || '—'}</td>
+    <td><div class="row-actions" style="justify-content:flex-end;">
+      <button class="icon-btn edit" title="Edit" onclick="editInvLimit(${r.id})"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>
+      <button class="icon-btn del" title="Remove" onclick="removeInvLimit(${r.id})"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg></button>
+    </div></td>
+  </tr>`).join('');
+}
+function openInvModal() { invEditId = null; document.getElementById('invEditId').value = ''; document.getElementById('invLocation').value = ''; document.getElementById('invLimit').value = ''; document.getElementById('invModalTitle').textContent = 'Add Location Limit'; openModal('invModal'); }
+function editInvLimit(id) { const r = invLimits.find(x => x.id === id); if (!r) return; invEditId = id; document.getElementById('invEditId').value = id; document.getElementById('invLocation').value = r.location; document.getElementById('invLimit').value = r.limit; document.getElementById('invModalTitle').textContent = 'Edit — ' + r.location; openModal('invModal'); }
+function saveInvLimit() { const loc = document.getElementById('invLocation').value; const lim = document.getElementById('invLimit').value; if (!loc || lim === '') { toast('Location and limit are required', 'error'); return; } const limitVal = parseFloat(lim); if (invEditId) { const r = invLimits.find(x => x.id === invEditId); if (r) { r.location = loc; r.limit = limitVal; } toast('Limit updated', 'success'); } else { if (invLimits.find(x => x.location === loc)) { toast('Limit for this location already exists. Edit it instead.', 'error'); return; } invLimits.push({ id: Date.now(), location: loc, limit: limitVal }); toast('Location limit added', 'success'); } renderInvLimits(); closeModal('invModal'); }
+function removeInvLimit(id) { invLimits = invLimits.filter(x => x.id !== id); renderInvLimits(); toast('Removed', 'success'); }
+
+/* ── Image ── */
+function handleImageSelect(file) { if (!file) return; if (!['image/jpeg','image/jpg','image/png'].includes(file.type)) { showImgErr('Only JPG, JPEG, or PNG files allowed.'); return; } if (file.size > 1024*1024) { showImgErr('File size must not exceed 1 MB.'); return; } clearImgErr(); const reader = new FileReader(); reader.onload = e => { selectedImage = e.target.result; document.getElementById('imgPreview').src = selectedImage; document.getElementById('imgFileName').textContent = `${file.name}  ·  ${(file.size/1024).toFixed(1)} KB`; document.getElementById('imgPlaceholder').style.display = 'none'; document.getElementById('imgPreviewWrap').style.display = 'block'; }; reader.readAsDataURL(file); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('imgDrop').classList.remove('drag'); handleImageSelect(e.dataTransfer.files[0]); }
+function removeImage() { selectedImage = null; document.getElementById('imgInput').value = ''; document.getElementById('imgPlaceholder').style.display = 'block'; document.getElementById('imgPreviewWrap').style.display = 'none'; clearImgErr(); }
+function showImgErr(m) { const el = document.getElementById('imgError'); el.textContent = m; el.style.display = 'block'; }
+function clearImgErr() { const el = document.getElementById('imgError'); el.textContent = ''; el.style.display = 'none'; }
+
+/* ── Add new UOM (multi-uom panel) ── */
+function addNewUom() { const name = document.getElementById('newMuomName').value.trim(); if (!name) { toast('UOM name is required', 'error'); return; } const sel = document.getElementById('fMultiUom'); if (![...sel.options].find(o => o.value === name)) { const opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); } sel.value = name; document.getElementById('newMuomName').value = ''; togglePanel('muomPanel'); toast(`UOM "${name}" added`, 'success'); }
+
+/* ── Scale Wise toggle — enables/disables Size custom dropdown ── */
+function onScaleWiseChange(cb) {
+  const on = cb.checked;
+  document.getElementById('scaleWiseText').textContent = on ? 'Yes' : 'No';
+  const btn = document.getElementById('sizeDropBtn');
+  const addBtn = document.getElementById('btnSizeAdd');
+  const hint = document.getElementById('sizeHint');
+  btn.classList.toggle('ms-disabled', !on);
+  if (addBtn) { addBtn.disabled = !on; addBtn.style.opacity = on ? '1' : '0.45'; }
+  if (hint) hint.style.display = on ? 'none' : 'block';
+  if (!on) {
+    document.getElementById('sizePanelDrop').style.display = 'none';
+    document.getElementById('sizeChevron').style.transform = '';
+    [...document.querySelectorAll('#sizePanelDrop input[type=checkbox]')].forEach(c => c.checked = false);
+    const st = document.getElementById('sizeSelectedText'); st.textContent = 'Select sizes'; st.style.color = '#9ca3af';
+  }
+}
+
+function toggleSizeDropdown(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('sizeDropBtn');
+  if (btn.classList.contains('ms-disabled')) return;
+  const panel = document.getElementById('sizePanelDrop');
+  const chevron = document.getElementById('sizeChevron');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function updateSizeSelected() {
+  const checked = [...document.querySelectorAll('#sizePanelDrop input[type=checkbox]:checked')].map(c => c.value);
+  const el = document.getElementById('sizeSelectedText');
+  if (!checked.length) { el.textContent = 'Select sizes'; el.style.color = '#9ca3af'; }
+  else { el.textContent = checked.length === 1 ? checked[0] : checked.length + ' sizes selected'; el.style.color = '#111827'; }
+}
+
+function addNewSize() {
+  const name = document.getElementById('newSizeName').value.trim();
+  if (!name) { toast('Value is required', 'error'); return; }
+  const panel = document.getElementById('sizePanelDrop');
+  if ([...panel.querySelectorAll('input[type=checkbox]')].find(c => c.value === name)) { toast(`"${name}" already exists`, 'error'); return; }
+  const lbl = document.createElement('label'); lbl.className = 'cms-item';
+  lbl.innerHTML = `<input type="checkbox" value="${name}" onchange="updateSizeSelected()" checked><span>${name}</span>`;
+  panel.appendChild(lbl);
+  document.getElementById('newSizeName').value = ''; togglePanel('sizeAddPanel'); updateSizeSelected(); toast(`"${name}" added`, 'success');
+}
+
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('sizeMultiWrap');
+  const panel = document.getElementById('sizePanelDrop');
+  if (wrap && !wrap.contains(e.target) && panel && panel.style.display !== 'none') {
+    panel.style.display = 'none'; document.getElementById('sizeChevron').style.transform = '';
+  }
+});
+
+/* ── Save ── */
+function saveChanges() {
+  const rmName = document.getElementById('fRmName').value.trim();
+  const hsn = document.getElementById('fHsn').value.trim();
+  const gst = document.getElementById('fGstRate').value;
+  if (!rmName || !hsn || !gst) { toast('RM Name, HSN, and GST Rate are required', 'error'); document.getElementById('fRmName').classList.toggle('invalid', !rmName); document.getElementById('fHsn').classList.toggle('invalid', !hsn); document.getElementById('fGstRate').classList.toggle('invalid', !gst); return; }
+  toast('Changes saved successfully', 'success');
+  setTimeout(() => location.href = 'masters-rawmaterial.html', 800);
+}
+
+/* ── Tabs ── */
+function switchTab(id, btn) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')); document.getElementById('tab-' + id).classList.add('active'); }
+
+/* ── Helpers ── */
+function togglePanel(id) { const p = document.getElementById(id); const isOpen = p.classList.contains('open'); document.querySelectorAll('.dd-panel.open').forEach(x => { if (x.id !== id) x.classList.remove('open'); }); p.classList.toggle('open', !isOpen); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg, type) { const a = document.getElementById('toastArea'); const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> ${msg}`; a.appendChild(t); setTimeout(() => t.remove(), 3000); }
+function toggleGroup(el) { const g = el.closest('.nav-group'); const o = g.classList.contains('open'); document.querySelectorAll('.nav-group.open').forEach(x => { if (x !== g) { x.classList.remove('open'); x.querySelector('.nav-parent')?.classList.remove('open'); } }); g.classList.toggle('open', !o); el.classList.toggle('open', !o); }
+document.querySelectorAll('.modal-backdrop').forEach(bd => bd.addEventListener('click', e => { if (e.target === bd) closeModal(bd.id); }));
+
+loadRM();
+</script>
+</body>
+</html>

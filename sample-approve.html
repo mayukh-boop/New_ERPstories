@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approve Sample — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ══ Section card ══ */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:hidden;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border2);}
+.sec-hd-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px;}
+.sec-hd-title svg{width:15px;height:15px;color:var(--brand-500);}
+.sec-bd{padding:22px;}
+
+/* ══ Grid layouts ══ */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* ══ Form field ══ */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:0;}
+.fl{font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:4px;}
+.fl .req{color:#ef4444;font-size:14px;}
+
+/* ══ Inputs ══ */
+.inp{width:100%;height:44px;padding:0 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp.err{border-color:#ef4444;background:#fef2f2;}
+.inp:disabled{background:#f9fafb;color:#374151;cursor:default;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+textarea.inp{height:auto;padding:12px 14px;resize:vertical;}
+.err-msg{font-size:11.5px;color:#ef4444;display:none;margin-top:-2px;}
+.err-msg.show{display:block;}
+.char-ctr{font-size:11px;color:var(--text-3);text-align:right;margin-top:3px;}
+.char-ctr.warn{color:#ef4444;}
+
+/* ══ Read-only color chips ══ */
+.ro-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:8px 12px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:10px;align-items:center;}
+.ro-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--brand-100);color:var(--brand-700);}
+.ro-chip-dot{width:10px;height:10px;border-radius:2px;border:1px solid rgba(0,0,0,.15);flex-shrink:0;}
+
+/* ══ Image display ══ */
+.img-view-box{border:1.5px solid #e5e7eb;border-radius:14px;background:#f9fafb;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;overflow:hidden;}
+.img-view-box img{max-width:100%;max-height:260px;border-radius:12px;cursor:pointer;display:block;}
+.img-view-empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:#d1d5db;}
+.img-view-empty svg{width:40px;height:40px;}
+.img-view-empty span{font-size:12px;color:#9ca3af;}
+
+/* ══ Size table ══ */
+.sq-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.sq-table th{padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border:1px solid var(--border2);text-align:left;}
+.sq-table td{padding:8px 12px;border:1px solid var(--border2);vertical-align:middle;font-size:13.5px;}
+.size-badge{display:inline-flex;align-items:center;padding:3px 10px;background:var(--brand-50);color:var(--brand-700);border-radius:6px;font-size:12.5px;font-weight:600;border:1px solid var(--brand-200);}
+
+/* ══ BOM table ══ */
+.bom-table{width:100%;border-collapse:collapse;margin-top:8px;}
+.bom-table th{padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border:1px solid var(--border2);text-align:left;white-space:nowrap;}
+.bom-table td{padding:8px 10px;border:1px solid var(--border2);vertical-align:middle;font-size:13px;color:var(--text-1);}
+.bom-empty{text-align:center;color:var(--text-3);font-size:13px;padding:20px;}
+
+/* ══ Attachments ══ */
+.att-list{display:flex;flex-direction:column;gap:6px;}
+.att-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f9fafb;border:1px solid var(--border2);border-radius:8px;font-size:12.5px;}
+.att-icon{width:30px;height:30px;border-radius:6px;background:var(--brand-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.att-icon svg{width:14px;height:14px;color:var(--brand-600);}
+.att-name{flex:1;font-weight:500;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.att-size{color:var(--text-3);font-size:11.5px;white-space:nowrap;}
+.att-dl{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#9ca3af;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.att-dl:hover{background:var(--brand-50);color:var(--brand-600);}
+.att-dl svg{width:13px;height:13px;}
+.att-empty{text-align:center;color:var(--text-3);font-size:13px;padding:16px;}
+
+/* ══ Approval trail ══ */
+.trail{display:flex;flex-direction:column;gap:0;}
+.trail-item{display:flex;gap:14px;padding:14px 0;}
+.trail-item:not(:last-child){border-bottom:1px solid var(--border2);}
+.trail-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.trail-dot svg{width:16px;height:16px;}
+.trail-info{flex:1;}
+.trail-action{font-size:13px;font-weight:600;color:var(--text-1);}
+.trail-by{font-size:12px;color:var(--text-3);margin-top:2px;}
+.trail-remark{font-size:12.5px;color:var(--text-2);margin-top:5px;padding:8px 12px;background:#f9fafb;border-radius:7px;border-left:3px solid var(--border);}
+.trail-date{font-size:11.5px;color:var(--text-3);white-space:nowrap;}
+
+/* ══ Status pills ══ */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 12px;border-radius:9999px;font-size:12px;font-weight:600;}
+.sp::before{content:'';width:7px;height:7px;border-radius:50%;display:inline-block;}
+.sp-awaiting{background:#f3f4f6;color:#4b5563;}.sp-awaiting::before{background:#9ca3af;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-rejected{background:#fef2f2;color:#991b1b;}.sp-rejected::before{background:#ef4444;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+.sp-archive{background:#f1f5f9;color:#475569;}.sp-archive::before{background:#94a3b8;}
+
+/* ══ Buttons ══ */
+.btn{height:44px;padding:0 24px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:none;font-family:inherit;transition:all .15s;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-danger{background:#dc2626;color:#fff;}.btn-danger:hover{background:#b91c1c;}
+.btn-slate{background:#475569;color:#fff;}.btn-slate:hover{background:#334155;}
+.btn svg{width:16px;height:16px;}
+.btn:disabled{opacity:.6;cursor:not-allowed;}
+
+/* ══ Access denied banner ══ */
+.access-denied{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.access-denied svg{width:24px;height:24px;color:#dc2626;flex-shrink:0;}
+.access-denied p{font-size:13.5px;color:#991b1b;font-weight:500;}
+
+/* ══ Toast ══ */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;} .tt.e{background:#dc2626;} .tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+/* ══ Image fullscreen ══ */
+.img-fs{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
+.img-fs.open{display:flex;}
+.img-fs-cl{position:fixed;top:20px;right:20px;width:42px;height:42px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:1001;}
+.img-fs-cl:hover{background:rgba(255,255,255,.3);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Sample Management</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0013 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.994 1.994 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="sample-list.html">Sample List</a>
+        <a class="nav-child" href="sample-create.html">Create Sample</a>
+      </div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">PS</div>
+    <div class="sf-info">
+      <div class="sf-name">Priya Sharma</div>
+      <div class="sf-role" id="userRoleLabel">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" id="topbarTitle">Approve Sample</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div>
+          <div class="ph-title" id="pageTitle">Approve Sample</div>
+        </div>
+        <span id="statusBadge" class="sp sp-awaiting" style="display:none;"></span>
+      </div>
+    </div>
+
+    <!-- Access denied banner -->
+    <div class="access-denied" id="accessDeniedBanner" style="display:none;">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"/></svg>
+      <p>You do not have permission to approve samples. Contact your administrator to request access.</p>
+    </div>
+
+    <!-- ══ SECTION 1: SAMPLE INFORMATION ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"/></svg>
+          Sample Information
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div style="display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:start;">
+
+          <!-- LEFT: fields -->
+          <div style="display:flex;flex-direction:column;gap:18px;">
+
+            <!-- Sample No -->
+            <div class="fg">
+              <label class="fl">Sample No.</label>
+              <input type="text" class="inp" id="vSampleNo" disabled>
+            </div>
+
+            <!-- Color chips -->
+            <div class="fg">
+              <label class="fl">Color</label>
+              <div class="ro-chips" id="vColors"></div>
+            </div>
+
+            <!-- Sample Description -->
+            <div class="fg">
+              <label class="fl">Sample Description</label>
+              <textarea class="inp" id="vDescription" rows="3" disabled></textarea>
+            </div>
+
+            <!-- Category + UOM -->
+            <div class="g2">
+              <div class="fg">
+                <label class="fl">Sample Category</label>
+                <select class="inp" id="vCategory" disabled>
+                  <option value="">—</option>
+                  <option value="T-Shirt">T-Shirt</option>
+                  <option value="Polo">Polo</option>
+                  <option value="Hoodie">Hoodie</option>
+                  <option value="Jacket">Jacket</option>
+                  <option value="Shorts">Shorts</option>
+                  <option value="Trouser">Trouser</option>
+                  <option value="Kurta">Kurta</option>
+                  <option value="Dress">Dress</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">UOM</label>
+                <select class="inp" id="vUOM" disabled>
+                  <option value="">—</option>
+                  <option value="PCS">PCS – Pieces</option>
+                  <option value="MTR">MTR – Metres</option>
+                  <option value="KG">KG – Kilograms</option>
+                  <option value="YDS">YDS – Yards</option>
+                  <option value="SET">SET – Set</option>
+                  <option value="DZ">DZ – Dozen</option>
+                </select>
+              </div>
+            </div>
+
+          </div><!-- /left -->
+
+          <!-- RIGHT: sample image -->
+          <div class="fg">
+            <label class="fl">Sample Image</label>
+            <div class="img-view-box" id="vImgBox">
+              <div class="img-view-empty">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                <span>No image uploaded</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /split grid -->
+      </div>
+    </div>
+
+    <!-- ══ SECTION 2: SIZE & QUANTITY ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+          Size &amp; Quantity
+        </div>
+      </div>
+      <div class="sec-bd" id="vSizeBody">
+        <div style="text-align:center;color:var(--text-3);font-size:13px;padding:12px;">No sizes specified.</div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3: BOM ALLOCATION ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+          BOM Allocation
+        </div>
+      </div>
+      <div class="sec-bd" id="vBomBody">
+        <div class="bom-empty">No BOM data added.</div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 4: REMARKS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"/></svg>
+          Remarks
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="fg">
+          <label class="fl">Remarks</label>
+          <textarea class="inp" id="vRemarks" rows="3" disabled></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 5: ATTACHMENTS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>
+          Attachments
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="att-list" id="vAttList">
+          <div class="att-empty">No attachments.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 6: APPROVAL TRAIL ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          Approval Trail
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="trail" id="approvalTrail"></div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 7: APPROVAL DECISION ══ -->
+    <div class="sec" id="approvalActionSec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+          Approval Decision
+        </div>
+      </div>
+      <div class="sec-bd">
+
+        <!-- Approver info -->
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f9fafb;border:1px solid var(--border2);border-radius:10px;margin-bottom:18px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--brand-600);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;">PS</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1);">Priya Sharma</div>
+            <div style="font-size:11.5px;color:var(--text-3);">Approving as Admin · <span id="approveTimestamp"></span></div>
+          </div>
+        </div>
+
+        <!-- Approval Remarks -->
+        <div class="fg" style="margin-bottom:20px;">
+          <label class="fl">Approval Remarks <span class="req">*</span></label>
+          <textarea class="inp" id="approvalRemarks" rows="4" maxlength="500"
+            placeholder="Provide detailed remarks for this approval decision…&#10;&#10;e.g. — Approved: Color fastness test passed. Measurements within ±2% tolerance.&#10;e.g. — Rejected: GSM below specification (180 vs required 220)."
+            oninput="updateCounter('approvalRemarks','remCounter',500)"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+            <div class="err-msg" id="errRemarks">Approval remarks are required.</div>
+            <span class="char-ctr" id="remCounter" style="margin-left:auto;">0 / 500</span>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="location.href='sample-list.html'">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"/></svg>
+            Back
+          </button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-slate" id="archiveBtn" onclick="submitApproval('Archive')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+              Archive
+            </button>
+            <button class="btn btn-danger" id="rejectBtn" onclick="submitApproval('Rejected')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+              Reject
+            </button>
+            <button class="btn btn-success" id="approveBtn" onclick="submitApproval('Approved')">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+              Approve
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+</div><!-- .app -->
+
+<!-- Image fullscreen -->
+<div class="img-fs" id="imgFs" onclick="closeImgFullscreen()">
+  <button class="img-fs-cl" onclick="closeImgFullscreen()">✕</button>
+  <img id="imgFsImg" src="" alt="Sample Image" onclick="event.stopPropagation()">
+</div>
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════
+   SESSION & PERMISSIONS
+══════════════════════════════════ */
+const SESSION = { name:'Priya Sharma', role:'ADMIN' };
+const PERMS = {
+  SUPER_ADMIN: {create:true,edit:true,view:true,approve:true,delete:true},
+  ADMIN:       {create:true,edit:true,view:true,approve:true,delete:true},
+  USER_CREATE: {create:true,edit:true,view:true,approve:false,delete:false},
+  USER_VIEW:   {create:false,edit:false,view:true,approve:false,delete:false},
+  USER_APPROVE:{create:false,edit:false,view:true,approve:true,delete:false},
+};
+const can = a => (PERMS[SESSION.role]||{})[a]||false;
+
+/* ══════════════════════════════════
+   COLOR MASTER (for chip display)
+══════════════════════════════════ */
+const colorMaster = [
+  {name:'Red',hex:'#ef4444'},{name:'Blue',hex:'#3b82f6'},{name:'Green',hex:'#22c55e'},
+  {name:'Black',hex:'#1f2937'},{name:'White',hex:'#f8fafc'},{name:'Yellow',hex:'#eab308'},
+  {name:'Navy',hex:'#1e3a8a'},{name:'Orange',hex:'#f97316'},{name:'Pink',hex:'#ec4899'},
+  {name:'Purple',hex:'#8b5cf6'},{name:'Grey',hex:'#6b7280'},{name:'Maroon',hex:'#7f1d1d'},
+  {name:'Teal',hex:'#0d9488'},{name:'Beige',hex:'#d4a76a'},
+];
+
+function colorHex(name) {
+  return (colorMaster.find(c=>c.name===name)||{hex:'#6366f1'}).hex;
+}
+
+/* ══════════════════════════════════
+   SAMPLE MOCK DATA
+══════════════════════════════════ */
+const samples = {
+  'SMP-2026-006': {
+    sampleNo:'SMP-2026-006',
+    colors:['Blue','Green'],
+    category:'T-Shirt', uom:'PCS',
+    description:'Round neck tee with raglan sleeve detail. 180 GSM 100% cotton jersey.',
+    sizes:[{code:'M',qty:2},{code:'L',qty:2},{code:'XL',qty:1}],
+    remarks:'',
+    status:'Awaiting',
+    createdBy:'Ravi Kumar', createdDate:'2026-04-30',
+    hasImage: true,
+    bom:[
+      {type:'Fabric',  name:'Cotton Jersey 180 GSM', consumption:'1.4', uom:'MTR'},
+      {type:'Thread',  name:'Polyester Thread 40/2', consumption:'150', uom:'MTR'},
+      {type:'Label',   name:'Woven Main Label',      consumption:'1',   uom:'PCS'},
+    ],
+    attachments:[
+      {name:'tech-pack-v2.pdf',  size:'312 KB'},
+      {name:'color-approval.jpg',size:'94 KB'},
+    ],
+    trail:[],
+  },
+  'SMP-2026-005': {
+    sampleNo:'SMP-2026-005',
+    colors:['Red'],
+    category:'Polo', uom:'PCS',
+    description:'Premium pique polo with 3-button placket. 220 GSM cotton.',
+    sizes:[{code:'S',qty:2},{code:'M',qty:3},{code:'L',qty:2}],
+    remarks:'Approved for bulk production.',
+    status:'Approved',
+    createdBy:'Priya Sharma', createdDate:'2026-04-29',
+    hasImage: true,
+    bom:[
+      {type:'Fabric',    name:'Pique Cotton 220 GSM', consumption:'1.6', uom:'MTR'},
+      {type:'Button',    name:'Pearl Button 15mm',    consumption:'3',   uom:'PCS'},
+      {type:'Thread',    name:'Polyester Thread 40/2',consumption:'120', uom:'MTR'},
+    ],
+    attachments:[
+      {name:'polo-spec.pdf', size:'204 KB'},
+    ],
+    trail:[
+      {status:'Approved',by:'Priya Sharma',role:'Admin',date:'2026-04-29',time:'14:32',
+       remarks:'Color fastness test passed. GSM within spec. Approved for bulk production.'}
+    ],
+  },
+  'SMP-2026-004': {
+    sampleNo:'SMP-2026-004',
+    colors:['Black','Grey'],
+    category:'Jacket', uom:'SET',
+    description:'Two-piece tracksuit set with zip-front jacket and jogger pants.',
+    sizes:[{code:'L',qty:1},{code:'XL',qty:1}],
+    remarks:'Pending QC review.',
+    status:'Hold',
+    createdBy:'Arun Nair', createdDate:'2026-04-28',
+    hasImage: false,
+    bom:[
+      {type:'Fabric',  name:'Fleece 280 GSM',   consumption:'2.8', uom:'MTR'},
+      {type:'Zipper',  name:'YKK Coil Zip 60cm',consumption:'1',   uom:'PCS'},
+      {type:'Elastic', name:'Waistband Elastic 3"',consumption:'0.8', uom:'MTR'},
+    ],
+    attachments:[],
+    trail:[
+      {status:'Hold',by:'Ravi Kumar',role:'QC Manager',date:'2026-04-28',time:'10:15',
+       remarks:'Sent back for zipper quality check — YKK zip replacement required before approval.'}
+    ],
+  },
+};
+
+/* ══════════════════════════════════
+   URL PARAMS
+══════════════════════════════════ */
+const params = new URLSearchParams(location.search);
+const SAMPLE_ID = params.get('id') || 'SMP-2026-006';
+const currentSample = samples[SAMPLE_ID] || Object.values(samples)[0];
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+function init() {
+  document.getElementById('approveTimestamp').textContent =
+    new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+
+  document.getElementById('userRoleLabel').textContent = SESSION.role.replace(/_/g,' ');
+  document.querySelector('.topbar-module').textContent = `Approve Sample — ${currentSample.sampleNo}`;
+  document.getElementById('pageTitle').textContent = `Approve Sample — ${currentSample.sampleNo}`;
+
+  const badge = document.getElementById('statusBadge');
+  badge.style.display = 'inline-flex';
+  badge.className = `sp sp-${currentSample.status.toLowerCase()}`;
+  badge.textContent = currentSample.status;
+
+  if (!can('approve')) {
+    document.getElementById('accessDeniedBanner').style.display = 'flex';
+    document.getElementById('approvalActionSec').style.display = 'none';
+  }
+
+  renderSampleInfo();
+  renderSizes();
+  renderBOM();
+  renderRemarks();
+  renderAttachments();
+  renderTrail();
+
+  // Remarks validation on input
+  document.getElementById('approvalRemarks').addEventListener('input', function() {
+    if (this.value.trim()) {
+      this.classList.remove('err');
+      document.getElementById('errRemarks').classList.remove('show');
+    }
+  });
+}
+
+/* ══════════════════════════════════
+   SECTION 1: SAMPLE INFORMATION
+══════════════════════════════════ */
+function renderSampleInfo() {
+  const s = currentSample;
+
+  document.getElementById('vSampleNo').value = s.sampleNo;
+  document.getElementById('vCategory').value = s.category || '';
+  document.getElementById('vUOM').value = s.uom || '';
+
+  const desc = document.getElementById('vDescription');
+  desc.value = s.description || '';
+  if (!s.description) desc.placeholder = '—';
+
+  // Color chips
+  const colorContainer = document.getElementById('vColors');
+  if (s.colors && s.colors.length) {
+    colorContainer.innerHTML = s.colors.map(name => {
+      const hex = colorHex(name);
+      return `<span class="ro-chip"><span class="ro-chip-dot" style="background:${hex};"></span>${name}</span>`;
+    }).join('');
+  } else {
+    colorContainer.innerHTML = '<span style="color:#9ca3af;font-size:13px;">No colors selected</span>';
+  }
+
+  // Image
+  const imgBox = document.getElementById('vImgBox');
+  if (s.hasImage) {
+    const primaryHex = s.colors && s.colors.length ? colorHex(s.colors[0]) : '#6366f1';
+    const svgData = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><rect width='260' height='260' rx='12' fill='${primaryHex}22'/><rect x='40' y='60' width='180' height='140' rx='8' fill='${primaryHex}44' stroke='${primaryHex}' stroke-width='2'/><text x='130' y='145' text-anchor='middle' fill='${primaryHex}' font-size='16' font-family='sans-serif' font-weight='600'>${s.sampleNo}</text></svg>`)}`;
+    imgBox.innerHTML = `
+      <img src="${svgData}" alt="Sample image" onclick="openImgFullscreen('${svgData}')" style="max-width:100%;max-height:260px;border-radius:12px;cursor:pointer;">
+      <div style="font-size:11px;color:var(--text-3);padding:6px 0;text-align:center;">Click to expand</div>`;
+  }
+}
+
+/* ══════════════════════════════════
+   SECTION 2: SIZE & QUANTITY
+══════════════════════════════════ */
+function renderSizes() {
+  const s = currentSample;
+  const body = document.getElementById('vSizeBody');
+  if (!s.sizes || !s.sizes.length) {
+    body.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:12px;">No sizes specified.</div>';
+    return;
+  }
+  body.innerHTML = `
+    <table class="sq-table">
+      <thead>
+        <tr>
+          <th>Size</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${s.sizes.map(sz => `
+          <tr>
+            <td><span class="size-badge">${sz.code}</span></td>
+            <td style="font-weight:600;">${sz.qty}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+/* ══════════════════════════════════
+   SECTION 3: BOM ALLOCATION
+══════════════════════════════════ */
+function renderBOM() {
+  const s = currentSample;
+  const body = document.getElementById('vBomBody');
+  if (!s.bom || !s.bom.length) {
+    body.innerHTML = '<div class="bom-empty">No BOM data added.</div>';
+    return;
+  }
+  body.innerHTML = `
+    <table class="bom-table">
+      <thead>
+        <tr>
+          <th style="width:36px;">#</th>
+          <th>Material Type</th>
+          <th>Material Name</th>
+          <th style="width:130px;">Consumption</th>
+          <th style="width:100px;">UOM</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${s.bom.map((row, i) => `
+          <tr>
+            <td style="color:var(--text-3);font-size:12px;">${i+1}</td>
+            <td>${row.type}</td>
+            <td style="font-weight:500;">${row.name}</td>
+            <td>${row.consumption}</td>
+            <td style="color:var(--text-2);">${row.uom}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+/* ══════════════════════════════════
+   SECTION 4: REMARKS
+══════════════════════════════════ */
+function renderRemarks() {
+  const rem = document.getElementById('vRemarks');
+  rem.value = currentSample.remarks || '';
+  if (!currentSample.remarks) rem.placeholder = 'No remarks added.';
+}
+
+/* ══════════════════════════════════
+   SECTION 5: ATTACHMENTS
+══════════════════════════════════ */
+function renderAttachments() {
+  const s = currentSample;
+  const list = document.getElementById('vAttList');
+  if (!s.attachments || !s.attachments.length) {
+    list.innerHTML = '<div class="att-empty">No attachments.</div>';
+    return;
+  }
+  list.innerHTML = s.attachments.map(a => `
+    <div class="att-item">
+      <div class="att-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>
+      </div>
+      <span class="att-name">${a.name}</span>
+      <span class="att-size">${a.size}</span>
+      <button class="att-dl" title="Download" onclick="toast('Downloading ${a.name}…','i')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════
+   SECTION 6: APPROVAL TRAIL
+══════════════════════════════════ */
+function renderTrail() {
+  const trail = document.getElementById('approvalTrail');
+  const entries = [
+    {status:'Created', by:currentSample.createdBy, role:'Creator', date:currentSample.createdDate, time:'09:00', remarks:'Sample created and submitted for review.'},
+    ...(currentSample.trail||[])
+  ];
+
+  const cfg = {
+    Created:  {bg:'#eef2ff', color:'#4f52b2', icon:'<path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/>'},
+    Approved: {bg:'#f0fdf4', color:'#166534', icon:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>'},
+    Hold:     {bg:'#fffbeb', color:'#854d0e', icon:'<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"/>'},
+    Rejected: {bg:'#fef2f2', color:'#991b1b', icon:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>'},
+    Archive:  {bg:'#f1f5f9', color:'#475569', icon:'<path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>'},
+  };
+
+  trail.innerHTML = entries.map(e => {
+    const c = cfg[e.status] || cfg.Created;
+    return `
+      <div class="trail-item">
+        <div class="trail-dot" style="background:${c.bg};">
+          <svg viewBox="0 0 20 20" fill="${c.color}">${c.icon}</svg>
+        </div>
+        <div class="trail-info">
+          <div class="trail-action">${e.status} by <strong>${e.by}</strong> <span style="font-weight:400;color:var(--text-3);">(${e.role})</span></div>
+          <div class="trail-by">${formatDate(e.date)} at ${e.time}</div>
+          ${e.remarks?`<div class="trail-remark">${e.remarks}</div>`:''}
+        </div>
+        <div class="trail-date">${formatDate(e.date)}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   SUBMIT APPROVAL
+══════════════════════════════════ */
+function submitApproval(action) {
+  if (!can('approve')) { toast('You do not have permission to approve samples.','e'); return; }
+
+  const remarks = document.getElementById('approvalRemarks').value.trim();
+  if (!remarks) {
+    document.getElementById('approvalRemarks').classList.add('err');
+    document.getElementById('errRemarks').classList.add('show');
+    document.getElementById('approvalRemarks').focus();
+    toast('Approval remarks are required.','e');
+    return;
+  }
+
+  // Disable all action buttons
+  ['approveBtn','rejectBtn','archiveBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = true;
+  });
+
+  const msgs = {
+    Approved: `Sample ${currentSample.sampleNo} approved successfully.`,
+    Rejected: `Sample ${currentSample.sampleNo} has been rejected.`,
+    Archive:  `Sample ${currentSample.sampleNo} has been archived.`,
+  };
+  const types = { Approved:'s', Rejected:'e', Archive:'i' };
+
+  toast(msgs[action] || 'Status updated.', types[action] || 'i');
+
+  setTimeout(() => { location.href='sample-list.html'; }, 1800);
+}
+
+/* ══════════════════════════════════
+   IMAGE FULLSCREEN
+══════════════════════════════════ */
+function openImgFullscreen(src) {
+  document.getElementById('imgFsImg').src = src;
+  document.getElementById('imgFs').classList.add('open');
+}
+function closeImgFullscreen() {
+  document.getElementById('imgFs').classList.remove('open');
+}
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+function formatDate(d) {
+  if (!d) return '—';
+  const p = d.split('-');
+  return `${p[2]}/${p[1]}/${p[0]}`;
+}
+
+function updateCounter(fieldId, counterId, max) {
+  const val = document.getElementById(fieldId).value.length;
+  const el = document.getElementById(counterId);
+  el.textContent = `${val} / ${max}`;
+  el.classList.toggle('warn', val >= max * 0.9);
+}
+
+function toast(msg, type='s') {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `tt ${type}`;
+  const icons = {
+    s:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>',
+    e:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>',
+    i:'<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>',
+  };
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;">${icons[type]||icons.i}</svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+function toggleGroup(el) {
+  const g = el.closest('.nav-group');
+  g.classList.toggle('open', !g.classList.contains('open'));
+  el.classList.toggle('open', !el.classList.contains('open'));
+}
+
+/* ── Run init ── */
+init();
+</script>
+</body>
+</html>

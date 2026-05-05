@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Raw Material Master — Stitch ERP</title>
+<title>Fabric Master — Stitch ERP</title>
 <link rel="stylesheet" href="design-system.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <style>
-/* ── Light purple theme ── */
+/* ── Light purple theme (matches PO pages) ── */
 :root {
   --sidebar-bg: #ffffff;
   --sidebar-hover: rgba(91,95,199,.07);
@@ -38,15 +38,22 @@
 .sf-avatar{background:var(--brand-500)!important;}
 .topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
 
-/* ── List-specific ── */
-.rm-thumb{width:40px;height:40px;border-radius:var(--r-sm);background:var(--gray-100);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gray-400);overflow:hidden;flex-shrink:0;}
-.rm-thumb img{width:100%;height:100%;object-fit:cover;}
-.rm-thumb svg{width:18px;height:18px;}
+/* ── List-specific styles ── */
+.fabric-thumb{width:40px;height:40px;border-radius:var(--r-sm);background:var(--gray-100);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gray-400);overflow:hidden;flex-shrink:0;}
+.fabric-thumb img{width:100%;height:100%;object-fit:cover;}
+.fabric-thumb svg{width:18px;height:18px;}
 .color-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;}
 .color-swatch{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.12);flex-shrink:0;}
-.bom-badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);}
-.bom-yes{background:#f0fdf4;color:#15803d;}
-.bom-no{background:var(--gray-100);color:var(--gray-600);}
+.roll-badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);}
+.roll-yes{background:#f0fdf4;color:#15803d;}
+.roll-no{background:var(--gray-100);color:var(--gray-600);}
+
+/* ── Qty badge ── */
+.qty-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);}
+.qty-in{background:#eff6ff;color:#1d4ed8;}
+.qty-zero{background:var(--gray-100);color:var(--gray-500);}
+
+/* ── No-delete tooltip ── */
 .icon-btn.no-del{opacity:.35;cursor:not-allowed;}
 
 /* ── Excel action buttons ── */
@@ -62,6 +69,8 @@
 .import-preview th{padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);background:var(--gray-50);text-align:left;border-bottom:1px solid var(--border);}
 .import-preview td{padding:7px 12px;font-size:12.5px;border-bottom:1px solid var(--border2);}
 .import-preview tr:last-child td{border-bottom:none;}
+.import-chg{color:#1d4ed8;font-weight:500;}
+.import-same{color:var(--text-3);}
 </style>
 </head>
 <body>
@@ -87,12 +96,12 @@
           <a class="nav-child" href="masters-list.html">All Masters</a>
           <a class="nav-child" href="masters-aisle.html">Aisle Master</a>
           <a class="nav-child" href="masters-color.html">Color Master</a>
-          <a class="nav-child" href="masters-fabric.html">Fabric Master</a>
+          <a class="nav-child active" href="masters-fabric.html">Fabric Master</a>
           <a class="nav-child" href="masters-vendor.html">Vendor / Customer</a>
           <a class="nav-child" href="masters-company.html">Company Master</a>
           <a class="nav-child" href="masters-size.html">Size Master</a>
           <a class="nav-child" href="masters-uom.html">Base UOM Master</a>
-          <a class="nav-child active" href="masters-rawmaterial.html">Raw Materials</a>
+          <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
           <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
           <a class="nav-child" href="masters-operation.html">Operations</a>
         </div>
@@ -105,18 +114,20 @@
     <header class="topbar">
       <span class="topbar-module">Masters</span>
       <div class="topbar-right" style="gap:8px;">
+        <!-- Import -->
         <button class="act-icon-btn excel-imp" title="Import changes from CSV" onclick="document.getElementById('importFileInput').click()">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
           Import CSV
         </button>
         <input type="file" id="importFileInput" accept=".csv" style="display:none;" onchange="handleImportFile(this)">
-        <button class="act-icon-btn excel-exp" title="Export all raw materials to CSV" onclick="exportToCSV()">
+        <!-- Export -->
+        <button class="act-icon-btn excel-exp" title="Export all fabrics to CSV" onclick="exportToCSV()">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/></svg>
           Export CSV
         </button>
-        <button class="topbar-cta" onclick="location.href='masters-rawmaterial-add.html'">
+        <button class="topbar-cta" onclick="location.href='masters-fabric-add.html'">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-          Add Raw Material
+          Add Fabric
         </button>
         <button class="topbar-icon-btn"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg><span class="notif-dot"></span></button>
       </div>
@@ -125,37 +136,39 @@
     <main class="page">
       <div class="ph">
         <div>
-          <div class="ph-title">Raw Material Master</div>
-          <div class="ph-sub">Manage the raw material catalogue — types, UOMs, vendors, and inventory settings</div>
+          <div class="ph-title">Fabric Master</div>
+          <div class="ph-sub">Manage the fabric catalogue — types, base UOMs, vendors, and inventory settings</div>
         </div>
       </div>
 
       <div class="card">
         <div class="toolbar">
           <div class="toolbar-field" style="flex:1;max-width:300px;">
-            <div class="toolbar-label">RM Name</div>
+            <div class="toolbar-label">Fabric Name</div>
             <div class="search-wrap">
               <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
               <input class="search-input" id="filterName" type="text" placeholder="Search by name..." oninput="applyFilter()">
             </div>
           </div>
           <div class="toolbar-field">
-            <div class="toolbar-label">RM Type</div>
-            <select class="filter-select" id="filterType" onchange="applyFilter()" style="min-width:140px;">
-              <option value="">All Types</option>
-              <option>Yarn</option>
-              <option>Thread</option>
-              <option>Zipper</option>
-              <option>Button</option>
-              <option>Elastic</option>
-              <option>Interlining</option>
-              <option>Label</option>
-              <option>Packing Material</option>
+            <div class="toolbar-label">Color</div>
+            <select class="filter-select" id="filterColor" onchange="applyFilter()" style="min-width:140px;">
+              <option value="">All Colors</option>
             </select>
           </div>
           <div class="toolbar-field">
-            <div class="toolbar-label">RM Code</div>
-            <input class="search-input" id="filterCode" type="text" placeholder="e.g. RMY-001" oninput="applyFilter()" style="height:38px;padding:0 12px;min-width:130px;">
+            <div class="toolbar-label">Fabric Code</div>
+            <input class="search-input" id="filterCode" type="text" placeholder="e.g. FAB-001" oninput="applyFilter()" style="height:38px;padding:0 12px;min-width:130px;">
+          </div>
+          <div class="toolbar-field">
+            <div class="toolbar-label">Fabric Type</div>
+            <select class="filter-select" id="filterType" onchange="applyFilter()">
+              <option value="">All Types</option>
+              <option>Woven</option>
+              <option>Knit</option>
+              <option>Non-woven</option>
+              <option>Lace</option>
+            </select>
           </div>
           <div class="toolbar-field">
             <div class="toolbar-label">&nbsp;</div>
@@ -173,16 +186,17 @@
             <thead>
               <tr>
                 <th style="width:56px;">IMAGE</th>
-                <th>RM NAME <svg class="sort-icon" viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M5 4l3-3 3 3H5zm6 8l-3 3-3-3h6z"/></svg></th>
-                <th>RM TYPE</th>
+                <th>FABRIC NAME <svg class="sort-icon" viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M5 4l3-3 3 3H5zm6 8l-3 3-3-3h6z"/></svg></th>
                 <th>COLOR</th>
-                <th>SIZE</th>
+                <th>FABRIC CODE</th>
+                <th>FABRIC TYPE</th>
                 <th>BASE UOM</th>
-                <th>BOM STATUS</th>
+                <th>AVAIL. QTY</th>
+                <th>ROLL WISE</th>
                 <th style="text-align:right;">ACTION</th>
               </tr>
             </thead>
-            <tbody id="rmBody"></tbody>
+            <tbody id="fabricBody"></tbody>
           </table>
         </div>
         <div class="pager" id="pager"></div>
@@ -199,11 +213,11 @@
       <button class="modal-x" onclick="closeModal('deleteModal')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>
     </div>
     <div class="modal-body">
-      <p style="font-size:14px;color:var(--text-2);line-height:1.6;">Delete raw material <strong id="deleteName"></strong>? All linked UOM and inventory data will be removed.</p>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.6;">Delete fabric <strong id="deleteName"></strong>? All linked UOM and inventory data will be removed.</p>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete Fabric</button>
     </div>
   </div>
 </div>
@@ -221,7 +235,7 @@
     <div class="modal-body">
       <div id="importPreviewContent"></div>
       <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#92400e;margin-top:12px;">
-        <strong>Note:</strong> Only editable fields will be updated. Locked fields (Color, Base UOM, Location) are ignored even if changed in the file.
+        <strong>Note:</strong> Only editable fields will be updated. Locked fields (Color, Base UOM, Location, Roll Wise) are ignored even if changed in the file.
       </div>
     </div>
     <div class="modal-foot">
@@ -241,73 +255,83 @@ const colorSwatches = {
   'Navy Blue':'#1b3a6b','Ivory White':'#f5f0e8','Coral Red':'#f05e40',
   'Indigo':'#3f3f8f','Dusty Rose':'#c4a0a0','Jet Black':'#1a1a1a',
   'Stone Grey':'#7c8480','Olive Green':'#4a5e3a','Camel Brown':'#c19a6b',
-  'Teal':'#008080','Sage Green':'#7c9a7e','Off White':'#faf7f0',
-  'White':'#f8f8f8','Natural':'#f5f0e8'
+  'Teal':'#008080','Sage Green':'#7c9a7e','Off White':'#faf7f0'
 };
 
-let rmList = [
-  {id:1,rmName:'Grey Cotton Yarn',rmCode:'RMY-001',rmType:'Yarn',color:{name:'Stone Grey',code:'GRY-005'},uom:'Kilograms',location:'Raw Material Store',size:'40s',shadeCode:'SHD-010',brandItem:'',hsn:'52041100',gstRate:5,price:220,allowance:2,packageQty:50,count:'40s',gsm:null,scaleWise:true,bomStatus:true,inventoryLimit:500,image:null},
-  {id:2,rmName:'Polyester Black Thread',rmCode:'RMT-002',rmType:'Thread',color:{name:'Jet Black',code:'BLK-001'},uom:'Meters',location:'Main Warehouse',size:null,shadeCode:'SHD-001',brandItem:'Coats & Clark',hsn:'54012000',gstRate:12,price:45,allowance:5,packageQty:100,count:null,gsm:null,scaleWise:false,bomStatus:true,inventoryLimit:1000,image:null},
-  {id:3,rmName:'Metal Zipper 22cm',rmCode:'RMZ-003',rmType:'Zipper',color:{name:'Ivory White',code:'WHT-001'},uom:'Pieces',location:'Trimming Store',size:'22cm',shadeCode:'SHD-003',brandItem:'YKK',hsn:'96071100',gstRate:18,price:12,allowance:0,packageQty:200,count:null,gsm:null,scaleWise:false,bomStatus:false,inventoryLimit:2000,image:null},
-  {id:4,rmName:'Elastic Band 2cm',rmCode:'RME-004',rmType:'Elastic',color:{name:'Ivory White',code:'WHT-001'},uom:'Meters',location:'Raw Material Store',size:'2cm',shadeCode:'SHD-002',brandItem:'',hsn:'56014900',gstRate:5,price:8,allowance:3,packageQty:500,count:null,gsm:null,scaleWise:false,bomStatus:true,inventoryLimit:5000,image:null},
-  {id:5,rmName:'Denim Shank Button 18L',rmCode:'RMB-005',rmType:'Button',color:{name:'Indigo',code:'IND-020'},uom:'Pieces',location:'Trimming Store',size:'18L',shadeCode:'SHD-020',brandItem:'Coats & Clark',hsn:'96062100',gstRate:12,price:3.5,allowance:0,packageQty:1000,count:null,gsm:null,scaleWise:false,bomStatus:false,inventoryLimit:10000,image:null},
-  {id:6,rmName:'Woven Label - Brand',rmCode:'RML-006',rmType:'Label',color:{name:'Natural',code:'NAT-001'},uom:'Pieces',location:'Trimming Store',size:'M',shadeCode:'',brandItem:'',hsn:'58071000',gstRate:12,price:1.2,allowance:0,packageQty:500,count:null,gsm:null,scaleWise:false,bomStatus:true,inventoryLimit:20000,image:null},
+function colorLabel(c){return c.code?`${c.name} (${c.code})`:c.name;}
+
+let fabrics = [
+  {id:1,fabricName:'Premium Cotton Twill',fabricCode:'FAB-001',color:{name:'Navy Blue',code:'NVY-002'},fabricType:'Woven',uom:'Meters',location:'Main Warehouse',vendor:'Sunrise Fabrics Pvt. Ltd.',count:'40s',construction:'2/1 Twill',constructionType:'Twill',width:58,gsm:280,fabricContent:'100% Cotton',allowance:3,hsn:'52081200',gst:5,price:185.50,inventoryLimit:500,rollWise:true,remarks:'Premium grade cotton for formal wear',image:null,availableQty:320},
+  {id:2,fabricName:'Linen Blend',fabricCode:'FAB-002',color:{name:'Ivory White',code:'WHT-001'},fabricType:'Woven',uom:'Meters',location:'Store B',vendor:'Horizon Trims Co.',count:null,construction:'Plain',constructionType:'Plain',width:55,gsm:160,fabricContent:'55% Linen, 45% Cotton',allowance:2,hsn:'53091100',gst:5,price:320.00,inventoryLimit:200,rollWise:false,remarks:'',image:null,availableQty:0},
+  {id:3,fabricName:'Polyester Interlock',fabricCode:'FAB-003',color:{name:'Coral Red',code:'CRL-007'},fabricType:'Knit',uom:'Kilograms',location:'Main Warehouse',vendor:'Sunrise Fabrics Pvt. Ltd.',count:'150D',construction:'1x1 Interlock',constructionType:'Interlock',width:62,gsm:220,fabricContent:'100% Polyester',allowance:5,hsn:'60023200',gst:12,price:145.00,inventoryLimit:1000,rollWise:true,remarks:'For sportswear and activewear',image:null,availableQty:87},
+  {id:4,fabricName:'Denim Stretch',fabricCode:'FAB-004',color:{name:'Indigo',code:'IND-020'},fabricType:'Woven',uom:'Meters',location:'Fabric Store',vendor:'Blue Ocean Exports',count:'8 OZ',construction:'3/1 Twill',constructionType:'Denim',width:60,gsm:340,fabricContent:'98% Cotton, 2% Lycra',allowance:4,hsn:'52082000',gst:5,price:450.00,inventoryLimit:300,rollWise:true,remarks:'Stretch denim for jeans',image:null,availableQty:0},
+  {id:5,fabricName:'Georgette Crepe',fabricCode:'',color:{name:'Dusty Rose',code:'DRS-009'},fabricType:'Woven',uom:'Meters',location:'Main Warehouse',vendor:null,count:null,construction:'Crepe',constructionType:'Crepe',width:44,gsm:65,fabricContent:'100% Polyester',allowance:6,hsn:'54075400',gst:12,price:280.00,inventoryLimit:null,rollWise:true,remarks:'',image:null,availableQty:45},
 ];
 
-let filtered = [...rmList], currentPage = 1, pageSize = 10, deleteId = null;
+let filtered = [...fabrics], currentPage = 1, pageSize = 10, deleteId = null;
 let pendingImportRows = [];
 
 /* ── Filter ── */
-function applyFilter() {
+function populateColorFilter(){
+  const sel = document.getElementById('filterColor');
+  const colors = [...new Set(fabrics.map(f => colorLabel(f.color)))];
+  colors.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+}
+
+function applyFilter(){
   const name = document.getElementById('filterName').value.trim().toLowerCase();
-  const type = document.getElementById('filterType').value;
+  const color = document.getElementById('filterColor').value;
   const code = document.getElementById('filterCode').value.trim().toLowerCase();
-  filtered = rmList.filter(r => {
-    if (name && !r.rmName.toLowerCase().includes(name)) return false;
-    if (type && r.rmType !== type) return false;
-    if (code && !r.rmCode.toLowerCase().includes(code)) return false;
+  const type = document.getElementById('filterType').value;
+  filtered = fabrics.filter(f => {
+    if (name && !f.fabricName.toLowerCase().includes(name)) return false;
+    if (color && colorLabel(f.color) !== color) return false;
+    if (code && !f.fabricCode.toLowerCase().includes(code)) return false;
+    if (type && f.fabricType !== type) return false;
     return true;
   });
   currentPage = 1; render();
 }
 
-function resetFilter() {
+function resetFilter(){
   document.getElementById('filterName').value = '';
-  document.getElementById('filterType').value = '';
+  document.getElementById('filterColor').value = '';
   document.getElementById('filterCode').value = '';
-  filtered = [...rmList]; currentPage = 1; render();
+  document.getElementById('filterType').value = '';
+  filtered = [...fabrics]; currentPage = 1; render();
 }
 
 /* ── Render ── */
-function render() {
+function render(){
   const start = (currentPage - 1) * pageSize, page = filtered.slice(start, start + pageSize);
   document.getElementById('entriesCount').textContent = filtered.length;
-  const tbody = document.getElementById('rmBody');
+  const tbody = document.getElementById('fabricBody');
   if (!page.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 7l2.55 2.4A1 1 0 0116 11H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"/></svg></div><div class="empty-title">No raw materials found</div><div class="empty-desc">Try adjusting filters or <a href="masters-rawmaterial-add.html" style="color:var(--brand-600);">add a new raw material</a></div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 7l2.55 2.4A1 1 0 0116 11H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"/></svg></div><div class="empty-title">No fabrics found</div><div class="empty-desc">Try adjusting filters or <a href="masters-fabric-add.html" style="color:var(--brand-600);">add a new fabric</a></div></div></td></tr>`;
     renderPager(); return;
   }
-  tbody.innerHTML = page.map(r => {
-    const sw = colorSwatches[r.color.name] || '#9ca3af';
-    const colorText = r.color.code ? `${r.color.name} (${r.color.code})` : r.color.name;
-    const thumb = r.image
-      ? `<img src="${r.image}" alt="">`
-      : `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>`;
-    const deleteBtn = `<button class="icon-btn del" title="Delete" onclick="deleteRM(${r.id},'${r.rmName.replace(/'/g,"\\'")}')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg></button>`;
+  tbody.innerHTML = page.map(f => {
+    const sw = colorSwatches[f.color.name] || '#9ca3af';
+    const thumb = f.image ? `<img src="${f.image}" alt="">` : `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 7l2.55 2.4A1 1 0 0116 11H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"/></svg>`;
+    const hasQty = (f.availableQty || 0) > 0;
+    const qtyBadge = hasQty
+      ? `<span class="qty-chip qty-in">${f.availableQty.toLocaleString()} ${f.uom}</span>`
+      : `<span class="qty-chip qty-zero">—</span>`;
+    const deleteBtn = hasQty
+      ? `<button class="icon-btn no-del" title="Cannot delete — fabric has stock (${f.availableQty} ${f.uom})" disabled><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg></button>`
+      : `<button class="icon-btn del" title="Delete" onclick="deleteFabric(${f.id},'${f.fabricName.replace(/'/g,"\\'")}')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z"/></svg></button>`;
     return `<tr>
-      <td><div class="rm-thumb">${thumb}</div></td>
-      <td>
-        <div class="row-name">${r.rmName}</div>
-        ${r.rmCode ? `<div class="row-sub">${r.rmCode}</div>` : ''}
-      </td>
-      <td><span class="badge badge-gray">${r.rmType}</span></td>
-      <td><div class="color-chip"><span class="color-swatch" style="background:${sw};"></span>${colorText}</div></td>
-      <td style="font-size:12.5px;color:var(--text-2);">${r.size || '<span style="color:var(--text-3);">—</span>'}</td>
-      <td style="font-size:12.5px;color:var(--text-2);">${r.uom}</td>
-      <td><span class="bom-badge ${r.bomStatus ? 'bom-yes' : 'bom-no'}">${r.bomStatus ? 'Yes' : 'No'}</span></td>
+      <td><div class="fabric-thumb">${thumb}</div></td>
+      <td><div class="row-name">${f.fabricName}</div>${f.vendor ? `<div class="row-sub">${f.vendor}</div>` : ''}</td>
+      <td><div class="color-chip"><span class="color-swatch" style="background:${sw};"></span>${colorLabel(f.color)}</div></td>
+      <td>${f.fabricCode ? `<code style="font-size:12px;background:var(--gray-100);padding:2px 7px;border-radius:4px;color:var(--text-2);">${f.fabricCode}</code>` : '<span style="color:var(--text-3);">—</span>'}</td>
+      <td><span class="badge ${f.fabricType === 'Knit' ? 'badge-blue' : 'badge-gray'}">${f.fabricType}</span></td>
+      <td style="font-size:12.5px;color:var(--text-2);">${f.uom}</td>
+      <td>${qtyBadge}</td>
+      <td><span class="roll-badge ${f.rollWise ? 'roll-yes' : 'roll-no'}">${f.rollWise ? 'Roll Wise' : 'Non-Roll'}</span></td>
       <td><div class="row-actions">
-        <button class="icon-btn" title="View" onclick="location.href='masters-rawmaterial-view.html?id=${r.id}'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg></button>
-        <button class="icon-btn edit" title="Edit" onclick="location.href='masters-rawmaterial-edit.html?id=${r.id}'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>
+        <button class="icon-btn" title="View" onclick="location.href='masters-fabric-view.html?id=${f.id}'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg></button>
+        <button class="icon-btn edit" title="Edit" onclick="location.href='masters-fabric-edit.html?id=${f.id}'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>
         ${deleteBtn}
       </div></td>
     </tr>`;
@@ -315,7 +339,7 @@ function render() {
   renderPager();
 }
 
-function renderPager() {
+function renderPager(){
   const total = filtered.length, pages = Math.ceil(total / pageSize);
   const start = (currentPage - 1) * pageSize + 1, end = Math.min(currentPage * pageSize, total);
   document.getElementById('pager').innerHTML = `
@@ -326,48 +350,51 @@ function renderPager() {
       <button class="pager-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= pages || !pages ? 'disabled' : ''}>Next <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></button>
     </div>`;
 }
-function goPage(p) { const pages = Math.ceil(filtered.length / pageSize); if (p < 1 || p > pages) return; currentPage = p; render(); }
+function goPage(p){ const pages = Math.ceil(filtered.length / pageSize); if (p < 1 || p > pages) return; currentPage = p; render(); }
 
 /* ── Delete ── */
-function deleteRM(id, name) { deleteId = id; document.getElementById('deleteName').textContent = name; document.getElementById('deleteModal').classList.add('open'); }
-function confirmDelete() { rmList = rmList.filter(r => r.id !== deleteId); filtered = filtered.filter(r => r.id !== deleteId); render(); closeModal('deleteModal'); toast('Raw material deleted', 'success'); }
+function deleteFabric(id, name){ deleteId = id; document.getElementById('deleteName').textContent = name; document.getElementById('deleteModal').classList.add('open'); }
+function confirmDelete(){ fabrics = fabrics.filter(f => f.id !== deleteId); filtered = filtered.filter(f => f.id !== deleteId); render(); closeModal('deleteModal'); toast('Fabric deleted', 'success'); }
 
-/* ══ EXPORT CSV ══ */
+/* ══ EXPORT to CSV ══ */
 function exportToCSV() {
   const LOCKED = ' [LOCKED]';
   const headers = [
-    'ID','RM Name','RM Code','RM Type',`Color${LOCKED}`,`Base UOM${LOCKED}`,`Location${LOCKED}`,
-    'Size','Shade Code','Brand Item','HSN Code','GST Rate %','Price (₹)',
-    'Allowance %','Package Qty','Count','GSM','Scale Wise','BOM Status','Inventory Limit'
+    'ID','Fabric Name','Fabric Code',`Color${LOCKED}`,`Fabric Type`,`Base UOM${LOCKED}`,
+    'Construction Type','Count','Construction','Width (inches)','GSM',
+    'Fabric Content','Allowance %','HSN Code','GST %','Price (₹)',
+    `Roll Wise${LOCKED}`,`Default Location${LOCKED}`,'Inventory Limit','Remarks','Available Qty'
   ];
-  const rows = rmList.map(r => [
-    r.id, r.rmName, r.rmCode || '', r.rmType,
-    r.color.code ? `${r.color.name} (${r.color.code})` : r.color.name,
-    r.uom, r.location || '',
-    r.size || '', r.shadeCode || '', r.brandItem || '',
-    r.hsn || '', r.gstRate != null ? r.gstRate : '',
-    r.price != null ? r.price : '',
-    r.allowance != null ? r.allowance : '',
-    r.packageQty != null ? r.packageQty : '',
-    r.count || '', r.gsm != null ? r.gsm : '',
-    r.scaleWise ? 'Yes' : 'No',
-    r.bomStatus ? 'Yes' : 'No',
-    r.inventoryLimit != null ? r.inventoryLimit : ''
+  const rows = fabrics.map(f => [
+    f.id, f.fabricName, f.fabricCode || '', colorLabel(f.color), f.fabricType, f.uom,
+    f.constructionType || '', f.count || '', f.construction || '',
+    f.width != null ? f.width : '', f.gsm != null ? f.gsm : '',
+    f.fabricContent || '', f.allowance != null ? f.allowance : '',
+    f.hsn || '', f.gst != null ? f.gst : '',
+    f.price != null ? f.price : '',
+    f.rollWise ? 'Yes' : 'No', f.location || '',
+    f.inventoryLimit != null ? f.inventoryLimit : '',
+    f.remarks || '', f.availableQty || 0
   ]);
-  const csv = [headers, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const url = URL.createObjectURL(new Blob(['﻿' + csv], {type:'text/csv;charset=utf-8;'}));
-  const a = document.createElement('a'); a.href = url; a.download = 'rawmaterial_master_export.csv';
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+
+  const blob = new Blob(['﻿' + csv, {type: 'text/csv;charset=utf-8;'}]);
+  const url = URL.createObjectURL(new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8;'}));
+  const a = document.createElement('a'); a.href = url; a.download = 'fabric_master_export.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast(`${rmList.length} raw materials exported to CSV`, 'success');
+  toast(`${fabrics.length} fabrics exported to CSV`, 'success');
 }
 
-/* ══ IMPORT CSV ══ */
-const EDITABLE_COLS = ['RM Name','RM Code','RM Type','Size','Shade Code','Brand Item','HSN Code','GST Rate %','Price (₹)','Allowance %','Package Qty','Count','GSM','Scale Wise','BOM Status','Inventory Limit'];
+/* ══ IMPORT from CSV ══ */
+const EDITABLE_COLS = ['Fabric Name','Fabric Code','Fabric Type','Construction Type','Count','Construction','Width (inches)','GSM','Fabric Content','Allowance %','HSN Code','GST %','Price (₹)','Inventory Limit','Remarks'];
 
 function parseCSV(text) {
   const rows = [];
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   for (const line of lines) {
     if (!line.trim()) continue;
     const row = [], re = /"([^"]*(?:""[^"]*)*)"|([^,]*)/g;
@@ -375,7 +402,7 @@ function parseCSV(text) {
     while ((m = re.exec(line)) !== null) {
       if (m.index === re.lastIndex && !m[0]) break;
       if (!first && line[m.index - 1] !== ',') break;
-      row.push(m[1] !== undefined ? m[1].replace(/""/g,'"') : (m[2] || ''));
+      row.push(m[1] !== undefined ? m[1].replace(/""/g, '"') : (m[2] || ''));
       first = false;
     }
     rows.push(row);
@@ -391,15 +418,17 @@ function handleImportFile(input) {
     try {
       const rows = parseCSV(e.target.result);
       if (rows.length < 2) { toast('File appears empty or invalid', 'error'); return; }
-      const headers = rows[0].map(h => h.replace(/ \[LOCKED\]/g,'').trim());
+      const headers = rows[0].map(h => h.replace(/ \[LOCKED\]/g, '').trim());
       const idIdx = headers.indexOf('ID');
       if (idIdx < 0) { toast('CSV must have an "ID" column', 'error'); return; }
+
       pendingImportRows = [];
-      let notFound = 0;
+      let matched = 0, notFound = 0;
+
       rows.slice(1).forEach(row => {
         const id = parseInt(row[idIdx]);
-        const rm = rmList.find(r => r.id === id);
-        if (!rm) { notFound++; return; }
+        const fabric = fabrics.find(f => f.id === id);
+        if (!fabric) { notFound++; return; }
         const changes = {};
         EDITABLE_COLS.forEach(col => {
           const idx = headers.indexOf(col);
@@ -407,13 +436,14 @@ function handleImportFile(input) {
           const newVal = row[idx].trim();
           const field = csvColToField(col);
           if (!field) return;
-          const curVal = String(rm[field] != null ? rm[field] : '');
+          const curVal = String(fabric[field] != null ? fabric[field] : '');
           if (newVal !== curVal) changes[col] = { field, from: curVal, to: newVal };
         });
-        if (Object.keys(changes).length) pendingImportRows.push({ rm, changes });
+        if (Object.keys(changes).length) { pendingImportRows.push({ fabric, changes }); matched++; }
       });
+
       if (!pendingImportRows.length) { toast('No changes detected in the imported file', 'success'); return; }
-      document.getElementById('importSummaryText').textContent = `${pendingImportRows.length} record(s) have changes · ${notFound} ID(s) not found`;
+      document.getElementById('importSummaryText').textContent = `${pendingImportRows.length} fabric(s) have changes · ${notFound} ID(s) not found`;
       renderImportPreview();
       document.getElementById('importModal').classList.add('open');
     } catch(err) { toast('Could not read file: ' + err.message, 'error'); }
@@ -423,23 +453,23 @@ function handleImportFile(input) {
 
 function csvColToField(col) {
   const map = {
-    'RM Name':'rmName','RM Code':'rmCode','RM Type':'rmType','Size':'size',
-    'Shade Code':'shadeCode','Brand Item':'brandItem','HSN Code':'hsn',
-    'GST Rate %':'gstRate','Price (₹)':'price','Allowance %':'allowance',
-    'Package Qty':'packageQty','Count':'count','GSM':'gsm',
-    'Scale Wise':'scaleWise','BOM Status':'bomStatus','Inventory Limit':'inventoryLimit'
+    'Fabric Name': 'fabricName', 'Fabric Code': 'fabricCode', 'Fabric Type': 'fabricType',
+    'Construction Type': 'constructionType', 'Count': 'count', 'Construction': 'construction',
+    'Width (inches)': 'width', 'GSM': 'gsm', 'Fabric Content': 'fabricContent',
+    'Allowance %': 'allowance', 'HSN Code': 'hsn', 'GST %': 'gst',
+    'Price (₹)': 'price', 'Inventory Limit': 'inventoryLimit', 'Remarks': 'remarks'
   };
   return map[col] || null;
 }
 
 function renderImportPreview() {
   const el = document.getElementById('importPreviewContent');
-  el.innerHTML = pendingImportRows.map(({rm, changes}) => `
+  el.innerHTML = pendingImportRows.map(({ fabric, changes }) => `
     <div style="margin-bottom:14px;">
-      <div style="font-size:13px;font-weight:600;color:#1e1f2e;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #f0f2f7;">${rm.rmName} <span style="font-size:11px;font-weight:400;color:#9ca3af;">ID: ${rm.id}</span></div>
+      <div style="font-size:13px;font-weight:600;color:#1e1f2e;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #f0f2f7;">${fabric.fabricName} <span style="font-size:11px;font-weight:400;color:#9ca3af;">ID: ${fabric.id}</span></div>
       <table style="width:100%;border-collapse:collapse;">
         <thead><tr style="background:#f9fafb;"><th style="padding:6px 10px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#9ca3af;text-align:left;">Field</th><th style="padding:6px 10px;font-size:11px;font-weight:700;text-align:left;text-transform:uppercase;color:#9ca3af;">Current</th><th style="padding:6px 10px;font-size:11px;font-weight:700;text-align:left;text-transform:uppercase;color:#9ca3af;">New Value</th></tr></thead>
-        <tbody>${Object.entries(changes).map(([col,{from,to}]) => `
+        <tbody>${Object.entries(changes).map(([col, {from, to}]) => `
           <tr style="border-bottom:1px solid #f3f4f6;">
             <td style="padding:6px 10px;font-size:12.5px;font-weight:500;color:#374151;">${col}</td>
             <td style="padding:6px 10px;font-size:12.5px;color:#9ca3af;">${from || '—'}</td>
@@ -452,28 +482,26 @@ function renderImportPreview() {
 
 function applyImport() {
   let count = 0;
-  pendingImportRows.forEach(({rm, changes}) => {
-    Object.values(changes).forEach(({field, to}) => {
-      const numFields = ['gstRate','price','allowance','packageQty','gsm','inventoryLimit'];
-      const boolFields = ['scaleWise','bomStatus'];
-      if (numFields.includes(field)) rm[field] = to === '' ? null : parseFloat(to);
-      else if (boolFields.includes(field)) rm[field] = to.toLowerCase() === 'yes';
-      else rm[field] = to;
+  pendingImportRows.forEach(({ fabric, changes }) => {
+    Object.values(changes).forEach(({ field, to }) => {
+      const numFields = ['width','gsm','allowance','gst','price','inventoryLimit'];
+      fabric[field] = numFields.includes(field) ? (to === '' ? null : parseFloat(to)) : to;
     });
     count++;
   });
-  filtered = [...rmList]; render();
+  filtered = [...fabrics]; render();
   closeModal('importModal');
   pendingImportRows = [];
-  toast(`${count} raw material(s) updated successfully`, 'success');
+  toast(`${count} fabric(s) updated successfully`, 'success');
 }
 
 /* ── Helpers ── */
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function toast(msg, type) { const a = document.getElementById('toastArea'); const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> ${msg}`; a.appendChild(t); setTimeout(() => t.remove(), 3500); }
-function toggleGroup(el) { const g = el.closest('.nav-group'); const o = g.classList.contains('open'); document.querySelectorAll('.nav-group.open').forEach(x => { if (x !== g) { x.classList.remove('open'); x.querySelector('.nav-parent')?.classList.remove('open'); } }); g.classList.toggle('open', !o); el.classList.toggle('open', !o); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function toast(msg, type){ const a = document.getElementById('toastArea'); const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> ${msg}`; a.appendChild(t); setTimeout(() => t.remove(), 3500); }
+function toggleGroup(el){ const g = el.closest('.nav-group'); const o = g.classList.contains('open'); document.querySelectorAll('.nav-group.open').forEach(x => { if (x !== g) { x.classList.remove('open'); x.querySelector('.nav-parent')?.classList.remove('open'); } }); g.classList.toggle('open', !o); el.classList.toggle('open', !o); }
 document.querySelectorAll('.modal-backdrop').forEach(bd => bd.addEventListener('click', e => { if (e.target === bd) closeModal(bd.id); }));
 
+populateColorFilter();
 render();
 </script>
 </body>

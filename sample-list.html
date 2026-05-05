@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample List — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}
+.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}
+.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-awaiting{background:#f3f4f6;color:#4b5563;}.sp-awaiting::before{background:#9ca3af;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-rejected{background:#fef2f2;color:#991b1b;}.sp-rejected::before{background:#ef4444;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+.sp-archive{background:#f1f5f9;color:#475569;}.sp-archive::before{background:#94a3b8;}
+
+/* Row highlights */
+.row-approved td{background:#f0fdf4!important;}
+.row-rejected td{background:#fef2f2!important;}
+.row-hold td{background:#fffbeb!important;}
+.row-approved:hover td{background:#dcfce7!important;}
+.row-rejected:hover td{background:#fee2e2!important;}
+.row-hold:hover td{background:#fef9c3!important;}
+
+/* Table */
+.tw{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.sm-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.sm-tbl th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:11px 14px;border-bottom:2px solid var(--border2);background:#f9fafb;white-space:nowrap;}
+.sm-tbl td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.sm-tbl tr:last-child td{border-bottom:none;}
+.sm-tbl tbody tr:hover td{filter:brightness(.975);}
+
+/* Image thumb */
+.thumb-wrap{width:48px;height:48px;border-radius:8px;overflow:hidden;border:1px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.thumb-wrap:hover{transform:scale(1.06);}
+.thumb-wrap img{width:100%;height:100%;object-fit:cover;}
+.thumb-ph{width:48px;height:48px;border-radius:8px;background:#f3f4f6;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.thumb-ph svg{width:18px;height:18px;color:#d1d5db;}
+
+/* Color swatches in table */
+.color-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.cc{width:18px;height:18px;border-radius:4px;border:1.5px solid rgba(0,0,0,.12);flex-shrink:0;title-attr:attr(title);}
+.cc-label{font-size:11.5px;color:var(--text-2);}
+
+/* Actions */
+.rac{display:flex;align-items:center;gap:4px;}
+.ab{height:26px;padding:0 9px;font-size:11.5px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-2);transition:all .15s;font-family:inherit;}
+.ab:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.ab.ap{border-color:#bbf7d0;color:#166534;background:#f0fdf4;}
+.ab.ap:hover{background:#dcfce7;border-color:#4ade80;}
+.ab.dl{border-color:#fecaca;color:#991b1b;background:#fef2f2;}
+.ab.dl:hover{background:#fee2e2;border-color:#f87171;}
+.ab.mp{border-color:#c7d2fe;color:#3730a3;background:#eef2ff;}
+.ab.mp:hover{background:#e0e7ff;border-color:#818cf8;}
+.ab svg{width:11px;height:11px;}
+
+/* Filter bar */
+.fb{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#fff;padding:14px 18px;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ffl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.fi{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;color:var(--text-1);transition:border-color .15s;}
+.fi:focus{border-color:var(--brand-500);}
+select.fi{padding-right:28px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;}
+.sw{position:relative;min-width:220px;}
+.sw svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;}
+.sw .fi{padding-left:30px;width:100%;}
+.fb-actions{display:flex;gap:8px;margin-left:auto;}
+
+/* Buttons */
+.btn{height:34px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+
+/* Archive link */
+.arch-lnk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--brand-600);cursor:pointer;padding:6px 14px;border:1.5px solid var(--brand-200);border-radius:8px;background:var(--brand-50);transition:all .15s;text-decoration:none;}
+.arch-lnk:hover{background:var(--brand-100);border-color:var(--brand-400);}
+.arch-lnk svg{width:15px;height:15px;}
+
+/* Bottom bar */
+.btmbar{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.ci{font-size:12px;color:var(--text-3);}
+.pag{display:flex;gap:4px;margin-left:auto;}
+.pg{height:30px;min-width:30px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;}
+.pg:hover{border-color:var(--brand-400);color:var(--brand-600);}
+.pg.a{background:var(--brand-600);border-color:var(--brand-600);color:#fff;}
+
+/* Modals */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.mbox{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:960px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.mhd{padding:18px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mhd-t{font-size:15px;font-weight:700;color:var(--text-1);}
+.mhd-sub{font-size:12px;color:var(--text-3);margin-top:2px;}
+.mcl{width:32px;height:32px;border:none;background:transparent;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-family:inherit;}
+.mcl:hover{background:var(--gray-100);color:var(--text-1);}
+.mbdy{flex:1;overflow-y:auto;padding:20px 24px;}
+.mftr{padding:14px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;}
+
+/* Image fullscreen */
+.img-fs{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
+.img-fs.open{display:flex;}
+.img-fs img{max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.img-fs-cl{position:fixed;top:20px;right:20px;width:42px;height:42px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:1001;transition:background .15s;}
+.img-fs-cl:hover{background:rgba(255,255,255,.3);}
+
+/* Empty state */
+.empty{text-align:center;padding:56px 20px;}
+.empty svg{width:48px;height:48px;color:#d1d5db;display:block;margin:0 auto 14px;}
+.empty h3{font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:5px;}
+.empty p{font-size:12.5px;color:var(--text-3);}
+
+/* Toast */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;} .tt.e{background:#dc2626;} .tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+/* Sample number link */
+.sno-link{color:var(--brand-700);font-weight:600;cursor:pointer;text-decoration:none;}
+.sno-link:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="nav-section">Sample Management</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.994 1.994 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/></svg>
+        </span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="sample-list.html">Sample List</a>
+        <a class="nav-child" href="sample-create.html">Create Sample</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-color.html">Color Master</a>
+        <a class="nav-child" href="masters-uom.html">UOM Master</a>
+        <a class="nav-child" href="masters-size.html">Size Master</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Admin</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></span>
+        <span class="nav-parent-label">User Management</span>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">RK</div>
+    <div class="sf-info">
+      <div class="sf-name">Ravi Kumar</div>
+      <div class="sf-role" id="userRoleLabel">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Sample Management</span>
+    <div class="topbar-right">
+      <button class="topbar-cta" id="newSampleBtn" onclick="location.href='sample-create.html'">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Sample
+      </button>
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph">
+      <div>
+        <div class="ph-title">Sample List</div>
+        <div class="ph-sub">Manage, track and approve all product samples</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a class="arch-lnk" onclick="openArchive()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+          View Archive Samples
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="fb">
+      <div class="ff sw" style="min-width:220px;max-width:280px;">
+        <label class="ffl">Search</label>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input type="text" class="fi" id="fSearch" placeholder="Search sample no…" oninput="applyFilters()">
+      </div>
+      <div class="ff">
+        <label class="ffl">Status</label>
+        <select class="fi" id="fStatus" onchange="applyFilters()" style="min-width:140px;">
+          <option value="">All Statuses</option>
+          <option value="Awaiting">Awaiting</option>
+          <option value="Approved">Approved</option>
+          <option value="Hold">Hold</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label class="ffl">From Date</label>
+        <input type="date" class="fi" id="fDateFrom" onchange="applyFilters()">
+      </div>
+      <div class="ff">
+        <label class="ffl">To Date</label>
+        <input type="date" class="fi" id="fDateTo" onchange="applyFilters()">
+      </div>
+      <div class="ff">
+        <label class="ffl">Created By</label>
+        <select class="fi" id="fCreatedBy" onchange="applyFilters()" style="min-width:150px;">
+          <option value="">All Users</option>
+          <option value="Ravi Kumar">Ravi Kumar</option>
+          <option value="Priya Sharma">Priya Sharma</option>
+          <option value="Arun Nair">Arun Nair</option>
+          <option value="Deepa Menon">Deepa Menon</option>
+        </select>
+      </div>
+      <div class="fb-actions">
+        <button class="btn btn-ghost btn-sm" onclick="resetFilters()">Reset</button>
+        <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.553.894l-4 2A1 1 0 016 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
+          Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;font-size:12px;color:var(--text-3);">
+      <span>Legend:</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#f0fdf4;border:1px solid #bbf7d0;display:inline-block;"></span>Approved</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fef2f2;border:1px solid #fecaca;display:inline-block;"></span>Rejected</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fffbeb;border:1px solid #fde68a;display:inline-block;"></span>Hold</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fff;border:1px solid var(--border);display:inline-block;"></span>Awaiting</span>
+    </div>
+
+    <!-- Table -->
+    <div class="tw">
+      <table class="sm-tbl">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th>Sample No</th>
+            <th>Sample Image</th>
+            <th>Colors</th>
+            <th>Creation Date</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sampleTbody">
+          <tr><td colspan="8" class="empty" style="padding:48px 20px;text-align:center;color:var(--text-3);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="btmbar">
+      <span class="ci" id="countInfo">Showing 0 records</span>
+      <div class="pag" id="pagination"></div>
+    </div>
+
+  </main>
+</div>
+
+</div><!-- .app -->
+
+<!-- ══ Archive Modal ══ -->
+<div class="overlay" id="archiveOverlay">
+  <div class="mbox">
+    <div class="mhd">
+      <div>
+        <div class="mhd-t">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;color:var(--brand-600);"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+          Archive Samples
+        </div>
+        <div class="mhd-sub">Samples marked as Archive. Retrieve to move back to active list.</div>
+      </div>
+      <button class="mcl" onclick="closeArchive()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="mbdy">
+      <table class="sm-tbl" style="font-size:13px;">
+        <thead>
+          <tr>
+            <th>#</th><th>Sample No</th><th>Colors</th><th>Category</th><th>Archived Date</th><th>Archived By</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="archiveTbody"></tbody>
+      </table>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-ghost" onclick="closeArchive()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Image Fullscreen ══ -->
+<div class="img-fs" id="imgFs" onclick="closeImgFs()">
+  <button class="img-fs-cl" onclick="closeImgFs()">✕</button>
+  <img id="imgFsImg" src="" alt="Sample Image" onclick="event.stopPropagation()">
+</div>
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+/* ── User / Role Simulation ── */
+// Roles: SUPER_ADMIN, ADMIN, USER_CREATE (create+edit+view), USER_VIEW (view only), USER_APPROVE (view+approve)
+const SESSION = { name: 'Ravi Kumar', role: 'ADMIN' };
+const PERMS = {
+  SUPER_ADMIN: { create:true, edit:true, view:true, approve:true, delete:true },
+  ADMIN:       { create:true, edit:true, view:true, approve:true, delete:true },
+  USER_CREATE: { create:true, edit:true, view:true, approve:false, delete:false },
+  USER_VIEW:   { create:false, edit:false, view:true, approve:false, delete:false },
+  USER_APPROVE:{ create:false, edit:false, view:true, approve:true, delete:false },
+};
+const can = (action) => (PERMS[SESSION.role]||{})[action] || false;
+
+/* ── Color map ── */
+const colorMap = {
+  'Red':'#ef4444','Blue':'#3b82f6','Green':'#22c55e','Black':'#1f2937',
+  'White':'#f1f5f9','Yellow':'#eab308','Navy':'#1e3a8a','Orange':'#f97316',
+  'Pink':'#ec4899','Purple':'#8b5cf6','Grey':'#6b7280','Maroon':'#7f1d1d',
+  'Teal':'#0d9488','Beige':'#d4a76a'
+};
+
+/* ── Sample Data ── */
+let samples = [
+  { id:'SMP-2026-006', sampleNo:'SMP-2026-006', colors:['Blue','Green'], category:'T-Shirt', date:'2026-04-30', status:'Awaiting', createdBy:'Ravi Kumar', hasImage:false, remarks:'Awaiting review from manager.' },
+  { id:'SMP-2026-005', sampleNo:'SMP-2026-005', colors:['Red'],          category:'Polo',    date:'2026-04-29', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'Approved for bulk production.' },
+  { id:'SMP-2026-004', sampleNo:'SMP-2026-004', colors:['Black','Grey'],  category:'Jacket',  date:'2026-04-28', status:'Hold',     createdBy:'Arun Nair',    hasImage:false, remarks:'Pending quality check.' },
+  { id:'SMP-2026-003', sampleNo:'SMP-2026-003', colors:['White','Yellow'],category:'T-Shirt', date:'2026-04-27', status:'Rejected', createdBy:'Ravi Kumar',   hasImage:true,  remarks:'Color fastness failed.' },
+  { id:'SMP-2026-002', sampleNo:'SMP-2026-002', colors:['Blue'],          category:'Shorts',  date:'2026-04-25', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'First wash approved.' },
+  { id:'SMP-2026-001', sampleNo:'SMP-2026-001', colors:['Red','Black'],   category:'Hoodie',  date:'2026-04-20', status:'Approved', createdBy:'Deepa Menon',  hasImage:true,  remarks:'Bulk order cleared.' },
+];
+
+let archivedSamples = [
+  { id:'SMP-2026-A01', sampleNo:'SMP-2026-A01', colors:['Green'],  category:'Kurta', archivedDate:'2026-04-15', archivedBy:'Priya Sharma' },
+  { id:'SMP-2026-A02', sampleNo:'SMP-2026-A02', colors:['Navy','White'], category:'Trouser', archivedDate:'2026-04-10', archivedBy:'Arun Nair' },
+];
+
+/* ── Pagination state ── */
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let filteredData = [...samples];
+
+/* ── Render table ── */
+function renderTable() {
+  const tbody = document.getElementById('sampleTbody');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filteredData.slice(start, start + PAGE_SIZE);
+
+  if (!filteredData.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="padding:48px 20px;text-align:center;">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:40px;height:40px;color:#d1d5db;display:block;margin:0 auto 10px;"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.553.894l-4 2A1 1 0 016 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
+      <div style="font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:4px;">No samples found</div>
+      <div style="font-size:12px;color:var(--text-3);">Try adjusting your filters.</div>
+    </td></tr>`;
+    document.getElementById('countInfo').textContent = 'No records found';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = pageData.map((s, idx) => {
+    const rowClass = s.status === 'Approved' ? 'row-approved' : s.status === 'Rejected' ? 'row-rejected' : s.status === 'Hold' ? 'row-hold' : '';
+    const statusClass = 'sp sp-' + s.status.toLowerCase();
+    const num = start + idx + 1;
+
+    // Color swatches
+    const colorSwatches = s.colors.map(c =>
+      `<span class="cc" title="${c}" style="background:${colorMap[c]||'#ccc'};width:18px;height:18px;border-radius:4px;display:inline-block;border:1.5px solid rgba(0,0,0,.15);margin-right:3px;" title="${c}"></span>`
+    ).join('') + `<span class="cc-label" style="margin-left:4px;">${s.colors.join(', ')}</span>`;
+
+    // Thumb
+    const thumb = s.hasImage
+      ? `<div class="thumb-wrap" onclick="openImgFs('${s.colors[0]}', '${s.sampleNo}')" title="Click to expand">
+           <div style="width:100%;height:100%;background:linear-gradient(135deg,${colorMap[s.colors[0]]||'#6366f1'}99,${colorMap[s.colors[s.colors.length-1]]||'#818cf8'}dd);display:flex;align-items:center;justify-content:center;">
+             <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.7)" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+           </div>
+         </div>`
+      : `<div class="thumb-ph"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg></div>`;
+
+    // Actions
+    let actions = `<div class="rac">`;
+    if (can('approve') && s.status !== 'Approved' && s.status !== 'Rejected')
+      actions += `<button class="ab ap" onclick="goApprove('${s.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>Approve</button>`;
+    if (can('edit'))
+      actions += `<button class="ab" onclick="goEdit('${s.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>Edit</button>`;
+    if (can('view'))
+      actions += `<button class="ab" onclick="goView('${s.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>View</button>`;
+    if (s.status === 'Approved')
+      actions += `<button class="ab mp" onclick="moveToProduct('${s.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>Move to Product</button>`;
+    if (can('delete') && s.status !== 'Approved')
+      actions += `<button class="ab dl" onclick="deleteSample('${s.id}')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>Delete</button>`;
+    actions += `</div>`;
+
+    return `<tr class="${rowClass}" data-id="${s.id}">
+      <td style="color:var(--text-3);font-weight:600;font-size:12px;">${num}</td>
+      <td><a class="sno-link" onclick="goView('${s.id}')">${s.sampleNo}</a></td>
+      <td>${thumb}</td>
+      <td>${colorSwatches}</td>
+      <td style="white-space:nowrap;">${formatDate(s.date)}</td>
+      <td><span class="${statusClass}">${s.status}</span></td>
+      <td>${s.createdBy}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+
+  // Count info
+  const total = filteredData.length;
+  const showing = Math.min(PAGE_SIZE, total - start);
+  document.getElementById('countInfo').textContent = `Showing ${start+1}–${start+showing} of ${total} records`;
+
+  // Pagination
+  renderPagination(total);
+}
+
+function renderPagination(total) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const pag = document.getElementById('pagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = '';
+  if (currentPage > 1) html += `<button class="pg" onclick="goPage(${currentPage-1})">‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="pg ${i===currentPage?'a':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if (currentPage < totalPages) html += `<button class="pg" onclick="goPage(${currentPage+1})">›</button>`;
+  pag.innerHTML = html;
+}
+
+function goPage(n) { currentPage = n; renderTable(); }
+
+/* ── Filters ── */
+function applyFilters() {
+  const search = document.getElementById('fSearch').value.toLowerCase();
+  const status = document.getElementById('fStatus').value;
+  const dateFrom = document.getElementById('fDateFrom').value;
+  const dateTo = document.getElementById('fDateTo').value;
+  const createdBy = document.getElementById('fCreatedBy').value;
+
+  filteredData = samples.filter(s => {
+    if (search && !s.sampleNo.toLowerCase().includes(search) && !s.colors.join(',').toLowerCase().includes(search)) return false;
+    if (status && s.status !== status) return false;
+    if (dateFrom && s.date < dateFrom) return false;
+    if (dateTo && s.date > dateTo) return false;
+    if (createdBy && s.createdBy !== createdBy) return false;
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('fSearch').value = '';
+  document.getElementById('fStatus').value = '';
+  document.getElementById('fDateFrom').value = '';
+  document.getElementById('fDateTo').value = '';
+  document.getElementById('fCreatedBy').value = '';
+  filteredData = [...samples];
+  currentPage = 1;
+  renderTable();
+}
+
+/* ── Action Handlers ── */
+function goApprove(id) { location.href = `sample-approve.html?id=${id}`; }
+function goEdit(id)    { location.href = `sample-create.html?mode=edit&id=${id}`; }
+function goView(id)    { location.href = `sample-create.html?mode=view&id=${id}`; }
+
+function moveToProduct(id) {
+  const s = samples.find(x => x.id === id);
+  if (!s) return;
+  toast(`Moving "${s.sampleNo}" to Product page with pre-populated data…`, 'i');
+  setTimeout(() => { location.href = `#product-create?sampleId=${id}`; }, 1200);
+}
+
+function deleteSample(id) {
+  const s = samples.find(x => x.id === id);
+  if (!s) return;
+  if (s.status === 'Approved') { toast('Approved samples cannot be deleted.', 'e'); return; }
+  if (!confirm(`Delete sample ${s.sampleNo}? This action cannot be undone.`)) return;
+  samples = samples.filter(x => x.id !== id);
+  filteredData = filteredData.filter(x => x.id !== id);
+  renderTable();
+  toast(`Sample ${s.sampleNo} deleted.`, 's');
+}
+
+/* ── Archive Modal ── */
+function openArchive() {
+  const tbody = document.getElementById('archiveTbody');
+  if (!archivedSamples.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:var(--text-3);">No archived samples.</td></tr>`;
+  } else {
+    tbody.innerHTML = archivedSamples.map((s, i) => `
+      <tr>
+        <td style="color:var(--text-3);">${i+1}</td>
+        <td style="font-weight:600;color:var(--brand-700);">${s.sampleNo}</td>
+        <td>${s.colors.map(c=>`<span style="background:${colorMap[c]||'#ccc'};width:16px;height:16px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.15);margin-right:3px;" title="${c}"></span>`).join('')} ${s.colors.join(', ')}</td>
+        <td>${s.category}</td>
+        <td>${formatDate(s.archivedDate)}</td>
+        <td>${s.archivedBy}</td>
+        <td>
+          <button class="ab mp" onclick="retrieveSample('${s.id}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+            Retrieve
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+  document.getElementById('archiveOverlay').classList.add('open');
+}
+
+function closeArchive() {
+  document.getElementById('archiveOverlay').classList.remove('open');
+}
+
+function retrieveSample(id) {
+  const s = archivedSamples.find(x => x.id === id);
+  if (!s) return;
+  archivedSamples = archivedSamples.filter(x => x.id !== id);
+  const retrieved = { ...s, status: 'Awaiting', date: new Date().toISOString().split('T')[0], createdBy: s.archivedBy, hasImage: false, remarks: 'Retrieved from archive.' };
+  samples.unshift(retrieved);
+  filteredData = [...samples];
+  renderTable();
+  openArchive(); // refresh modal
+  toast(`Sample ${s.sampleNo} retrieved and moved to active list.`, 's');
+}
+
+/* ── Image Fullscreen ── */
+function openImgFs(primaryColor, sampleNo) {
+  // For prototype, show a colored placeholder representing the sample image
+  const fs = document.getElementById('imgFs');
+  const img = document.getElementById('imgFsImg');
+  // Create a canvas-based preview for prototype
+  img.style.display = 'none';
+  fs.innerHTML = `
+    <button class="img-fs-cl" onclick="closeImgFs()">✕</button>
+    <div style="background:linear-gradient(135deg,${colorMap[primaryColor]||'#6366f1'}cc,${colorMap[primaryColor]||'#818cf8'}44);width:500px;height:400px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);" onclick="event.stopPropagation()">
+      <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.6)" style="width:56px;height:56px;"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+      <div style="color:rgba(255,255,255,.9);font-size:16px;font-weight:700;">${sampleNo}</div>
+      <div style="color:rgba(255,255,255,.6);font-size:13px;">Sample Image Preview</div>
+    </div>`;
+  fs.classList.add('open');
+}
+
+function closeImgFs() {
+  document.getElementById('imgFs').classList.remove('open');
+}
+
+/* ── Helpers ── */
+function formatDate(d) {
+  if (!d) return '—';
+  const parts = d.split('-');
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function toast(msg, type = 's') {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `tt ${type}`;
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;">${type==='s'?'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>':type==='e'?'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>':'<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>'}</svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function toggleGroup(el) {
+  const group = el.closest('.nav-group');
+  const isOpen = group.classList.contains('open');
+  group.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+
+/* ── Access control for new sample button ── */
+function applyAccessControl() {
+  const newBtn = document.getElementById('newSampleBtn');
+  if (!can('create')) { newBtn.style.display = 'none'; }
+  document.getElementById('userRoleLabel').textContent = SESSION.role.replace(/_/g,' ');
+}
+
+/* ── Init ── */
+filteredData = [...samples];
+applyAccessControl();
+renderTable();
+</script>
+</body>
+</html>
