@@ -459,7 +459,7 @@
 <!-- ══════════════════════════════════════
      CREATE BOM MODAL
 ══════════════════════════════════════ -->
-<div class="modal-backdrop" id="createBackdrop" onclick="closeCreateModal()"></div>
+<div class="modal-backdrop" id="createBackdrop" onclick="if(event.target===this)closeCreateModal()">
 <div class="modal" id="createModal" style="max-width:600px;">
   <div class="modal-header">
     <h2 class="modal-title" id="createModalTitle">Create New BOM</h2>
@@ -512,9 +512,10 @@
     <button class="btn btn-primary" onclick="confirmCreate()">Create BOM</button>
   </div>
 </div>
+</div>
 
 <!-- Approve confirm modal -->
-<div class="modal-backdrop" id="approveBackdrop" onclick="closeApproveModal()"></div>
+<div class="modal-backdrop" id="approveBackdrop" onclick="if(event.target===this)closeApproveModal()">
 <div class="modal" id="approveModal" style="max-width:440px;">
   <div class="modal-header">
     <h2 class="modal-title">Approve BOM</h2>
@@ -533,6 +534,7 @@
     <button class="btn btn-ghost" onclick="closeApproveModal()">Cancel</button>
     <button class="btn btn-primary" onclick="confirmApprove()" style="background:var(--success);">Approve BOM</button>
   </div>
+</div>
 </div>
 
 <script>
@@ -964,11 +966,9 @@ function openApproveModal(id) {
   approveId = id;
   const b   = BOMS.find(x=>x.id===id);
   document.getElementById('approveBomName').textContent = `${b.styleCode} ${b.version}`;
-  document.getElementById('approveModal').classList.add('open');
   document.getElementById('approveBackdrop').classList.add('open');
 }
 function closeApproveModal() {
-  document.getElementById('approveModal').classList.remove('open');
   document.getElementById('approveBackdrop').classList.remove('open');
 }
 function confirmApprove() {
@@ -986,13 +986,11 @@ function confirmApprove() {
 
 /* ═══════════════════════ CREATE MODAL ════════════════════════════════ */
 function openCreateModal() {
-  document.getElementById('createModal').classList.add('open');
   document.getElementById('createBackdrop').classList.add('open');
   document.getElementById('createError').style.display='none';
   setTimeout(()=>document.getElementById('cStyle').focus(),50);
 }
 function closeCreateModal() {
-  document.getElementById('createModal').classList.remove('open');
   document.getElementById('createBackdrop').classList.remove('open');
 }
 function confirmCreate() {
