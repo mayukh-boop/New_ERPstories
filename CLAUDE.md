@@ -94,6 +94,7 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 | NE-13 | GRN Excess Quantity Approval Workstation | `grn-approval.html` | `grn_header` (status: `EXCESS_PENDING`), `ApprovalTrail`, tolerance % |
 | NE-14A | Inline QC at GRN Receipt | `grn-qc.html` | `GrnLine` (acceptedQty, rejectedQty), inline QC status flags |
 | NE-14B | QC Inspection Page + Debit Notes | `grn-qc.html` | `QcInspection`, `DebitNote`, `VendorReturn`, `InventoryMovement` |
+| NE-PM-01 to NE-PM-08 | Product Management Module | `product-list.html`, `product-create.html`, `product-edit.html`, `product-view.html` | `products`, `product_sizes`, `product_bom`, `product_customer_names`, `product_descriptions`, `product_attachments`, `size_master` |
 
 ---
 
@@ -110,7 +111,12 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 ├── grn-approval.html                   # GRN excess quantity approval workstation
 ├── grn-qc.html                         # QC inspection workstation
 ├── purchase-order-list.html            # PO list view
-└── masters-*.html (9 files)            # Master data screens: color, UOM, vendor, fabric, process, etc.
+├── masters-*.html (9 files)            # Master data screens: color, UOM, vendor, fabric, process, etc.
+├── user-stories-product-management.md  # Feature specs: Product Management module (NE-PM-01 to NE-PM-08)
+├── product-list.html                   # Product list page prototype
+├── product-create.html                 # Product create page prototype
+├── product-edit.html                   # Product edit page prototype
+└── product-view.html                   # Product view (read-only) page prototype
 ```
 
 

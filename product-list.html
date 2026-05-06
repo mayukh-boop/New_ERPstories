@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product List — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-draft{background:#f3f4f6;color:#4b5563;}.sp-draft::before{background:#9ca3af;}
+.sp-active{background:#f0fdf4;color:#166534;}.sp-active::before{background:#22c55e;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+
+/* Table wrapper */
+.tw{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.sm-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.sm-tbl th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:11px 14px;border-bottom:2px solid var(--border2);background:#f9fafb;white-space:nowrap;}
+.sm-tbl td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.sm-tbl tr:last-child td{border-bottom:none;}
+.sm-tbl tbody tr:hover td{filter:brightness(.975);}
+
+/* Image thumb */
+.thumb-wrap{width:48px;height:48px;border-radius:8px;overflow:hidden;border:1px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.thumb-wrap:hover{transform:scale(1.06);}
+.thumb-wrap img{width:100%;height:100%;object-fit:cover;}
+.thumb-ph{width:48px;height:48px;border-radius:8px;background:#f3f4f6;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.thumb-ph svg{width:18px;height:18px;color:#d1d5db;}
+
+/* Color swatches */
+.color-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.cc{width:16px;height:16px;border-radius:3px;border:1.5px solid rgba(0,0,0,.12);flex-shrink:0;cursor:default;}
+
+/* Actions */
+.rac{display:flex;align-items:center;gap:4px;}
+.ab{height:26px;padding:0 9px;font-size:11.5px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-2);transition:all .15s;font-family:inherit;}
+.ab:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.ab.dl{border-color:#fecaca;color:#991b1b;background:#fef2f2;}
+.ab.dl:hover{background:#fee2e2;border-color:#f87171;}
+.ab.vw{border-color:#c7d2fe;color:#3730a3;background:#eef2ff;}
+.ab.vw:hover{background:#e0e7ff;border-color:#818cf8;}
+.ab svg{width:11px;height:11px;}
+
+/* Filter bar */
+.fb{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#fff;padding:14px 18px;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ffl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.fi{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;color:var(--text-1);transition:border-color .15s;}
+.fi:focus{border-color:var(--brand-500);}
+select.fi{padding-right:28px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;}
+.sw{position:relative;}
+.sw svg.s-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;}
+.sw .fi{padding-left:30px;width:100%;}
+.fb-actions{display:flex;gap:8px;margin-left:auto;}
+
+/* Buttons */
+.btn{height:34px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+.btn svg{width:14px;height:14px;}
+
+/* Bottom bar & pagination */
+.btmbar{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.ci{font-size:12px;color:var(--text-3);}
+.pag{display:flex;gap:4px;margin-left:auto;}
+.pg{height:30px;min-width:30px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;}
+.pg:hover{border-color:var(--brand-400);color:var(--brand-600);}
+.pg.a{background:var(--brand-600);border-color:var(--brand-600);color:#fff;}
+
+/* Modals */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.mbox{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:640px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.mhd{padding:18px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mhd-t{font-size:15px;font-weight:700;color:var(--text-1);}
+.mhd-sub{font-size:12px;color:var(--text-3);margin-top:2px;}
+.mcl{width:32px;height:32px;border:none;background:transparent;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.mcl:hover{background:#f3f4f6;color:var(--text-1);}
+.mbdy{flex:1;overflow-y:auto;padding:20px 24px;}
+
+/* Image fullscreen */
+.img-fs{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
+.img-fs.open{display:flex;}
+.img-fs img{max-width:90vw;max-height:90vh;border-radius:10px;}
+.img-fs-cl{position:fixed;top:20px;right:20px;width:42px;height:42px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:1001;}
+.img-fs-cl:hover{background:rgba(255,255,255,.3);}
+
+/* Empty state */
+.empty{text-align:center;padding:56px 20px;}
+.empty svg{width:48px;height:48px;color:#d1d5db;display:block;margin:0 auto 14px;}
+.empty h3{font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:5px;}
+.empty p{font-size:12.5px;color:var(--text-3);}
+
+/* Toast */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;} .tt.e{background:#dc2626;} .tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+/* Product name link */
+.pno-link{color:var(--brand-700);font-weight:600;cursor:pointer;text-decoration:none;}
+.pno-link:hover{text-decoration:underline;}
+
+/* Days config badge */
+.days-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:var(--brand-50);color:var(--brand-700);font-size:11px;font-weight:700;border:1px solid var(--brand-200);cursor:pointer;}
+
+/* Quick preview card inside modal */
+.pv-img{width:100%;max-height:240px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;cursor:pointer;}
+.pv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pv-row{display:flex;flex-direction:column;gap:2px;}
+.pv-lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.pv-val{font-size:13px;font-weight:500;color:var(--text-1);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="nav-section">Style Management</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.994 1.994 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="sample-list.html">Sample List</a>
+        <a class="nav-child" href="sample-create.html">Create Sample</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="product-list.html">Product List</a>
+        <a class="nav-child" href="product-create.html">Create Product</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-color.html">Color Master</a>
+        <a class="nav-child" href="masters-uom.html">UOM Master</a>
+        <a class="nav-child" href="masters-size.html">Size Master</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Production</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Orders</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">RK</div>
+    <div class="sf-info">
+      <div class="sf-name">Ravi Kumar</div>
+      <div class="sf-role">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Style Management</span>
+    <div class="topbar-right">
+      <button class="topbar-cta" onclick="location.href='product-create.html'">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Product
+      </button>
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph">
+      <div>
+        <div class="ph-title">Product List</div>
+        <div class="ph-sub">Manage all products — view, edit and create production orders</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="days-badge" onclick="openDaysConfig()" title="Click to configure days range">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+          Last <span id="daysLabel">30</span> days
+        </span>
+        <button class="btn btn-ghost btn-sm" onclick="openImportModal()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/></svg>
+          Import
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="exportList()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Archive link -->
+    <div style="display:flex;justify-content:flex-end;margin-top:-8px;margin-bottom:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="openArchiveModal()" style="font-size:12px;color:var(--text-3);border:none;background:none;gap:5px;padding:4px 8px;height:auto;">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+        View Archived Products
+      </button>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="fb">
+      <div class="ff sw" style="min-width:220px;max-width:280px;">
+        <label class="ffl">Search</label>
+        <svg class="s-ic" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input type="text" class="fi" id="fSearch" style="min-width:220px;" placeholder="Search by product name or code…" oninput="applyFilters()">
+      </div>
+      <div class="ff">
+        <label class="ffl">Status</label>
+        <select class="fi" id="fStatus" style="min-width:130px;" onchange="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Draft">Draft</option>
+          <option value="Hold">Hold</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label class="ffl">Category</label>
+        <select class="fi" id="fCategory" style="min-width:140px;" onchange="applyFilters()">
+          <option value="">All Categories</option>
+          <option value="T-Shirt">T-Shirt</option>
+          <option value="Polo">Polo</option>
+          <option value="Hoodie">Hoodie</option>
+          <option value="Trouser">Trouser</option>
+          <option value="Dress">Dress</option>
+          <option value="Shorts">Shorts</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label class="ffl">Days Range</label>
+        <select class="fi" id="fDays" style="min-width:120px;" onchange="applyDays()">
+          <option value="7">Last 7 days</option>
+          <option value="14">Last 14 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="0">Custom range</option>
+        </select>
+      </div>
+      <div class="ff" id="dateFromWrap" style="display:none;">
+        <label class="ffl">From</label>
+        <input type="date" class="fi" id="fFrom" onchange="applyFilters()">
+      </div>
+      <div class="ff" id="dateToWrap" style="display:none;">
+        <label class="ffl">To</label>
+        <input type="date" class="fi" id="fTo" onchange="applyFilters()">
+      </div>
+      <div class="fb-actions">
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          Clear
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
+          Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary counts -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:12px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#9ca3af;display:inline-block;"></span>
+        <span style="color:var(--text-3);">Draft:</span>
+        <span style="font-weight:700;color:var(--text-1);" id="cntDraft">0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:12px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+        <span style="color:var(--text-3);">Active:</span>
+        <span style="font-weight:700;color:var(--text-1);" id="cntActive">0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:12px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#eab308;display:inline-block;"></span>
+        <span style="color:var(--text-3);">Hold:</span>
+        <span style="font-weight:700;color:var(--text-1);" id="cntHold">0</span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="tw">
+      <table class="sm-tbl" id="productTable">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th style="width:60px;">Image</th>
+            <th>Product Name</th>
+            <th>Code</th>
+            <th>Category</th>
+            <th>Colors</th>
+            <th>Creation Date</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th style="width:140px;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="tBody">
+          <!-- rendered by JS -->
+        </tbody>
+      </table>
+      <div class="empty" id="emptyState" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or <a href="product-create.html" style="color:var(--brand-600);">create a new product</a></p>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="btmbar">
+      <span class="ci" id="countInfo">Showing 0 of 0 products</span>
+      <div class="pag" id="pagination"></div>
+    </div>
+
+  </main>
+</div>
+</div><!-- .app -->
+
+<!-- Quick View Modal -->
+<div class="overlay" id="viewModal" onclick="if(event.target===this)closeViewModal()">
+  <div class="mbox">
+    <div class="mhd">
+      <div>
+        <div class="mhd-t" id="vmTitle">Product Name</div>
+        <div class="mhd-sub" id="vmCode">PROD-001</div>
+      </div>
+      <button class="mcl" onclick="closeViewModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="mbdy">
+      <img id="vmImg" src="" alt="" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;cursor:pointer;display:none;" onclick="openImgFullscreen(this.src)">
+      <div style="width:100%;height:160px;background:#f3f4f6;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;" id="vmImgPh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+      </div>
+      <div class="pv-grid">
+        <div class="pv-row"><span class="pv-lbl">Status</span><span id="vmStatus"></span></div>
+        <div class="pv-row"><span class="pv-lbl">Category</span><span class="pv-val" id="vmCat">—</span></div>
+        <div class="pv-row"><span class="pv-lbl">UOM</span><span class="pv-val" id="vmUom">—</span></div>
+        <div class="pv-row"><span class="pv-lbl">Brand</span><span class="pv-val" id="vmBrand">—</span></div>
+        <div class="pv-row"><span class="pv-lbl">MRP</span><span class="pv-val" id="vmMrp">—</span></div>
+        <div class="pv-row"><span class="pv-lbl">MOQ</span><span class="pv-val" id="vmMoq">—</span></div>
+        <div class="pv-row" style="grid-column:span 2;"><span class="pv-lbl">Colors</span><span class="pv-val" id="vmColors">—</span></div>
+        <div class="pv-row" style="grid-column:span 2;"><span class="pv-lbl">Sizes</span><span class="pv-val" id="vmSizes">—</span></div>
+        <div class="pv-row" style="grid-column:span 2;"><span class="pv-lbl">Created By</span><span class="pv-val" id="vmCreatedBy">—</span></div>
+        <div class="pv-row" style="grid-column:span 2;"><span class="pv-lbl">Created Date</span><span class="pv-val" id="vmDate">—</span></div>
+      </div>
+    </div>
+    <div style="padding:14px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="closeViewModal()">Close</button>
+      <button class="btn btn-ghost btn-sm" id="vmEditBtn" onclick="editFromModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Edit
+      </button>
+      <button class="btn btn-primary btn-sm" id="vmViewBtn" onclick="viewFromModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Full View
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Archive Products Modal -->
+<div class="overlay" id="archiveModal" onclick="if(event.target===this)closeArchiveModal()">
+  <div class="mbox" style="max-width:760px;width:90vw;">
+    <div class="mhd">
+      <div>
+        <div class="mhd-t">Archived Products</div>
+        <div class="mhd-sub">Products moved to archive — restore to make them active again</div>
+      </div>
+      <button class="mcl" onclick="closeArchiveModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="mbdy" style="padding:0;">
+      <div id="archiveListWrap">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#f9fafb;border-bottom:1px solid var(--border2);">
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);width:180px;">Product Name</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);">Code</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);">Category</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);">Archived On</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);width:120px;"></th>
+          </tr></thead>
+          <tbody id="archiveTbody"></tbody>
+        </table>
+        <div id="archiveEmpty" style="display:none;padding:40px;text-align:center;color:var(--text-3);font-size:13px;">No archived products found.</div>
+      </div>
+    </div>
+    <div style="padding:14px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="closeArchiveModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="overlay" id="importModal" onclick="if(event.target===this)closeImportModal()">
+  <div class="mbox" style="max-width:480px;">
+    <div class="mhd">
+      <div class="mhd-t">Import Products</div>
+      <button class="mcl" onclick="closeImportModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="mbdy">
+      <div style="text-align:center;padding:10px 0 20px;">
+        <div style="width:52px;height:52px;background:#eef2ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24" style="color:var(--brand-500);"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/></svg>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:6px;">Upload Excel / CSV</div>
+        <div style="font-size:12px;color:var(--text-3);">Download the template, fill in product data, and upload here.</div>
+      </div>
+      <label style="display:flex;flex-direction:column;align-items:center;gap:10px;border:2px dashed var(--border);border-radius:12px;padding:20px;cursor:pointer;background:#fafbff;transition:all .15s;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+        <input type="file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleImportFile(event)">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28" style="color:#d1d5db;"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>
+        <span style="font-size:13px;color:var(--text-2);font-weight:500;" id="importFileName">Click to select file or drag here</span>
+      </label>
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
+        <button class="btn btn-ghost btn-sm" onclick="downloadImportTemplate()" style="font-size:12px;">Download Template</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="importSubmitBtn" onclick="submitImport()" disabled style="opacity:.5;cursor:not-allowed;">Import</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image fullscreen -->
+<div class="img-fs" id="imgFs" onclick="closeImgFullscreen()">
+  <button class="img-fs-cl">✕</button>
+  <img id="imgFsImg" src="" alt="">
+</div>
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+/* ─── sidebar toggle ─── */
+function toggleGroup(el){
+  const g=el.closest('.nav-group');
+  const isOpen=g.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(x=>{if(x!==g){x.classList.remove('open');x.querySelector('.nav-parent').classList.remove('open','active-group');}});
+  g.classList.toggle('open',!isOpen);
+  el.classList.toggle('open',!isOpen);
+}
+
+/* ─── sample data ─── */
+const PRODUCTS = [
+  {id:'PROD-001', name:'Polo Shirt', category:'Polo', colors:[{name:'Blue',hex:'#3b82f6'},{name:'Red',hex:'#ef4444'}], sizes:'S, M, L, XL', uom:'PCS', brand:'Arrow', mrp:'₹899', moq:'50', created:'2026-04-10', createdBy:'Ravi Kumar', status:'Active', img:''},
+  {id:'PROD-002', name:'Hoodie Jacket', category:'Hoodie', colors:[{name:'Black',hex:'#1f2937'}], sizes:'M, L, XL, XXL', uom:'PCS', brand:'Nike', mrp:'₹1,499', moq:'30', created:'2026-04-15', createdBy:'Priya Menon', status:'Draft', img:''},
+  {id:'PROD-003', name:'Formal Trouser', category:'Trouser', colors:[{name:'Grey',hex:'#6b7280'},{name:'Navy',hex:'#1e3a8a'}], sizes:'30, 32, 34, 36', uom:'PCS', brand:'Peter England', mrp:'₹1,199', moq:'40', created:'2026-04-12', createdBy:'Arun Singh', status:'Hold', img:''},
+  {id:'PROD-004', name:'Cotton T-Shirt', category:'T-Shirt', colors:[{name:'White',hex:'#f8fafc'},{name:'Yellow',hex:'#eab308'},{name:'Pink',hex:'#ec4899'}], sizes:'S, M, L', uom:'PCS', brand:'H&M', mrp:'₹499', moq:'100', created:'2026-04-20', createdBy:'Ravi Kumar', status:'Active', img:''},
+  {id:'PROD-005', name:'Denim Shorts', category:'Shorts', colors:[{name:'Blue',hex:'#3b82f6'}], sizes:'28, 30, 32', uom:'PCS', brand:'Levi\'s', mrp:'₹799', moq:'60', created:'2026-04-22', createdBy:'Priya Menon', status:'Draft', img:''},
+  {id:'PROD-006', name:'Evening Gown', category:'Dress', colors:[{name:'Black',hex:'#1f2937'},{name:'Purple',hex:'#8b5cf6'}], sizes:'S, M, L', uom:'PCS', brand:'Zara', mrp:'₹2,999', moq:'20', created:'2026-04-25', createdBy:'Arun Singh', status:'Active', img:''},
+  {id:'PROD-007', name:'Summer Dress', category:'Dress', colors:[{name:'Yellow',hex:'#eab308'},{name:'Orange',hex:'#f97316'}], sizes:'XS, S, M, L', uom:'PCS', brand:'H&M', mrp:'₹699', moq:'50', created:'2026-04-28', createdBy:'Ravi Kumar', status:'Hold', img:''},
+  {id:'PROD-008', name:'Slim Fit Chino', category:'Trouser', colors:[{name:'Beige',hex:'#d4a76a'},{name:'Teal',hex:'#0d9488'}], sizes:'30, 32, 34, 36, 38', uom:'PCS', brand:'Marks & Spencer', mrp:'₹1,299', moq:'35', created:'2026-05-01', createdBy:'Ravi Kumar', status:'Active', img:''},
+];
+
+let filtered = [...PRODUCTS];
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let activeId = null;
+
+function statusPill(s){
+  const map={Active:'sp-active',Draft:'sp-draft',Hold:'sp-hold'};
+  return `<span class="sp ${map[s]||'sp-draft'}">${s}</span>`;
+}
+
+function colorSwatches(colors){
+  return `<div class="color-chips">${colors.map(c=>`<div class="cc" style="background:${c.hex};" title="${c.name}"></div>`).join('')}</div>`;
+}
+
+function renderTable(){
+  const tbody=document.getElementById('tBody');
+  const empty=document.getElementById('emptyState');
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+
+  if(filtered.length===0){empty.style.display='';tbody.innerHTML='';return;}
+  empty.style.display='none';
+
+  tbody.innerHTML = page.map((p,i)=>`
+    <tr>
+      <td style="color:var(--text-3);font-size:12px;">${start+i+1}</td>
+      <td>
+        ${p.img
+          ? `<div class="thumb-wrap" onclick="openImgFullscreen('${p.img}')"><img src="${p.img}" alt=""></div>`
+          : `<div class="thumb-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg></div>`}
+      </td>
+      <td><a class="pno-link" onclick="openViewModal('${p.id}')">${p.name}</a></td>
+      <td style="font-size:12px;color:var(--text-3);font-family:monospace;">${p.id}</td>
+      <td style="font-size:12.5px;color:var(--text-2);">${p.category}</td>
+      <td>${colorSwatches(p.colors)}</td>
+      <td style="font-size:12.5px;color:var(--text-2);">${fmtDate(p.created)}</td>
+      <td>${statusPill(p.status)}</td>
+      <td style="font-size:12.5px;color:var(--text-2);">${p.createdBy}</td>
+      <td>
+        <div class="rac">
+          <button class="ab" onclick="location.href='product-edit.html?id=${p.id}'">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            Edit
+          </button>
+          <button class="ab vw" onclick="openViewModal('${p.id}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            View
+          </button>
+          <button class="ab dl" onclick="confirmDelete('${p.id}','${p.name}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  renderPagination();
+  updateCounts();
+  document.getElementById('countInfo').textContent=`Showing ${start+1}–${Math.min(start+PAGE_SIZE,filtered.length)} of ${filtered.length} product${filtered.length!==1?'s':''}`;
+}
+
+function renderPagination(){
+  const pages=Math.ceil(filtered.length/PAGE_SIZE);
+  const pag=document.getElementById('pagination');
+  if(pages<=1){pag.innerHTML='';return;}
+  let h='';
+  if(currentPage>1) h+=`<button class="pg" onclick="goPage(${currentPage-1})">‹</button>`;
+  for(let i=1;i<=pages;i++){
+    if(i===1||i===pages||Math.abs(i-currentPage)<=1) h+=`<button class="pg ${i===currentPage?'a':''}" onclick="goPage(${i})">${i}</button>`;
+    else if(Math.abs(i-currentPage)===2) h+=`<span class="pg" style="border:none;background:none;cursor:default;">…</span>`;
+  }
+  if(currentPage<pages) h+=`<button class="pg" onclick="goPage(${currentPage+1})">›</button>`;
+  pag.innerHTML=h;
+}
+
+function goPage(p){currentPage=p;renderTable();}
+
+function updateCounts(){
+  document.getElementById('cntDraft').textContent=filtered.filter(p=>p.status==='Draft').length;
+  document.getElementById('cntActive').textContent=filtered.filter(p=>p.status==='Active').length;
+  document.getElementById('cntHold').textContent=filtered.filter(p=>p.status==='Hold').length;
+}
+
+function applyFilters(){
+  const s=document.getElementById('fSearch').value.toLowerCase();
+  const st=document.getElementById('fStatus').value;
+  const cat=document.getElementById('fCategory').value;
+  const days=parseInt(document.getElementById('fDays').value)||0;
+  const from=document.getElementById('fFrom').value;
+  const to=document.getElementById('fTo').value;
+  const now=new Date();
+
+  filtered=PRODUCTS.filter(p=>{
+    if(s && !p.name.toLowerCase().includes(s) && !p.id.toLowerCase().includes(s)) return false;
+    if(st && p.status!==st) return false;
+    if(cat && p.category!==cat) return false;
+    if(days>0){
+      const d=new Date(p.created);
+      const diff=(now-d)/(1000*60*60*24);
+      if(diff>days) return false;
+    }
+    if(from && p.created<from) return false;
+    if(to && p.created>to) return false;
+    return true;
+  });
+  currentPage=1;
+  renderTable();
+}
+
+function applyDays(){
+  const v=document.getElementById('fDays').value;
+  const isCustom=v==='0';
+  document.getElementById('dateFromWrap').style.display=isCustom?'':'none';
+  document.getElementById('dateToWrap').style.display=isCustom?'':'none';
+  document.getElementById('daysLabel').textContent=isCustom?'Custom':v;
+  applyFilters();
+}
+
+function clearFilters(){
+  document.getElementById('fSearch').value='';
+  document.getElementById('fStatus').value='';
+  document.getElementById('fCategory').value='';
+  document.getElementById('fDays').value='30';
+  document.getElementById('fFrom').value='';
+  document.getElementById('fTo').value='';
+  document.getElementById('dateFromWrap').style.display='none';
+  document.getElementById('dateToWrap').style.display='none';
+  document.getElementById('daysLabel').textContent='30';
+  filtered=[...PRODUCTS];
+  currentPage=1;
+  renderTable();
+}
+
+function fmtDate(d){
+  const dt=new Date(d);
+  return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function openDaysConfig(){
+  document.getElementById('fDays').focus();
+}
+
+/* ─── View modal ─── */
+function openViewModal(id){
+  activeId=id;
+  const p=PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('vmTitle').textContent=p.name;
+  document.getElementById('vmCode').textContent=p.id;
+  document.getElementById('vmStatus').innerHTML=statusPill(p.status);
+  document.getElementById('vmCat').textContent=p.category;
+  document.getElementById('vmUom').textContent=p.uom;
+  document.getElementById('vmBrand').textContent=p.brand;
+  document.getElementById('vmMrp').textContent=p.mrp;
+  document.getElementById('vmMoq').textContent=p.moq+' pcs';
+  document.getElementById('vmColors').textContent=p.colors.map(c=>c.name).join(', ');
+  document.getElementById('vmSizes').textContent=p.sizes;
+  document.getElementById('vmCreatedBy').textContent=p.createdBy;
+  document.getElementById('vmDate').textContent=fmtDate(p.created);
+  if(p.img){
+    document.getElementById('vmImg').src=p.img;
+    document.getElementById('vmImg').style.display='';
+    document.getElementById('vmImgPh').style.display='none';
+  } else {
+    document.getElementById('vmImg').style.display='none';
+    document.getElementById('vmImgPh').style.display='';
+  }
+  document.getElementById('viewModal').classList.add('open');
+}
+
+function closeViewModal(){document.getElementById('viewModal').classList.remove('open');}
+function editFromModal(){location.href='product-edit.html?id='+activeId;}
+function viewFromModal(){location.href='product-view.html?id='+activeId;}
+
+/* ─── Image fullscreen ─── */
+function openImgFullscreen(src){
+  document.getElementById('imgFsImg').src=src;
+  document.getElementById('imgFs').classList.add('open');
+}
+function closeImgFullscreen(){document.getElementById('imgFs').classList.remove('open');}
+
+/* ─── Delete ─── */
+function confirmDelete(id, name){
+  if(confirm(`Archive product "${name}"?\n\nThis will move it to archive and it will no longer appear in active lists.`)){
+    showToast(`"${name}" archived`,'s');
+  }
+}
+
+/* ─── Export ─── */
+function exportList(){showToast('Export started — file will download shortly','i');}
+
+/* ─── Archive modal ─── */
+const ARCHIVED_PRODUCTS = [
+  {id:'PROD-A01', name:'Classic Oxford Shirt', category:'Formal', archivedOn:'2026-03-15', archivedBy:'Ravi Kumar'},
+  {id:'PROD-A02', name:'Vintage Denim Jacket', category:'Jacket', archivedOn:'2026-02-28', archivedBy:'Priya Menon'},
+  {id:'PROD-A03', name:'Linen Cargo Shorts', category:'Shorts', archivedOn:'2026-01-10', archivedBy:'Arun Singh'},
+];
+
+function openArchiveModal(){
+  const tbody=document.getElementById('archiveTbody');
+  const empty=document.getElementById('archiveEmpty');
+  if(!ARCHIVED_PRODUCTS.length){tbody.innerHTML='';empty.style.display='';}
+  else {
+    empty.style.display='none';
+    tbody.innerHTML=ARCHIVED_PRODUCTS.map(p=>`
+      <tr style="border-bottom:1px solid var(--border2);">
+        <td style="padding:10px 16px;font-weight:600;color:var(--text-1);">${p.name}</td>
+        <td style="padding:10px 16px;font-size:12px;color:var(--text-3);font-family:monospace;">${p.id}</td>
+        <td style="padding:10px 16px;font-size:12.5px;color:var(--text-2);">${p.category}</td>
+        <td style="padding:10px 16px;font-size:12.5px;color:var(--text-3);">${fmtDate(p.archivedOn)}</td>
+        <td style="padding:10px 16px;">
+          <button class="ab" onclick="restoreProduct('${p.id}','${p.name}')" style="font-size:11.5px;border-color:#bbf7d0;color:#166534;background:#f0fdf4;">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg>
+            Restore
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+  document.getElementById('archiveModal').classList.add('open');
+}
+function closeArchiveModal(){document.getElementById('archiveModal').classList.remove('open');}
+function restoreProduct(id,name){
+  showToast(`"${name}" restored to active products`,'s');
+  closeArchiveModal();
+}
+
+/* ─── Import modal ─── */
+let importFile=null;
+function openImportModal(){document.getElementById('importModal').classList.add('open');importFile=null;document.getElementById('importFileName').textContent='Click to select file or drag here';document.getElementById('importSubmitBtn').disabled=true;document.getElementById('importSubmitBtn').style.opacity='.5';document.getElementById('importSubmitBtn').style.cursor='not-allowed';}
+function closeImportModal(){document.getElementById('importModal').classList.remove('open');}
+function handleImportFile(e){
+  const f=e.target.files[0];if(!f)return;
+  importFile=f;
+  document.getElementById('importFileName').textContent=f.name;
+  const btn=document.getElementById('importSubmitBtn');btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';
+}
+function downloadImportTemplate(){showToast('Template downloading…','i');}
+function submitImport(){
+  if(!importFile)return;
+  showToast(`Importing "${importFile.name}" — products will appear shortly`,'s');
+  closeImportModal();
+}
+
+/* ─── Toast ─── */
+function showToast(msg,type='i'){
+  const ta=document.getElementById('toastArea');
+  const t=document.createElement('div');
+  t.className=`tt ${type}`;
+  t.innerHTML=`<svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>${msg}`;
+  ta.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+/* ─── init ─── */
+renderTable();
+</script>
+</body>
+</html>
