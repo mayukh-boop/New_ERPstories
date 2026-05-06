@@ -1043,12 +1043,12 @@
      binManagement:true, allowNegativeStock:false, productionReceiptRequired:true
 */
 const CONFIG = {
-  cinMode:                  'FORMAL',  // 'FORMAL' | 'DIRECT'
-  issueNoteApproval:        true,      // true = needs supervisor approval
-  lotTracking:              true,      // true = lot must be specified per line
-  binManagement:            true,      // true = bin pick instruction shown
-  allowNegativeStock:       false,     // false = block over-issue
-  productionReceiptRequired: true,     // true = production team must confirm receipt after store issues
+  cinMode:                  'DIRECT',  // 'FORMAL' | 'DIRECT'
+  issueNoteApproval:        false,     // true = needs supervisor approval
+  lotTracking:              false,     // true = lot must be specified per line
+  binManagement:            false,     // true = bin pick instruction shown
+  allowNegativeStock:       true,      // false = block over-issue
+  productionReceiptRequired: false,    // true = production team must confirm receipt after store issues
 };
 
 /* ── Sample CIN data ── */
