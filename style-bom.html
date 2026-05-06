@@ -61,7 +61,7 @@
 .stat-sub   { font-size:11px; margin-top:6px; font-weight:500; }
 
 /* ── Tab strip ── */
-.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 28px; background:var(--surface); }
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 28px; background:var(--surface); flex-shrink:0; }
 .tab-item {
   padding:11px 16px; font-size:12.5px; font-weight:500;
   color:var(--text-3); cursor:pointer; border:none; background:transparent;
@@ -81,18 +81,18 @@
 /* ── BOM status pills ── */
 .bom-pill {
   display:inline-flex; align-items:center; gap:5px;
-  font-size:11px; font-weight:600; padding:2px 9px; border-radius:var(--r-full);
+  font-size:11px; font-weight:600; padding:2px 10px; border-radius:var(--r-full);
 }
 .bp-draft      { background:#f3f4f6; color:#4b5563; }
 .bp-pending    { background:#fefce8; color:#92400e; }
 .bp-approved   { background:#f0fdf4; color:#166534; }
 .bp-superseded { background:#f5f3ff; color:#5b21b6; }
 
-/* ── Material type badge ── */
+/* ── Material category badge ── */
 .mat-badge {
   display:inline-flex; align-items:center; gap:4px;
-  padding:1px 8px; border-radius:var(--r-full);
-  font-size:10.5px; font-weight:600;
+  padding:2px 9px; border-radius:var(--r-full);
+  font-size:11px; font-weight:600;
 }
 .mb-fabric    { background:#eff6ff; color:#1d4ed8; }
 .mb-trim      { background:#f0fdf4; color:#15803d; }
@@ -101,136 +101,153 @@
 .mb-accessory { background:#fef9c3; color:#854d0e; }
 .mb-packaging { background:#f0f9ff; color:#0369a1; }
 
-/* ── BOM detail split layout ── */
-.bom-split {
-  display:flex; gap:0; flex:1; overflow:hidden;
-}
-.bom-list-col {
-  width:380px; flex-shrink:0; border-right:1px solid var(--border);
-  overflow-y:auto; background:var(--surface);
-}
-.bom-detail-col {
-  flex:1; overflow-y:auto; background:var(--bg);
-  display:flex; flex-direction:column;
-}
-.bom-list-item {
-  padding:14px 16px; border-bottom:1px solid var(--border2);
-  cursor:pointer; transition:background var(--ease);
-}
-.bom-list-item:hover { background:var(--gray-50); }
-.bom-list-item.active { background:var(--brand-50); border-left:3px solid var(--brand-500); padding-left:13px; }
-.bli-style { font-weight:700; font-size:13px; color:var(--text-1); }
-.bli-meta  { font-size:11.5px; color:var(--text-3); margin-top:2px; display:flex; align-items:center; gap:8px; }
-.bli-ver   { font-size:10.5px; font-weight:600; color:var(--text-3); background:var(--gray-100); padding:1px 6px; border-radius:var(--r-full); }
+/* ── VIEWS: list vs detail ── */
+#viewList   { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+#viewDetail { display:none; flex-direction:column; flex:1; overflow:hidden; }
+#viewDetail.active { display:flex; }
 
-/* ── BOM detail header ── */
-.bom-dh {
+/* ── Breadcrumb back bar ── */
+.back-bar {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 28px; background:var(--surface);
+  border-bottom:1px solid var(--border2); flex-shrink:0;
+}
+.back-btn {
+  display:flex; align-items:center; gap:6px;
+  font-size:13px; font-weight:500; color:var(--text-2);
+  background:none; border:none; cursor:pointer; padding:5px 10px 5px 6px;
+  border-radius:var(--r-sm); transition:all var(--ease); font-family:inherit;
+}
+.back-btn:hover { background:var(--gray-100); color:var(--brand-600); }
+.back-crumb { font-size:13px; color:var(--text-3); }
+.back-crumb-cur { font-size:13px; font-weight:600; color:var(--text-1); }
+
+/* ── BOM detail header card ── */
+.bom-header-card {
   background:var(--surface); border-bottom:1px solid var(--border);
-  padding:18px 24px 14px; flex-shrink:0;
+  padding:22px 28px 0; flex-shrink:0;
 }
-.bom-dh-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
-.bom-dh-title { font-size:18px; font-weight:800; color:var(--text-1); letter-spacing:-0.01em; }
-.bom-dh-meta  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:4px; }
-.bom-dh-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
-.bom-dh-fields {
-  display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
-  background:var(--gray-50); border:1px solid var(--border2);
-  border-radius:var(--r); padding:12px 14px;
+.bom-header-top {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:16px;
 }
-.bdf { }
-.bdf-label { font-size:10px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:3px; }
-.bdf-val   { font-size:13px; font-weight:500; color:var(--text-1); }
+.bom-header-title { font-size:22px; font-weight:800; color:var(--text-1); letter-spacing:-0.02em; }
+.bom-header-meta  { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px; }
+.bom-header-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+.bom-fields-row {
+  display:grid; grid-template-columns:repeat(6,1fr); gap:0;
+  border-top:1px solid var(--border2); margin:0 -28px;
+}
+.bom-field {
+  padding:12px 20px; border-right:1px solid var(--border2);
+}
+.bom-field:last-child { border-right:none; }
+.bom-field-label { font-size:10px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-3); margin-bottom:4px; }
+.bom-field-val   { font-size:13.5px; font-weight:600; color:var(--text-1); }
 
-/* ── BOM line items table ── */
-.bom-body { flex:1; overflow-y:auto; padding:20px 24px 32px; }
-.bom-section-title {
-  font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
-  color:var(--text-3); margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border2);
+/* ── Approval banner ── */
+.approval-banner {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 28px; flex-shrink:0;
+}
+.approval-banner.draft    { background:#fffbeb; border-bottom:1px solid #fde68a; }
+.approval-banner.pending  { background:#fff7ed; border-bottom:1px solid #fed7aa; }
+.approval-banner.approved { background:#f0fdf4; border-bottom:1px solid #bbf7d0; }
+.approval-banner-icon { font-size:20px; flex-shrink:0; }
+.approval-banner-text { flex:1; font-size:13px; line-height:1.5; }
+.approval-banner-text strong { font-weight:700; }
+.approval-banner-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+
+/* ── BOM body scrollable area ── */
+.bom-scroll { flex:1; overflow-y:auto; padding:24px 28px 40px; }
+
+/* ── Section header ── */
+.section-head {
   display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border2);
 }
+.section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-3); }
+.section-actions { display:flex; gap:6px; align-items:center; }
 
-/* ── Inline editable line table ── */
-.bom-line-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+/* ── Colorway tabs ── */
+.cw-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+.cw-tab {
+  display:flex; align-items:center; gap:7px; padding:6px 14px;
+  border-radius:var(--r-full); font-size:12.5px; font-weight:500;
+  cursor:pointer; border:1.5px solid var(--border);
+  background:var(--surface); color:var(--text-2); transition:all var(--ease);
+}
+.cw-tab:hover  { border-color:var(--brand-400); color:var(--brand-600); }
+.cw-tab.active { border-color:var(--brand-500); background:var(--brand-50); color:var(--brand-700); font-weight:700; }
+.cw-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; border:1.5px solid rgba(0,0,0,0.1); }
+
+/* ── BOM line table ── */
+.bom-line-table { width:100%; border-collapse:collapse; }
 .bom-line-table th {
-  padding:7px 10px; text-align:left; font-weight:600; font-size:11px;
-  text-transform:uppercase; letter-spacing:0.06em; color:var(--text-3);
+  padding:9px 14px; text-align:left; font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.07em; color:var(--text-3);
   background:var(--gray-50); border-bottom:1px solid var(--border);
   white-space:nowrap;
 }
 .bom-line-table td {
-  padding:8px 10px; border-bottom:1px solid var(--border2);
-  vertical-align:middle;
+  padding:11px 14px; border-bottom:1px solid var(--border2); vertical-align:middle;
 }
+.bom-line-table tr:last-child td { border-bottom:none; }
 .bom-line-table tr:hover td { background:var(--gray-50); }
-.bom-line-table .req-qty { font-weight:700; color:var(--brand-700); }
-.inline-input {
-  border:none; background:transparent; font-family:inherit;
-  font-size:12.5px; color:var(--text-1); width:100%;
-  padding:2px 4px; border-radius:3px;
-  transition:background var(--ease);
-}
-.inline-input:focus { outline:none; background:var(--brand-50); }
-.inline-input:hover { background:var(--gray-100); }
-.inline-input[readonly] { color:var(--text-3); cursor:default; }
-.inline-select {
-  border:none; background:transparent; font-family:inherit;
-  font-size:12.5px; color:var(--text-1);
-  padding:2px 4px; border-radius:3px; cursor:pointer;
-  transition:background var(--ease);
-}
-.inline-select:focus { outline:none; background:var(--brand-50); }
-.inline-select:hover { background:var(--gray-100); }
+.mat-name  { font-size:13.5px; font-weight:600; color:var(--text-1); }
+.mat-code  { display:inline-block; margin-top:3px; font-size:11px; font-weight:600;
+             color:var(--brand-700); background:var(--brand-50); padding:0 6px;
+             border-radius:4px; font-family:monospace; }
+.req-qty   { font-size:14px; font-weight:800; color:var(--brand-700); font-variant-numeric:tabular-nums; }
+.req-uom   { font-size:11.5px; color:var(--text-3); margin-left:3px; font-weight:500; }
 
-/* ── Material requirement calculator ── */
-.req-calc {
+/* ── Inline number inputs ── */
+.qty-input {
+  width:90px; height:36px; border:1.5px solid var(--border);
+  border-radius:var(--r-sm); padding:0 10px; font-size:13.5px;
+  font-family:inherit; font-weight:600; color:var(--text-1);
+  background:var(--surface); transition:all var(--ease);
+  font-variant-numeric:tabular-nums;
+}
+.qty-input:focus { outline:none; border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.12); }
+.qty-input:hover:not(:focus) { border-color:var(--gray-400); }
+.qty-input[readonly] { background:var(--gray-50); color:var(--text-2); cursor:default; border-color:transparent; }
+.qty-input[readonly]:hover { border-color:transparent; }
+
+.pct-wrap { display:flex; align-items:center; gap:6px; }
+.pct-input {
+  width:72px; height:36px; border:1.5px solid var(--border);
+  border-radius:var(--r-sm); padding:0 10px; font-size:13.5px;
+  font-family:inherit; font-weight:600; color:var(--text-1);
+  background:var(--surface); transition:all var(--ease);
+}
+.pct-input:focus { outline:none; border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.12); }
+.pct-input[readonly] { background:var(--gray-50); color:var(--text-2); cursor:default; border-color:transparent; }
+.pct-input[readonly]:hover { border-color:transparent; }
+.pct-sym { font-size:13px; font-weight:600; color:var(--text-3); }
+
+/* ── Requirement calculator ── */
+.calc-card {
   background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--r-lg); padding:16px 18px; margin-top:20px;
+  border-radius:var(--r-lg); padding:20px 24px; margin-top:24px;
 }
-.req-calc-title { font-size:12px; font-weight:700; color:var(--text-1); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
-.req-calc-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.req-calc-result {
-  margin-top:12px; border-top:1px solid var(--border2); padding-top:12px;
-}
-.req-result-row {
+.calc-title { font-size:13px; font-weight:700; color:var(--text-1); display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.calc-row   { display:flex; align-items:center; gap:10px; margin-bottom:0; }
+.calc-result { margin-top:16px; border-top:1px solid var(--border2); padding-top:16px; }
+.calc-result-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; margin-top:8px; }
+.calc-result-item {
   display:flex; align-items:center; justify-content:space-between;
-  padding:6px 10px; border-radius:var(--r-sm);
-  font-size:12.5px; margin-bottom:4px; background:var(--gray-50);
+  padding:10px 14px; background:var(--gray-50); border:1px solid var(--border2);
+  border-radius:var(--r-sm);
 }
-.req-result-row:nth-child(even) { background:var(--brand-50); }
-.req-result-mat  { color:var(--text-2); flex:1; }
-.req-result-qty  { font-weight:700; color:var(--brand-700); font-variant-numeric:tabular-nums; }
+.calc-mat { font-size:12.5px; color:var(--text-2); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:10px; }
+.calc-qty { font-size:13px; font-weight:800; color:var(--brand-700); white-space:nowrap; font-variant-numeric:tabular-nums; }
 
 /* ── Version history ── */
-.ver-row {
-  display:flex; align-items:center; gap:10px;
-  padding:9px 12px; border-radius:var(--r);
-  background:var(--gray-50); border:1px solid var(--border2);
-  font-size:12.5px; margin-bottom:6px;
-}
-.ver-badge { font-weight:700; color:var(--brand-700); font-variant-numeric:tabular-nums; min-width:28px; }
-.ver-date  { color:var(--text-3); font-size:11.5px; }
-.ver-by    { color:var(--text-2); flex:1; }
-
-/* ── Approval bar ── */
-.approval-bar {
-  display:flex; align-items:center; gap:12px;
-  padding:12px 24px; background:#fffbeb; border-bottom:1px solid #fde68a;
-  flex-shrink:0;
-}
-.approval-bar.approved { background:#f0fdf4; border-bottom-color:#bbf7d0; }
-
-/* ── Colorway tabs ── */
-.cw-tabs { display:flex; gap:4px; margin-bottom:14px; flex-wrap:wrap; }
-.cw-tab {
-  display:flex; align-items:center; gap:6px;
-  padding:5px 12px; border-radius:var(--r-full);
-  font-size:12px; font-weight:500; cursor:pointer;
-  border:1.5px solid var(--border); background:var(--surface);
-  color:var(--text-2); transition:all var(--ease);
-}
-.cw-tab:hover  { border-color:var(--brand-500); color:var(--brand-600); }
-.cw-tab.active { border-color:var(--brand-500); background:var(--brand-50); color:var(--brand-700); font-weight:600; }
-.cw-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; border:1.5px solid rgba(0,0,0,0.1); }
+.ver-table { width:100%; border-collapse:collapse; }
+.ver-table th { padding:8px 14px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-3); background:var(--gray-50); border-bottom:1px solid var(--border); }
+.ver-table td { padding:10px 14px; border-bottom:1px solid var(--border2); font-size:13px; }
+.ver-table tr:last-child td { border-bottom:none; }
 
 /* ── Action menu ── */
 .am-wrap { position:relative; display:inline-block; }
@@ -238,28 +255,19 @@
   position:absolute; right:0; top:calc(100% + 4px);
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r); box-shadow:var(--shadow-lg);
-  z-index:100; min-width:160px; padding:4px; display:none;
+  z-index:100; min-width:180px; padding:4px; display:none;
 }
 .action-menu.open { display:block; }
 .am-item {
-  display:flex; align-items:center; gap:8px; padding:7px 10px;
-  border-radius:var(--r-sm); font-size:12.5px; color:var(--text-2); cursor:pointer;
+  display:flex; align-items:center; gap:8px; padding:8px 12px;
+  border-radius:var(--r-sm); font-size:13px; color:var(--text-2); cursor:pointer;
   transition:background var(--ease);
 }
 .am-item:hover { background:var(--gray-50); color:var(--text-1); }
 .am-item.danger:hover { background:var(--danger-bg); color:var(--danger); }
 .am-sep { height:1px; background:var(--border2); margin:4px 0; }
 
-/* ── Empty state ── */
-.bom-empty {
-  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding:60px 40px; color:var(--text-3);
-}
-.bom-empty-icon { font-size:48px; margin-bottom:12px; opacity:0.3; }
-.bom-empty-text { font-size:14px; font-weight:500; margin-bottom:4px; color:var(--text-2); }
-.bom-empty-sub  { font-size:12.5px; }
-
-.num { font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric:tabular-nums; }
 </style>
 </head>
 <body>
@@ -353,7 +361,7 @@
 <!-- ── Main ── -->
 <div class="main">
   <header class="topbar">
-    <span class="topbar-module">Style BOM</span>
+    <span class="topbar-module" id="topbarModule">Style BOM</span>
     <div class="topbar-right">
       <button class="topbar-icon-btn" title="Export">
         <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
@@ -361,7 +369,7 @@
       <button class="topbar-icon-btn" title="Notifications">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
       </button>
-      <button class="topbar-cta" onclick="openCreateModal()">
+      <button class="topbar-cta" id="topbarCta" onclick="openCreateModal()">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
         Create BOM
       </button>
@@ -370,88 +378,213 @@
 
   <main class="page" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
 
-    <!-- Toolbar + stat cards -->
-    <div style="padding:24px 28px 0;">
-      <div class="ph" style="margin-bottom:16px;">
-        <div>
-          <div class="ph-title">Style BOM</div>
-          <div class="ph-sub">Bill of Materials per style — links raw materials to production requirements</div>
-        </div>
-        <div class="ph-actions">
-          <div style="display:flex;gap:6px;align-items:center;">
-            <div style="position:relative;">
-              <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
-              <input class="form-control" id="searchInput" type="text" placeholder="Search style or buyer…" style="padding-left:32px;height:36px;width:210px;" oninput="renderList()">
+    <!-- ════════════════ VIEW: LIST ════════════════ -->
+    <div id="viewList">
+
+      <!-- Toolbar + stat cards -->
+      <div style="padding:24px 28px 0;flex-shrink:0;">
+        <div class="ph" style="margin-bottom:16px;">
+          <div>
+            <div class="ph-title">Style BOM</div>
+            <div class="ph-sub">Bill of Materials per style — links raw materials to production requirements</div>
+          </div>
+          <div class="ph-actions">
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div style="position:relative;">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+                <input class="form-control" id="searchInput" type="text" placeholder="Search style or buyer…" style="padding-left:32px;height:36px;width:210px;" oninput="renderList()">
+              </div>
+              <select class="filter-select" id="seasonFilter" onchange="renderList()" style="height:36px;">
+                <option value="">All Seasons</option>
+                <option>SS-2026</option><option>AW-2026</option><option>SS-2027</option>
+              </select>
+              <select class="filter-select" id="statusFilter" onchange="renderList()" style="height:36px;">
+                <option value="">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="pending">Pending Approval</option>
+                <option value="approved">Approved</option>
+                <option value="superseded">Superseded</option>
+              </select>
             </div>
-            <select class="filter-select" id="seasonFilter" onchange="renderList()" style="height:36px;">
-              <option value="">All Seasons</option>
-              <option>SS-2026</option><option>AW-2026</option><option>SS-2027</option>
-            </select>
-            <select class="filter-select" id="statusFilter" onchange="renderList()" style="height:36px;">
-              <option value="">All Status</option>
-              <option value="draft">Draft</option>
-              <option value="pending">Pending Approval</option>
-              <option value="approved">Approved</option>
-              <option value="superseded">Superseded</option>
-            </select>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card active" onclick="setTab('all',this)" id="sc-all">
+            <div class="stat-num" id="sn-all">0</div>
+            <div class="stat-label">Total BOMs</div>
+            <div class="stat-sub" style="color:var(--text-3);">All versions</div>
+          </div>
+          <div class="stat-card" onclick="setTab('draft',this)" id="sc-draft">
+            <div class="stat-num" id="sn-draft" style="color:var(--text-2);">0</div>
+            <div class="stat-label">Draft</div>
+            <div class="stat-sub" style="color:var(--text-3);">In progress</div>
+          </div>
+          <div class="stat-card" onclick="setTab('pending',this)" id="sc-pending">
+            <div class="stat-num" id="sn-pending" style="color:var(--warning);">0</div>
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-sub" style="color:var(--warning);">Awaiting sign-off</div>
+          </div>
+          <div class="stat-card" onclick="setTab('approved',this)" id="sc-approved">
+            <div class="stat-num" id="sn-approved" style="color:var(--success);">0</div>
+            <div class="stat-label">Approved</div>
+            <div class="stat-sub" style="color:var(--success);">Ready for production</div>
+          </div>
+          <div class="stat-card" onclick="setTab('superseded',this)" id="sc-superseded">
+            <div class="stat-num" id="sn-superseded" style="color:var(--text-3);">0</div>
+            <div class="stat-label">Superseded</div>
+            <div class="stat-sub" style="color:var(--text-3);">Old versions</div>
           </div>
         </div>
       </div>
 
-      <div class="stat-grid">
-        <div class="stat-card active" onclick="setTab('all',this)" id="sc-all">
-          <div class="stat-num" id="sn-all">0</div>
-          <div class="stat-label">Total BOMs</div>
-          <div class="stat-sub" style="color:var(--text-3);">All versions</div>
-        </div>
-        <div class="stat-card" onclick="setTab('draft',this)" id="sc-draft">
-          <div class="stat-num" id="sn-draft" style="color:var(--text-2);">0</div>
-          <div class="stat-label">Draft</div>
-          <div class="stat-sub" style="color:var(--text-3);">In progress</div>
-        </div>
-        <div class="stat-card" onclick="setTab('pending',this)" id="sc-pending">
-          <div class="stat-num" id="sn-pending" style="color:var(--warning);">0</div>
-          <div class="stat-label">Pending Approval</div>
-          <div class="stat-sub" style="color:var(--warning);">Awaiting sign-off</div>
-        </div>
-        <div class="stat-card" onclick="setTab('approved',this)" id="sc-approved">
-          <div class="stat-num" id="sn-approved" style="color:var(--success);">0</div>
-          <div class="stat-label">Approved</div>
-          <div class="stat-sub" style="color:var(--success);">Ready for production</div>
-        </div>
-        <div class="stat-card" onclick="setTab('superseded',this)" id="sc-superseded">
-          <div class="stat-num" id="sn-superseded" style="color:var(--text-3);">0</div>
-          <div class="stat-label">Superseded</div>
-          <div class="stat-sub" style="color:var(--text-3);">Old versions</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab strip -->
-    <div class="tab-strip">
-      <button class="tab-item active" onclick="setTab('all',null,this)" id="tab-all">All <span class="tab-count" id="tc-all">0</span></button>
-      <button class="tab-item" onclick="setTab('draft',null,this)" id="tab-draft">Draft <span class="tab-count" id="tc-draft">0</span></button>
-      <button class="tab-item" onclick="setTab('pending',null,this)" id="tab-pending">Pending <span class="tab-count" id="tc-pending">0</span></button>
-      <button class="tab-item" onclick="setTab('approved',null,this)" id="tab-approved">Approved <span class="tab-count" id="tc-approved">0</span></button>
-      <button class="tab-item" onclick="setTab('superseded',null,this)" id="tab-superseded">Superseded <span class="tab-count" id="tc-superseded">0</span></button>
-    </div>
-
-    <!-- Split layout: BOM list + detail -->
-    <div class="bom-split" style="flex:1;overflow:hidden;">
-
-      <!-- Left: BOM list -->
-      <div class="bom-list-col" id="bomListCol"></div>
-
-      <!-- Right: BOM detail -->
-      <div class="bom-detail-col" id="bomDetailCol">
-        <div class="bom-empty">
-          <div class="bom-empty-icon"><span class="material-symbols-outlined" style="font-size:48px;">list_alt</span></div>
-          <div class="bom-empty-text">Select a BOM to view details</div>
-          <div class="bom-empty-sub">Click any BOM from the list on the left</div>
-        </div>
+      <!-- Tab strip -->
+      <div class="tab-strip">
+        <button class="tab-item active" onclick="setTab('all',null,this)" id="tab-all">All <span class="tab-count" id="tc-all">0</span></button>
+        <button class="tab-item" onclick="setTab('draft',null,this)" id="tab-draft">Draft <span class="tab-count" id="tc-draft">0</span></button>
+        <button class="tab-item" onclick="setTab('pending',null,this)" id="tab-pending">Pending <span class="tab-count" id="tc-pending">0</span></button>
+        <button class="tab-item" onclick="setTab('approved',null,this)" id="tab-approved">Approved <span class="tab-count" id="tc-approved">0</span></button>
+        <button class="tab-item" onclick="setTab('superseded',null,this)" id="tab-superseded">Superseded <span class="tab-count" id="tc-superseded">0</span></button>
       </div>
 
-    </div>
+      <!-- BOM list table -->
+      <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+        <div class="card" style="margin-top:16px;overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="bomTable">
+              <thead>
+                <tr>
+                  <th>Style</th>
+                  <th>Season</th>
+                  <th>Buyer</th>
+                  <th>Version</th>
+                  <th>Lines</th>
+                  <th>Status</th>
+                  <th>Approved By</th>
+                  <th>Created</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bomBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div><!-- /viewList -->
+
+    <!-- ════════════════ VIEW: DETAIL ════════════════ -->
+    <div id="viewDetail">
+
+      <!-- Back breadcrumb -->
+      <div class="back-bar">
+        <button class="back-btn" onclick="backToList()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Back to BOM List
+        </button>
+        <span class="back-crumb">Style BOM</span>
+        <span style="color:var(--text-3);font-size:13px;">/</span>
+        <span class="back-crumb-cur" id="breadcrumbCur">—</span>
+      </div>
+
+      <!-- Approval banner -->
+      <div id="approvalBanner" style="display:none;"></div>
+
+      <!-- BOM detail header -->
+      <div class="bom-header-card">
+        <div class="bom-header-top">
+          <div>
+            <div class="bom-header-title" id="detailTitle">—</div>
+            <div class="bom-header-meta" id="detailMeta"></div>
+          </div>
+          <div class="bom-header-actions" id="detailActions"></div>
+        </div>
+        <div class="bom-fields-row" id="detailFields"></div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="bom-scroll">
+
+        <!-- Colorway selector -->
+        <div style="margin-bottom:24px;">
+          <div class="section-head">
+            <span class="section-title">Colorway</span>
+          </div>
+          <div class="cw-tabs" id="cwTabs"></div>
+        </div>
+
+        <!-- Line items -->
+        <div style="margin-bottom:24px;">
+          <div class="section-head">
+            <span class="section-title">Bill of Materials — <span id="cwLabel">—</span></span>
+            <div class="section-actions">
+              <span id="lineCount" style="font-size:12px;color:var(--text-3);"></span>
+              <button class="btn btn-ghost btn-sm" id="addLineBtn" onclick="addLine()" style="display:none;">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                Add Material
+              </button>
+            </div>
+          </div>
+          <div class="card" style="overflow:hidden;">
+            <div style="overflow-x:auto;">
+              <table class="bom-line-table">
+                <thead>
+                  <tr>
+                    <th style="width:36px;">#</th>
+                    <th>Material</th>
+                    <th>Category</th>
+                    <th>Consumption / Unit</th>
+                    <th>UOM</th>
+                    <th>Wastage %</th>
+                    <th>Required / Unit</th>
+                    <th style="width:48px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="lineBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Material requirement calculator -->
+        <div class="calc-card" style="margin-bottom:24px;">
+          <div class="calc-title">
+            <span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-600);">calculate</span>
+            Material Requirement Calculator
+          </div>
+          <div class="calc-row">
+            <label style="font-size:13.5px;font-weight:500;color:var(--text-2);white-space:nowrap;">Production Qty</label>
+            <input class="form-control num" type="number" min="0" id="calcQty" placeholder="e.g. 500 units" style="width:160px;height:38px;font-size:14px;" oninput="calcRequirement()">
+            <button class="btn btn-primary btn-sm" style="height:38px;padding:0 18px;" onclick="calcRequirement()">Calculate</button>
+            <span id="calcTotalLabel" style="font-size:12.5px;color:var(--text-3);margin-left:4px;"></span>
+          </div>
+          <div id="calcResult" style="display:none;" class="calc-result">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:10px;">Total Material Requirement</div>
+            <div class="calc-result-grid" id="calcResultGrid"></div>
+          </div>
+        </div>
+
+        <!-- Version history -->
+        <div>
+          <div class="section-head"><span class="section-title">Version History</span></div>
+          <div class="card" style="overflow:hidden;">
+            <table class="ver-table">
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Status</th>
+                  <th>Updated By</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="verBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /bom-scroll -->
+    </div><!-- /viewDetail -->
+
   </main>
 </div><!-- /main -->
 </div><!-- /app -->
@@ -460,9 +593,9 @@
      CREATE BOM MODAL
 ══════════════════════════════════════ -->
 <div class="modal-backdrop" id="createBackdrop" onclick="if(event.target===this)closeCreateModal()">
-<div class="modal" id="createModal" style="max-width:600px;">
+<div class="modal" style="max-width:600px;">
   <div class="modal-header">
-    <h2 class="modal-title" id="createModalTitle">Create New BOM</h2>
+    <h2 class="modal-title">Create New BOM</h2>
     <button class="modal-close" onclick="closeCreateModal()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
   </div>
   <div class="modal-body">
@@ -516,32 +649,35 @@
 
 <!-- Approve confirm modal -->
 <div class="modal-backdrop" id="approveBackdrop" onclick="if(event.target===this)closeApproveModal()">
-<div class="modal" id="approveModal" style="max-width:440px;">
+<div class="modal" style="max-width:460px;">
   <div class="modal-header">
     <h2 class="modal-title">Approve BOM</h2>
     <button class="modal-close" onclick="closeApproveModal()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
   </div>
   <div class="modal-body">
-    <p style="color:var(--text-2);font-size:13.5px;line-height:1.6;margin-bottom:12px;">
+    <p style="color:var(--text-2);font-size:13.5px;line-height:1.6;margin-bottom:14px;">
       Approving <strong id="approveBomName"></strong> will lock the BOM for production use. The previous approved version (if any) will be marked <em>Superseded</em>.
     </p>
-    <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);color:#1e40af;font-size:12.5px;">
-      <span class="material-symbols-outlined" style="font-size:15px;flex-shrink:0;margin-top:1px;">info</span>
+    <div style="display:flex;gap:8px;align-items:flex-start;padding:12px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);color:#1e40af;font-size:13px;">
+      <span class="material-symbols-outlined" style="font-size:16px;flex-shrink:0;margin-top:1px;">info</span>
       This action cannot be undone. To make changes after approval, create a new version.
     </div>
   </div>
   <div class="modal-footer">
     <button class="btn btn-ghost" onclick="closeApproveModal()">Cancel</button>
-    <button class="btn btn-primary" onclick="confirmApprove()" style="background:var(--success);">Approve BOM</button>
+    <button class="btn btn-primary" onclick="confirmApprove()" style="background:var(--success);border-color:var(--success);">
+      <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">verified</span>
+      Approve BOM
+    </button>
   </div>
 </div>
 </div>
 
 <script>
-/* ═══════════════════════ CONFIG ══════════════════════════════════════════ */
+/* ═══════════════════════ CONFIG ═════════════════════════════════════════ */
 const CONFIG = { bomApproval: true };
 
-/* ═══════════════════════ DATA ════════════════════════════════════════════ */
+/* ═══════════════════════ DATA ══════════════════════════════════════════ */
 const BOMS = [
   {
     id:1, styleCode:'STY-2026-001', styleName:"Men's Chino Trouser",
@@ -550,18 +686,18 @@ const BOMS = [
     description:'Standard chino 5-pocket',
     colorways:['Khaki','Navy','Olive'],
     lines:[
-      { id:1, material:'Cotton Twill Fabric',    code:'FAB-COT-001', category:'Fabric',    size:'All', consumptionQty:1.45, uom:'Meter', wastagePct:8  },
-      { id:2, material:'Polyester Lining',        code:'LIN-POL-001', category:'Lining',    size:'All', consumptionQty:0.30, uom:'Meter', wastagePct:5  },
-      { id:3, material:'Metal Button 15mm',       code:'TRM-BUT-001', category:'Trim',      size:'All', consumptionQty:3,    uom:'Pieces',wastagePct:2  },
-      { id:4, material:'Zip 20cm Silver',         code:'TRM-ZIP-002', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:1  },
-      { id:5, material:'Polyester Thread #40',    code:'THR-POL-001', category:'Thread',    size:'All', consumptionQty:0.05, uom:'Cone',  wastagePct:5  },
-      { id:6, material:'Woven Label (brand)',     code:'TRM-LBL-003', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
-      { id:7, material:'Hang Tag Printed',        code:'PKG-TAG-001', category:'Packaging', size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
-      { id:8, material:'Polybag 40x60cm',         code:'PKG-BAG-002', category:'Packaging', size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
+      {id:1, material:'Cotton Twill Fabric',   code:'FAB-COT-001', category:'Fabric',    uom:'Meter',  consumptionQty:1.45, wastagePct:8 },
+      {id:2, material:'Polyester Lining',       code:'LIN-POL-001', category:'Lining',    uom:'Meter',  consumptionQty:0.30, wastagePct:5 },
+      {id:3, material:'Metal Button 15mm',      code:'TRM-BUT-001', category:'Trim',      uom:'Pieces', consumptionQty:3,    wastagePct:2 },
+      {id:4, material:'Zip 20cm Silver',        code:'TRM-ZIP-002', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:1 },
+      {id:5, material:'Polyester Thread #40',   code:'THR-POL-001', category:'Thread',    uom:'Cone',   consumptionQty:0.05, wastagePct:5 },
+      {id:6, material:'Woven Label (brand)',    code:'TRM-LBL-003', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:0 },
+      {id:7, material:'Hang Tag Printed',       code:'PKG-TAG-001', category:'Packaging', uom:'Pieces', consumptionQty:1,    wastagePct:0 },
+      {id:8, material:'Polybag 40x60cm',        code:'PKG-BAG-002', category:'Packaging', uom:'Pieces', consumptionQty:1,    wastagePct:0 },
     ],
     versions:[
-      { ver:'v2', date:'20 Apr 2026', by:'Rahul Sharma', status:'approved' },
-      { ver:'v1', date:'10 Apr 2026', by:'Priya Nair',   status:'superseded' },
+      {ver:'v2', date:'20 Apr 2026', by:'Rahul Sharma', status:'approved'},
+      {ver:'v1', date:'10 Apr 2026', by:'Priya Nair',   status:'superseded'},
     ]
   },
   {
@@ -571,17 +707,15 @@ const BOMS = [
     description:'Single-breasted structured blazer',
     colorways:['Black','Ivory'],
     lines:[
-      { id:1, material:'Cotton Twill Fabric',    code:'FAB-COT-001', category:'Fabric',    size:'All', consumptionQty:1.80, uom:'Meter', wastagePct:10 },
-      { id:2, material:'Polyester Lining',        code:'LIN-POL-001', category:'Lining',    size:'All', consumptionQty:1.20, uom:'Meter', wastagePct:8  },
-      { id:3, material:'Shoulder Pad (foam)',     code:'ACC-SHP-001', category:'Accessory', size:'All', consumptionQty:2,    uom:'Pieces',wastagePct:0  },
-      { id:4, material:'Metal Button 15mm',       code:'TRM-BUT-001', category:'Trim',      size:'All', consumptionQty:4,    uom:'Pieces',wastagePct:2  },
-      { id:5, material:'Polyester Thread #40',    code:'THR-POL-001', category:'Thread',    size:'All', consumptionQty:0.08, uom:'Cone',  wastagePct:5  },
-      { id:6, material:'Boning Tape',             code:'ACC-BON-002', category:'Accessory', size:'All', consumptionQty:0.60, uom:'Meter', wastagePct:5  },
-      { id:7, material:'Woven Label (brand)',     code:'TRM-LBL-003', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
+      {id:1, material:'Cotton Twill Fabric',   code:'FAB-COT-001', category:'Fabric',    uom:'Meter',  consumptionQty:1.80, wastagePct:10},
+      {id:2, material:'Polyester Lining',       code:'LIN-POL-001', category:'Lining',    uom:'Meter',  consumptionQty:1.20, wastagePct:8 },
+      {id:3, material:'Shoulder Pad (foam)',    code:'ACC-SHP-001', category:'Accessory', uom:'Pieces', consumptionQty:2,    wastagePct:0 },
+      {id:4, material:'Metal Button 15mm',      code:'TRM-BUT-001', category:'Trim',      uom:'Pieces', consumptionQty:4,    wastagePct:2 },
+      {id:5, material:'Polyester Thread #40',   code:'THR-POL-001', category:'Thread',    uom:'Cone',   consumptionQty:0.08, wastagePct:5 },
+      {id:6, material:'Boning Tape',            code:'ACC-BON-002', category:'Accessory', uom:'Meter',  consumptionQty:0.60, wastagePct:5 },
+      {id:7, material:'Woven Label (brand)',    code:'TRM-LBL-003', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:0 },
     ],
-    versions:[
-      { ver:'v1', date:'01 May 2026', by:'Priya Nair', status:'pending' },
-    ]
+    versions:[{ver:'v1', date:'01 May 2026', by:'Priya Nair', status:'pending'}]
   },
   {
     id:3, styleCode:'STY-2026-003', styleName:'Kids T-Shirt',
@@ -590,14 +724,12 @@ const BOMS = [
     description:'Basic crew-neck tee',
     colorways:['White','Red','Blue'],
     lines:[
-      { id:1, material:'Cotton Jersey 180gsm',   code:'FAB-JER-004', category:'Fabric',    size:'All', consumptionQty:0.60, uom:'Meter', wastagePct:8  },
-      { id:2, material:'Cotton Thread #60',       code:'THR-COT-002', category:'Thread',    size:'All', consumptionQty:0.02, uom:'Cone',  wastagePct:5  },
-      { id:3, material:'Woven Label (brand)',     code:'TRM-LBL-003', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
-      { id:4, material:'Hang Tag Printed',        code:'PKG-TAG-001', category:'Packaging', size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
+      {id:1, material:'Cotton Jersey 180gsm',  code:'FAB-JER-004', category:'Fabric',    uom:'Meter',  consumptionQty:0.60, wastagePct:8 },
+      {id:2, material:'Cotton Thread #60',      code:'THR-COT-002', category:'Thread',    uom:'Cone',   consumptionQty:0.02, wastagePct:5 },
+      {id:3, material:'Woven Label (brand)',    code:'TRM-LBL-003', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:0 },
+      {id:4, material:'Hang Tag Printed',       code:'PKG-TAG-001', category:'Packaging', uom:'Pieces', consumptionQty:1,    wastagePct:0 },
     ],
-    versions:[
-      { ver:'v1', date:'03 May 2026', by:'Amit Das', status:'draft' },
-    ]
+    versions:[{ver:'v1', date:'03 May 2026', by:'Amit Das', status:'draft'}]
   },
   {
     id:4, styleCode:'STY-2026-004', styleName:'Denim Jacket',
@@ -606,16 +738,14 @@ const BOMS = [
     description:'Classic trucker jacket',
     colorways:['Indigo','Black'],
     lines:[
-      { id:1, material:'Denim Woven 10oz',       code:'FAB-DEN-003', category:'Fabric',    size:'All', consumptionQty:1.90, uom:'Meter', wastagePct:12 },
-      { id:2, material:'Polyester Thread #40',    code:'THR-POL-001', category:'Thread',    size:'All', consumptionQty:0.10, uom:'Cone',  wastagePct:5  },
-      { id:3, material:'Metal Button 15mm',       code:'TRM-BUT-001', category:'Trim',      size:'All', consumptionQty:7,    uom:'Pieces',wastagePct:2  },
-      { id:4, material:'Zip 20cm Silver',         code:'TRM-ZIP-002', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:1  },
-      { id:5, material:'Woven Label (brand)',     code:'TRM-LBL-003', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
-      { id:6, material:'Hang Tag Printed',        code:'PKG-TAG-001', category:'Packaging', size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
+      {id:1, material:'Denim Woven 10oz',       code:'FAB-DEN-003', category:'Fabric',    uom:'Meter',  consumptionQty:1.90, wastagePct:12},
+      {id:2, material:'Polyester Thread #40',   code:'THR-POL-001', category:'Thread',    uom:'Cone',   consumptionQty:0.10, wastagePct:5 },
+      {id:3, material:'Metal Button 15mm',      code:'TRM-BUT-001', category:'Trim',      uom:'Pieces', consumptionQty:7,    wastagePct:2 },
+      {id:4, material:'Zip 20cm Silver',        code:'TRM-ZIP-002', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:1 },
+      {id:5, material:'Woven Label (brand)',    code:'TRM-LBL-003', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:0 },
+      {id:6, material:'Hang Tag Printed',       code:'PKG-TAG-001', category:'Packaging', uom:'Pieces', consumptionQty:1,    wastagePct:0 },
     ],
-    versions:[
-      { ver:'v1', date:'28 Apr 2026', by:'Mayukh Ghatak', status:'approved' },
-    ]
+    versions:[{ver:'v1', date:'28 Apr 2026', by:'Mayukh Ghatak', status:'approved'}]
   },
   {
     id:5, styleCode:'STY-2026-005', styleName:'Formal Shirt',
@@ -624,29 +754,36 @@ const BOMS = [
     description:'Regular fit formal woven shirt',
     colorways:['White','Blue','Pink'],
     lines:[
-      { id:1, material:'Cotton Twill Fabric',    code:'FAB-COT-001', category:'Fabric',    size:'All', consumptionQty:1.25, uom:'Meter', wastagePct:6  },
-      { id:2, material:'Polyester Interlock',    code:'FAB-POL-002', category:'Fabric',    size:'All', consumptionQty:0.10, uom:'Meter', wastagePct:5  },
-      { id:3, material:'Metal Button 15mm',       code:'TRM-BUT-001', category:'Trim',      size:'All', consumptionQty:8,    uom:'Pieces',wastagePct:2  },
-      { id:4, material:'Cotton Thread #60',       code:'THR-COT-002', category:'Thread',    size:'All', consumptionQty:0.04, uom:'Cone',  wastagePct:5  },
-      { id:5, material:'Woven Label (brand)',     code:'TRM-LBL-003', category:'Trim',      size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
-      { id:6, material:'Hang Tag Printed',        code:'PKG-TAG-001', category:'Packaging', size:'All', consumptionQty:1,    uom:'Pieces',wastagePct:0  },
+      {id:1, material:'Cotton Twill Fabric',   code:'FAB-COT-001', category:'Fabric',    uom:'Meter',  consumptionQty:1.25, wastagePct:6 },
+      {id:2, material:'Polyester Interlock',   code:'FAB-POL-002', category:'Fabric',    uom:'Meter',  consumptionQty:0.10, wastagePct:5 },
+      {id:3, material:'Metal Button 15mm',      code:'TRM-BUT-001', category:'Trim',      uom:'Pieces', consumptionQty:8,    wastagePct:2 },
+      {id:4, material:'Cotton Thread #60',      code:'THR-COT-002', category:'Thread',    uom:'Cone',   consumptionQty:0.04, wastagePct:5 },
+      {id:5, material:'Woven Label (brand)',    code:'TRM-LBL-003', category:'Trim',      uom:'Pieces', consumptionQty:1,    wastagePct:0 },
+      {id:6, material:'Hang Tag Printed',       code:'PKG-TAG-001', category:'Packaging', uom:'Pieces', consumptionQty:1,    wastagePct:0 },
     ],
     versions:[
-      { ver:'v3', date:'02 May 2026', by:'Rahul Sharma',  status:'approved'   },
-      { ver:'v2', date:'22 Apr 2026', by:'Priya Nair',    status:'superseded' },
-      { ver:'v1', date:'10 Apr 2026', by:'Amit Das',      status:'superseded' },
+      {ver:'v3', date:'02 May 2026', by:'Rahul Sharma', status:'approved'},
+      {ver:'v2', date:'22 Apr 2026', by:'Priya Nair',   status:'superseded'},
+      {ver:'v1', date:'10 Apr 2026', by:'Amit Das',     status:'superseded'},
     ]
   },
 ];
 
-/* ═══════════════════════ STATE ═══════════════════════════════════════════ */
+/* ═══════════════════════ STATE ════════════════════════════════════════ */
+const CW_COLORS = ['#1e3a5f','#f0f4f8','#4a5c2e','#111827','#fde8f5','#fef9c3','#c2410c','#0369a1'];
 let activeTab   = 'all';
 let activeBomId = null;
 let activeCw    = 0;
 let approveId   = null;
-const CW_COLORS = ['#1e3a5f','#f0f4f8','#4a5c2e','#111827','#fde8f5','#fef9c3'];
 
-/* ═══════════════════════ TABS / STAT CARDS ══════════════════════════════ */
+/* ═══════════════════════ HELPERS ══════════════════════════════════════ */
+function pillar(s)      { return {draft:'bp-draft',pending:'bp-pending',approved:'bp-approved',superseded:'bp-superseded'}[s]||'bp-draft'; }
+function statusLabel(s) { return {draft:'Draft',pending:'Pending Approval',approved:'Approved',superseded:'Superseded'}[s]||s; }
+function matClass(c)    { return 'mb-'+c.toLowerCase().replace(/[^a-z]/g,''); }
+function fmtDate(d)     { if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${y}`; }
+function reqQty(l)      { return (l.consumptionQty*(1+l.wastagePct/100)); }
+
+/* ═══════════════════════ TABS / STAT CARDS ════════════════════════════ */
 function setTab(key, card, tab) {
   activeTab = key;
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
@@ -671,9 +808,9 @@ function getFiltered() {
   });
 }
 
-/* ═══════════════════════ RENDER LIST ═══════════════════════════════════ */
+/* ═══════════════════════ RENDER LIST ════════════════════════════════ */
 function renderList() {
-  const counts = {all:0, draft:0, pending:0, approved:0, superseded:0};
+  const counts = {all:0,draft:0,pending:0,approved:0,superseded:0};
   BOMS.forEach(b => { counts.all++; counts[b.status]++; });
   ['all','draft','pending','approved','superseded'].forEach(k => {
     document.getElementById('sn-'+k).textContent = counts[k];
@@ -681,284 +818,290 @@ function renderList() {
   });
 
   const filtered = getFiltered();
-  const col = document.getElementById('bomListCol');
+  const tbody = document.getElementById('bomBody');
 
   if (filtered.length === 0) {
-    col.innerHTML = `<div style="text-align:center;padding:48px 24px;color:var(--text-3);font-size:13px;">No BOMs match the current filter</div>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text-3);">No BOMs match the current filter</td></tr>`;
     return;
   }
 
-  col.innerHTML = filtered.map(b => `
-    <div class="bom-list-item ${activeBomId===b.id?'active':''}" onclick="openBom(${b.id})">
-      <div class="bli-style">${b.styleCode}</div>
-      <div style="font-size:12.5px;color:var(--text-2);margin-top:1px;">${b.styleName}</div>
-      <div class="bli-meta">
-        <span class="bom-pill ${pillar(b.status)}">${statusLabel(b.status)}</span>
-        <span class="bli-ver">${b.version}</span>
-        <span>${b.season}</span>
-        <span style="color:var(--text-3);">${b.buyer}</span>
-      </div>
-    </div>`).join('');
+  tbody.innerHTML = filtered.map(b => `
+    <tr onclick="openBom(${b.id})" style="cursor:pointer;">
+      <td>
+        <div style="font-weight:700;font-size:13px;">${b.styleCode}</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:1px;">${b.styleName}</div>
+      </td>
+      <td style="font-size:13px;">${b.season}</td>
+      <td style="font-size:13px;">${b.buyer}</td>
+      <td><span style="font-size:12px;font-weight:600;color:var(--brand-700);background:var(--brand-50);padding:2px 8px;border-radius:var(--r-full);">${b.version}</span></td>
+      <td style="font-size:13px;color:var(--text-2);">${b.lines.length}</td>
+      <td><span class="bom-pill ${pillar(b.status)}">${statusLabel(b.status)}</span></td>
+      <td style="font-size:12.5px;color:var(--text-2);">${b.approvedBy||'—'}</td>
+      <td style="font-size:12.5px;color:var(--text-3);">${b.createdAt}</td>
+      <td style="text-align:right;" onclick="event.stopPropagation()">
+        <div class="am-wrap">
+          <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="toggleMenu(this,${b.id})">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
+          </button>
+          <div class="action-menu" id="menu-${b.id}">
+            <div class="am-item" onclick="openBom(${b.id});closeAllMenus()">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+              Open BOM
+            </div>
+            ${b.status==='pending' ? `<div class="am-item" onclick="openApproveModal(${b.id});closeAllMenus()">
+              <span class="material-symbols-outlined" style="font-size:14px;color:var(--success);">verified</span>
+              Approve
+            </div>` : ''}
+            <div class="am-item" onclick="closeAllMenus()">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>
+              Duplicate
+            </div>
+            <div class="am-sep"></div>
+            <div class="am-item danger" onclick="closeAllMenus()">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clip-rule="evenodd"/></svg>
+              Delete
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`).join('');
 }
 
 /* ═══════════════════════ OPEN BOM DETAIL ══════════════════════════════ */
 function openBom(id) {
   activeBomId = id;
   activeCw    = 0;
-  renderList();
+  document.getElementById('viewList').style.display   = 'none';
+  document.getElementById('viewDetail').style.display = 'flex';
   renderDetail();
+}
+function backToList() {
+  activeBomId = null;
+  document.getElementById('viewList').style.display   = 'flex';
+  document.getElementById('viewDetail').style.display = 'none';
+  document.getElementById('topbarCta').textContent    = '';
+  document.getElementById('topbarCta').innerHTML      = `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg> Create BOM`;
+  document.getElementById('topbarCta').onclick        = openCreateModal;
+  document.getElementById('topbarModule').textContent = 'Style BOM';
 }
 
 function renderDetail() {
-  const b = BOMS.find(x => x.id === activeBomId);
+  const b = BOMS.find(x=>x.id===activeBomId);
   if (!b) return;
-  const isDraft    = b.status === 'draft';
-  const isPending  = b.status === 'pending';
-  const isApproved = b.status === 'approved';
-  const col = document.getElementById('bomDetailCol');
+  const isDraft   = b.status==='draft';
+  const isPending = b.status==='pending';
+  const isApproved= b.status==='approved';
 
-  // Approval bar
-  let approvalBar = '';
+  // Topbar
+  document.getElementById('topbarModule').textContent = b.styleCode;
+
+  // Breadcrumb
+  document.getElementById('breadcrumbCur').textContent = `${b.styleCode} — ${b.version}`;
+
+  // Header
+  document.getElementById('detailTitle').textContent = `${b.styleCode} — ${b.styleName}`;
+  document.getElementById('detailMeta').innerHTML = `
+    <span class="bom-pill ${pillar(b.status)}">${statusLabel(b.status)}</span>
+    <span style="font-size:12.5px;color:var(--text-3);">${b.version}</span>
+    <span style="font-size:12.5px;color:var(--text-3);">${b.season}</span>
+    <span style="font-size:12.5px;color:var(--text-3);">Buyer: <strong style="color:var(--text-2);">${b.buyer}</strong></span>
+    ${b.description ? `<span style="font-size:12px;color:var(--text-3);font-style:italic;">${b.description}</span>` : ''}
+  `;
+
+  document.getElementById('detailFields').innerHTML = `
+    <div class="bom-field"><div class="bom-field-label">Style Code</div><div class="bom-field-val">${b.styleCode}</div></div>
+    <div class="bom-field"><div class="bom-field-label">Season</div><div class="bom-field-val">${b.season}</div></div>
+    <div class="bom-field"><div class="bom-field-label">Buyer</div><div class="bom-field-val">${b.buyer}</div></div>
+    <div class="bom-field"><div class="bom-field-label">Version</div><div class="bom-field-val">${b.version}</div></div>
+    <div class="bom-field"><div class="bom-field-label">Materials</div><div class="bom-field-val">${b.lines.length} lines</div></div>
+    <div class="bom-field"><div class="bom-field-label">${isApproved?'Approved By':'Created'}</div><div class="bom-field-val">${isApproved?b.approvedBy:b.createdAt}</div></div>
+  `;
+
+  // Detail actions
+  document.getElementById('detailActions').innerHTML = `
+    ${isDraft ? `<button class="btn btn-ghost btn-sm" onclick="addLine()">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+      Add Line
+    </button>` : ''}
+    ${isApproved ? `<button class="btn btn-ghost btn-sm" onclick="newVersion(${b.id})">New Version</button>` : ''}
+    <div class="am-wrap">
+      <button class="btn btn-ghost btn-sm" onclick="toggleMenu(this,'det')">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
+      </button>
+      <div class="action-menu" id="menu-det">
+        <div class="am-item" onclick="closeAllMenus()">Export BOM PDF</div>
+        <div class="am-item" onclick="closeAllMenus()">Duplicate BOM</div>
+        <div class="am-sep"></div>
+        <div class="am-item danger" onclick="closeAllMenus()">Delete BOM</div>
+      </div>
+    </div>
+  `;
+
+  // Approval banner
+  const banner = document.getElementById('approvalBanner');
   if (CONFIG.bomApproval) {
+    banner.style.display = 'flex';
     if (isDraft) {
-      approvalBar = `<div class="approval-bar">
-        <span class="material-symbols-outlined" style="font-size:18px;color:var(--warning);">edit_note</span>
-        <span style="font-size:13px;color:#92400e;flex:1;">This BOM is a <strong>Draft</strong>. Add all line items and submit for approval before it can be used in production.</span>
-        <button class="btn btn-sm" style="background:var(--warning);color:#fff;border:none;" onclick="submitForApproval(${b.id})">Submit for Approval</button>
-      </div>`;
+      banner.className = 'approval-banner draft';
+      banner.innerHTML = `
+        <span class="approval-banner-icon material-symbols-outlined" style="color:var(--warning);">edit_note</span>
+        <div class="approval-banner-text">This BOM is a <strong>Draft</strong>. Add all materials then submit for approval before it can be used in production.</div>
+        <div class="approval-banner-actions">
+          <button class="btn btn-sm" style="background:var(--warning);color:#fff;border-color:var(--warning);" onclick="submitForApproval(${b.id})">
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-3px;">send</span>
+            Submit for Approval
+          </button>
+        </div>`;
     } else if (isPending) {
-      approvalBar = `<div class="approval-bar">
-        <span class="material-symbols-outlined" style="font-size:18px;color:var(--warning);">pending_actions</span>
-        <span style="font-size:13px;color:#92400e;flex:1;">Pending approval by an Admin. BOM cannot be used until approved.</span>
-        <button class="btn btn-sm btn-ghost" onclick="rejectBom(${b.id})" style="border-color:#fde68a;">Reject</button>
-        <button class="btn btn-sm" style="background:var(--success);color:#fff;border:none;" onclick="openApproveModal(${b.id})">Approve</button>
-      </div>`;
+      banner.className = 'approval-banner pending';
+      banner.innerHTML = `
+        <span class="approval-banner-icon material-symbols-outlined" style="color:#ea580c;">pending_actions</span>
+        <div class="approval-banner-text"><strong>Pending approval</strong> — BOM cannot be used in production until approved by an Admin.</div>
+        <div class="approval-banner-actions">
+          <button class="btn btn-sm btn-ghost" onclick="rejectBom(${b.id})" style="border-color:#fed7aa;color:#c2410c;">
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-3px;">cancel</span>
+            Reject
+          </button>
+          <button class="btn btn-sm" style="background:var(--success);color:#fff;border-color:var(--success);font-size:13px;padding:6px 18px;" onclick="openApproveModal(${b.id})">
+            <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">verified</span>
+            Approve BOM
+          </button>
+        </div>`;
     } else if (isApproved) {
-      approvalBar = `<div class="approval-bar approved">
-        <span class="material-symbols-outlined" style="font-size:18px;color:var(--success);">verified</span>
-        <span style="font-size:13px;color:#166534;flex:1;">Approved by <strong>${b.approvedBy}</strong> on ${b.approvedAt}. This BOM is active for production.</span>
-        <button class="btn btn-ghost btn-sm" onclick="newVersion(${b.id})">New Version</button>
-      </div>`;
+      banner.className = 'approval-banner approved';
+      banner.innerHTML = `
+        <span class="approval-banner-icon material-symbols-outlined" style="color:var(--success);">verified</span>
+        <div class="approval-banner-text">Approved by <strong>${b.approvedBy}</strong> on ${b.approvedAt}. This BOM is active and can be used for production planning.</div>
+        <div class="approval-banner-actions">
+          <button class="btn btn-ghost btn-sm" onclick="newVersion(${b.id})">Create New Version</button>
+        </div>`;
+    } else {
+      banner.style.display = 'none';
     }
+  } else {
+    banner.style.display = 'none';
   }
 
   // Colorway tabs
-  const cwTabs = b.colorways.map((cw, i) => `
-    <div class="cw-tab ${activeCw===i?'active':''}" onclick="activeCw=${i};renderDetail()">
+  document.getElementById('cwTabs').innerHTML = b.colorways.map((cw,i) => `
+    <div class="cw-tab ${activeCw===i?'active':''}" onclick="activeCw=${i};renderLines()">
       <div class="cw-dot" style="background:${CW_COLORS[i]||'#ccc'}"></div>
       ${cw}
     </div>`).join('');
+  document.getElementById('cwLabel').textContent = b.colorways[activeCw];
 
-  // Line items
-  const lineRows = b.lines.map(l => {
-    const reqQty = (l.consumptionQty * (1 + l.wastagePct / 100)).toFixed(3);
-    const editable = isDraft;
+  // Add line btn
+  document.getElementById('addLineBtn').style.display = isDraft ? '' : 'none';
+
+  renderLines();
+  renderVersions();
+}
+
+function renderLines() {
+  const b = BOMS.find(x=>x.id===activeBomId);
+  if (!b) return;
+  const isDraft = b.status==='draft';
+  document.getElementById('cwLabel').textContent = b.colorways[activeCw];
+  document.getElementById('lineCount').textContent = `${b.lines.length} line${b.lines.length===1?'':'s'}`;
+
+  document.getElementById('lineBody').innerHTML = b.lines.map((l,idx) => {
+    const rq = reqQty(l);
     return `<tr>
+      <td style="color:var(--text-3);font-size:12px;font-weight:600;">${idx+1}</td>
       <td>
-        <div style="font-weight:600;font-size:12.5px;">${l.material}</div>
-        <code style="font-size:10.5px;color:var(--brand-700);background:var(--brand-50);padding:0 5px;border-radius:3px;">${l.code}</code>
+        <div class="mat-name">${l.material}</div>
+        <span class="mat-code">${l.code}</span>
       </td>
-      <td><span class="mat-badge mb-${l.category.toLowerCase()}">${l.category}</span></td>
+      <td><span class="mat-badge ${matClass(l.category)}">${l.category}</span></td>
       <td>
-        <input class="inline-input num" type="number" min="0" step="0.001"
-          value="${l.consumptionQty}" ${editable?'':'readonly'}
-          style="width:70px;" oninput="updateLine(${b.id},${l.id},'consumptionQty',this.value)">
+        <input class="qty-input" type="number" min="0" step="0.001" value="${l.consumptionQty}"
+          ${isDraft?'':'readonly'}
+          oninput="updateLine(${b.id},${l.id},'consumptionQty',this.value)">
       </td>
-      <td style="color:var(--text-2);">${l.uom}</td>
+      <td style="font-size:13.5px;color:var(--text-2);font-weight:500;">${l.uom}</td>
       <td>
-        <input class="inline-input num" type="number" min="0" max="99" step="0.1"
-          value="${l.wastagePct}" ${editable?'':'readonly'}
-          style="width:54px;" oninput="updateLine(${b.id},${l.id},'wastagePct',this.value)">%
+        <div class="pct-wrap">
+          <input class="pct-input" type="number" min="0" max="99" step="0.1" value="${l.wastagePct}"
+            ${isDraft?'':'readonly'}
+            oninput="updateLine(${b.id},${l.id},'wastagePct',this.value)">
+          <span class="pct-sym">%</span>
+        </div>
       </td>
-      <td class="req-qty num">${reqQty} ${l.uom}</td>
-      <td style="text-align:right;" onclick="event.stopPropagation()">
-        ${editable ? `<button class="btn btn-ghost btn-sm" style="padding:3px 6px;color:var(--danger);" onclick="removeLine(${b.id},${l.id})">
+      <td>
+        <span class="req-qty">${rq.toFixed(3)}</span>
+        <span class="req-uom">${l.uom}</span>
+      </td>
+      <td style="text-align:right;">
+        ${isDraft ? `<button class="btn btn-ghost btn-sm" style="padding:4px 8px;color:var(--danger);" onclick="removeLine(${b.id},${l.id})">
           <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
         </button>` : ''}
       </td>
     </tr>`;
-  }).join('');
-
-  // Version history
-  const verRows = b.versions.map(v => `
-    <div class="ver-row">
-      <span class="ver-badge">${v.ver}</span>
-      <span class="bom-pill ${pillar(v.status)}" style="font-size:10px;padding:1px 7px;">${statusLabel(v.status)}</span>
-      <span class="ver-by">${v.by}</span>
-      <span class="ver-date">${v.date}</span>
-    </div>`).join('');
-
-  // Material requirement calculator result
-  const calcRows = b.lines.map(l => {
-    const reqQty = (l.consumptionQty * (1 + l.wastagePct / 100));
-    return `<div class="req-result-row">
-      <span class="req-result-mat">${l.material}</span>
-      <span class="req-result-qty" id="rr-${b.id}-${l.id}">—</span>
-    </div>`;
-  }).join('');
-
-  col.innerHTML = `
-    ${approvalBar}
-    <div class="bom-dh">
-      <div class="bom-dh-top">
-        <div>
-          <div class="bom-dh-title">${b.styleCode} — ${b.styleName}</div>
-          <div class="bom-dh-meta">
-            <span class="bom-pill ${pillar(b.status)}">${statusLabel(b.status)}</span>
-            <span style="font-size:11.5px;color:var(--text-3);">${b.version}</span>
-            <span style="font-size:11.5px;color:var(--text-3);">${b.season}</span>
-            <span style="font-size:11.5px;color:var(--text-3);">Buyer: <strong>${b.buyer}</strong></span>
-          </div>
-        </div>
-        <div class="bom-dh-actions">
-          ${isDraft ? `<button class="btn btn-ghost btn-sm" onclick="addLineRow(${b.id})">
-            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-            Add Line
-          </button>` : ''}
-          <div class="am-wrap">
-            <button class="btn btn-ghost btn-sm" onclick="toggleMenu(this,${b.id})">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
-            </button>
-            <div class="action-menu" id="menu-${b.id}">
-              <div class="am-item" onclick="closeAllMenus()">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                Export BOM PDF
-              </div>
-              <div class="am-item" onclick="closeAllMenus()">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>
-                Duplicate BOM
-              </div>
-              ${isApproved ? `<div class="am-item" onclick="newVersion(${b.id});closeAllMenus()">
-                <span class="material-symbols-outlined" style="font-size:14px;color:var(--text-3);">add_circle</span>
-                New Version
-              </div>` : ''}
-              <div class="am-sep"></div>
-              <div class="am-item danger" onclick="closeAllMenus()">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clip-rule="evenodd"/></svg>
-                Delete BOM
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="bom-dh-fields">
-        <div class="bdf"><div class="bdf-label">Style</div><div class="bdf-val">${b.styleCode}</div></div>
-        <div class="bdf"><div class="bdf-label">Season</div><div class="bdf-val">${b.season}</div></div>
-        <div class="bdf"><div class="bdf-label">Buyer</div><div class="bdf-val">${b.buyer}</div></div>
-        <div class="bdf"><div class="bdf-label">Version</div><div class="bdf-val">${b.version}</div></div>
-        <div class="bdf"><div class="bdf-label">Lines</div><div class="bdf-val">${b.lines.length} materials</div></div>
-      </div>
-    </div>
-
-    <div class="bom-body">
-
-      <!-- Colorway selector -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:8px;">Colorway</div>
-        <div class="cw-tabs">${cwTabs}</div>
-      </div>
-
-      <!-- Line items -->
-      <div class="bom-section-title">
-        <span>Bill of Materials — ${b.colorways[activeCw]}</span>
-        <span style="font-size:11px;font-weight:500;color:var(--text-3);">${b.lines.length} line${b.lines.length===1?'':'s'}</span>
-      </div>
-      <div class="card" style="overflow:hidden;margin-bottom:20px;">
-        <div style="overflow-x:auto;">
-          <table class="bom-line-table">
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th>Category</th>
-                <th>Consumption / Unit</th>
-                <th>UOM</th>
-                <th>Wastage %</th>
-                <th>Required / Unit</th>
-                <th style="width:40px;"></th>
-              </tr>
-            </thead>
-            <tbody>${lineRows}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Material requirement calculator -->
-      <div class="req-calc">
-        <div class="req-calc-title">
-          <span class="material-symbols-outlined" style="font-size:16px;color:var(--brand-600);">calculate</span>
-          Material Requirement Calculator
-        </div>
-        <div class="req-calc-row">
-          <label style="font-size:13px;font-weight:500;color:var(--text-2);white-space:nowrap;">Production Qty</label>
-          <input class="form-control num" type="number" min="0" id="calcQty" placeholder="e.g. 500" style="width:120px;height:34px;" oninput="calcRequirement(${b.id})">
-          <span style="font-size:13px;color:var(--text-2);">units</span>
-          <button class="btn btn-ghost btn-sm" onclick="calcRequirement(${b.id})">Calculate</button>
-        </div>
-        <div class="req-calc-result" id="calcResult-${b.id}" style="display:none;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:8px;">Total Requirement</div>
-          ${calcRows}
-        </div>
-      </div>
-
-      <!-- Version history -->
-      <div style="margin-top:24px;">
-        <div class="bom-section-title"><span>Version History</span></div>
-        ${verRows}
-      </div>
-
-    </div>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-3);">No materials added yet. Click "Add Material" to start.</td></tr>`;
 }
 
-/* ═══════════════════════ BOM ACTIONS ════════════════════════════════════ */
+function renderVersions() {
+  const b = BOMS.find(x=>x.id===activeBomId);
+  if (!b) return;
+  document.getElementById('verBody').innerHTML = b.versions.map(v => `
+    <tr>
+      <td><span style="font-size:13px;font-weight:700;color:var(--brand-700);">${v.ver}</span></td>
+      <td><span class="bom-pill ${pillar(v.status)}">${statusLabel(v.status)}</span></td>
+      <td style="color:var(--text-2);">${v.by}</td>
+      <td style="color:var(--text-3);">${v.date}</td>
+      <td style="text-align:right;"><button class="btn btn-ghost btn-sm" style="font-size:12px;">View</button></td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════ BOM MUTATIONS ════════════════════════════════ */
 function updateLine(bomId, lineId, field, val) {
   const b = BOMS.find(x=>x.id===bomId);
   const l = b?.lines.find(x=>x.id===lineId);
-  if (l) { l[field] = parseFloat(val)||0; renderDetail(); }
+  if (l) { l[field]=parseFloat(val)||0; renderLines(); }
 }
 function removeLine(bomId, lineId) {
   const b = BOMS.find(x=>x.id===bomId);
-  if (b) { b.lines = b.lines.filter(l=>l.id!==lineId); renderDetail(); }
+  if (b) { b.lines=b.lines.filter(l=>l.id!==lineId); renderLines(); renderDetail(); }
 }
-function addLineRow(bomId) {
-  const b = BOMS.find(x=>x.id===bomId);
+function addLine() {
+  const b = BOMS.find(x=>x.id===activeBomId);
   if (!b) return;
-  const newId = Math.max(0,...b.lines.map(l=>l.id)) + 1;
-  b.lines.push({ id:newId, material:'(new material)', code:'', category:'Fabric', size:'All', consumptionQty:0, uom:'Meter', wastagePct:5 });
-  renderDetail();
+  const newId = Math.max(0,...b.lines.map(l=>l.id))+1;
+  b.lines.push({id:newId, material:'New Material', code:'MAT-000', category:'Fabric', uom:'Meter', consumptionQty:1, wastagePct:5});
+  renderLines();
+  document.getElementById('lineCount').textContent = `${b.lines.length} lines`;
 }
 function submitForApproval(id) {
   const b = BOMS.find(x=>x.id===id);
-  if (b) { b.status='pending'; b.versions[0].status='pending'; renderList(); renderDetail(); }
+  if (b) { b.status='pending'; b.versions[0].status='pending'; renderDetail(); renderList(); }
 }
 function rejectBom(id) {
   const b = BOMS.find(x=>x.id===id);
-  if (b) { b.status='draft'; b.versions[0].status='draft'; renderList(); renderDetail(); }
+  if (b) { b.status='draft'; b.versions[0].status='draft'; renderDetail(); renderList(); }
 }
 function newVersion(id) {
   const b = BOMS.find(x=>x.id===id);
   if (!b) return;
-  const verNum = parseInt(b.version.replace('v','')) + 1;
-  b.versions.unshift({ ver:'v'+verNum, date:'06 May 2026', by:'Mayukh Ghatak', status:'draft' });
-  b.versions.slice(1).forEach(v=>{ if(v.status==='approved') v.status='superseded'; });
-  b.version = 'v'+verNum;
-  b.status  = 'draft';
-  renderList(); renderDetail();
+  const vn = parseInt(b.version.replace('v',''))+1;
+  b.versions.unshift({ver:'v'+vn, date:'06 May 2026', by:'Mayukh Ghatak', status:'draft'});
+  b.version='v'+vn; b.status='draft';
+  renderDetail(); renderList();
 }
 
-/* ═══════════════════════ CALCULATOR ════════════════════════════════════ */
-function calcRequirement(bomId) {
-  const qty = parseFloat(document.getElementById('calcQty')?.value)||0;
-  const b   = BOMS.find(x=>x.id===bomId);
-  if (!b || qty===0) return;
-  const resultDiv = document.getElementById('calcResult-'+bomId);
-  if (resultDiv) resultDiv.style.display='block';
-  b.lines.forEach(l => {
-    const el = document.getElementById(`rr-${bomId}-${l.id}`);
-    if (el) {
-      const total = (l.consumptionQty * (1 + l.wastagePct/100) * qty).toFixed(2);
-      el.textContent = `${total} ${l.uom}`;
-    }
-  });
+/* ═══════════════════════ CALCULATOR ═══════════════════════════════════ */
+function calcRequirement() {
+  const qty = parseFloat(document.getElementById('calcQty').value)||0;
+  const b   = BOMS.find(x=>x.id===activeBomId);
+  if (!b||qty<=0) return;
+  document.getElementById('calcResult').style.display='block';
+  document.getElementById('calcTotalLabel').textContent = `for ${qty.toLocaleString()} units`;
+  document.getElementById('calcResultGrid').innerHTML = b.lines.map(l => {
+    const total = (reqQty(l)*qty).toFixed(2);
+    return `<div class="calc-result-item">
+      <span class="calc-mat">${l.material}</span>
+      <span class="calc-qty">${total} ${l.uom}</span>
+    </div>`;
+  }).join('');
 }
 
 /* ═══════════════════════ APPROVE MODAL ════════════════════════════════ */
@@ -968,20 +1111,16 @@ function openApproveModal(id) {
   document.getElementById('approveBomName').textContent = `${b.styleCode} ${b.version}`;
   document.getElementById('approveBackdrop').classList.add('open');
 }
-function closeApproveModal() {
-  document.getElementById('approveBackdrop').classList.remove('open');
-}
+function closeApproveModal() { document.getElementById('approveBackdrop').classList.remove('open'); }
 function confirmApprove() {
   const b = BOMS.find(x=>x.id===approveId);
   if (b) {
-    b.status = 'approved';
-    b.approvedBy = 'Mayukh Ghatak';
-    b.approvedAt = '06 May 2026';
-    b.versions.forEach(v=>{ if(v.ver!==b.version && v.status==='approved') v.status='superseded'; });
-    b.versions.find(v=>v.ver===b.version).status='approved';
+    b.status='approved'; b.approvedBy='Mayukh Ghatak'; b.approvedAt='06 May 2026';
+    b.versions.forEach(v=>{ if(v.ver!==b.version&&v.status==='approved') v.status='superseded'; });
+    const cur=b.versions.find(v=>v.ver===b.version); if(cur) cur.status='approved';
   }
   closeApproveModal();
-  renderList(); renderDetail();
+  renderDetail(); renderList();
 }
 
 /* ═══════════════════════ CREATE MODAL ════════════════════════════════ */
@@ -990,28 +1129,24 @@ function openCreateModal() {
   document.getElementById('createError').style.display='none';
   setTimeout(()=>document.getElementById('cStyle').focus(),50);
 }
-function closeCreateModal() {
-  document.getElementById('createBackdrop').classList.remove('open');
-}
+function closeCreateModal() { document.getElementById('createBackdrop').classList.remove('open'); }
 function confirmCreate() {
-  const style = document.getElementById('cStyle').value;
-  const season= document.getElementById('cSeason').value;
-  const buyer = document.getElementById('cBuyer').value;
+  const style  = document.getElementById('cStyle').value;
+  const season = document.getElementById('cSeason').value;
+  const buyer  = document.getElementById('cBuyer').value;
   if (!style||!season||!buyer) {
-    document.getElementById('createError').style.display='block';
-    document.getElementById('createError').textContent='Style, Season, and Buyer are required.';
-    return;
+    const el = document.getElementById('createError');
+    el.style.display='block'; el.textContent='Style, Season, and Buyer are required.'; return;
   }
   const newId = Math.max(...BOMS.map(b=>b.id))+1;
   const code  = style.split(' — ')[0];
   const name  = style.split(' — ')[1]||style;
   const cws   = document.getElementById('cColorways').value.split(',').map(s=>s.trim()).filter(Boolean);
   BOMS.unshift({
-    id:newId, styleCode:code, styleName:name,
-    season, buyer, version:'v1', status:'draft',
-    approvedBy:null, approvedAt:null, createdAt:'06 May 2026',
-    description: document.getElementById('cDesc').value,
-    colorways: cws.length ? cws : ['Default'],
+    id:newId, styleCode:code, styleName:name, season, buyer,
+    version:'v1', status:'draft', approvedBy:null, approvedAt:null, createdAt:'06 May 2026',
+    description:document.getElementById('cDesc').value,
+    colorways:cws.length?cws:['Default'],
     lines:[],
     versions:[{ver:'v1', date:'06 May 2026', by:'Mayukh Ghatak', status:'draft'}]
   });
@@ -1020,20 +1155,15 @@ function confirmCreate() {
   openBom(newId);
 }
 
-/* ═══════════════════════ ACTION MENU ═══════════════════════════════════ */
-function toggleMenu(btn, id) { closeAllMenus(); document.getElementById('menu-'+id).classList.toggle('open'); }
-function closeAllMenus() { document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open')); }
+/* ═══════════════════════ ACTION MENU ══════════════════════════════════ */
+function toggleMenu(btn,id) { closeAllMenus(); document.getElementById('menu-'+id).classList.toggle('open'); }
+function closeAllMenus()    { document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open')); }
 document.addEventListener('click', closeAllMenus);
 
-/* ═══════════════════════ HELPERS ═══════════════════════════════════════ */
-function pillar(s) { return {draft:'bp-draft',pending:'bp-pending',approved:'bp-approved',superseded:'bp-superseded'}[s]||'bp-draft'; }
-function statusLabel(s) { return {draft:'Draft',pending:'Pending Approval',approved:'Approved',superseded:'Superseded'}[s]||s; }
-
-/* ═══════════════════════ INIT ══════════════════════════════════════════ */
+/* ═══════════════════════ INIT ═════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sc-all').classList.add('active');
   renderList();
-  openBom(1);
 });
 </script>
 </body>
