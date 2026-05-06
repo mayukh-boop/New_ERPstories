@@ -1,0 +1,935 @@
+<!--
+  Prototype : stock-allocation.html
+  Jira Story: NE-32 — INV-05 Material Reservation & Allocation Engine
+  Epic      : NE-26 — INV Inventory Module (Garment ERP)
+  Design ref: inventory-module-design.md
+  GitHub    : https://github.com/mayukh-boop/New_ERPstories/blob/main/stock-allocation.html
+  Jira URL  : https://codeverse.atlassian.net/browse/NE-32
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Reservations — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+/* ── Light purple theme ── */
+:root {
+  --sidebar-bg:     #ffffff;
+  --sidebar-hover:  rgba(91,95,199,0.07);
+  --sidebar-active: rgba(91,95,199,0.12);
+  --sidebar-text:   #64748b;
+  --brand-500: #5b5fc7;
+  --brand-600: #4f52b2;
+  --brand-700: #3d40a0;
+  --bg:     #f5f6fa;
+  --border: #e8eaf0;
+  --border2:#f0f2f7;
+}
+.sidebar { background: var(--sidebar-bg) !important; border-right: 1px solid var(--border) !important; }
+.brand-name { color: #1e1f2e !important; font-weight: 800 !important; }
+.brand-sub  { color: #8892a4 !important; }
+.sidebar-brand { border-bottom: 1px solid var(--border) !important; }
+.nav-section { color: #a0aec0 !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 16px 18px 4px !important; }
+.nav-parent-label { color: #3d4462 !important; font-weight: 500 !important; }
+.nav-parent-icon  { color: #8892a4 !important; }
+.nav-parent:hover .nav-parent-label { color: var(--brand-600) !important; }
+.nav-parent.active-group .nav-parent-label { color: var(--brand-600) !important; font-weight: 600 !important; }
+.nav-child { color: #64748b !important; font-size: 12.5px !important; padding: 7px 14px 7px 42px !important; border-radius: 6px !important; margin: 1px 8px !important; display: block !important; }
+.nav-child:hover  { background: var(--sidebar-hover)  !important; color: var(--brand-700) !important; }
+.nav-child.active { background: var(--sidebar-active) !important; color: var(--brand-700) !important; font-weight: 600 !important; }
+.nav-chevron { color: #a0aec0 !important; }
+.sidebar-footer  { border-top: 1px solid var(--border) !important; }
+.sf-name { color: #1e1f2e !important; }
+.sf-role { color: #8892a4 !important; }
+.sf-avatar { background: var(--brand-500) !important; }
+.topbar { border-bottom: 1px solid #dde0ea !important; box-shadow: 0 1px 4px rgba(91,95,199,0.06) !important; }
+
+/* ── Config mode badge ── */
+.mode-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 12px; border-radius:var(--r-full);
+  font-size:11.5px; font-weight:700; letter-spacing:0.03em;
+}
+.mode-auto   { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+.mode-manual { background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; }
+.mode-dot    { width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+/* ── Stat cards ── */
+.stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:16px 18px;
+  box-shadow:var(--shadow-sm); cursor:pointer; transition:all var(--ease-md);
+}
+.stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.stat-card.active { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.1); }
+.stat-num   { font-size:26px; font-weight:800; color:var(--text-1); line-height:1; margin-bottom:4px; }
+.stat-label { font-size:11.5px; color:var(--text-3); font-weight:500; }
+.stat-sub   { font-size:11px; margin-top:6px; font-weight:500; }
+
+/* ── Tab strip ── */
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 28px; background:var(--surface); flex-shrink:0; }
+.tab-item {
+  padding:11px 16px; font-size:12.5px; font-weight:500;
+  color:var(--text-3); cursor:pointer; border:none; background:transparent;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:all var(--ease); font-family:inherit; display:flex; align-items:center; gap:6px;
+}
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600); border-bottom-color:var(--brand-600); font-weight:600; }
+.tab-count {
+  min-width:18px; height:18px; padding:0 5px;
+  background:var(--gray-200); border-radius:var(--r-full);
+  font-size:10px; font-weight:700; color:var(--text-2);
+  display:flex; align-items:center; justify-content:center;
+}
+.tab-item.active .tab-count { background:var(--brand-100); color:var(--brand-700); }
+
+/* ── Reservation status pills ── */
+.res-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; font-weight:600; padding:2px 9px; border-radius:var(--r-full);
+}
+.rp-active    { background:#eff6ff; color:#1e40af; }
+.rp-released  { background:#f3f4f6; color:#4b5563; }
+.rp-fulfilled { background:#f0fdf4; color:#166534; }
+.rp-expired   { background:#fef2f2; color:#991b1b; }
+
+/* ── Ref type badge ── */
+.ref-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:var(--r-full);
+  font-size:10.5px; font-weight:700;
+}
+.rb-po   { background:#fef9c3; color:#854d0e; }
+.rb-prod { background:#fdf4ff; color:#7e22ce; }
+
+/* ── Stock bar ── */
+.stock-bar-container {
+  display:flex; height:8px; border-radius:var(--r-full);
+  overflow:hidden; background:var(--gray-200); width:100%;
+}
+.sbc-reserved  { background:#3b82f6; }
+.sbc-available { background:#22c55e; }
+
+/* ── Available stock panel ── */
+.avail-panel {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:18px 20px; margin-bottom:20px;
+}
+.avail-panel-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-3); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
+.avail-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:10px; }
+.avail-item {
+  background:var(--gray-50); border:1px solid var(--border2);
+  border-radius:var(--r); padding:12px 14px;
+}
+.avail-mat   { font-size:13px; font-weight:600; color:var(--text-1); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+.avail-nums  { display:flex; gap:16px; margin-bottom:8px; }
+.avail-kpi   { }
+.avail-kpi-val   { font-size:16px; font-weight:800; color:var(--text-1); line-height:1; font-variant-numeric:tabular-nums; }
+.avail-kpi-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); margin-top:2px; }
+.avail-kpi.avail { }
+.avail-kpi.avail .avail-kpi-val { color:var(--success); }
+.avail-kpi.reserved .avail-kpi-val { color:#3b82f6; }
+
+/* ── Action menu ── */
+.am-wrap { position:relative; display:inline-block; }
+.action-menu {
+  position:absolute; right:0; top:calc(100% + 4px);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--shadow-lg);
+  z-index:100; min-width:170px; padding:4px; display:none;
+}
+.action-menu.open { display:block; }
+.am-item {
+  display:flex; align-items:center; gap:8px; padding:8px 12px;
+  border-radius:var(--r-sm); font-size:12.5px; color:var(--text-2); cursor:pointer;
+  transition:background var(--ease);
+}
+.am-item:hover { background:var(--gray-50); color:var(--text-1); }
+.am-item.danger:hover { background:var(--danger-bg); color:var(--danger); }
+.am-sep { height:1px; background:var(--border2); margin:4px 0; }
+
+/* ── Detail panel ── */
+.detail-panel-overlay { position:fixed;inset:0;background:rgba(15,15,35,0.22);z-index:400;display:none; }
+.detail-panel-overlay.open { display:block; }
+.detail-panel {
+  position:fixed;top:0;right:-540px;bottom:0;width:520px;
+  background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-12px 0 48px rgba(0,0,0,0.12);z-index:401;
+  display:flex;flex-direction:column;transition:right 0.28s cubic-bezier(.4,0,.2,1);
+}
+.detail-panel.open { right:0; }
+.dp-head {
+  padding:20px 24px 16px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;
+}
+.dp-head-left { display:flex;flex-direction:column;gap:4px; }
+.dp-title { font-size:16px;font-weight:800;color:var(--text-1); }
+.dp-meta  { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.dp-close {
+  width:30px;height:30px;border:none;background:var(--gray-100);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all var(--ease);
+}
+.dp-close:hover { background:var(--gray-200);color:var(--text-1); }
+.dp-body { flex:1;overflow-y:auto;padding:24px; }
+.dp-section { margin-bottom:22px; }
+.dp-section-title {
+  font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2);
+}
+.dp-kpi-row { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px; }
+.dp-kpi {
+  background:var(--gray-50);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:12px 14px;
+}
+.dp-kpi-val   { font-size:20px;font-weight:800;color:var(--text-1);line-height:1.1;margin-bottom:3px; }
+.dp-kpi-label { font-size:11px;color:var(--text-3);font-weight:500; }
+.dp-field-row { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px; }
+.dp-field { background:var(--gray-50);border-radius:var(--r-sm);padding:10px 12px; }
+.dp-field-label { font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px; }
+.dp-field-val   { font-size:13px;font-weight:500;color:var(--text-1); }
+.dp-foot {
+  padding:14px 24px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
+
+.num { font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Buyer PO List</a>
+        <a class="nav-child" href="#">Create Buyer PO</a>
+      </div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+    <div class="nav-section">Inventory</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">warehouse</span></span>
+        <span class="nav-parent-label">Inventory</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="inventory-config.html">Config &amp; Settings</a>
+        <a class="nav-child" href="rm-stock.html">RM Masters &amp; Stock</a>
+        <a class="nav-child" href="fabric-stock.html">Fabric Stock</a>
+        <a class="nav-child" href="style-bom.html">Style BOM</a>
+        <a class="nav-child active" href="stock-allocation.html">Reservations</a>
+        <a class="nav-child" href="cutting-issue.html">Cutting Issue Notes</a>
+        <a class="nav-child" href="inventory-dashboard.html">Stock Dashboard</a>
+        <a class="nav-child" href="ageing-report.html">Ageing Report</a>
+        <a class="nav-child" href="warehouse-transfer.html">Warehouse Transfer</a>
+        <a class="nav-child" href="stock-count.html">Stock Count</a>
+        <a class="nav-child" href="wip-tracker.html">WIP Tracker</a>
+      </div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Stock Reservations</span>
+    <div class="topbar-right">
+      <!-- Config mode indicator -->
+      <div class="mode-badge mode-manual" id="modeBadge" title="Reservation mode from inventory config">
+        <span class="mode-dot"></span>
+        <span id="modeBadgeLabel">Manual Mode</span>
+      </div>
+      <button class="topbar-icon-btn" title="Export">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <button class="topbar-cta" id="reserveBtn" onclick="openReserveModal()">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">lock</span>
+        Reserve Stock
+      </button>
+    </div>
+  </header>
+
+  <main class="page" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
+
+    <div style="padding:24px 28px 0;flex-shrink:0;">
+      <div class="ph" style="margin-bottom:16px;">
+        <div>
+          <div class="ph-title">Stock Reservations</div>
+          <div class="ph-sub">Soft-lock stock against Purchase Orders and Production Orders — prevents double-allocation</div>
+        </div>
+        <div class="ph-actions">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="position:relative;">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+              <input class="form-control" id="searchInput" type="text" placeholder="Search material or reference…" style="padding-left:32px;height:36px;width:230px;" oninput="render()">
+            </div>
+            <select class="filter-select" id="typeFilter" onchange="render()" style="height:36px;">
+              <option value="">All Types</option>
+              <option value="PO">Purchase Order</option>
+              <option value="PRODUCTION">Production Order</option>
+            </select>
+            <select class="filter-select" id="matFilter" onchange="render()" style="height:36px;">
+              <option value="">All Materials</option>
+              <option>Cotton Twill Fabric</option>
+              <option>Denim Woven 10oz</option>
+              <option>Polyester Lining</option>
+              <option>Metal Button 15mm</option>
+              <option>Cotton Jersey 180gsm</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card active" onclick="setTab('all',this)" id="sc-all">
+          <div class="stat-num" id="sn-all">0</div>
+          <div class="stat-label">Total Reservations</div>
+          <div class="stat-sub" style="color:var(--text-3);" id="ss-all">—</div>
+        </div>
+        <div class="stat-card" onclick="setTab('active',this)" id="sc-active">
+          <div class="stat-num" id="sn-active" style="color:#3b82f6;">0</div>
+          <div class="stat-label">Active</div>
+          <div class="stat-sub" style="color:#3b82f6);" id="ss-active">Locked to orders</div>
+        </div>
+        <div class="stat-card" onclick="setTab('fulfilled',this)" id="sc-fulfilled">
+          <div class="stat-num" id="sn-fulfilled" style="color:var(--success);">0</div>
+          <div class="stat-label">Fulfilled</div>
+          <div class="stat-sub" style="color:var(--success);">Issued to production</div>
+        </div>
+        <div class="stat-card" onclick="setTab('released',this)" id="sc-released">
+          <div class="stat-num" id="sn-released" style="color:var(--text-3);">0</div>
+          <div class="stat-label">Released</div>
+          <div class="stat-sub" style="color:var(--text-3);">Manually freed</div>
+        </div>
+        <div class="stat-card" onclick="setTab('expired',this)" id="sc-expired">
+          <div class="stat-num" id="sn-expired" style="color:var(--danger);">0</div>
+          <div class="stat-label">Expired</div>
+          <div class="stat-sub" style="color:var(--danger);">Past due date</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab strip -->
+    <div class="tab-strip">
+      <button class="tab-item active" onclick="setTab('all',null,this)" id="tab-all">All <span class="tab-count" id="tc-all">0</span></button>
+      <button class="tab-item" onclick="setTab('active',null,this)" id="tab-active">Active <span class="tab-count" id="tc-active">0</span></button>
+      <button class="tab-item" onclick="setTab('fulfilled',null,this)" id="tab-fulfilled">Fulfilled <span class="tab-count" id="tc-fulfilled">0</span></button>
+      <button class="tab-item" onclick="setTab('released',null,this)" id="tab-released">Released <span class="tab-count" id="tc-released">0</span></button>
+      <button class="tab-item" onclick="setTab('expired',null,this)" id="tab-expired">Expired <span class="tab-count" id="tc-expired">0</span></button>
+    </div>
+
+    <!-- Available stock summary + table -->
+    <div style="flex:1;overflow-y:auto;padding:0 28px 32px;">
+
+      <!-- Available stock panel -->
+      <div class="avail-panel" style="margin-top:16px;">
+        <div class="avail-panel-title">
+          <span>Available Stock Snapshot</span>
+          <span style="font-size:11px;font-weight:500;color:var(--text-3);">On-hand minus active reservations</span>
+        </div>
+        <div class="avail-grid" id="availGrid"></div>
+      </div>
+
+      <!-- Reservation table -->
+      <div class="card" style="overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="resTable">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Reserved Qty</th>
+                <th>Type</th>
+                <th>Reference</th>
+                <th>Reserved By</th>
+                <th>Reserved On</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resBody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="pager"></div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════
+     RESERVE STOCK MODAL
+══════════════════════════════════════ -->
+<div class="modal-backdrop" id="reserveBackdrop" onclick="if(event.target===this)closeReserveModal()">
+<div class="modal" style="max-width:580px;">
+  <div class="modal-header">
+    <h2 class="modal-title">Reserve Stock</h2>
+    <button class="modal-close" onclick="closeReserveModal()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
+  </div>
+  <div class="modal-body">
+    <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);color:#1e40af;font-size:12.5px;margin-bottom:16px;">
+      <span class="material-symbols-outlined" style="font-size:15px;flex-shrink:0;margin-top:1px;">info</span>
+      Reserving stock soft-locks the quantity. Available stock = On-hand − Active reservations. The stock is not physically moved.
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Material <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="rMaterial" onchange="updateAvailableQty()">
+          <option value="">Select material…</option>
+          <option data-onhand="1050" data-reserved="200">Cotton Twill Fabric (FAB-COT-001)</option>
+          <option data-onhand="290" data-reserved="50">Polyester Interlock (FAB-POL-002)</option>
+          <option data-onhand="180" data-reserved="60">Denim Woven 10oz (FAB-DEN-003)</option>
+          <option data-onhand="770" data-reserved="280">Cotton Jersey 180gsm (FAB-JER-004)</option>
+          <option data-onhand="120" data-reserved="20">Polyester Lining (LIN-POL-001)</option>
+          <option data-onhand="2700" data-reserved="500">Metal Button 15mm (TRM-BUT-001)</option>
+          <option data-onhand="580" data-reserved="100">Zip 20cm Silver (TRM-ZIP-002)</option>
+          <option data-onhand="75" data-reserved="10">Polyester Thread #40 (THR-POL-001)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">UOM</label>
+        <input class="form-control" id="rUOM" readonly style="background:var(--gray-50);color:var(--text-3);" placeholder="Auto-filled">
+      </div>
+    </div>
+
+    <!-- Available qty indicator -->
+    <div id="availQtyBar" style="display:none;margin:-4px 0 16px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--border2);border-radius:var(--r);display:none;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);margin-bottom:6px;">
+        <span>Stock position</span>
+        <span id="availQtyLabel"></span>
+      </div>
+      <div class="stock-bar-container" style="height:10px;">
+        <div class="sbc-reserved" id="reservedBar" style="width:0%;transition:width 0.3s;"></div>
+        <div class="sbc-available" id="availBar" style="width:100%;transition:width 0.3s;"></div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#3b82f6;display:inline-block;"></span> Reserved: <strong id="reservedNum">0</strong></span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:#22c55e;display:inline-block;"></span> Available: <strong id="availNum">0</strong></span>
+        <span style="display:flex;align-items:center;gap:4px;color:var(--text-3);">On-hand: <strong id="onhandNum">0</strong></span>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Reservation Type <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="rType" onchange="toggleRefFields()">
+          <option value="">Select type…</option>
+          <option value="PO">Purchase Order</option>
+          <option value="PRODUCTION">Production Order</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reference No. <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="rRefNo">
+          <option value="">Select reference…</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Quantity <span style="color:var(--danger)">*</span></label>
+        <input class="form-control num" id="rQty" type="number" min="0" step="0.001" placeholder="0.000">
+        <div class="form-hint" id="rQtyHint"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiry Date</label>
+        <input class="form-control" id="rExpiry" type="date">
+        <div class="form-hint">Optional — reservation auto-expires on this date</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-control" id="rNotes" type="text" placeholder="Optional notes for this reservation">
+    </div>
+    <div id="reserveError" style="display:none;padding:10px 12px;background:var(--danger-bg);border:1px solid #fecaca;border-radius:var(--r);color:var(--danger);font-size:13px;margin-top:8px;"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeReserveModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="confirmReserve()">
+      <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">lock</span>
+      Confirm Reservation
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- Release confirm modal -->
+<div class="modal-backdrop" id="releaseBackdrop" onclick="if(event.target===this)closeReleaseModal()">
+<div class="modal" style="max-width:440px;">
+  <div class="modal-header">
+    <h2 class="modal-title">Release Reservation</h2>
+    <button class="modal-close" onclick="closeReleaseModal()"><span class="material-symbols-outlined" style="font-size:20px;">close</span></button>
+  </div>
+  <div class="modal-body">
+    <p style="color:var(--text-2);font-size:13.5px;line-height:1.6;margin-bottom:12px;">
+      Release reservation for <strong id="releaseMatName"></strong>?
+      This will restore <strong id="releaseQty"></strong> to available stock immediately.
+    </p>
+    <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;background:#fefce8;border:1px solid #fde68a;border-radius:var(--r);color:#92400e;font-size:12.5px;">
+      <span class="material-symbols-outlined" style="font-size:15px;flex-shrink:0;margin-top:1px;">warning</span>
+      Releasing cannot be undone. If the linked order still requires this material, you must re-reserve.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeReleaseModal()">Cancel</button>
+    <button class="btn" style="background:var(--danger);color:#fff;" onclick="confirmRelease()">Release Reservation</button>
+  </div>
+</div>
+</div>
+
+<!-- Detail panel -->
+<div class="detail-panel-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <div class="dp-head-left">
+      <div class="dp-title" id="dpTitle">—</div>
+      <div class="dp-meta" id="dpMeta"></div>
+    </div>
+    <button class="dp-close" onclick="closeDetail()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+  <div class="dp-foot" id="dpFoot"></div>
+</div>
+
+<script>
+/* ═══════════════════════ CONFIG ═════════════════════════════════════════ */
+const CONFIG = { reservationMode: 'MANUAL', reservationOnPO: false };
+
+/* ═══════════════════════ DATA ══════════════════════════════════════════ */
+const STOCK = [
+  { material:'Cotton Twill Fabric',  code:'FAB-COT-001', uom:'Meter',  onHand:1250, reserved:200 },
+  { material:'Polyester Interlock',  code:'FAB-POL-002', uom:'Meter',  onHand:340,  reserved:50  },
+  { material:'Denim Woven 10oz',     code:'FAB-DEN-003', uom:'Meter',  onHand:180,  reserved:60  },
+  { material:'Cotton Jersey 180gsm', code:'FAB-JER-004', uom:'Meter',  onHand:890,  reserved:280 },
+  { material:'Polyester Lining',     code:'LIN-POL-001', uom:'Meter',  onHand:120,  reserved:20  },
+  { material:'Metal Button 15mm',    code:'TRM-BUT-001', uom:'Pieces', onHand:3200, reserved:500 },
+];
+
+let nextId = 100;
+const RESERVATIONS = [
+  { id:1,  material:'Cotton Twill Fabric',  code:'FAB-COT-001', uom:'Meter',  qty:80,  type:'PO',         refNo:'PO-2026-0041', refId:41, reservedBy:'Priya Nair',    reservedOn:'2026-04-28', expiry:'2026-05-20', status:'active',    notes:'For SS-2026 chino bulk order' },
+  { id:2,  material:'Cotton Twill Fabric',  code:'FAB-COT-001', uom:'Meter',  qty:120, type:'PRODUCTION',  refNo:'PRD-2026-0011', refId:11, reservedBy:'Rahul Sharma',  reservedOn:'2026-04-30', expiry:'2026-05-15', status:'active',    notes:'Cutting batch 1' },
+  { id:3,  material:'Denim Woven 10oz',     code:'FAB-DEN-003', uom:'Meter',  qty:60,  type:'PRODUCTION',  refNo:'PRD-2026-0012', refId:12, reservedBy:'Amit Das',      reservedOn:'2026-05-01', expiry:'2026-05-18', status:'active',    notes:'' },
+  { id:4,  material:'Cotton Jersey 180gsm', code:'FAB-JER-004', uom:'Meter',  qty:280, type:'PO',         refNo:'PO-2026-0039', refId:39, reservedBy:'Priya Nair',    reservedOn:'2026-04-25', expiry:'2026-05-10', status:'active',    notes:'Reserved for Next buyer order' },
+  { id:5,  material:'Metal Button 15mm',    code:'TRM-BUT-001', uom:'Pieces', qty:500, type:'PRODUCTION',  refNo:'PRD-2026-0010', refId:10, reservedBy:'Mayukh Ghatak', reservedOn:'2026-04-22', expiry:'2026-05-08', status:'active',    notes:'' },
+  { id:6,  material:'Polyester Lining',     code:'LIN-POL-001', uom:'Meter',  qty:20,  type:'PO',         refNo:'PO-2026-0035', refId:35, reservedBy:'Rahul Sharma',  reservedOn:'2026-04-18', expiry:'2026-04-30', status:'expired',   notes:'' },
+  { id:7,  material:'Polyester Interlock',  code:'FAB-POL-002', uom:'Meter',  qty:150, type:'PRODUCTION',  refNo:'PRD-2026-0008', refId:8,  reservedBy:'Amit Das',      reservedOn:'2026-04-10', expiry:'2026-04-25', status:'fulfilled', notes:'Issued via CIN-2026-0031' },
+  { id:8,  material:'Cotton Twill Fabric',  code:'FAB-COT-001', uom:'Meter',  qty:200, type:'PO',         refNo:'PO-2026-0028', refId:28, reservedBy:'Priya Nair',    reservedOn:'2026-04-05', expiry:'2026-04-20', status:'released',  notes:'PO cancelled by buyer' },
+  { id:9,  material:'Denim Woven 10oz',     code:'FAB-DEN-003', uom:'Meter',  qty:100, type:'PRODUCTION',  refNo:'PRD-2026-0006', refId:6,  reservedBy:'Rahul Sharma',  reservedOn:'2026-03-28', expiry:'2026-04-15', status:'fulfilled', notes:'Issued via CIN-2026-0028' },
+  { id:10, material:'Metal Button 15mm',    code:'TRM-BUT-001', uom:'Pieces', qty:300, type:'PO',         refNo:'PO-2026-0022', refId:22, reservedBy:'Mayukh Ghatak', reservedOn:'2026-03-20', expiry:'2026-04-10', status:'released',  notes:'Re-sourced from another supplier' },
+];
+
+/* ═══════════════════════ STATE ════════════════════════════════════════ */
+let activeTab  = 'all';
+let page       = 1;
+let releaseId  = null;
+let detailId   = null;
+const PAGE_SIZE = 8;
+
+/* ═══════════════════════ INIT CONFIG UI ═══════════════════════════════ */
+function applyConfig() {
+  const badge = document.getElementById('modeBadge');
+  const label = document.getElementById('modeBadgeLabel');
+  if (CONFIG.reservationMode === 'AUTO') {
+    badge.className = 'mode-badge mode-auto';
+    label.textContent = CONFIG.reservationOnPO ? 'Auto Mode (PO)' : 'Auto Mode';
+    document.getElementById('reserveBtn').style.display = 'none';
+  } else {
+    badge.className = 'mode-badge mode-manual';
+    label.textContent = 'Manual Mode';
+    document.getElementById('reserveBtn').style.display = '';
+  }
+}
+
+/* ═══════════════════════ HELPERS ═══════════════════════════════════════ */
+function statusLabel(s) { return {active:'Active',fulfilled:'Fulfilled',released:'Released',expired:'Expired'}[s]||s; }
+function statusClass(s) { return {active:'rp-active',fulfilled:'rp-fulfilled',released:'rp-released',expired:'rp-expired'}[s]||''; }
+function typeClass(t)   { return t==='PO'?'rb-po':'rb-prod'; }
+function typeLabel(t)   { return t==='PO'?'Purchase Order':'Production Order'; }
+
+/* ═══════════════════════ AVAILABLE STOCK PANEL ════════════════════════ */
+function renderAvailPanel() {
+  document.getElementById('availGrid').innerHTML = STOCK.map(s => {
+    const avail = s.onHand - s.reserved;
+    const resPct = s.onHand > 0 ? Math.round(s.reserved / s.onHand * 100) : 0;
+    const avPct  = 100 - resPct;
+    return `<div class="avail-item">
+      <div class="avail-mat">
+        <span>${s.material}</span>
+        <code style="font-size:10.5px;color:var(--brand-700);background:var(--brand-50);padding:0 5px;border-radius:3px;">${s.code}</code>
+      </div>
+      <div class="avail-nums">
+        <div class="avail-kpi avail">
+          <div class="avail-kpi-val num">${avail.toLocaleString()}</div>
+          <div class="avail-kpi-label">Available ${s.uom}</div>
+        </div>
+        <div class="avail-kpi reserved">
+          <div class="avail-kpi-val num">${s.reserved.toLocaleString()}</div>
+          <div class="avail-kpi-label">Reserved</div>
+        </div>
+        <div class="avail-kpi">
+          <div class="avail-kpi-val num" style="color:var(--text-3);">${s.onHand.toLocaleString()}</div>
+          <div class="avail-kpi-label">On-Hand</div>
+        </div>
+      </div>
+      <div class="stock-bar-container">
+        <div class="sbc-reserved" style="width:${resPct}%;"></div>
+        <div class="sbc-available" style="width:${avPct}%;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════ TABS / STAT CARDS ════════════════════════════ */
+function setTab(key, card, tab) {
+  activeTab = key; page = 1;
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  if (card) card.classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  const tabEl = tab || document.getElementById('tab-' + key);
+  if (tabEl) tabEl.classList.add('active');
+  render();
+}
+
+/* ═══════════════════════ FILTER ════════════════════════════════════════ */
+function getFiltered() {
+  const q  = document.getElementById('searchInput').value.toLowerCase();
+  const tf = document.getElementById('typeFilter').value;
+  const mf = document.getElementById('matFilter').value;
+  return RESERVATIONS.filter(r => {
+    if (activeTab !== 'all' && r.status !== activeTab) return false;
+    if (tf && r.type !== tf) return false;
+    if (mf && !r.material.includes(mf)) return false;
+    if (q && !r.material.toLowerCase().includes(q) && !r.refNo.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+/* ═══════════════════════ RENDER TABLE ═════════════════════════════════ */
+function render() {
+  const counts = {all:0,active:0,fulfilled:0,released:0,expired:0};
+  let totalQtyActive = 0;
+  RESERVATIONS.forEach(r => { counts.all++; counts[r.status]++; if(r.status==='active') totalQtyActive+=r.qty; });
+  ['all','active','fulfilled','released','expired'].forEach(k => {
+    document.getElementById('sn-'+k).textContent = counts[k];
+    document.getElementById('tc-'+k).textContent = counts[k];
+  });
+  document.getElementById('ss-all').textContent = `${totalQtyActive.toLocaleString()} units locked`;
+
+  const filtered = getFiltered();
+  const total    = filtered.length;
+  const pageData = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+  const tbody    = document.getElementById('resBody');
+
+  if (pageData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text-3);">No reservations match the current filter</td></tr>`;
+    document.getElementById('pager').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = pageData.map(r => `
+    <tr onclick="openDetail(${r.id})" style="cursor:pointer;">
+      <td>
+        <div style="font-weight:600;font-size:13px;">${r.material}</div>
+        <code style="font-size:10.5px;color:var(--brand-700);background:var(--brand-50);padding:0 5px;border-radius:3px;">${r.code}</code>
+      </td>
+      <td>
+        <span style="font-size:14px;font-weight:800;color:var(--text-1);font-variant-numeric:tabular-nums;">${r.qty.toLocaleString()}</span>
+        <span style="font-size:12px;color:var(--text-3);margin-left:3px;">${r.uom}</span>
+      </td>
+      <td><span class="ref-badge ${typeClass(r.type)}">${r.type}</span></td>
+      <td>
+        <div style="font-weight:600;font-size:13px;font-family:monospace;color:var(--text-1);">${r.refNo}</div>
+      </td>
+      <td style="font-size:12.5px;color:var(--text-2);">${r.reservedBy}</td>
+      <td style="font-size:12.5px;color:var(--text-2);">${r.reservedOn}</td>
+      <td style="font-size:12.5px;color:${r.status==='expired'?'var(--danger)':'var(--text-3)'};">${r.expiry||'—'}</td>
+      <td><span class="res-pill ${statusClass(r.status)}">${statusLabel(r.status)}</span></td>
+      <td style="text-align:right;" onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px;justify-content:flex-end;">
+          ${r.status==='active' ? `<button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:var(--danger);font-size:11.5px;" onclick="openReleaseModal(${r.id})">
+            <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px;">lock_open</span>
+            Release
+          </button>` : ''}
+          <div class="am-wrap">
+            <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="toggleMenu(this,${r.id})">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
+            </button>
+            <div class="action-menu" id="menu-${r.id}">
+              <div class="am-item" onclick="openDetail(${r.id});closeAllMenus()">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                View Details
+              </div>
+              ${r.status==='active'?`<div class="am-item danger" onclick="openReleaseModal(${r.id});closeAllMenus()">
+                <span class="material-symbols-outlined" style="font-size:14px;color:var(--danger);">lock_open</span>
+                Release Reservation
+              </div>`:''}
+              <div class="am-sep"></div>
+              <div class="am-item" onclick="closeAllMenus()">Export PDF</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // Pager
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages < 2) { document.getElementById('pager').innerHTML = ''; return; }
+  let p = `<span style="color:var(--text-3);font-size:12.5px;">Showing ${(page-1)*PAGE_SIZE+1}–${Math.min(page*PAGE_SIZE,total)} of ${total}</span>`;
+  p += `<div style="display:flex;gap:4px;margin-left:auto;">`;
+  p += `<button class="btn btn-ghost btn-sm" ${page===1?'disabled':''} onclick="goPage(${page-1})">‹</button>`;
+  for (let i=1;i<=totalPages;i++) p += `<button class="btn btn-sm ${i===page?'btn-primary':'btn-ghost'}" onclick="goPage(${i})">${i}</button>`;
+  p += `<button class="btn btn-ghost btn-sm" ${page===totalPages?'disabled':''} onclick="goPage(${page+1})">›</button></div>`;
+  document.getElementById('pager').innerHTML = p;
+}
+function goPage(n) { page=n; render(); }
+
+/* ═══════════════════════ DETAIL PANEL ═════════════════════════════════ */
+function openDetail(id) {
+  const r = RESERVATIONS.find(x=>x.id===id);
+  if (!r) return;
+  detailId = id;
+  const s = STOCK.find(x=>x.code===r.code);
+
+  document.getElementById('dpTitle').textContent = r.material;
+  document.getElementById('dpMeta').innerHTML = `
+    <code style="font-size:11px;color:var(--brand-700);background:var(--brand-50);padding:1px 6px;border-radius:4px;">${r.code}</code>
+    <span class="ref-badge ${typeClass(r.type)}">${typeLabel(r.type)}</span>
+    <span class="res-pill ${statusClass(r.status)}">${statusLabel(r.status)}</span>`;
+
+  const avail = s ? s.onHand - s.reserved : 0;
+  document.getElementById('dpBody').innerHTML = `
+    <div class="dp-section">
+      <div class="dp-section-title">Reservation Details</div>
+      <div class="dp-kpi-row">
+        <div class="dp-kpi"><div class="dp-kpi-val num">${r.qty.toLocaleString()}</div><div class="dp-kpi-label">Reserved ${r.uom}</div></div>
+        <div class="dp-kpi"><div class="dp-kpi-val num">${s?avail.toLocaleString():'—'}</div><div class="dp-kpi-label">Available ${r.uom}</div></div>
+        <div class="dp-kpi"><div class="dp-kpi-val num">${s?s.onHand.toLocaleString():'—'}</div><div class="dp-kpi-label">On-Hand ${r.uom}</div></div>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Reference</div>
+      <div class="dp-field-row">
+        <div class="dp-field"><div class="dp-field-label">Type</div><div class="dp-field-val">${typeLabel(r.type)}</div></div>
+        <div class="dp-field"><div class="dp-field-label">Reference No.</div><div class="dp-field-val" style="font-family:monospace;font-weight:700;">${r.refNo}</div></div>
+      </div>
+      <div class="dp-field-row">
+        <div class="dp-field"><div class="dp-field-label">Reserved By</div><div class="dp-field-val">${r.reservedBy}</div></div>
+        <div class="dp-field"><div class="dp-field-label">Reserved On</div><div class="dp-field-val">${r.reservedOn}</div></div>
+      </div>
+      <div class="dp-field-row">
+        <div class="dp-field"><div class="dp-field-label">Expiry Date</div><div class="dp-field-val" style="color:${r.status==='expired'?'var(--danger)':'var(--text-1)'};">${r.expiry||'No expiry'}</div></div>
+        <div class="dp-field"><div class="dp-field-label">Status</div><div class="dp-field-val"><span class="res-pill ${statusClass(r.status)}">${statusLabel(r.status)}</span></div></div>
+      </div>
+    </div>
+    ${r.notes ? `<div class="dp-section">
+      <div class="dp-section-title">Notes</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.6;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-sm);">${r.notes}</div>
+    </div>` : ''}
+    ${s ? `<div class="dp-section">
+      <div class="dp-section-title">Stock Position — ${r.material}</div>
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3);margin-bottom:6px;">
+          <span>Reserved ${Math.round(s.reserved/s.onHand*100)}% · Available ${Math.round(avail/s.onHand*100)}%</span>
+          <span>${s.onHand.toLocaleString()} ${s.uom} on-hand</span>
+        </div>
+        <div class="stock-bar-container" style="height:10px;">
+          <div class="sbc-reserved" style="width:${Math.round(s.reserved/s.onHand*100)}%;"></div>
+          <div class="sbc-available" style="width:${Math.round(avail/s.onHand*100)}%;"></div>
+        </div>
+      </div>
+    </div>` : ''}`;
+
+  document.getElementById('dpFoot').innerHTML = r.status==='active' ? `
+    <button class="btn btn-ghost btn-sm" onclick="closeDetail()">Close</button>
+    <button class="btn btn-sm" style="background:var(--danger);color:#fff;border-color:var(--danger);margin-left:auto;" onclick="closeDetail();openReleaseModal(${r.id})">
+      <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-3px;">lock_open</span>
+      Release Reservation
+    </button>` :
+    `<button class="btn btn-ghost btn-sm" onclick="closeDetail()">Close</button>`;
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+
+/* ═══════════════════════ RESERVE MODAL ════════════════════════════════ */
+function openReserveModal() {
+  document.getElementById('reserveBackdrop').classList.add('open');
+  document.getElementById('reserveError').style.display='none';
+  document.getElementById('availQtyBar').style.display='none';
+  document.getElementById('rMaterial').value='';
+  document.getElementById('rType').value='';
+  document.getElementById('rQty').value='';
+  document.getElementById('rRefNo').innerHTML='<option value="">Select reference…</option>';
+  setTimeout(()=>document.getElementById('rMaterial').focus(),50);
+}
+function closeReserveModal() { document.getElementById('reserveBackdrop').classList.remove('open'); }
+
+function updateAvailableQty() {
+  const sel = document.getElementById('rMaterial');
+  const opt = sel.options[sel.selectedIndex];
+  const onhand   = parseInt(opt.dataset.onhand)||0;
+  const reserved = parseInt(opt.dataset.reserved)||0;
+  const avail    = onhand - reserved;
+  const uomMap = {'Cotton Twill Fabric':'Meter','Polyester Interlock':'Meter','Denim Woven 10oz':'Meter','Cotton Jersey 180gsm':'Meter','Polyester Lining':'Meter','Metal Button 15mm':'Pieces','Zip 20cm Silver':'Pieces','Polyester Thread #40':'Cone'};
+  const matName = sel.value.split(' (')[0];
+  document.getElementById('rUOM').value = uomMap[matName]||'';
+  if (sel.value) {
+    document.getElementById('availQtyBar').style.display='block';
+    document.getElementById('availQtyLabel').textContent = `${avail.toLocaleString()} available of ${onhand.toLocaleString()}`;
+    document.getElementById('reservedBar').style.width = (onhand>0?Math.round(reserved/onhand*100):0)+'%';
+    document.getElementById('availBar').style.width    = (onhand>0?Math.round(avail/onhand*100):0)+'%';
+    document.getElementById('reservedNum').textContent = reserved.toLocaleString();
+    document.getElementById('availNum').textContent    = avail.toLocaleString();
+    document.getElementById('onhandNum').textContent   = onhand.toLocaleString();
+    document.getElementById('rQtyHint').textContent    = `Max available: ${avail.toLocaleString()} ${uomMap[matName]||''}`;
+  } else {
+    document.getElementById('availQtyBar').style.display='none';
+  }
+}
+function toggleRefFields() {
+  const type = document.getElementById('rType').value;
+  const refSel = document.getElementById('rRefNo');
+  refSel.innerHTML = '<option value="">Select reference…</option>';
+  if (type==='PO') {
+    ['PO-2026-0041','PO-2026-0039','PO-2026-0044','PO-2026-0047'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; refSel.appendChild(o); });
+  } else if (type==='PRODUCTION') {
+    ['PRD-2026-0013','PRD-2026-0014','PRD-2026-0015'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; refSel.appendChild(o); });
+  }
+}
+function confirmReserve() {
+  const mat  = document.getElementById('rMaterial').value;
+  const type = document.getElementById('rType').value;
+  const ref  = document.getElementById('rRefNo').value;
+  const qty  = parseFloat(document.getElementById('rQty').value)||0;
+  const err  = document.getElementById('reserveError');
+  if (!mat||!type||!ref||qty<=0) { err.style.display='block'; err.textContent='All fields are required and quantity must be greater than 0.'; return; }
+  const sel = document.getElementById('rMaterial');
+  const opt = sel.options[sel.selectedIndex];
+  const avail = (parseInt(opt.dataset.onhand)||0)-(parseInt(opt.dataset.reserved)||0);
+  if (qty > avail) { err.style.display='block'; err.textContent=`Quantity exceeds available stock (${avail.toLocaleString()}). Cannot over-reserve.`; return; }
+  const matName = mat.split(' (')[0];
+  const code    = mat.match(/\(([^)]+)\)/)?.[1]||'';
+  const uomMap  = {'Cotton Twill Fabric':'Meter','Polyester Interlock':'Meter','Denim Woven 10oz':'Meter','Cotton Jersey 180gsm':'Meter','Polyester Lining':'Meter','Metal Button 15mm':'Pieces','Zip 20cm Silver':'Pieces','Polyester Thread #40':'Cone'};
+  RESERVATIONS.unshift({
+    id:++nextId, material:matName, code, uom:uomMap[matName]||'',
+    qty, type, refNo:ref, refId:0,
+    reservedBy:'Mayukh Ghatak', reservedOn:'2026-05-06',
+    expiry:document.getElementById('rExpiry').value||'',
+    status:'active',
+    notes:document.getElementById('rNotes').value
+  });
+  const s = STOCK.find(x=>x.code===code);
+  if (s) s.reserved += qty;
+  closeReserveModal();
+  renderAvailPanel();
+  render();
+}
+
+/* ═══════════════════════ RELEASE MODAL ════════════════════════════════ */
+function openReleaseModal(id) {
+  releaseId = id;
+  const r   = RESERVATIONS.find(x=>x.id===id);
+  document.getElementById('releaseMatName').textContent = r.material;
+  document.getElementById('releaseQty').textContent     = `${r.qty.toLocaleString()} ${r.uom}`;
+  document.getElementById('releaseBackdrop').classList.add('open');
+}
+function closeReleaseModal() { document.getElementById('releaseBackdrop').classList.remove('open'); }
+function confirmRelease() {
+  const r = RESERVATIONS.find(x=>x.id===releaseId);
+  if (r) {
+    r.status = 'released';
+    const s  = STOCK.find(x=>x.code===r.code);
+    if (s) s.reserved = Math.max(0, s.reserved - r.qty);
+  }
+  closeReleaseModal();
+  renderAvailPanel();
+  render();
+}
+
+/* ═══════════════════════ ACTION MENU ══════════════════════════════════ */
+function toggleMenu(btn,id) { closeAllMenus(); document.getElementById('menu-'+id).classList.toggle('open'); }
+function closeAllMenus()    { document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open')); }
+document.addEventListener('click', closeAllMenus);
+
+/* ═══════════════════════ INIT ═════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  applyConfig();
+  renderAvailPanel();
+  document.getElementById('sc-all').classList.add('active');
+  render();
+});
+</script>
+</body>
+</html>
