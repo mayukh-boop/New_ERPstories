@@ -135,6 +135,22 @@
 .img-fs-cl{position:fixed;top:20px;right:20px;width:42px;height:42px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:1001;}
 .img-fs-cl:hover{background:rgba(255,255,255,.3);}
 
+/* ── Production orders linked ── */
+.po-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.po-status::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.pos-draft{background:#f3f4f6;color:#4b5563;}.pos-draft::before{background:#9ca3af;}
+.pos-planning{background:#eff6ff;color:#1e40af;}.pos-planning::before{background:#3b82f6;}
+.pos-active{background:#f0fdf4;color:#166534;}.pos-active::before{background:#22c55e;}
+.pos-completed{background:#f0fdfa;color:#0f766e;}.pos-completed::before{background:#14b8a6;}
+.pos-hold{background:#fefce8;color:#854d0e;}.pos-hold::before{background:#eab308;}
+.pos-cancelled{background:#fef2f2;color:#991b1b;}.pos-cancelled::before{background:#f87171;}
+.linked-po-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.linked-po-tbl th{padding:9px 14px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border:1px solid var(--border2);text-align:left;white-space:nowrap;}
+.linked-po-tbl td{padding:10px 14px;border:1px solid var(--border2);font-size:13px;vertical-align:middle;}
+.linked-po-tbl tbody tr:hover td{background:#fafbff;}
+.po-link{color:var(--brand-700);font-weight:600;cursor:pointer;text-decoration:none;}
+.po-link:hover{text-decoration:underline;}
+
 /* ── Toast ── */
 .ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
 .tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
@@ -410,6 +426,26 @@
       </div>
     </div>
 
+    <!-- ══ SECTION 7: LINKED PRODUCTION ORDERS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z"/></svg>
+          Linked Production Orders
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="linkedPoCount" style="font-size:11.5px;color:var(--text-3);"></span>
+          <button class="btn btn-sm" style="background:#2563eb;color:#fff;height:32px;padding:0 14px;font-size:12px;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" onclick="createProductionOrder()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+            New Production Order
+          </button>
+        </div>
+      </div>
+      <div class="sec-bd" id="linkedPoWrap">
+        <div class="rf"><div class="rv empty">No production orders linked</div></div>
+      </div>
+    </div>
+
     <!-- ══ ACTION BAR ══ -->
     <div class="action-bar">
       <button class="btn btn-ghost" onclick="location.href='product-list.html'">
@@ -452,6 +488,19 @@ const params=new URLSearchParams(location.search);
 const PRODUCT_ID=params.get('id')||'PROD-001';
 
 const colorMap={Red:'#ef4444',Blue:'#3b82f6',Green:'#22c55e',Black:'#1f2937',White:'#f8fafc',Yellow:'#eab308',Navy:'#1e3a8a',Orange:'#f97316',Pink:'#ec4899',Purple:'#8b5cf6',Grey:'#6b7280',Maroon:'#7f1d1d',Teal:'#0d9488',Beige:'#d4a76a'};
+
+/* ── Mock production orders linked to products ── */
+const MOCK_PRODUCTION_ORDERS = {
+  'PROD-001': [
+    {poNum:'PRD-2026-0018', style:'Arrow Polo — Blue / S-XL', buyer:'Arrow Apparel', qty:1800, produced:1200, plannedStart:'2026-04-25', plannedEnd:'2026-05-20', status:'Active'},
+    {poNum:'PRD-2026-0011', style:'Arrow Polo — Blue / M-XL', buyer:'Arrow Apparel', qty:1200, produced:1200, plannedStart:'2026-03-10', plannedEnd:'2026-04-05', status:'Completed'},
+    {poNum:'PRD-2026-0022', style:'Arrow Polo — Blue / S-XL', buyer:'Marks & Spencer', qty:600, produced:0, plannedStart:'2026-05-15', plannedEnd:'2026-06-10', status:'Planning'},
+  ],
+  'PROD-004': [
+    {poNum:'PRD-2026-0020', style:'Cotton Tee — White / S-L', buyer:'H&M India', qty:3000, produced:0, plannedStart:'2026-05-10', plannedEnd:'2026-06-15', status:'Planning'},
+    {poNum:'PRD-2026-0015', style:'Cotton Tee — Yellow / S-L', buyer:'H&M India', qty:2400, produced:2400, plannedStart:'2026-03-20', plannedEnd:'2026-04-22', status:'Completed'},
+  ],
+};
 
 const MOCK_PRODUCTS = {
   'PROD-001':{name:'Polo Shirt',colors:['Blue','Red'],cpn:['Arrow Polo','Polo Blue Edition'],category:'Polo',brand:'Arrow',desc:'Premium pique polo with 3-button placket. 220 GSM cotton fabric. Contrast tipping on collar and cuffs.',sizes:[{code:'S',qty:50,stdCost:'420',mrp:'899',moq:'50'},{code:'M',qty:80,stdCost:'420',mrp:'899',moq:'50'},{code:'L',qty:60,stdCost:'420',mrp:'899',moq:'50'},{code:'XL',qty:40,stdCost:'420',mrp:'899',moq:'50'}],uom:'PCS',hsn:'61051000',gst:'12',stdCost:'420',mrp:'899',remarks:'Pre-approved for bulk production. Maintain color consistency across batches.',status:'Active',createdBy:'Ravi Kumar',createdOn:'2026-04-10',modifiedBy:'Priya Menon',modifiedOn:'2026-05-02',bom:[{type:'Fabric',name:'Cotton Twill',cons:'2.5',uom:'MTR'},{type:'Button',name:'Pearl Button 15mm',cons:'6',uom:'PCS'},{type:'Thread',name:'Polyester Thread 40/2',cons:'60',uom:'MTR'},{type:'Label',name:'Woven Main Label',cons:'1',uom:'PCS'}],attachments:[{name:'Polo_TechPack_v2.pdf',size:2457600},{name:'Color_Approval.jpg',size:512000}]},
@@ -556,6 +605,35 @@ function renderPage(d){
   if(d.remarks){remEl.textContent=d.remarks;remEl.classList.remove('empty');}
   else{remEl.innerHTML='<span style="color:var(--text-3);font-style:italic;">No remarks</span>';}
 
+  // Linked Production Orders
+  const poWrap=document.getElementById('linkedPoWrap');
+  const linkedPos=MOCK_PRODUCTION_ORDERS[PRODUCT_ID]||[];
+  if(linkedPos.length){
+    document.getElementById('linkedPoCount').textContent=`${linkedPos.length} order${linkedPos.length>1?'s':''}`;
+    const poStatusCls={Planning:'pos-planning',Active:'pos-active',Completed:'pos-completed',Hold:'pos-hold',Cancelled:'pos-cancelled',Draft:'pos-draft'};
+    poWrap.innerHTML=`<div style="overflow-x:auto;"><table class="linked-po-tbl">
+      <thead><tr><th>#</th><th>PO Number</th><th>Style / Description</th><th>Buyer</th><th>Planned Qty</th><th>Produced</th><th>Start Date</th><th>End Date</th><th>Status</th></tr></thead>
+      <tbody>${linkedPos.map((o,i)=>{
+        const pct=o.qty>0?Math.round((o.produced/o.qty)*100):0;
+        const progressBar=`<div style="margin-top:4px;height:3px;background:#e5e7eb;border-radius:2px;width:80px;"><div style="height:3px;border-radius:2px;background:#3b82f6;width:${pct}%;"></div></div>`;
+        return `<tr>
+          <td style="color:var(--text-3);font-size:12px;">${i+1}</td>
+          <td><a class="po-link" onclick="viewProductionOrder('${o.poNum}')">${o.poNum}</a></td>
+          <td style="font-size:12.5px;color:var(--text-2);max-width:200px;">${o.style}</td>
+          <td style="font-size:12.5px;color:var(--text-2);">${o.buyer}</td>
+          <td style="font-weight:600;">${o.qty.toLocaleString('en-IN')}</td>
+          <td><span style="font-weight:600;">${o.produced.toLocaleString('en-IN')}</span><span style="font-size:11px;color:var(--text-3);margin-left:4px;">(${pct}%)</span>${progressBar}</td>
+          <td style="font-size:12.5px;color:var(--text-2);">${fmtDate(o.plannedStart)}</td>
+          <td style="font-size:12.5px;color:var(--text-2);">${fmtDate(o.plannedEnd)}</td>
+          <td><span class="po-status ${poStatusCls[o.status]||'pos-draft'}">${o.status}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  } else {
+    document.getElementById('linkedPoCount').textContent='0 orders';
+    poWrap.innerHTML='<div class="rf"><div class="rv empty">No production orders linked to this product yet. <a href="#" onclick="createProductionOrder();return false;" style="color:var(--brand-600);font-weight:600;">Create one now →</a></div></div>';
+  }
+
   // Attachments
   const attWrap=document.getElementById('vAttWrap');
   if(d.attachments&&d.attachments.length){
@@ -579,8 +657,13 @@ function openImgFullscreen(src){document.getElementById('imgFsImg').src=src;docu
 function closeImgFullscreen(){document.getElementById('imgFs').classList.remove('open');}
 
 function createProductionOrder(){
-  showToast(`Redirecting to production order for ${PRODUCT_ID}…`,'i');
+  showToast(`Redirecting to create production order for ${PRODUCT_ID}…`,'i');
   setTimeout(()=>location.href=`production-order.html?productId=${PRODUCT_ID}`,1200);
+}
+
+function viewProductionOrder(poNum){
+  showToast(`Opening ${poNum}…`,'i');
+  setTimeout(()=>location.href=`production-order-list.html?highlight=${poNum}`,1200);
 }
 
 function showToast(msg,type='i'){
