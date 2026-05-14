@@ -1,0 +1,681 @@
+<!--
+  Prototype : stock-count.html
+  Jira Story: NE-37 — INV-10 Physical Stock Count & Adjustment
+  Epic      : NE-26 — INV Inventory Module (Garment ERP)
+  Design ref: inventory-module-design.md §10 (INV-10), §7 (STOCK_ADJUSTMENT_IN/OUT), §6A (Bin in Stock Count)
+  GitHub    : https://github.com/mayukh-boop/New_ERPstories/blob/main/stock-count.html
+  Jira URL  : https://codeverse.atlassian.net/browse/NE-37
+
+  Workflow:
+    1. ADMIN creates count session (POST /api/v1/inventory/stock-counts) — freezes system qty snapshot
+    2. USER enters physical counts per lot (PATCH /api/v1/inventory/stock-counts/{id}/lines/{lineId})
+    3. System computes variance = counted - system (negative = shortage, positive = surplus)
+    4. ADMIN reviews variance summary and approves (POST /api/v1/inventory/stock-counts/{id}/approve)
+    5. On approval: STOCK_ADJUSTMENT_IN (positive variance) or STOCK_ADJUSTMENT_OUT (negative) posted per lot
+    6. Count session status → POSTED; count sheet can be exported at any stage
+
+  DB tables: stock_count_header, stock_count_line
+  Bin column: conditional on CONFIG.binManagementEnabled
+  Config: count sheet shows system qty (read-only), counted qty (editable), variance (computed client-side)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Count — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:0.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,0.06)!important;}
+
+/* ── Views ── */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ── Session list cards ── */
+.session-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.session-stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px 18px; box-shadow:var(--shadow-sm); }
+.ss-label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px; }
+.ss-num   { font-size:26px; font-weight:800; color:var(--text-1); line-height:1; }
+.ss-sub   { font-size:12px; color:var(--text-3); margin-top:4px; }
+.ss-draft    { border-left:3px solid var(--gray-400); }
+.ss-counting { border-left:3px solid var(--warning); }
+.ss-pending  { border-left:3px solid var(--brand-500); }
+.ss-posted   { border-left:3px solid var(--success); }
+
+/* ── Session status ── */
+.cs-status { display:inline-flex; padding:2px 9px; border-radius:var(--r-full); font-size:11px; font-weight:600; }
+.css-draft    { background:var(--gray-100); color:var(--text-2); }
+.css-counting { background:#fffbeb; color:#92400e; }
+.css-pending  { background:#f0f9ff; color:#0369a1; }
+.css-posted   { background:#f0fdf4; color:#15803d; }
+
+/* ── Count sheet table ── */
+.cs-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.cs-tbl th { padding:10px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:2; }
+.cs-tbl td { padding:9px 12px; border-bottom:1px solid var(--border2); color:var(--text-1); vertical-align:middle; }
+.cs-tbl tbody tr:hover { background:var(--gray-50); }
+.cs-tbl .num { text-align:right; font-variant-numeric:tabular-nums; }
+.cs-tbl .muted { color:var(--text-3); font-size:12px; }
+.cs-tbl .row-surplus { background:#f0fdf4; }
+.cs-tbl .row-shortage { background:#fef2f2; }
+
+/* ── Count input ── */
+.count-input {
+  width:90px; height:30px; border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:0 8px; font-size:12.5px; font-family:inherit; color:var(--text-1);
+  background:#fff; outline:none; text-align:right; font-variant-numeric:tabular-nums;
+}
+.count-input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.1); }
+.count-input.entered { background:#f0fdf4; border-color:#86efac; }
+
+/* ── Variance display ── */
+.var-surplus  { color:var(--success); font-weight:700; }
+.var-shortage { color:var(--danger); font-weight:700; }
+.var-zero     { color:var(--text-3); }
+
+/* ── Variance summary strip ── */
+.var-summary {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+  padding:16px 24px; background:var(--surface); border-bottom:1px solid var(--border2);
+}
+.vs-card { padding:12px 14px; border-radius:var(--r); }
+.vs-card.surplus  { background:#f0fdf4; border:1px solid #86efac; }
+.vs-card.shortage { background:#fef2f2; border:1px solid #fecaca; }
+.vs-card.zero     { background:var(--gray-50); border:1px solid var(--border2); }
+.vs-card.progress { background:#eff6ff; border:1px solid #bfdbfe; }
+.vs-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+.vs-num   { font-size:22px; font-weight:800; line-height:1; margin-top:4px; }
+.vs-sub   { font-size:11px; font-weight:500; margin-top:2px; }
+.vs-card.surplus  .vs-label, .vs-card.surplus  .vs-num { color:#15803d; }
+.vs-card.shortage .vs-label, .vs-card.shortage .vs-num { color:#991b1b; }
+.vs-card.zero     .vs-label, .vs-card.zero     .vs-num { color:var(--text-2); }
+.vs-card.progress .vs-label, .vs-card.progress .vs-num { color:#1e40af; }
+
+/* ── Lot badge ── */
+.lot-badge { display:inline-flex; padding:1px 7px; border-radius:var(--r-full); font-size:10px; font-weight:600; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }
+
+/* ── Bin badge ── */
+.bin-badge { display:inline-flex; padding:1px 7px; border-radius:var(--r-full); font-size:10px; font-weight:600; background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-family:monospace; }
+
+/* ── Filter bar ── */
+.filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border2); }
+.filter-label { font-size:11.5px; font-weight:600; color:var(--text-3); flex-shrink:0; }
+.filter-input { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface); outline:none; min-width:140px; }
+.filter-input:focus { border-color:var(--brand-500); }
+.filter-select { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 28px 0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; outline:none; min-width:120px; }
+.filter-sep { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+.btn-filter { height:32px; padding:0 14px; border-radius:var(--r-sm); font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer; border:none; background:var(--brand-500); color:#fff; }
+.btn-filter:hover { background:var(--brand-600); }
+.btn-clear { height:32px; padding:0 12px; border-radius:var(--r-sm); font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-2); }
+.btn-export { height:32px; padding:0 12px; border-radius:var(--r-sm); font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-2); display:flex; align-items:center; gap:5px; margin-left:auto; }
+.btn-export:hover { border-color:var(--brand-500); color:var(--brand-600); }
+
+/* ── List table ── */
+.list-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.list-tbl th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border-bottom:1px solid var(--border); white-space:nowrap; }
+.list-tbl td { padding:10px 14px; border-bottom:1px solid var(--border2); color:var(--text-1); vertical-align:middle; }
+.list-tbl tbody tr:hover { background:var(--gray-50); cursor:pointer; }
+
+/* ── Confirm modal ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:500; display:none; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border-radius:var(--r-lg); width:520px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.18); overflow:hidden; }
+.modal-head { padding:20px 24px; border-bottom:1px solid var(--border2); display:flex; justify-content:space-between; align-items:center; }
+.modal-title { font-size:16px; font-weight:700; color:var(--text-1); }
+.modal-close { width:28px; height:28px; border:none; background:var(--gray-100); border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
+.modal-close:hover { background:var(--gray-200); }
+.modal-body { padding:20px 24px; }
+.modal-foot { padding:14px 24px; border-top:1px solid var(--border2); display:flex; gap:10px; justify-content:flex-end; }
+.var-detail-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.var-detail-tbl th { padding:8px 10px; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border:1px solid var(--border2); }
+.var-detail-tbl td { padding:8px 10px; border:1px solid var(--border2); }
+</style>
+</head>
+<body>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">CE</div>
+    <div><div class="brand-name">C-Edge</div><div class="brand-sub">ERP Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Inventory</div>
+    <div class="nav-parent active-group">
+      <div class="nav-parent-row">
+        <span class="material-symbols-outlined nav-parent-icon">inventory_2</span>
+        <span class="nav-parent-label">Inventory</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="inventory-dashboard.html">Dashboard</a>
+        <a class="nav-child" href="fabric-stock.html">Fabric Stock</a>
+        <a class="nav-child" href="rm-stock.html">RM Stock</a>
+        <a class="nav-child" href="stock-allocation.html">Allocation</a>
+        <a class="nav-child" href="cutting-issue.html">Issue Notes</a>
+        <a class="nav-child" href="ageing-report.html">Ageing Report</a>
+        <a class="nav-child" href="warehouse-transfer.html">WH Transfer</a>
+        <a class="nav-child active" href="#">Stock Count</a>
+        <a class="nav-child" href="wip-tracker.html">WIP Tracker</a>
+        <a class="nav-child" href="inventory-config.html">Config</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">ADMIN</div></div>
+  </div>
+</aside>
+
+<!-- ════════ TOPBAR ════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('collapsed')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="bc-item">Inventory</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item active">Stock Count</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon"><span class="material-symbols-outlined">notifications</span></button>
+    <button class="btn-icon" onclick="window.location='inventory-config.html'">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+</header>
+
+<!-- ════════ MAIN ════════ -->
+<main class="main-content">
+
+  <!-- ── VIEW: SESSION LIST ── -->
+  <div class="view active" id="view-list">
+    <div class="page-header" style="margin-bottom:20px;">
+      <div>
+        <div class="page-title">Stock Count Sessions</div>
+        <div class="page-sub">Physical inventory count — create session → enter counts → approve adjustments</div>
+      </div>
+      <button class="btn btn-primary" onclick="createSession()">
+        <span class="material-symbols-outlined" style="font-size:16px;">add</span> New Count Session
+      </button>
+    </div>
+
+    <div class="session-stat-grid">
+      <div class="session-stat ss-draft">
+        <div class="ss-label">Draft</div>
+        <div class="ss-num">1</div>
+        <div class="ss-sub">not yet started</div>
+      </div>
+      <div class="session-stat ss-counting">
+        <div class="ss-label">In Progress</div>
+        <div class="ss-num">1</div>
+        <div class="ss-sub">counts being entered</div>
+      </div>
+      <div class="session-stat ss-pending">
+        <div class="ss-label">Pending Approval</div>
+        <div class="ss-num">1</div>
+        <div class="ss-sub">variances awaiting ADMIN</div>
+      </div>
+      <div class="session-stat ss-posted">
+        <div class="ss-label">Posted</div>
+        <div class="ss-num">8</div>
+        <div class="ss-sub">adjustments applied</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="filter-bar">
+        <span class="filter-label">Filters:</span>
+        <select class="filter-select">
+          <option value="">All Statuses</option>
+          <option>Draft</option>
+          <option>In Progress</option>
+          <option>Pending Approval</option>
+          <option>Posted</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Warehouses</option>
+          <option>Factory 1 Store</option>
+          <option>Factory 2 Store</option>
+          <option>Central Warehouse</option>
+        </select>
+        <input class="filter-input" type="date" title="Session date from">
+        <input class="filter-input" type="date" title="Session date to">
+        <div class="filter-sep"></div>
+        <button class="btn-filter">Apply</button>
+        <button class="btn-clear">Clear</button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="list-tbl">
+          <thead>
+            <tr>
+              <th>Session #</th>
+              <th>Date</th>
+              <th>Warehouse</th>
+              <th>Scope</th>
+              <th>Lots</th>
+              <th>Counted</th>
+              <th>Variances</th>
+              <th>Status</th>
+              <th>Created By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sessionTableBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer">Showing 4 sessions</div>
+    </div>
+  </div>
+
+  <!-- ── VIEW: COUNT SHEET ── -->
+  <div class="view" id="view-sheet">
+    <div class="page-header" style="margin-bottom:20px;">
+      <div>
+        <div class="page-title" id="sheetTitle">Count Sheet — SCS-2026-0003</div>
+        <div class="page-sub" id="sheetSub">Factory 1 Store — All Items · Started: 07 May 2026 08:00</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" onclick="exportSheet()">
+          <span class="material-symbols-outlined" style="font-size:15px;">download</span> Export Sheet
+        </button>
+        <button class="btn btn-sm" onclick="showList()">← Back to List</button>
+        <button class="btn btn-primary" id="approveBtn" onclick="openApproveModal()">
+          <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span> Review & Approve
+        </button>
+      </div>
+    </div>
+
+    <!-- Variance summary strip -->
+    <div class="var-summary">
+      <div class="vs-card progress">
+        <div class="vs-label">Count Progress</div>
+        <div class="vs-num" id="vs-progress">—</div>
+        <div class="vs-sub" id="vs-progress-sub">lots counted</div>
+      </div>
+      <div class="vs-card surplus">
+        <div class="vs-label">Surplus Lots</div>
+        <div class="vs-num" id="vs-surplus">—</div>
+        <div class="vs-sub">counted &gt; system qty</div>
+      </div>
+      <div class="vs-card shortage">
+        <div class="vs-label">Shortage Lots</div>
+        <div class="vs-num" id="vs-shortage">—</div>
+        <div class="vs-sub">counted &lt; system qty</div>
+      </div>
+      <div class="vs-card zero">
+        <div class="vs-label">No Variance</div>
+        <div class="vs-num" id="vs-zero">—</div>
+        <div class="vs-sub">exact match</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="filter-bar">
+        <span class="filter-label">Show:</span>
+        <select class="filter-select" id="varFilter" onchange="applyVarFilter()" style="min-width:160px;">
+          <option value="">All Lots</option>
+          <option value="variance">Variances Only</option>
+          <option value="surplus">Surplus Only</option>
+          <option value="shortage">Shortage Only</option>
+          <option value="uncounted">Not Yet Counted</option>
+        </select>
+        <input class="filter-input" type="text" id="lotSearch" placeholder="Lot # or item…" oninput="applyVarFilter()" style="min-width:180px;">
+        <div class="filter-sep"></div>
+        <button class="btn-filter" onclick="applyVarFilter()">Apply</button>
+        <button class="btn-clear" onclick="clearSheetFilter()">Clear</button>
+        <button class="btn-export" onclick="exportSheet()">
+          <span class="material-symbols-outlined" style="font-size:13px;">download</span> Excel
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="cs-tbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Lot #</th>
+              <th>Item</th>
+              <th>Type</th>
+              <th id="binColHead">Bin</th>
+              <th class="num">System Qty</th>
+              <th>UOM</th>
+              <th class="num">Counted Qty</th>
+              <th class="num">Variance</th>
+              <th>Adjustment</th>
+            </tr>
+          </thead>
+          <tbody id="countSheetBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="sheetFooter">—</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════ APPROVE MODAL ════════ -->
+<div class="modal-overlay" id="approveModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Approve Adjustments</div>
+      <button class="modal-close" onclick="closeApproveModal()">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;">
+        The following ledger entries will be posted on approval. This action cannot be undone.
+      </p>
+      <table class="var-detail-tbl">
+        <thead>
+          <tr><th>Lot</th><th>Item</th><th>Variance</th><th>Adjustment</th></tr>
+        </thead>
+        <tbody id="approveVariances"></tbody>
+      </table>
+      <div style="margin-top:14px;padding:10px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--r);font-size:12.5px;color:#0c4a6e;">
+        <strong>STOCK_ADJUSTMENT_IN</strong> will be posted for surpluses.<br>
+        <strong>STOCK_ADJUSTMENT_OUT</strong> will be posted for shortages.<br>
+        Source doc type: <code>STOCK_COUNT</code>, source doc ID: current session.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeApproveModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="postAdjustments()">Post Adjustments</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const CONFIG = {
+  binManagementEnabled: true,
+  lotTrackingEnabled:   true,
+};
+
+// ─────────────────────────────────────────────
+// MOCK SESSIONS — stock_count_header
+// ─────────────────────────────────────────────
+const SESSIONS = [
+  { id:1, num:'SCS-2026-0001', date:'15 Feb 2026', wh:'Factory 1 Store', scope:'All Items', lots:42, counted:42, variances:3, status:'POSTED', createdBy:'Mayukh Ghatak' },
+  { id:2, num:'SCS-2026-0002', date:'01 Apr 2026', wh:'Factory 2 Store', scope:'Fabric Only', lots:18, counted:18, variances:2, status:'POSTED', createdBy:'Ratan Kumar' },
+  { id:3, num:'SCS-2026-0003', date:'07 May 2026', wh:'Factory 1 Store', scope:'All Items', lots:14, counted:9,  variances:3, status:'COUNTING', createdBy:'Sohan Lal' },
+  { id:4, num:'SCS-2026-0004', date:'07 May 2026', wh:'Central Warehouse', scope:'RM Only', lots:8, counted:0, variances:0, status:'DRAFT', createdBy:'Mayukh Ghatak' },
+];
+
+// ─────────────────────────────────────────────
+// COUNT SHEET LINES — stock_count_line
+// systemQty = ledger snapshot at session creation time (frozen)
+// countedQty = null until USER enters it
+// ─────────────────────────────────────────────
+const COUNT_LINES = [
+  { id:1, lot:'LOT-2025-0001', item:'40s Poplin — Solid',     type:'FABRIC', bin:'FAB-A-R01S1-B01', systemQty:310, countedQty:305, uom:'Metre' },
+  { id:2, lot:'LOT-2025-0008', item:'40s Poplin — Solid',     type:'FABRIC', bin:'FAB-A-R01S2-B01', systemQty:290, countedQty:290, uom:'Metre' },
+  { id:3, lot:'LOT-2025-0014', item:'Jersey Single 30s',      type:'FABRIC', bin:'FAB-B-R01S1-B01', systemQty:210, countedQty:null, uom:'Metre' },
+  { id:4, lot:'LOT-2025-0021', item:'Denim 8oz — Rigid',      type:'FABRIC', bin:'FAB-B-R02S1-B01', systemQty:400, countedQty:408, uom:'Metre' },
+  { id:5, lot:'LOT-2026-0002', item:'60s Lawn — Premium',     type:'FABRIC', bin:'FAB-A-R02S1-B01', systemQty:248, countedQty:248, uom:'Metre' },
+  { id:6, lot:'LOT-2026-0004', item:'Linen 55% — Natural',    type:'FABRIC', bin:'FAB-C-R01S1-B01', systemQty:180, countedQty:null, uom:'Metre' },
+  { id:7, lot:'LOT-2026-0007', item:'White Elastic 3mm',      type:'RM',     bin:'RM-A-R01S2-B02',  systemQty:42,  countedQty:38,  uom:'Metre' },
+  { id:8, lot:'LOT-2026-0011', item:'Polyester Twill',        type:'FABRIC', bin:'FAB-A-R03S1-B01', systemQty:598, countedQty:null, uom:'Metre' },
+  { id:9, lot:'LOT-2026-0015', item:'Nylon Zip 20cm — Navy',  type:'RM',     bin:'RM-A-R01S1-B04',  systemQty:1200,countedQty:1200,uom:'Pcs'   },
+  { id:10,lot:'LOT-2026-0018', item:'Viscose Lining',         type:'FABRIC', bin:'FAB-B-R02S2-B01', systemQty:190, countedQty:null, uom:'Metre' },
+  { id:11,lot:'LOT-2025-0033', item:'Denim 8oz — Rigid',      type:'FABRIC', bin:'FAB-B-R03S1-B01', systemQty:280, countedQty:280, uom:'Metre' },
+  { id:12,lot:'LOT-2025-0042', item:'Interlock Cotton',       type:'FABRIC', bin:'FAB-C-R02S1-B01', systemQty:85,  countedQty:null, uom:'Metre' },
+  { id:13,lot:'LOT-2025-0050', item:'Shank Button 15mm',      type:'RM',     bin:'RM-B-R01S1-B01',  systemQty:320, countedQty:320, uom:'Gross' },
+  { id:14,lot:'LOT-2024-0089', item:'Cotton Tape 12mm',       type:'RM',     bin:'RM-B-R01S2-B01',  systemQty:450, countedQty:null, uom:'Metre' },
+];
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function sessionStatusBadge(s) {
+  const map = { DRAFT:'css-draft|Draft', COUNTING:'css-counting|In Progress', PENDING:'css-pending|Pending Approval', POSTED:'css-posted|Posted' };
+  const [cls,lbl] = (map[s]||'css-draft|'+s).split('|');
+  return `<span class="cs-status ${cls}">${lbl}</span>`;
+}
+function fmt(n) { return typeof n === 'number' ? n.toLocaleString('en-IN') : '—'; }
+
+// ─────────────────────────────────────────────
+// SESSION LIST
+// ─────────────────────────────────────────────
+function renderSessionList() {
+  document.getElementById('sessionTableBody').innerHTML = SESSIONS.map(s => `
+    <tr onclick="openSheet(${s.id})" style="cursor:pointer;">
+      <td><a href="#" style="color:var(--brand-600);text-decoration:none;font-weight:700;" onclick="event.stopPropagation();openSheet(${s.id});">${s.num}</a></td>
+      <td style="color:var(--text-3);font-size:12px;">${s.date}</td>
+      <td>${s.wh}</td>
+      <td style="color:var(--text-3);">${s.scope}</td>
+      <td style="text-align:right;">${s.lots}</td>
+      <td style="text-align:right;">${s.counted}</td>
+      <td style="text-align:right;${s.variances>0?'color:var(--warning);font-weight:700;':''}">${s.variances || '—'}</td>
+      <td>${sessionStatusBadge(s.status)}</td>
+      <td style="color:var(--text-3);font-size:12px;">${s.createdBy}</td>
+      <td>
+        <div style="display:flex;gap:6px;" onclick="event.stopPropagation();">
+          <button class="btn btn-sm" onclick="openSheet(${s.id})">Open</button>
+          ${s.status === 'DRAFT' ? `<button class="btn btn-primary btn-sm" onclick="startCount(${s.id})">Start</button>` : ''}
+          ${s.status === 'COUNTING' ? `<button class="btn btn-primary btn-sm" onclick="openSheet(${s.id})">Enter Counts</button>` : ''}
+          ${s.status === 'PENDING' ? `<button class="btn btn-primary btn-sm" onclick="openSheet(${s.id})">Approve</button>` : ''}
+          <button class="btn btn-sm" onclick="exportSheet()">Export</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// COUNT SHEET
+// ─────────────────────────────────────────────
+let sheetData = COUNT_LINES.map(l => ({ ...l })); // mutable copy
+
+function openSheet(sessionId) {
+  const s = SESSIONS.find(x => x.id === sessionId);
+  document.getElementById('sheetTitle').textContent = `Count Sheet — ${s.num}`;
+  document.getElementById('sheetSub').textContent = `${s.wh} · ${s.scope} · Started: ${s.date} 08:00`;
+
+  // Show/hide bin column
+  document.getElementById('binColHead').style.display = CONFIG.binManagementEnabled ? '' : 'none';
+
+  showView('view-sheet');
+  updateBreadcrumb(s.num);
+  renderSheet(sheetData);
+  updateVarianceSummary();
+}
+
+function renderSheet(data) {
+  const body = document.getElementById('countSheetBody');
+  body.innerHTML = data.map((l, i) => {
+    const counted = l.countedQty;
+    const variance = counted !== null ? counted - l.systemQty : null;
+    const rowCls = variance === null ? '' : variance > 0 ? 'row-surplus' : variance < 0 ? 'row-shortage' : '';
+    const varDisplay = variance === null ? '<span class="muted">—</span>'
+      : variance > 0 ? `<span class="var-surplus">+${fmt(variance)}</span>`
+      : variance < 0 ? `<span class="var-shortage">${fmt(variance)}</span>`
+      : `<span class="var-zero">0</span>`;
+    const adjDisplay = variance === null ? '—'
+      : variance > 0 ? `<span style="font-size:11px;background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:999px;font-weight:600;">ADJUSTMENT_IN</span>`
+      : variance < 0 ? `<span style="font-size:11px;background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:999px;font-weight:600;">ADJUSTMENT_OUT</span>`
+      : `<span style="font-size:11px;background:var(--gray-100);color:var(--text-3);padding:1px 7px;border-radius:999px;font-weight:600;">No Adjustment</span>`;
+
+    return `<tr class="${rowCls}" id="row-${l.id}">
+      <td class="muted">${i+1}</td>
+      <td><span class="lot-badge">${l.lot}</span></td>
+      <td style="font-weight:500;">${l.item}</td>
+      <td><span style="font-size:11px;background:var(--gray-100);padding:1px 7px;border-radius:999px;color:var(--text-2);font-weight:600;">${l.type}</span></td>
+      <td style="${CONFIG.binManagementEnabled?'':'display:none;'}"><span class="bin-badge">${l.bin}</span></td>
+      <td class="num" style="font-weight:600;">${fmt(l.systemQty)}</td>
+      <td class="muted">${l.uom}</td>
+      <td class="num">
+        <input class="count-input ${counted !== null ? 'entered' : ''}" type="number" min="0"
+          value="${counted !== null ? counted : ''}"
+          placeholder="Enter qty"
+          onchange="updateCount(${l.id}, this.value)"
+          oninput="previewVariance(${l.id}, this.value, ${l.systemQty})">
+      </td>
+      <td class="num" id="var-${l.id}">${varDisplay}</td>
+      <td id="adj-${l.id}">${adjDisplay}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('sheetFooter').textContent =
+    `${data.filter(l => l.countedQty !== null).length} of ${data.length} lots counted`;
+}
+
+function previewVariance(id, rawVal, systemQty) {
+  const val = parseFloat(rawVal);
+  const varEl = document.getElementById(`var-${id}`);
+  const adjEl = document.getElementById(`adj-${id}`);
+  if (isNaN(val) || rawVal === '') {
+    varEl.innerHTML = '<span class="muted">—</span>';
+    adjEl.innerHTML = '—';
+    return;
+  }
+  const variance = val - systemQty;
+  varEl.innerHTML = variance > 0 ? `<span class="var-surplus">+${fmt(variance)}</span>`
+    : variance < 0 ? `<span class="var-shortage">${fmt(variance)}</span>`
+    : `<span class="var-zero">0</span>`;
+  adjEl.innerHTML = variance > 0
+    ? `<span style="font-size:11px;background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:999px;font-weight:600;">ADJUSTMENT_IN</span>`
+    : variance < 0
+    ? `<span style="font-size:11px;background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:999px;font-weight:600;">ADJUSTMENT_OUT</span>`
+    : `<span style="font-size:11px;background:var(--gray-100);color:var(--text-3);padding:1px 7px;border-radius:999px;font-weight:600;">No Adjustment</span>`;
+}
+
+function updateCount(id, rawVal) {
+  const idx = sheetData.findIndex(l => l.id === id);
+  const val = rawVal === '' ? null : parseFloat(rawVal);
+  if (idx >= 0) sheetData[idx].countedQty = val;
+  const row = document.getElementById(`row-${id}`);
+  if (row) {
+    const input = row.querySelector('.count-input');
+    if (input) input.classList.toggle('entered', val !== null);
+  }
+  updateVarianceSummary();
+  document.getElementById('sheetFooter').textContent =
+    `${sheetData.filter(l => l.countedQty !== null).length} of ${sheetData.length} lots counted`;
+}
+
+function updateVarianceSummary() {
+  const counted  = sheetData.filter(l => l.countedQty !== null);
+  const surplus  = counted.filter(l => l.countedQty > l.systemQty);
+  const shortage = counted.filter(l => l.countedQty < l.systemQty);
+  const zero     = counted.filter(l => l.countedQty === l.systemQty);
+
+  document.getElementById('vs-progress').textContent = `${counted.length}/${sheetData.length}`;
+  document.getElementById('vs-progress-sub').textContent = `${Math.round(counted.length/sheetData.length*100)}% complete`;
+  document.getElementById('vs-surplus').textContent  = surplus.length;
+  document.getElementById('vs-shortage').textContent = shortage.length;
+  document.getElementById('vs-zero').textContent     = zero.length;
+}
+
+function applyVarFilter() {
+  const filter = document.getElementById('varFilter').value;
+  const search = document.getElementById('lotSearch').value.toLowerCase();
+  let data = sheetData.filter(l => {
+    const variance = l.countedQty !== null ? l.countedQty - l.systemQty : null;
+    if (filter === 'variance'  && (variance === null || variance === 0)) return false;
+    if (filter === 'surplus'   && (variance === null || variance <= 0))  return false;
+    if (filter === 'shortage'  && (variance === null || variance >= 0))  return false;
+    if (filter === 'uncounted' && l.countedQty !== null)                 return false;
+    if (search && !l.lot.toLowerCase().includes(search) && !l.item.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  renderSheet(data);
+}
+function clearSheetFilter() {
+  document.getElementById('varFilter').value = '';
+  document.getElementById('lotSearch').value = '';
+  renderSheet(sheetData);
+}
+
+// ─────────────────────────────────────────────
+// APPROVE MODAL
+// ─────────────────────────────────────────────
+function openApproveModal() {
+  const variances = sheetData.filter(l => l.countedQty !== null && l.countedQty !== l.systemQty);
+  if (variances.length === 0) {
+    alert('No variances to approve. All counted lots match system quantities.');
+    return;
+  }
+  document.getElementById('approveVariances').innerHTML = variances.map(l => {
+    const v = l.countedQty - l.systemQty;
+    return `<tr>
+      <td style="font-size:12px;">${l.lot}</td>
+      <td style="font-size:12px;">${l.item}</td>
+      <td style="text-align:right;font-weight:700;${v>0?'color:var(--success);':'color:var(--danger);'}">${v>0?'+':''}${fmt(v)} ${l.uom}</td>
+      <td style="font-size:11px;">${v>0?'STOCK_ADJUSTMENT_IN':'STOCK_ADJUSTMENT_OUT'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('approveModal').classList.add('open');
+}
+function closeApproveModal() { document.getElementById('approveModal').classList.remove('open'); }
+function postAdjustments() {
+  alert('POST /api/v1/inventory/stock-counts/{id}/approve\n\nPosts STOCK_ADJUSTMENT_IN or OUT for each variance lot.\nSession status → POSTED.');
+  closeApproveModal();
+  showList();
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showList() {
+  showView('view-list');
+  document.getElementById('breadcrumb').innerHTML = `
+    <span class="bc-item">Inventory</span><span class="bc-sep">›</span><span class="bc-item active">Stock Count</span>`;
+}
+function updateBreadcrumb(sessionNum) {
+  document.getElementById('breadcrumb').innerHTML = `
+    <span class="bc-item">Inventory</span><span class="bc-sep">›</span>
+    <a class="bc-item" href="#" onclick="showList();return false;">Stock Count</a>
+    <span class="bc-sep">›</span>
+    <span class="bc-item active">${sessionNum}</span>`;
+}
+
+function createSession() {
+  alert('POST /api/v1/inventory/stock-counts\nBody: { warehouseId, scope, countDate }\nCreates stock_count_header + freezes system qty snapshot into stock_count_line rows.\nStatus: DRAFT → COUNTING when first count is entered.');
+}
+function startCount(id) {
+  const s = SESSIONS.find(x => x.id === id);
+  alert(`Starting count session ${s.num}.\nPATCH /api/v1/inventory/stock-counts/${id}/start → status: COUNTING`);
+}
+function exportSheet() {
+  alert('GET /api/v1/inventory/stock-counts/{id}/export?format=xlsx\nDownloads count sheet: Lot, Item, Bin, System Qty (pre-filled), Counted Qty (blank column for offline use), Variance.');
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(function init() {
+  renderSessionList();
+  document.querySelectorAll('.nav-parent-row').forEach(row => {
+    row.addEventListener('click', () => row.closest('.nav-parent').classList.toggle('active-group'));
+  });
+})();
+</script>
+</body>
+</html>

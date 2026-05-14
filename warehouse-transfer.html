@@ -1,0 +1,736 @@
+<!--
+  Prototype : warehouse-transfer.html
+  Jira Story: NE-36 — INV-09 Inter-Warehouse Transfer
+  Epic      : NE-26 — INV Inventory Module (Garment ERP)
+  Design ref: inventory-module-design.md §10 (INV-09), §7 (Movement Types), §11 (transfer_note tables)
+  GitHub    : https://github.com/mayukh-boop/New_ERPstories/blob/main/warehouse-transfer.html
+  Jira URL  : https://codeverse.atlassian.net/browse/NE-36
+
+  IMPORTANT: Entire module is hidden when CONFIG.multiWarehouseEnabled = false.
+  Shows a "feature disabled" message pointing to inventory-config.html.
+
+  Key backend endpoints:
+    GET    /api/v1/inventory/transfers                     (list, pageable)
+    POST   /api/v1/inventory/transfers                     (create transfer note, status=DRAFT)
+    GET    /api/v1/inventory/transfers/{id}                (detail)
+    POST   /api/v1/inventory/transfers/{id}/dispatch       (ADMIN: dispatch → posts INTER_WAREHOUSE_OUT, status=IN_TRANSIT)
+    POST   /api/v1/inventory/transfers/{id}/receive        (dest WH user: receive → posts INTER_WAREHOUSE_IN, status=RECEIVED)
+    DELETE /api/v1/inventory/transfers/{id}                (cancel if DRAFT)
+
+  Ledger entries:
+    On dispatch: INTER_WAREHOUSE_OUT (source WH) → stock leaves source, shows as IN_TRANSIT
+    On receive:  INTER_WAREHOUSE_IN  (dest WH)   → stock arrives at destination
+    In-transit qty = SUM(OUT) - SUM(IN) for that transfer note
+
+  DB tables: transfer_note_header, transfer_note_line
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warehouse Transfer — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:0.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,0.06)!important;}
+
+/* ── Disabled state ── */
+.feature-disabled {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:60vh; gap:16px; text-align:center;
+}
+.feature-disabled .material-symbols-outlined { font-size:64px; color:var(--gray-300); }
+.feature-disabled h2 { font-size:20px; font-weight:700; color:var(--text-1); margin:0; }
+.feature-disabled p  { font-size:14px; color:var(--text-3); max-width:400px; margin:0; }
+
+/* ── Summary cards ── */
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:18px 20px; box-shadow:var(--shadow-sm);
+}
+.stat-label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:8px; }
+.stat-num   { font-size:28px; font-weight:800; color:var(--text-1); line-height:1; }
+.stat-sub   { font-size:12px; color:var(--text-3); margin-top:4px; }
+.stat-card.alert  { border-left:3px solid var(--warning); }
+.stat-card.info   { border-left:3px solid var(--brand-500); }
+.stat-card.success{ border-left:3px solid var(--success); }
+
+/* ── Tab strip ── */
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 24px; background:var(--surface); }
+.tab-item { padding:10px 16px; font-size:12.5px; font-weight:500; color:var(--text-3); cursor:pointer; border:none; background:transparent; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all var(--ease); font-family:inherit; display:flex; align-items:center; gap:6px; }
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600); border-bottom-color:var(--brand-600); font-weight:600; }
+.tab-count { min-width:18px; height:18px; padding:0 5px; background:var(--gray-200); border-radius:var(--r-full); font-size:10px; font-weight:700; color:var(--text-2); display:flex; align-items:center; justify-content:center; }
+.tab-item.active .tab-count { background:var(--brand-100); color:var(--brand-700); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── Filter bar ── */
+.filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border2); }
+.filter-label { font-size:11.5px; font-weight:600; color:var(--text-3); flex-shrink:0; }
+.filter-input { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface); outline:none; min-width:140px; }
+.filter-input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.1); }
+.filter-select { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 28px 0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; outline:none; min-width:140px; }
+.filter-sep { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+.btn-filter { height:32px; padding:0 14px; border-radius:var(--r-sm); font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer; border:none; background:var(--brand-500); color:#fff; }
+.btn-filter:hover { background:var(--brand-600); }
+.btn-clear { height:32px; padding:0 12px; border-radius:var(--r-sm); font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-2); }
+
+/* ── Table ── */
+.tbl-wrap { overflow-x:auto; background:var(--surface); }
+.xfer-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.xfer-tbl th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:2; }
+.xfer-tbl td { padding:10px 14px; border-bottom:1px solid var(--border2); color:var(--text-1); vertical-align:middle; }
+.xfer-tbl tbody tr:hover { background:var(--gray-50); }
+.xfer-tbl .num { text-align:right; font-variant-numeric:tabular-nums; }
+.xfer-tbl .muted { color:var(--text-3); font-size:12px; }
+
+/* ── Status pills ── */
+.xfer-status { display:inline-flex; padding:2px 9px; border-radius:var(--r-full); font-size:11px; font-weight:600; }
+.xs-draft     { background:var(--gray-100); color:var(--text-2); }
+.xs-transit   { background:#f0f9ff; color:#0369a1; }
+.xs-received  { background:#f0fdf4; color:#15803d; }
+.xs-cancelled { background:#fef2f2; color:#991b1b; }
+
+/* ── WH arrow ── */
+.wh-arrow { display:flex; align-items:center; gap:6px; }
+.wh-badge { padding:2px 8px; border-radius:var(--r-sm); font-size:11.5px; font-weight:600; background:var(--gray-100); color:var(--text-1); }
+.wh-badge.source { background:#eff6ff; color:#1e40af; }
+.wh-badge.dest   { background:#f0fdf4; color:#15803d; }
+
+/* ── Lot badge ── */
+.lot-badge { display:inline-flex; padding:1px 7px; border-radius:var(--r-full); font-size:10px; font-weight:600; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }
+
+/* ── Transit indicator ── */
+.transit-strip {
+  background:#f0f9ff; border:1px solid #bae6fd; border-radius:var(--r);
+  padding:12px 16px; margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+.transit-strip .material-symbols-outlined { color:#0369a1; font-size:20px; flex-shrink:0; }
+.transit-strip-text { font-size:13px; color:#0c4a6e; font-weight:500; }
+.transit-strip-count { background:#0369a1; color:#fff; padding:2px 10px; border-radius:var(--r-full); font-size:12px; font-weight:700; flex-shrink:0; }
+
+/* ── Slide panel (new transfer) ── */
+.panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.25); z-index:400; display:none; }
+.panel-overlay.open { display:block; }
+.slide-panel {
+  position:fixed; top:0; right:-600px; bottom:0; width:580px;
+  background:var(--surface); border-left:1px solid var(--border);
+  box-shadow:-12px 0 48px rgba(0,0,0,0.12); z-index:401;
+  display:flex; flex-direction:column; transition:right 0.28s cubic-bezier(.4,0,.2,1);
+}
+.slide-panel.open { right:0; }
+.panel-head { padding:20px 24px 16px; border-bottom:1px solid var(--border2); display:flex; align-items:flex-start; justify-content:space-between; flex-shrink:0; }
+.panel-title { font-size:16px; font-weight:700; color:var(--text-1); }
+.panel-sub   { font-size:12px; color:var(--text-3); margin-top:3px; }
+.panel-close { width:28px; height:28px; border:none; background:var(--gray-100); border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
+.panel-close:hover { background:var(--gray-200); color:var(--text-1); }
+.panel-body  { flex:1; overflow-y:auto; padding:20px 24px; }
+.panel-foot  { padding:14px 24px; border-top:1px solid var(--border2); display:flex; gap:10px; justify-content:flex-end; flex-shrink:0; }
+
+/* ── Form ── */
+.form-row    { margin-bottom:16px; }
+.form-label  { font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:5px; display:block; }
+.form-input  { width:100%; height:36px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; font-size:13px; font-family:inherit; color:var(--text-1); background:var(--surface); outline:none; box-sizing:border-box; }
+.form-input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(91,95,199,0.1); }
+.form-select { width:100%; height:36px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 28px 0 12px; font-size:13px; font-family:inherit; color:var(--text-1); background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; outline:none; box-sizing:border-box; }
+.form-select:focus { border-color:var(--brand-500); }
+.form-textarea { width:100%; height:72px; border:1px solid var(--border); border-radius:var(--r-sm); padding:8px 12px; font-size:13px; font-family:inherit; color:var(--text-1); background:var(--surface); outline:none; resize:vertical; box-sizing:border-box; }
+.form-row-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* ── Line items table (inside form) ── */
+.line-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.line-tbl th { padding:8px 10px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border:1px solid var(--border2); }
+.line-tbl td { padding:8px 10px; border:1px solid var(--border2); vertical-align:middle; }
+.line-tbl .form-input { height:30px; font-size:12.5px; }
+.add-line-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border:1.5px dashed var(--border); border-radius:var(--r-sm); font-size:12.5px; color:var(--text-3); background:transparent; cursor:pointer; font-family:inherit; margin-top:8px; }
+.add-line-btn:hover { border-color:var(--brand-500); color:var(--brand-600); background:var(--brand-50); }
+
+/* ── Receive modal ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:500; display:none; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border-radius:var(--r-lg); width:500px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.18); overflow:hidden; }
+.modal-head { padding:20px 24px; border-bottom:1px solid var(--border2); display:flex; align-items:flex-start; justify-content:space-between; }
+.modal-title { font-size:16px; font-weight:700; color:var(--text-1); }
+.modal-close { width:28px; height:28px; border:none; background:var(--gray-100); border-radius:var(--r-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
+.modal-close:hover { background:var(--gray-200); color:var(--text-1); }
+.modal-body { padding:20px 24px; }
+.modal-foot { padding:14px 24px; border-top:1px solid var(--border2); display:flex; gap:10px; justify-content:flex-end; }
+.info-row { display:flex; gap:6px; font-size:12.5px; margin-bottom:6px; }
+.info-lbl { color:var(--text-3); font-weight:600; width:120px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">CE</div>
+    <div><div class="brand-name">C-Edge</div><div class="brand-sub">ERP Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Inventory</div>
+    <div class="nav-parent active-group">
+      <div class="nav-parent-row">
+        <span class="material-symbols-outlined nav-parent-icon">inventory_2</span>
+        <span class="nav-parent-label">Inventory</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="inventory-dashboard.html">Dashboard</a>
+        <a class="nav-child" href="fabric-stock.html">Fabric Stock</a>
+        <a class="nav-child" href="rm-stock.html">RM Stock</a>
+        <a class="nav-child" href="stock-allocation.html">Allocation</a>
+        <a class="nav-child" href="cutting-issue.html">Issue Notes</a>
+        <a class="nav-child" href="ageing-report.html">Ageing Report</a>
+        <a class="nav-child active" href="#">WH Transfer</a>
+        <a class="nav-child" href="stock-count.html">Stock Count</a>
+        <a class="nav-child" href="wip-tracker.html">WIP Tracker</a>
+        <a class="nav-child" href="inventory-config.html">Config</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">ADMIN</div></div>
+  </div>
+</aside>
+
+<!-- ════════ TOPBAR ════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('collapsed')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <div class="breadcrumb">
+      <span class="bc-item">Inventory</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item active">Warehouse Transfer</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon"><span class="material-symbols-outlined">notifications</span></button>
+    <button class="btn-icon" onclick="window.location='inventory-config.html'">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+</header>
+
+<!-- ════════ MAIN ════════ -->
+<main class="main-content" id="mainContent">
+  <!-- Content rendered by JS based on CONFIG.multiWarehouseEnabled -->
+</main>
+
+<!-- ════════ NEW TRANSFER PANEL ════════ -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="slide-panel" id="newTransferPanel">
+  <div class="panel-head">
+    <div>
+      <div class="panel-title">New Warehouse Transfer</div>
+      <div class="panel-sub">Transfer stock between warehouses — dispatches INTER_WAREHOUSE_OUT movement</div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">
+      <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+    </button>
+  </div>
+  <div class="panel-body">
+    <div class="form-row-2col">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">From Warehouse <span style="color:var(--danger);">*</span></label>
+        <select class="form-select" id="fromWh" onchange="validateWarehouses()">
+          <option value="">— Select —</option>
+          <option value="WH-01">Factory 1 Store</option>
+          <option value="WH-02">Factory 2 Store</option>
+          <option value="WH-03">Central Warehouse</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">To Warehouse <span style="color:var(--danger);">*</span></label>
+        <select class="form-select" id="toWh" onchange="validateWarehouses()">
+          <option value="">— Select —</option>
+          <option value="WH-01">Factory 1 Store</option>
+          <option value="WH-02">Factory 2 Store</option>
+          <option value="WH-03">Central Warehouse</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--danger);margin-top:4px;min-height:16px;" id="whValidationMsg"></div>
+
+    <div class="form-row-2col" style="margin-top:12px;">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Transfer Date <span style="color:var(--danger);">*</span></label>
+        <input class="form-input" type="date" value="2026-05-07">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Expected Arrival Date</label>
+        <input class="form-input" type="date">
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:12px;">
+      <label class="form-label">Remarks</label>
+      <textarea class="form-textarea" placeholder="Reason for transfer, packing details, etc."></textarea>
+    </div>
+
+    <!-- Line items -->
+    <div style="margin-top:4px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:10px;">Items to Transfer</div>
+      <table class="line-tbl" id="lineTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item / Lot</th>
+            <th>Available Qty</th>
+            <th>Transfer Qty</th>
+            <th>UOM</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lineBody">
+          <tr id="line-1">
+            <td class="muted">1</td>
+            <td>
+              <select class="form-select" style="width:100%;height:30px;font-size:12px;">
+                <option>— Select item / lot —</option>
+                <option>LOT-2025-0001 · 40s Poplin (310 m available)</option>
+                <option>LOT-2025-0021 · Denim 8oz (400 m available)</option>
+                <option>LOT-2026-0011 · Polyester Twill (598 m available)</option>
+                <option>LOT-2026-0015 · Nylon Zip (1200 pcs available)</option>
+                <option>LOT-2026-0007 · White Elastic (42 m available)</option>
+              </select>
+            </td>
+            <td class="muted" style="text-align:right;">—</td>
+            <td><input class="form-input" type="number" min="1" placeholder="Qty" style="width:90px;"></td>
+            <td class="muted">Metre</td>
+            <td><button onclick="removeLine(1)" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;">×</button></td>
+          </tr>
+          <tr id="line-2">
+            <td class="muted">2</td>
+            <td>
+              <select class="form-select" style="width:100%;height:30px;font-size:12px;">
+                <option>— Select item / lot —</option>
+                <option>LOT-2025-0001 · 40s Poplin (310 m available)</option>
+                <option>LOT-2025-0021 · Denim 8oz (400 m available)</option>
+                <option>LOT-2026-0011 · Polyester Twill (598 m available)</option>
+                <option>LOT-2026-0015 · Nylon Zip (1200 pcs available)</option>
+                <option>LOT-2026-0007 · White Elastic (42 m available)</option>
+              </select>
+            </td>
+            <td class="muted" style="text-align:right;">—</td>
+            <td><input class="form-input" type="number" min="1" placeholder="Qty" style="width:90px;"></td>
+            <td class="muted">Pcs</td>
+            <td><button onclick="removeLine(2)" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="add-line-btn" onclick="addLine()">
+        <span class="material-symbols-outlined" style="font-size:14px;">add</span> Add Item
+      </button>
+    </div>
+  </div>
+  <div class="panel-foot">
+    <button class="btn" onclick="closePanel()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveDraft()">Save as Draft</button>
+    <button class="btn btn-primary" style="background:var(--brand-600);" onclick="dispatchTransfer()">
+      <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;">local_shipping</span>
+      Dispatch Now
+    </button>
+  </div>
+</div>
+
+<!-- ════════ RECEIVE MODAL ════════ -->
+<div class="modal-overlay" id="receiveModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="receiveModalTitle">Receive Transfer</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Confirm receipt at destination warehouse — posts INTER_WAREHOUSE_IN</div>
+      </div>
+      <button class="modal-close" onclick="closeReceive()">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="receiveInfo" style="background:var(--gray-50);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;"></div>
+      <div class="form-row">
+        <label class="form-label">Received Date <span style="color:var(--danger);">*</span></label>
+        <input class="form-input" type="date" id="receivedDate" value="2026-05-07">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Received By</label>
+        <input class="form-input" type="text" value="Ratan Kumar — Factory 2 Store" readonly>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-textarea" id="receiveRemarks" placeholder="Any discrepancies, short receipts, damages…"></textarea>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:var(--r);padding:10px 12px;font-size:12.5px;color:#15803d;font-weight:500;">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;">info</span>
+        On confirmation, stock will be added to the destination warehouse. In-transit qty will be cleared.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeReceive()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReceive()">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const CONFIG = {
+  multiWarehouseEnabled: true,   // entire module hidden when false
+  lotTrackingEnabled:    true,
+  binManagementEnabled:  true,
+};
+
+// ─────────────────────────────────────────────
+// MOCK DATA — transfer_note_header + lines
+// ─────────────────────────────────────────────
+const TRANSFERS = [
+  {
+    id:1, num:'TNF-2026-0012', date:'07 May 2026',
+    from:'Factory 1 Store', to:'Central Warehouse',
+    status:'IN_TRANSIT', dispatchedAt:'07 May 2026 10:30', expectedArrival:'08 May 2026',
+    lines:[
+      { item:'Polyester Twill', lot:'LOT-2026-0011', qty:200, uom:'Metre' },
+    ],
+    createdBy:'Mayukh Ghatak', remarks:'Excess stock consolidation to central.',
+  },
+  {
+    id:2, num:'TNF-2026-0011', date:'05 May 2026',
+    from:'Central Warehouse', to:'Factory 2 Store',
+    status:'IN_TRANSIT', dispatchedAt:'05 May 2026 14:00', expectedArrival:'06 May 2026',
+    lines:[
+      { item:'Denim 8oz — Rigid', lot:'LOT-2025-0033', qty:140, uom:'Metre' },
+      { item:'Nylon Zip 20cm', lot:'LOT-2026-0015', qty:300, uom:'Pcs' },
+    ],
+    createdBy:'Ratan Kumar', remarks:'PO allocation for Factory 2.',
+  },
+  {
+    id:3, num:'TNF-2026-0010', date:'03 May 2026',
+    from:'Factory 1 Store', to:'Factory 2 Store',
+    status:'RECEIVED', dispatchedAt:'03 May 2026 09:00', expectedArrival:'03 May 2026',
+    lines:[
+      { item:'White Elastic 3mm', lot:'LOT-2026-0007', qty:100, uom:'Metre' },
+    ],
+    createdBy:'Sohan Lal', remarks:'',
+  },
+  {
+    id:4, num:'TNF-2026-0009', date:'28 Apr 2026',
+    from:'Factory 2 Store', to:'Factory 1 Store',
+    status:'RECEIVED', dispatchedAt:'28 Apr 2026 11:00', expectedArrival:'28 Apr 2026',
+    lines:[
+      { item:'60s Lawn — Premium', lot:'LOT-2026-0002', qty:80, uom:'Metre' },
+    ],
+    createdBy:'Ratan Kumar', remarks:'Shade consolidation.',
+  },
+  {
+    id:5, num:'TNF-2026-0008', date:'25 Apr 2026',
+    from:'Factory 1 Store', to:'Central Warehouse',
+    status:'DRAFT', dispatchedAt:null, expectedArrival:'26 Apr 2026',
+    lines:[
+      { item:'40s Poplin — Solid', lot:'LOT-2025-0001', qty:150, uom:'Metre' },
+    ],
+    createdBy:'Mayukh Ghatak', remarks:'Pending approval.',
+  },
+];
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function statusBadge(s) {
+  const map = { DRAFT:'xs-draft|Draft', IN_TRANSIT:'xs-transit|In Transit', RECEIVED:'xs-received|Received', CANCELLED:'xs-cancelled|Cancelled' };
+  const [cls,lbl] = (map[s]||'xs-draft|'+s).split('|');
+  return `<span class="xfer-status ${cls}">${lbl}</span>`;
+}
+function fmt(n) { return n.toLocaleString(); }
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function renderPage() {
+  const main = document.getElementById('mainContent');
+
+  if (!CONFIG.multiWarehouseEnabled) {
+    main.innerHTML = `
+      <div class="feature-disabled">
+        <span class="material-symbols-outlined">warehouse</span>
+        <h2>Multi-Warehouse is Disabled</h2>
+        <p>Inter-warehouse transfer is only available when multi-warehouse mode is enabled. Go to Inventory Config to turn it on.</p>
+        <a href="inventory-config.html" class="btn btn-primary">Open Inventory Config</a>
+      </div>`;
+    return;
+  }
+
+  const inTransit = TRANSFERS.filter(t => t.status === 'IN_TRANSIT');
+  const drafts    = TRANSFERS.filter(t => t.status === 'DRAFT');
+  const received  = TRANSFERS.filter(t => t.status === 'RECEIVED');
+
+  main.innerHTML = `
+    <div class="page-header" style="margin-bottom:20px;">
+      <div>
+        <div class="page-title">Warehouse Transfer</div>
+        <div class="page-sub">Inter-warehouse stock movements — INTER_WAREHOUSE_OUT → IN_TRANSIT → INTER_WAREHOUSE_IN</div>
+      </div>
+      <button class="btn btn-primary" onclick="openPanel()">
+        <span class="material-symbols-outlined" style="font-size:16px;">add</span> New Transfer
+      </button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card alert">
+        <div class="stat-label">In Transit</div>
+        <div class="stat-num">${inTransit.length}</div>
+        <div class="stat-sub">transfers awaiting receipt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Draft</div>
+        <div class="stat-num">${drafts.length}</div>
+        <div class="stat-sub">not yet dispatched</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Received (30d)</div>
+        <div class="stat-num">${received.length}</div>
+        <div class="stat-sub">completed transfers</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label">Total Transfers</div>
+        <div class="stat-num">${TRANSFERS.length}</div>
+        <div class="stat-sub">all time</div>
+      </div>
+    </div>
+
+    ${inTransit.length > 0 ? `
+    <div class="transit-strip">
+      <span class="material-symbols-outlined">local_shipping</span>
+      <div class="transit-strip-text">${inTransit.length} transfer${inTransit.length>1?'s are':'is'} currently in transit between warehouses. Stock is excluded from both source and destination until received.</div>
+      <span class="transit-strip-count">${inTransit.length} In Transit</span>
+    </div>` : ''}
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="tab-strip">
+        <button class="tab-item active" id="tab-btn-all"     onclick="switchTab('all')">All <span class="tab-count">${TRANSFERS.length}</span></button>
+        <button class="tab-item"        id="tab-btn-transit" onclick="switchTab('transit')">In Transit <span class="tab-count">${inTransit.length}</span></button>
+        <button class="tab-item"        id="tab-btn-draft"   onclick="switchTab('draft')">Draft <span class="tab-count">${drafts.length}</span></button>
+        <button class="tab-item"        id="tab-btn-received"onclick="switchTab('received')">Received <span class="tab-count">${received.length}</span></button>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">Filters:</span>
+        <select class="filter-select">
+          <option value="">All Warehouses</option>
+          <option>Factory 1 Store</option>
+          <option>Factory 2 Store</option>
+          <option>Central Warehouse</option>
+        </select>
+        <input class="filter-input" type="text" placeholder="Transfer # or item…" style="min-width:180px;">
+        <input class="filter-input" type="date" title="Date from">
+        <input class="filter-input" type="date" title="Date to">
+        <div class="filter-sep"></div>
+        <button class="btn-filter">Apply</button>
+        <button class="btn-clear">Clear</button>
+      </div>
+
+      <div class="tab-content active" id="tab-all">
+        ${buildTable(TRANSFERS)}
+      </div>
+      <div class="tab-content" id="tab-transit">
+        ${buildTable(inTransit)}
+      </div>
+      <div class="tab-content" id="tab-draft">
+        ${buildTable(drafts)}
+      </div>
+      <div class="tab-content" id="tab-received">
+        ${buildTable(received)}
+      </div>
+    </div>`;
+}
+
+function buildTable(rows) {
+  if (rows.length === 0) return `<div style="padding:40px;text-align:center;color:var(--text-3);">No transfers in this category.</div>`;
+  return `
+    <div class="tbl-wrap">
+      <table class="xfer-tbl">
+        <thead>
+          <tr>
+            <th>Transfer #</th>
+            <th>Date</th>
+            <th>From → To</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Dispatched At</th>
+            <th>Expected Arrival</th>
+            <th>Created By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(t => `<tr>
+            <td><a href="#" style="color:var(--brand-600);text-decoration:none;font-weight:700;">${t.num}</a></td>
+            <td class="muted">${t.date}</td>
+            <td>
+              <div class="wh-arrow">
+                <span class="wh-badge source">${t.from}</span>
+                <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-3);">arrow_forward</span>
+                <span class="wh-badge dest">${t.to}</span>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex;flex-direction:column;gap:3px;">
+                ${t.lines.map(l => `<div style="font-size:12px;"><span style="font-weight:500;">${l.item}</span> <span class="lot-badge">${l.lot}</span> <span style="color:var(--text-3);">${fmt(l.qty)} ${l.uom}</span></div>`).join('')}
+              </div>
+            </td>
+            <td>${statusBadge(t.status)}</td>
+            <td class="muted">${t.dispatchedAt || '—'}</td>
+            <td class="muted">${t.expectedArrival || '—'}</td>
+            <td class="muted">${t.createdBy}</td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                ${t.status === 'DRAFT' ? `<button class="btn btn-sm" onclick="dispatchExisting(${t.id})">Dispatch</button>` : ''}
+                ${t.status === 'IN_TRANSIT' ? `<button class="btn btn-primary btn-sm" onclick="openReceive(${t.id})">Receive</button>` : ''}
+                ${t.status === 'DRAFT' ? `<button class="btn btn-sm" style="color:var(--danger);" onclick="cancelTransfer(${t.id})">Cancel</button>` : ''}
+                <button class="btn btn-sm" onclick="viewDetail(${t.id})">View</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Showing ${rows.length} transfer${rows.length!==1?'s':''}</div>`;
+}
+
+// ─────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const btn = document.getElementById(`tab-btn-${id}`);
+  const cnt = document.getElementById(`tab-${id}`);
+  if (btn) btn.classList.add('active');
+  if (cnt) cnt.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// PANEL ACTIONS
+// ─────────────────────────────────────────────
+let lineCount = 2;
+
+function openPanel() {
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('newTransferPanel').classList.add('open');
+}
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('newTransferPanel').classList.remove('open');
+}
+function addLine() {
+  lineCount++;
+  const tbody = document.getElementById('lineBody');
+  const row = document.createElement('tr');
+  row.id = `line-${lineCount}`;
+  row.innerHTML = `
+    <td class="muted">${lineCount}</td>
+    <td>
+      <select class="form-select" style="width:100%;height:30px;font-size:12px;">
+        <option>— Select item / lot —</option>
+        <option>LOT-2025-0001 · 40s Poplin (310 m available)</option>
+        <option>LOT-2025-0021 · Denim 8oz (400 m available)</option>
+        <option>LOT-2026-0011 · Polyester Twill (598 m available)</option>
+        <option>LOT-2026-0015 · Nylon Zip (1200 pcs available)</option>
+      </select>
+    </td>
+    <td class="muted" style="text-align:right;">—</td>
+    <td><input class="form-input" type="number" min="1" placeholder="Qty" style="width:90px;"></td>
+    <td class="muted">—</td>
+    <td><button onclick="removeLine(${lineCount})" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;">×</button></td>`;
+  tbody.appendChild(row);
+}
+function removeLine(id) {
+  const row = document.getElementById(`line-${id}`);
+  if (row) row.remove();
+}
+function validateWarehouses() {
+  const from = document.getElementById('fromWh').value;
+  const to   = document.getElementById('toWh').value;
+  const msg  = document.getElementById('whValidationMsg');
+  msg.textContent = (from && to && from === to) ? 'Source and destination warehouse must be different.' : '';
+}
+function saveDraft() {
+  alert('POST /api/v1/inventory/transfers\nBody: { fromWarehouseId, toWarehouseId, transferDate, lines: [...] }\nCreates transfer_note_header (status=DRAFT) + lines. No ledger entries yet.');
+  closePanel();
+}
+function dispatchTransfer() {
+  alert('POST /api/v1/inventory/transfers/{id}/dispatch\nPosts INTER_WAREHOUSE_OUT for each line → status=IN_TRANSIT\nStock appears as "In Transit" until received.');
+  closePanel();
+}
+function dispatchExisting(id) {
+  const t = TRANSFERS.find(x => x.id === id);
+  alert(`POST /api/v1/inventory/transfers/${t.num}/dispatch\nPosts INTER_WAREHOUSE_OUT for ${t.lines.length} line(s) → status changes to IN_TRANSIT`);
+}
+
+// ─────────────────────────────────────────────
+// RECEIVE MODAL
+// ─────────────────────────────────────────────
+function openReceive(id) {
+  const t = TRANSFERS.find(x => x.id === id);
+  document.getElementById('receiveModalTitle').textContent = `Receive ${t.num}`;
+  document.getElementById('receiveInfo').innerHTML = `
+    <div class="info-row"><span class="info-lbl">Transfer #</span><span style="font-weight:700;">${t.num}</span></div>
+    <div class="info-row"><span class="info-lbl">From</span><span>${t.from}</span></div>
+    <div class="info-row"><span class="info-lbl">To</span><span>${t.to}</span></div>
+    <div class="info-row"><span class="info-lbl">Items</span>
+      <span>${t.lines.map(l => `${l.item} — <strong>${fmt(l.qty)} ${l.uom}</strong>`).join('<br>')}</span>
+    </div>
+    <div class="info-row"><span class="info-lbl">Dispatched</span><span>${t.dispatchedAt}</span></div>`;
+  document.getElementById('receiveModal').classList.add('open');
+}
+function closeReceive() { document.getElementById('receiveModal').classList.remove('open'); }
+function confirmReceive() {
+  alert('POST /api/v1/inventory/transfers/{id}/receive\nPosts INTER_WAREHOUSE_IN for each line → status=RECEIVED\nIn-transit qty cleared. Stock now visible in destination warehouse.');
+  closeReceive();
+}
+
+function cancelTransfer(id) {
+  if (confirm('Cancel this draft transfer? No ledger entries have been posted.')) {
+    alert('DELETE /api/v1/inventory/transfers/{id} — transfer cancelled (DRAFT only).');
+  }
+}
+function viewDetail(id) {
+  const t = TRANSFERS.find(x => x.id === id);
+  alert(`GET /api/v1/inventory/transfers/${t.id}\n\n${t.num}\n${t.from} → ${t.to}\nStatus: ${t.status}\nItems: ${t.lines.map(l => l.item+' '+l.qty+' '+l.uom).join(', ')}`);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(function init() {
+  renderPage();
+  document.querySelectorAll('.nav-parent-row').forEach(row => {
+    row.addEventListener('click', () => row.closest('.nav-parent').classList.toggle('active-group'));
+  });
+})();
+</script>
+</body>
+</html>

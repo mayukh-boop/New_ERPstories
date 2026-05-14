@@ -1,0 +1,627 @@
+<!--
+  Prototype : wip-tracker.html
+  Jira Story: NE-38 — INV-11 Style Inventory / WIP Tracking
+  Epic      : NE-26 — INV Inventory Module (Garment ERP)
+  Design ref: inventory-module-design.md §3C, §10 (INV-11), §7 (FINISHED_GOODS_IN/OUT)
+  GitHub    : https://github.com/mayukh-boop/New_ERPstories/blob/main/wip-tracker.html
+  Jira URL  : https://codeverse.atlassian.net/browse/NE-38
+
+  WIP stages: CUT → SEW → FINISH → PACK → SHIPPED
+  Data source: style_inventory_movement table (posted from Production Order stage completions)
+  Key views:
+    - WIP pipeline per PO (funnel: cut/sewing/finishing/packing counts)
+    - Free Finished Goods (FINISH/PACK units with no Delivery Note raised)
+    - Buyer PO completion rate
+    - Stage-wise aggregate across all active POs
+
+  Key backend endpoints:
+    GET /api/v1/inventory/wip                    (active PO WIP status list, pageable)
+    GET /api/v1/inventory/wip/{poId}             (detail with per-stage counts)
+    GET /api/v1/inventory/wip/free-fg            (free finished goods — no delivery note)
+    GET /api/v1/inventory/wip/summary            (aggregate KPI totals)
+    POST /api/v1/inventory/wip/stage-update      (production supervisor updates stage qty)
+
+  DB tables: style_inventory_movement (posted by PO stage completion events)
+  Movement types used: FINISHED_GOODS_IN (when garments enter FG store), FINISHED_GOODS_OUT (delivery)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIP Tracker — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(91,95,199,0.07); --sidebar-active:rgba(91,95,199,0.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --cut:#6366f1; --sew:#0ea5e9; --finish:#f59e0b; --pack:#10b981; --shipped:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;} .brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:0.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;} .nav-parent-icon{color:#8892a4!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sf-name{color:#1e1f2e!important;} .sf-role{color:#8892a4!important;} .sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,0.06)!important;}
+
+/* ── Stage KPI cards ── */
+.stage-pipeline {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:0;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  overflow:hidden; margin-bottom:22px; box-shadow:var(--shadow-sm);
+}
+.stage-card {
+  padding:18px 16px; text-align:center; position:relative;
+  border-right:1px solid var(--border);
+}
+.stage-card:last-child { border-right:none; }
+.stage-card::after {
+  content:'›'; position:absolute; right:-10px; top:50%; transform:translateY(-50%);
+  font-size:22px; color:var(--gray-300); z-index:1;
+}
+.stage-card:last-child::after { display:none; }
+.stage-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
+.stage-icon .material-symbols-outlined { font-size:18px; color:#fff; }
+.stage-num  { font-size:28px; font-weight:900; line-height:1; }
+.stage-label{ font-size:11.5px; font-weight:600; margin-top:4px; }
+.stage-sub  { font-size:11px; color:var(--text-3); margin-top:3px; }
+.stage-bar  { height:4px; border-radius:var(--r-full); margin-top:10px; }
+
+.stage-cut     .stage-icon  { background:var(--cut); }
+.stage-cut     .stage-num   { color:var(--cut); }
+.stage-cut     .stage-bar   { background:var(--cut); }
+.stage-sew     .stage-icon  { background:var(--sew); }
+.stage-sew     .stage-num   { color:var(--sew); }
+.stage-sew     .stage-bar   { background:var(--sew); }
+.stage-finish  .stage-icon  { background:var(--finish); }
+.stage-finish  .stage-num   { color:var(--finish); }
+.stage-finish  .stage-bar   { background:var(--finish); }
+.stage-pack    .stage-icon  { background:var(--pack); }
+.stage-pack    .stage-num   { color:var(--pack); }
+.stage-pack    .stage-bar   { background:var(--pack); }
+.stage-shipped .stage-icon  { background:var(--shipped); }
+.stage-shipped .stage-num   { color:var(--shipped); }
+.stage-shipped .stage-bar   { background:var(--shipped); }
+
+/* ── KPI strip below pipeline ── */
+.kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px 18px; box-shadow:var(--shadow-sm); }
+.kpi-label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px; }
+.kpi-num   { font-size:26px; font-weight:800; color:var(--text-1); line-height:1; }
+.kpi-sub   { font-size:12px; color:var(--text-3); margin-top:4px; }
+.kpi-card.alert  { border-left:3px solid var(--warning); }
+.kpi-card.success{ border-left:3px solid var(--success); }
+.kpi-card.info   { border-left:3px solid var(--brand-500); }
+
+/* ── Tab strip ── */
+.tab-strip { display:flex; gap:2px; border-bottom:1px solid var(--border2); padding:0 24px; background:var(--surface); }
+.tab-item { padding:10px 16px; font-size:12.5px; font-weight:500; color:var(--text-3); cursor:pointer; border:none; background:transparent; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all var(--ease); font-family:inherit; display:flex; align-items:center; gap:6px; }
+.tab-item:hover { color:var(--text-1); }
+.tab-item.active { color:var(--brand-600); border-bottom-color:var(--brand-600); font-weight:600; }
+.tab-count { min-width:18px; height:18px; padding:0 5px; background:var(--gray-200); border-radius:var(--r-full); font-size:10px; font-weight:700; color:var(--text-2); display:flex; align-items:center; justify-content:center; }
+.tab-item.active .tab-count { background:var(--brand-100); color:var(--brand-700); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── Filter bar ── */
+.filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border2); }
+.filter-label { font-size:11.5px; font-weight:600; color:var(--text-3); flex-shrink:0; }
+.filter-input { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface); outline:none; min-width:140px; }
+.filter-input:focus { border-color:var(--brand-500); }
+.filter-select { height:32px; border:1px solid var(--border); border-radius:var(--r-sm); padding:0 28px 0 10px; font-size:12.5px; font-family:inherit; color:var(--text-1); background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; outline:none; min-width:130px; }
+.filter-sep { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+.btn-filter { height:32px; padding:0 14px; border-radius:var(--r-sm); font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer; border:none; background:var(--brand-500); color:#fff; }
+.btn-filter:hover { background:var(--brand-600); }
+.btn-clear { height:32px; padding:0 12px; border-radius:var(--r-sm); font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-2); }
+.btn-export { height:32px; padding:0 12px; border-radius:var(--r-sm); font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-2); display:flex; align-items:center; gap:5px; margin-left:auto; }
+.btn-export:hover { border-color:var(--brand-500); color:var(--brand-600); }
+
+/* ── WIP table ── */
+.wip-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.wip-tbl th { padding:10px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-3); background:var(--gray-50); border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:2; }
+.wip-tbl td { padding:10px 12px; border-bottom:1px solid var(--border2); color:var(--text-1); vertical-align:middle; }
+.wip-tbl tbody tr:hover { background:var(--gray-50); }
+.wip-tbl .num { text-align:right; font-variant-numeric:tabular-nums; }
+.wip-tbl .muted { color:var(--text-3); font-size:12px; }
+
+/* ── Stage mini-funnel (per PO row) ── */
+.mini-funnel { display:flex; align-items:center; gap:3px; }
+.mf-seg { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:40px; }
+.mf-bar { height:16px; border-radius:3px; width:100%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; }
+.mf-label { font-size:9px; font-weight:600; color:var(--text-3); text-transform:uppercase; }
+.mf-arrow { color:var(--gray-300); font-size:12px; flex-shrink:0; padding-bottom:14px; }
+
+/* ── Completion bar ── */
+.comp-bar-wrap { display:flex; align-items:center; gap:6px; }
+.comp-bar { height:6px; border-radius:var(--r-full); overflow:hidden; background:var(--gray-200); width:80px; }
+.comp-bar-fill { height:100%; }
+.cb-low  { background:var(--danger); }
+.cb-mid  { background:var(--warning); }
+.cb-high { background:var(--success); }
+
+/* ── Free FG badge ── */
+.fg-badge { display:inline-flex; padding:2px 9px; border-radius:var(--r-full); font-size:11px; font-weight:600; }
+.fg-free  { background:#f0fdf4; color:#15803d; }
+.fg-alloc { background:#eff6ff; color:#1e40af; }
+
+/* ── Stage pill ── */
+.stage-pill { display:inline-flex; padding:2px 9px; border-radius:var(--r-full); font-size:11px; font-weight:600; }
+.sp-cut     { background:#ede9fe; color:#5b21b6; }
+.sp-sew     { background:#e0f2fe; color:#0369a1; }
+.sp-finish  { background:#fef9c3; color:#92400e; }
+.sp-pack    { background:#dcfce7; color:#15803d; }
+.sp-shipped { background:var(--gray-100); color:var(--text-2); }
+</style>
+</head>
+<body>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">CE</div>
+    <div><div class="brand-name">C-Edge</div><div class="brand-sub">ERP Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Inventory</div>
+    <div class="nav-parent active-group">
+      <div class="nav-parent-row">
+        <span class="material-symbols-outlined nav-parent-icon">inventory_2</span>
+        <span class="nav-parent-label">Inventory</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="inventory-dashboard.html">Dashboard</a>
+        <a class="nav-child" href="fabric-stock.html">Fabric Stock</a>
+        <a class="nav-child" href="rm-stock.html">RM Stock</a>
+        <a class="nav-child" href="stock-allocation.html">Allocation</a>
+        <a class="nav-child" href="cutting-issue.html">Issue Notes</a>
+        <a class="nav-child" href="ageing-report.html">Ageing Report</a>
+        <a class="nav-child" href="warehouse-transfer.html">WH Transfer</a>
+        <a class="nav-child" href="stock-count.html">Stock Count</a>
+        <a class="nav-child active" href="#">WIP Tracker</a>
+        <a class="nav-child" href="inventory-config.html">Config</a>
+      </div>
+    </div>
+    <div class="nav-section">Production</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row">
+        <span class="material-symbols-outlined nav-parent-icon">precision_manufacturing</span>
+        <span class="nav-parent-label">Production</span>
+        <span class="material-symbols-outlined nav-chevron">chevron_right</span>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">MG</div>
+    <div class="sf-info"><div class="sf-name">Mayukh Ghatak</div><div class="sf-role">ADMIN</div></div>
+  </div>
+</aside>
+
+<!-- ════════ TOPBAR ════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('collapsed')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <div class="breadcrumb">
+      <span class="bc-item">Inventory</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item active">WIP Tracker</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon"><span class="material-symbols-outlined">notifications</span></button>
+    <button class="btn-icon" onclick="window.location='inventory-config.html'">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+</header>
+
+<!-- ════════ MAIN ════════ -->
+<main class="main-content">
+  <div class="page-header" style="margin-bottom:20px;">
+    <div>
+      <div class="page-title">WIP / Style Inventory Tracker</div>
+      <div class="page-sub">Garment units at each production stage — Cut → Sewing → Finishing → Packing → Shipped</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="exportWip()">
+        <span class="material-symbols-outlined" style="font-size:15px;">download</span> Export
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Stage Pipeline (aggregate across all active POs) ── -->
+  <div class="stage-pipeline" id="stagePipeline">
+    <!-- rendered by renderPipeline() -->
+  </div>
+
+  <!-- ── KPI strip ── -->
+  <div class="kpi-strip">
+    <div class="kpi-card info">
+      <div class="kpi-label">Active Production Orders</div>
+      <div class="kpi-num" id="kpi-po-count">—</div>
+      <div class="kpi-sub">with open WIP</div>
+    </div>
+    <div class="kpi-card success">
+      <div class="kpi-label">Free Finished Goods</div>
+      <div class="kpi-num" id="kpi-free-fg">—</div>
+      <div class="kpi-sub">pcs — no delivery note raised</div>
+    </div>
+    <div class="kpi-card alert">
+      <div class="kpi-label">Delayed POs</div>
+      <div class="kpi-num" id="kpi-delayed">—</div>
+      <div class="kpi-sub">past planned end date</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Completion</div>
+      <div class="kpi-num" id="kpi-avg-comp">—</div>
+      <div class="kpi-sub">across active POs</div>
+    </div>
+  </div>
+
+  <!-- ── Tab card ── -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="tab-strip">
+      <button class="tab-item active" id="tab-btn-wip"    onclick="switchTab('wip')">PO WIP Status <span class="tab-count" id="tc-wip">—</span></button>
+      <button class="tab-item"        id="tab-btn-free-fg"onclick="switchTab('free-fg')">Free Finished Goods <span class="tab-count" id="tc-fg">—</span></button>
+      <button class="tab-item"        id="tab-btn-buyer"  onclick="switchTab('buyer')">Buyer PO Completion <span class="tab-count" id="tc-buyer">—</span></button>
+    </div>
+
+    <!-- ── TAB: PO WIP STATUS ── -->
+    <div class="tab-content active" id="tab-wip">
+      <div class="filter-bar">
+        <span class="filter-label">Filters:</span>
+        <input class="filter-input" type="text" placeholder="PO # or style…" style="min-width:180px;">
+        <select class="filter-select">
+          <option value="">All Buyers</option>
+          <option>Zara</option>
+          <option>H&amp;M</option>
+          <option>M&amp;S</option>
+          <option>Next</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Stages</option>
+          <option>Cut</option>
+          <option>Sewing</option>
+          <option>Finishing</option>
+          <option>Packing</option>
+        </select>
+        <div class="filter-sep"></div>
+        <button class="btn-filter">Apply</button>
+        <button class="btn-clear">Clear</button>
+        <button class="btn-export" onclick="exportWip()">
+          <span class="material-symbols-outlined" style="font-size:13px;">download</span> Excel
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="wip-tbl">
+          <thead>
+            <tr>
+              <th>PO #</th>
+              <th>Style</th>
+              <th>Buyer</th>
+              <th class="num">PO Qty</th>
+              <th>Stage Breakdown</th>
+              <th class="num">Shipped</th>
+              <th>Completion</th>
+              <th>Planned End</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="wipBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="wipFooter">—</div>
+    </div>
+
+    <!-- ── TAB: FREE FINISHED GOODS ── -->
+    <div class="tab-content" id="tab-free-fg">
+      <div class="filter-bar">
+        <span class="filter-label">Filters:</span>
+        <select class="filter-select">
+          <option value="">All Buyers</option>
+          <option>Zara</option>
+          <option>H&amp;M</option>
+          <option>M&amp;S</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Styles</option>
+          <option>STY-2025-042</option>
+          <option>STY-2025-038</option>
+        </select>
+        <select class="filter-select">
+          <option value="">FG Stage</option>
+          <option>Finishing</option>
+          <option>Packing</option>
+        </select>
+        <div class="filter-sep"></div>
+        <button class="btn-filter">Apply</button>
+        <button class="btn-clear">Clear</button>
+        <button class="btn-export" onclick="exportWip()">
+          <span class="material-symbols-outlined" style="font-size:13px;">download</span> Excel
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="wip-tbl">
+          <thead>
+            <tr>
+              <th>Production Order</th>
+              <th>Style</th>
+              <th>Buyer</th>
+              <th>Stage</th>
+              <th class="num">Free FG Qty</th>
+              <th>Ageing (in FG store)</th>
+              <th>Buyer PO</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="freeFgBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="freeFgFooter">—</div>
+    </div>
+
+    <!-- ── TAB: BUYER PO COMPLETION ── -->
+    <div class="tab-content" id="tab-buyer">
+      <div class="filter-bar">
+        <span class="filter-label">Filters:</span>
+        <select class="filter-select">
+          <option value="">All Buyers</option>
+          <option>Zara</option>
+          <option>H&amp;M</option>
+          <option>M&amp;S</option>
+        </select>
+        <input class="filter-input" type="text" placeholder="Buyer PO #…" style="min-width:160px;">
+        <input class="filter-input" type="date" title="Delivery date from">
+        <input class="filter-input" type="date" title="Delivery date to">
+        <div class="filter-sep"></div>
+        <button class="btn-filter">Apply</button>
+        <button class="btn-clear">Clear</button>
+        <button class="btn-export" onclick="exportWip()">
+          <span class="material-symbols-outlined" style="font-size:13px;">download</span> Excel
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="wip-tbl">
+          <thead>
+            <tr>
+              <th>Buyer PO #</th>
+              <th>Buyer</th>
+              <th>Style</th>
+              <th class="num">PO Qty</th>
+              <th class="num">Shipped</th>
+              <th class="num">Pending</th>
+              <th>Completion</th>
+              <th>Delivery Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="buyerBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="buyerFooter">—</div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// MOCK DATA
+// Represents style_inventory_movement aggregated per production order + stage
+// In production: GET /api/v1/inventory/wip returns these aggregates
+// ─────────────────────────────────────────────
+const WIP_POS = [
+  { poNum:'PO-2026-0041', style:'STY-042 — Ladies Poplin Shirt', buyer:'Zara',  poQty:1200, cut:1200, sew:900, finish:540, pack:200, shipped:0,   plannedEnd:'25 May 2026', delayed:false },
+  { poNum:'PO-2026-0038', style:'STY-038 — Mens Denim Jacket',   buyer:'H&M',   poQty:500,  cut:500,  sew:280, finish:100, pack:0,   shipped:0,   plannedEnd:'18 May 2026', delayed:true  },
+  { poNum:'PO-2026-0035', style:'STY-031 — Jersey Round-Neck Tee',buyer:'M&S',  poQty:2000, cut:2000, sew:1800,finish:1200,pack:800, shipped:600, plannedEnd:'10 May 2026', delayed:true  },
+  { poNum:'PO-2026-0028', style:'STY-027 — Linen Blazer',        buyer:'Next',  poQty:300,  cut:300,  sew:180, finish:60,  pack:0,   shipped:0,   plannedEnd:'30 May 2026', delayed:false },
+  { poNum:'PO-2026-0022', style:'STY-019 — Viscose Midi Dress',  buyer:'Zara',  poQty:800,  cut:800,  sew:800, finish:700, pack:600, shipped:400, plannedEnd:'05 May 2026', delayed:true  },
+];
+
+const FREE_FG = [
+  { poNum:'PO-2026-0041', style:'STY-042 Ladies Poplin Shirt', buyer:'Zara', stage:'PACK',   freeFg:200, ageDays:2,  buyerPo:'ZA-BPO-2026-041' },
+  { poNum:'PO-2026-0035', style:'STY-031 Jersey Round-Neck',   buyer:'M&S',  stage:'PACK',   freeFg:200, ageDays:3,  buyerPo:'MS-BPO-2026-035' },
+  { poNum:'PO-2026-0022', style:'STY-019 Viscose Midi Dress',  buyer:'Zara', stage:'PACK',   freeFg:200, ageDays:8,  buyerPo:'ZA-BPO-2026-022' },
+  { poNum:'PO-2026-0035', style:'STY-031 Jersey Round-Neck',   buyer:'M&S',  stage:'FINISH', freeFg:400, ageDays:5,  buyerPo:'MS-BPO-2026-035' },
+];
+
+const BUYER_POS = [
+  { bpoNum:'ZA-BPO-2026-041', buyer:'Zara', style:'STY-042 Ladies Poplin Shirt', poQty:1200, shipped:0,   pending:1200,deliveryDate:'25 May 2026', onTime:true  },
+  { bpoNum:'HM-BPO-2026-038', buyer:'H&M',  style:'STY-038 Mens Denim Jacket',   poQty:500,  shipped:0,   pending:500, deliveryDate:'18 May 2026', onTime:false },
+  { bpoNum:'MS-BPO-2026-035', buyer:'M&S',  style:'STY-031 Jersey Round-Neck',   poQty:2000, shipped:600, pending:1400,deliveryDate:'10 May 2026', onTime:false },
+  { bpoNum:'NX-BPO-2026-028', buyer:'Next', style:'STY-027 Linen Blazer',        poQty:300,  shipped:0,   pending:300, deliveryDate:'30 May 2026', onTime:true  },
+  { bpoNum:'ZA-BPO-2026-022', buyer:'Zara', style:'STY-019 Viscose Midi Dress',  poQty:800,  shipped:400, pending:400, deliveryDate:'05 May 2026', onTime:false },
+];
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function fmt(n) { return typeof n === 'number' ? n.toLocaleString() : '—'; }
+function pct(a, b) { return b > 0 ? Math.round(a/b*100) : 0; }
+function compBar(p) {
+  const cls = p >= 80 ? 'cb-high' : p >= 40 ? 'cb-mid' : 'cb-low';
+  return `<div class="comp-bar-wrap">
+    <div class="comp-bar"><div class="comp-bar-fill ${cls}" style="width:${p}%"></div></div>
+    <span style="font-size:11px;color:var(--text-3);">${p}%</span>
+  </div>`;
+}
+function stagePill(s) {
+  const map = { CUT:'sp-cut|Cutting', SEW:'sp-sew|Sewing', FINISH:'sp-finish|Finishing', PACK:'sp-pack|Packing', SHIPPED:'sp-shipped|Shipped' };
+  const [cls,lbl] = (map[s]||'sp-shipped|'+s).split('|');
+  return `<span class="stage-pill ${cls}">${lbl}</span>`;
+}
+function delayBadge(delayed) {
+  return delayed
+    ? `<span style="background:#fef2f2;color:#991b1b;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">Delayed</span>`
+    : `<span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">On Track</span>`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER PIPELINE
+// ─────────────────────────────────────────────
+function renderPipeline() {
+  const totals = WIP_POS.reduce((acc, p) => {
+    acc.cut += p.cut; acc.sew += p.sew; acc.finish += p.finish; acc.pack += p.pack; acc.shipped += p.shipped;
+    return acc;
+  }, { cut:0, sew:0, finish:0, pack:0, shipped:0 });
+
+  const maxVal = Math.max(totals.cut, 1);
+  const stages = [
+    { key:'cut',    label:'Cutting',   cls:'stage-cut',     icon:'content_cut',   val:totals.cut,     sub:'pcs at cut stage' },
+    { key:'sew',    label:'Sewing',    cls:'stage-sew',     icon:'sewing',        val:totals.sew,     sub:'pcs in sewing lines' },
+    { key:'finish', label:'Finishing', cls:'stage-finish',  icon:'checkroom',     val:totals.finish,  sub:'pcs in finishing' },
+    { key:'pack',   label:'Packing',   cls:'stage-pack',    icon:'inventory',     val:totals.pack,    sub:'pcs ready to ship' },
+    { key:'shipped',label:'Shipped',   cls:'stage-shipped', icon:'local_shipping',val:totals.shipped, sub:'pcs despatched' },
+  ];
+
+  document.getElementById('stagePipeline').innerHTML = stages.map(s => `
+    <div class="stage-card ${s.cls}">
+      <div class="stage-icon"><span class="material-symbols-outlined">${s.icon}</span></div>
+      <div class="stage-num">${fmt(s.val)}</div>
+      <div class="stage-label">${s.label}</div>
+      <div class="stage-sub">${s.sub}</div>
+      <div class="stage-bar" style="width:${Math.round(s.val/maxVal*100)}%;"></div>
+    </div>`).join('');
+
+  // KPIs
+  const delayed = WIP_POS.filter(p => p.delayed).length;
+  const freeFgTotal = FREE_FG.reduce((a, f) => a+f.freeFg, 0);
+  const avgComp = Math.round(WIP_POS.reduce((a, p) => a + pct(p.shipped+p.pack, p.poQty), 0) / WIP_POS.length);
+
+  document.getElementById('kpi-po-count').textContent = WIP_POS.length;
+  document.getElementById('kpi-free-fg').textContent  = fmt(freeFgTotal);
+  document.getElementById('kpi-delayed').textContent  = delayed;
+  document.getElementById('kpi-avg-comp').textContent = avgComp + '%';
+
+  // tab counts
+  document.getElementById('tc-wip').textContent = WIP_POS.length;
+  document.getElementById('tc-fg').textContent  = FREE_FG.length;
+  document.getElementById('tc-buyer').textContent = BUYER_POS.length;
+}
+
+// ─────────────────────────────────────────────
+// RENDER WIP TABLE
+// ─────────────────────────────────────────────
+function renderWip() {
+  document.getElementById('wipBody').innerHTML = WIP_POS.map(p => {
+    const completion = pct(p.shipped, p.poQty);
+    // mini funnel
+    const maxS = Math.max(p.cut, 1);
+    const funnel = `
+      <div class="mini-funnel">
+        <div class="mf-seg"><div class="mf-bar" style="background:var(--cut);width:${Math.round(p.cut/maxS*100)}%;">${fmt(p.cut)}</div><div class="mf-label">Cut</div></div>
+        <span class="mf-arrow">›</span>
+        <div class="mf-seg"><div class="mf-bar" style="background:var(--sew);width:${Math.round(p.sew/maxS*100)}%;">${fmt(p.sew)}</div><div class="mf-label">Sew</div></div>
+        <span class="mf-arrow">›</span>
+        <div class="mf-seg"><div class="mf-bar" style="background:var(--finish);width:${Math.round(p.finish/maxS*100)}%;">${fmt(p.finish)}</div><div class="mf-label">Finish</div></div>
+        <span class="mf-arrow">›</span>
+        <div class="mf-seg"><div class="mf-bar" style="background:var(--pack);width:${Math.round(p.pack/maxS*100)}%;">${fmt(p.pack)}</div><div class="mf-label">Pack</div></div>
+      </div>`;
+
+    return `<tr>
+      <td><a href="production-order-list.html" style="color:var(--brand-600);text-decoration:none;font-weight:700;">${p.poNum}</a></td>
+      <td style="font-size:12.5px;font-weight:500;">${p.style}</td>
+      <td class="muted">${p.buyer}</td>
+      <td class="num" style="font-weight:700;">${fmt(p.poQty)}</td>
+      <td>${funnel}</td>
+      <td class="num" style="font-weight:700;${p.shipped>0?'color:var(--success);':''}">${p.shipped > 0 ? fmt(p.shipped) : '—'}</td>
+      <td>${compBar(completion)}</td>
+      <td class="muted">${p.plannedEnd}</td>
+      <td>${delayBadge(p.delayed)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('wipFooter').textContent = `${WIP_POS.length} active production orders`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER FREE FG TABLE
+// ─────────────────────────────────────────────
+function renderFreeFg() {
+  document.getElementById('freeFgBody').innerHTML = FREE_FG.map(f => `
+    <tr>
+      <td><a href="#" style="color:var(--brand-600);text-decoration:none;font-weight:600;">${f.poNum}</a></td>
+      <td style="font-weight:500;">${f.style}</td>
+      <td class="muted">${f.buyer}</td>
+      <td>${stagePill(f.stage)}</td>
+      <td class="num" style="font-weight:800;font-size:15px;">${fmt(f.freeFg)}</td>
+      <td>
+        <span class="${f.ageDays > 7 ? 'age-warn' : ''}" style="${f.ageDays>7?'color:var(--warning);font-weight:600;':''}">${f.ageDays} day${f.ageDays!==1?'s':''} in FG store</span>
+      </td>
+      <td><a href="#" style="color:var(--brand-600);text-decoration:none;font-size:12px;">${f.buyerPo}</a></td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="raiseDN('${f.poNum}')">Raise Delivery Note</button>
+      </td>
+    </tr>`).join('');
+
+  const totalFg = FREE_FG.reduce((a, f) => a+f.freeFg, 0);
+  document.getElementById('freeFgFooter').textContent = `${FREE_FG.length} lines · ${fmt(totalFg)} total free pcs`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER BUYER PO TABLE
+// ─────────────────────────────────────────────
+function renderBuyer() {
+  document.getElementById('buyerBody').innerHTML = BUYER_POS.map(b => {
+    const comp = pct(b.shipped, b.poQty);
+    return `<tr>
+      <td><a href="#" style="color:var(--brand-600);text-decoration:none;font-weight:700;">${b.bpoNum}</a></td>
+      <td class="muted">${b.buyer}</td>
+      <td style="font-weight:500;">${b.style}</td>
+      <td class="num" style="font-weight:700;">${fmt(b.poQty)}</td>
+      <td class="num" style="${b.shipped>0?'font-weight:700;color:var(--success);':''}">${b.shipped > 0 ? fmt(b.shipped) : '—'}</td>
+      <td class="num" style="${b.pending>0?'font-weight:700;':''}">${fmt(b.pending)}</td>
+      <td>${compBar(comp)}</td>
+      <td class="muted">${b.deliveryDate}</td>
+      <td>${b.onTime
+        ? `<span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">On Track</span>`
+        : `<span style="background:#fef2f2;color:#991b1b;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">At Risk</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('buyerFooter').textContent = `${BUYER_POS.length} buyer POs`;
+}
+
+// ─────────────────────────────────────────────
+// ACTIONS
+// ─────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-btn-${id}`).classList.add('active');
+  document.getElementById(`tab-${id}`).classList.add('active');
+}
+
+function raiseDN(poNum) {
+  alert(`Raise Delivery Note for ${poNum}\n→ Routes to delivery note creation screen.\nPosts FINISHED_GOODS_OUT movement on dispatch.`);
+}
+
+function exportWip() {
+  alert('GET /api/v1/inventory/wip/export?format=xlsx\nDownloads WIP report with per-PO stage breakdown.');
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(function init() {
+  renderPipeline();
+  renderWip();
+  renderFreeFg();
+  renderBuyer();
+  document.querySelectorAll('.nav-parent-row').forEach(row => {
+    row.addEventListener('click', () => row.closest('.nav-parent').classList.toggle('active-group'));
+  });
+})();
+</script>
+</body>
+</html>
