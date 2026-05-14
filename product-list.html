@@ -74,7 +74,7 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
 .sw{position:relative;}
 .sw svg.s-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;}
 .sw .fi{padding-left:30px;width:100%;}
-.fb-actions{display:flex;gap:8px;margin-left:auto;}
+.fb-actions{display:flex;gap:8px;margin-left:auto;align-items:flex-end;}
 
 /* Buttons */
 .btn{height:34px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
@@ -167,6 +167,25 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
 .pv-row{display:flex;flex-direction:column;gap:2px;}
 .pv-lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
 .pv-val{font-size:13px;font-weight:500;color:var(--text-1);}
+
+/* Column configurator */
+.col-cfg-wrap{position:relative;}
+.col-config-panel{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:200;min-width:300px;max-height:480px;overflow-y:auto;padding:14px 16px;display:none;}
+.col-config-panel.open{display:block;}
+.col-cfg-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;}
+.col-cfg-hint{font-size:10.5px;color:var(--text-3);margin-bottom:10px;}
+.col-cfg-list{display:flex;flex-direction:column;gap:0;}
+.col-cfg-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border2);cursor:default;border-radius:6px;transition:background .1s;}
+.col-cfg-row:last-child{border-bottom:none;}
+.col-cfg-row.dragging{opacity:.4;}
+.col-cfg-row.drag-over{background:var(--brand-50);}
+.col-cfg-drag{width:16px;height:16px;cursor:grab;color:var(--text-3);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.col-cfg-drag:active{cursor:grabbing;}
+.col-cfg-row input[type=checkbox]{accent-color:var(--brand-500);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+.col-cfg-row label{font-size:12.5px;color:var(--text-1);cursor:pointer;flex:1;}
+.col-cfg-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.col-cfg-arrows button{width:16px;height:14px;border:1px solid var(--border);border-radius:2px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);padding:0;font-size:9px;}
+.col-cfg-arrows button:hover{background:var(--brand-50);color:var(--brand-700);border-color:var(--brand-400);}
 </style>
 </head>
 <body>
@@ -384,6 +403,17 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
           Filter
         </button>
+        <div class="col-cfg-wrap">
+          <button class="btn btn-ghost btn-sm" id="colCfgBtn" onclick="toggleColPanel(event)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M5 4a1 1 0 000 2h10a1 1 0 100-2H5zM3 9a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm2 5a1 1 0 100 2h10a1 1 0 100-2H5z"/></svg>
+            Columns
+          </button>
+          <div class="col-config-panel" id="colConfigPanel">
+            <div class="col-cfg-title">Configure Columns</div>
+            <div class="col-cfg-hint">Drag to reorder · toggle to show/hide</div>
+            <div class="col-cfg-list" id="colCfgList"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -601,20 +631,36 @@ let activeColumns = [...DEFAULT_ACTIVE];
 
 /* ─── sample data ─── */
 const PRODUCTS = [
-  {id:'PROD-001', name:'Polo Shirt', category:'Polo', colors:[{name:'Blue',hex:'#3b82f6'},{name:'Red',hex:'#ef4444'}], sizes:'S, M, L, XL', uom:'PCS', brand:'Arrow', mrp:'₹899', moq:'50', created:'2026-04-10', createdBy:'Ravi Kumar', status:'Active', img:''},
-  {id:'PROD-002', name:'Hoodie Jacket', category:'Hoodie', colors:[{name:'Black',hex:'#1f2937'}], sizes:'M, L, XL, XXL', uom:'PCS', brand:'Nike', mrp:'₹1,499', moq:'30', created:'2026-04-15', createdBy:'Priya Menon', status:'Draft', img:''},
-  {id:'PROD-003', name:'Formal Trouser', category:'Trouser', colors:[{name:'Grey',hex:'#6b7280'},{name:'Navy',hex:'#1e3a8a'}], sizes:'30, 32, 34, 36', uom:'PCS', brand:'Peter England', mrp:'₹1,199', moq:'40', created:'2026-04-12', createdBy:'Arun Singh', status:'Hold', img:''},
-  {id:'PROD-004', name:'Cotton T-Shirt', category:'T-Shirt', colors:[{name:'White',hex:'#f8fafc'},{name:'Yellow',hex:'#eab308'},{name:'Pink',hex:'#ec4899'}], sizes:'S, M, L', uom:'PCS', brand:'H&M', mrp:'₹499', moq:'100', created:'2026-04-20', createdBy:'Ravi Kumar', status:'Active', img:''},
-  {id:'PROD-005', name:'Denim Shorts', category:'Shorts', colors:[{name:'Blue',hex:'#3b82f6'}], sizes:'28, 30, 32', uom:'PCS', brand:'Levi\'s', mrp:'₹799', moq:'60', created:'2026-04-22', createdBy:'Priya Menon', status:'Draft', img:''},
-  {id:'PROD-006', name:'Evening Gown', category:'Dress', colors:[{name:'Black',hex:'#1f2937'},{name:'Purple',hex:'#8b5cf6'}], sizes:'S, M, L', uom:'PCS', brand:'Zara', mrp:'₹2,999', moq:'20', created:'2026-04-25', createdBy:'Arun Singh', status:'Active', img:''},
-  {id:'PROD-007', name:'Summer Dress', category:'Dress', colors:[{name:'Yellow',hex:'#eab308'},{name:'Orange',hex:'#f97316'}], sizes:'XS, S, M, L', uom:'PCS', brand:'H&M', mrp:'₹699', moq:'50', created:'2026-04-28', createdBy:'Ravi Kumar', status:'Hold', img:''},
-  {id:'PROD-008', name:'Slim Fit Chino', category:'Trouser', colors:[{name:'Beige',hex:'#d4a76a'},{name:'Teal',hex:'#0d9488'}], sizes:'30, 32, 34, 36, 38', uom:'PCS', brand:'Marks & Spencer', mrp:'₹1,299', moq:'35', created:'2026-05-01', createdBy:'Ravi Kumar', status:'Active', img:''},
+  {id:'PROD-001', name:'Polo Shirt', category:'Polo', colors:[{name:'Blue',hex:'#3b82f6'},{name:'Red',hex:'#ef4444'}], sizes:'S, M, L, XL', uom:'PCS', brand:'Arrow', mrp:'₹899', moq:'50', created:'2026-04-10', createdBy:'Ravi Kumar', status:'Active', img:'', desc:'100% cotton pique fabric, regular fit with 3-button placket', cpn:'PSH-ARR-001'},
+  {id:'PROD-002', name:'Hoodie Jacket', category:'Hoodie', colors:[{name:'Black',hex:'#1f2937'}], sizes:'M, L, XL, XXL', uom:'PCS', brand:'Nike', mrp:'₹1,499', moq:'30', created:'2026-04-15', createdBy:'Priya Menon', status:'Draft', img:'', desc:'Fleece-lined pullover hoodie with kangaroo pocket', cpn:'HJ-NK-002'},
+  {id:'PROD-003', name:'Formal Trouser', category:'Trouser', colors:[{name:'Grey',hex:'#6b7280'},{name:'Navy',hex:'#1e3a8a'}], sizes:'30, 32, 34, 36', uom:'PCS', brand:'Peter England', mrp:'₹1,199', moq:'40', created:'2026-04-12', createdBy:'Arun Singh', status:'Hold', img:'', desc:'Slim fit formal trousers, poly-viscose blend', cpn:'FTR-PE-003'},
+  {id:'PROD-004', name:'Cotton T-Shirt', category:'T-Shirt', colors:[{name:'White',hex:'#f8fafc'},{name:'Yellow',hex:'#eab308'},{name:'Pink',hex:'#ec4899'}], sizes:'S, M, L', uom:'PCS', brand:'H&M', mrp:'₹499', moq:'100', created:'2026-04-20', createdBy:'Ravi Kumar', status:'Active', img:'', desc:'Crew neck essential tee, 180gsm single jersey', cpn:'CTS-HM-004'},
+  {id:'PROD-005', name:'Denim Shorts', category:'Shorts', colors:[{name:'Blue',hex:'#3b82f6'}], sizes:'28, 30, 32', uom:'PCS', brand:'Levi\'s', mrp:'₹799', moq:'60', created:'2026-04-22', createdBy:'Priya Menon', status:'Draft', img:'', desc:'5-pocket denim shorts with frayed hem', cpn:'DS-LV-005'},
+  {id:'PROD-006', name:'Evening Gown', category:'Dress', colors:[{name:'Black',hex:'#1f2937'},{name:'Purple',hex:'#8b5cf6'}], sizes:'S, M, L', uom:'PCS', brand:'Zara', mrp:'₹2,999', moq:'20', created:'2026-04-25', createdBy:'Arun Singh', status:'Active', img:'', desc:'Floor-length gown with lace detailing and back zipper', cpn:'EG-ZR-006'},
+  {id:'PROD-007', name:'Summer Dress', category:'Dress', colors:[{name:'Yellow',hex:'#eab308'},{name:'Orange',hex:'#f97316'}], sizes:'XS, S, M, L', uom:'PCS', brand:'H&M', mrp:'₹699', moq:'50', created:'2026-04-28', createdBy:'Ravi Kumar', status:'Hold', img:'', desc:'Floral print A-line midi dress with smocked waist', cpn:'SD-HM-007'},
+  {id:'PROD-008', name:'Slim Fit Chino', category:'Trouser', colors:[{name:'Beige',hex:'#d4a76a'},{name:'Teal',hex:'#0d9488'}], sizes:'30, 32, 34, 36, 38', uom:'PCS', brand:'Marks & Spencer', mrp:'₹1,299', moq:'35', created:'2026-05-01', createdBy:'Ravi Kumar', status:'Active', img:'', desc:'Stretch slim-fit chinos, cotton-spandex blend', cpn:'SFC-MS-008'},
+];
+
+/* ─── Column Definitions ─── */
+let COL_DEFS = [
+  {id:'image',        label:'Image',                visible:true,  num:false},
+  {id:'productName',  label:'Product Name',         visible:true,  num:false},
+  {id:'color',        label:'Color',                visible:true,  num:false},
+  {id:'productDesc',  label:'Product Description',  visible:false, num:false},
+  {id:'uom',          label:'UOM',                  visible:true,  num:false},
+  {id:'mrp',          label:'MRP',                  visible:true,  num:true},
+  {id:'brand',        label:'Brand',                visible:false, num:false},
+  {id:'createdBy',    label:'Created By',           visible:false, num:false},
+  {id:'creationDate', label:'Creation Date',        visible:false, num:false},
+  {id:'cpn',          label:'Customer Product Name',visible:false, num:false},
+  {id:'category',     label:'Product Category',     visible:true,  num:false},
 ];
 
 let filtered = [...PRODUCTS];
 let currentPage = 1;
 const PAGE_SIZE = 10;
 let activeId = null;
+let dragSrcIdx = null;
 
 function statusPill(s){
   const map={Active:'sp-active',Draft:'sp-draft',Hold:'sp-hold'};
@@ -669,8 +715,17 @@ function renderTable(){
   const empty=document.getElementById('emptyState');
   const start=(currentPage-1)*PAGE_SIZE;
   const page=filtered.slice(start,start+PAGE_SIZE);
+  const visCols=COL_DEFS.filter(c=>c.visible);
 
-  if(filtered.length===0){empty.style.display='';tbody.innerHTML='';return;}
+  document.getElementById('productThead').innerHTML=`<tr>
+    <th style="width:40px;">#</th>
+    ${visCols.map(c=>`<th>${c.label}</th>`).join('')}
+    <th>Code</th>
+    <th>Status</th>
+    <th style="width:140px;">Action</th>
+  </tr>`;
+
+  if(filtered.length===0){empty.style.display='';tbody.innerHTML='';renderPagination();updateCounts();return;}
   empty.style.display='none';
 
   tbody.innerHTML = page.map((p,i)=>`
@@ -812,6 +867,88 @@ function fmtDate(d){
 function openDaysConfig(){
   document.getElementById('fDays').focus();
 }
+
+/* ─── Column configurator ─── */
+function toggleColPanel(e){
+  e.stopPropagation();
+  const panel=document.getElementById('colConfigPanel');
+  const isOpen=panel.classList.contains('open');
+  panel.classList.toggle('open',!isOpen);
+  if(!isOpen) renderColPanel();
+}
+
+function renderColPanel(){
+  const list=document.getElementById('colCfgList');
+  list.innerHTML=COL_DEFS.map((c,i)=>`
+    <div class="col-cfg-row" id="cfgRow_${c.id}" draggable="true"
+      ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
+      ondragleave="dragLeave(event)" ondrop="dropCol(event,${i})" ondragend="dragEnd(event)">
+      <div class="col-cfg-drag" title="Drag to reorder">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path d="M7 2a2 2 0 11.001 4.001A2 2 0 017 2zm0 6a2 2 0 11.001 4.001A2 2 0 017 6zm0 6a2 2 0 11.001 4.001A2 2 0 017 12zm6-8a2 2 0 11-.001-4.001A2 2 0 0113 4zm0 6a2 2 0 11-.001-4.001A2 2 0 0113 10zm0 6a2 2 0 11-.001-4.001A2 2 0 0113 16z"/></svg>
+      </div>
+      <input type="checkbox" id="chk_${c.id}" ${c.visible?'checked':''} onchange="toggleColVisible('${c.id}',this.checked)">
+      <label for="chk_${c.id}">${c.label}</label>
+      <div class="col-cfg-arrows">
+        <button onclick="moveCol(${i},-1)" title="Move up" ${i===0?'disabled style="opacity:.3;cursor:not-allowed;"':''}>▲</button>
+        <button onclick="moveCol(${i},1)" title="Move down" ${i===COL_DEFS.length-1?'disabled style="opacity:.3;cursor:not-allowed;"':''}>▼</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleColVisible(id, vis){
+  const c=COL_DEFS.find(x=>x.id===id);
+  if(c) c.visible=vis;
+  renderTable();
+}
+
+function moveCol(idx, dir){
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=COL_DEFS.length) return;
+  [COL_DEFS[idx],COL_DEFS[newIdx]]=[COL_DEFS[newIdx],COL_DEFS[idx]];
+  renderColPanel();
+  renderTable();
+}
+
+function dragStart(e, idx){
+  dragSrcIdx=idx;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>{const row=document.getElementById('cfgRow_'+COL_DEFS[idx].id);if(row)row.classList.add('dragging');},0);
+}
+
+function dragOver(e, idx){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('.col-cfg-row').forEach(r=>r.classList.remove('drag-over'));
+  const row=document.getElementById('cfgRow_'+COL_DEFS[idx].id);
+  if(row) row.classList.add('drag-over');
+}
+
+function dragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function dragEnd(e){
+  document.querySelectorAll('.col-cfg-row').forEach(r=>{r.classList.remove('dragging','drag-over');});
+  dragSrcIdx=null;
+}
+
+function dropCol(e, targetIdx){
+  e.preventDefault();
+  if(dragSrcIdx===null||dragSrcIdx===targetIdx) return;
+  const moved=COL_DEFS.splice(dragSrcIdx,1)[0];
+  COL_DEFS.splice(targetIdx,0,moved);
+  dragSrcIdx=null;
+  renderColPanel();
+  renderTable();
+}
+
+document.addEventListener('click',function(e){
+  const panel=document.getElementById('colConfigPanel');
+  const btn=document.getElementById('colCfgBtn');
+  if(panel&&panel.classList.contains('open')&&!panel.contains(e.target)&&!btn.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
 
 /* ─── View modal ─── */
 function openViewModal(id){

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampling Process List — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ── Status pills ── */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-awaiting{background:#f3f4f6;color:#4b5563;}.sp-awaiting::before{background:#9ca3af;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-rejected{background:#fef2f2;color:#991b1b;}.sp-rejected::before{background:#ef4444;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+.sp-dispatched{background:#eff6ff;color:#1d4ed8;}.sp-dispatched::before{background:#3b82f6;}
+
+/* ── Status summary strip ── */
+.stat-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.stat-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;}
+.stat-pill:hover{border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.stat-pill.active-pill{box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.stat-pill.active-all{border-color:var(--brand-400);background:var(--brand-50);}
+.stat-pill.active-awaiting{border-color:#9ca3af;background:#f9fafb;}
+.stat-pill.active-approved{border-color:#22c55e;background:#f0fdf4;}
+.stat-pill.active-rejected{border-color:#ef4444;background:#fef2f2;}
+.stat-pill.active-hold{border-color:#eab308;background:#fefce8;}
+.stat-pill.active-dispatched{border-color:#3b82f6;background:#eff6ff;}
+.stat-pill-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.stat-pill-label{font-size:12.5px;font-weight:500;color:var(--text-2);}
+.stat-pill-count{font-size:12px;font-weight:700;padding:1px 7px;border-radius:9999px;background:#f3f4f6;color:var(--text-1);}
+
+/* ── Table ── */
+.tw{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.sm-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.sm-tbl th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:11px 14px;border-bottom:2px solid var(--border2);background:#f9fafb;white-space:nowrap;}
+.sm-tbl td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.sm-tbl tr:last-child td{border-bottom:none;}
+.sm-tbl tbody tr:hover td{filter:brightness(.975);}
+.sm-tbl tr[style*="display:none"]{ display:none!important; }
+
+/* ── Process ID link ── */
+.pid-link{color:var(--brand-700);font-weight:700;cursor:pointer;text-decoration:none;font-size:13.5px;}
+.pid-link:hover{text-decoration:underline;}
+
+/* ── Type badge ── */
+.type-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11.5px;font-weight:600;background:var(--brand-100);color:var(--brand-700);}
+.type-badge.product{background:#fef3c7;color:#92400e;}
+
+/* ── Sample types chips ── */
+.stype-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.stc{display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;background:#f3f4f6;color:#4b5563;white-space:nowrap;}
+
+/* ── Actions ── */
+.rac{display:flex;align-items:center;gap:4px;}
+.ab{height:26px;padding:0 9px;font-size:11.5px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-2);transition:all .15s;font-family:inherit;}
+.ab:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.ab.dl{border-color:#fecaca;color:#991b1b;background:#fef2f2;}
+.ab.dl:hover{background:#fee2e2;border-color:#f87171;}
+.ab.vw{border-color:#c7d2fe;color:#3730a3;background:#eef2ff;}
+.ab.vw:hover{background:#e0e7ff;border-color:#818cf8;}
+.ab svg{width:11px;height:11px;}
+
+/* ── Filter bar ── */
+.fb{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#fff;padding:14px 18px;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ffl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.fi{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;color:var(--text-1);transition:border-color .15s;}
+.fi:focus{border-color:var(--brand-500);}
+select.fi{padding-right:28px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;}
+.sw{position:relative;}
+.sw svg.s-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;}
+.sw .fi{padding-left:30px;}
+.fb-actions{display:flex;gap:8px;margin-left:auto;align-items:flex-end;}
+
+/* ── Buttons ── */
+.btn{height:34px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-danger{background:#dc2626;color:#fff;}.btn-danger:hover{background:#b91c1c;}
+.btn-sm{height:30px;padding:0 12px;font-size:12px;}
+.btn svg{width:14px;height:14px;}
+
+/* ── Bottom bar & pagination ── */
+.btmbar{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.ci{font-size:12px;color:var(--text-3);}
+.pag{display:flex;gap:4px;margin-left:auto;}
+.pg{height:30px;min-width:30px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;}
+.pg:hover{border-color:var(--brand-400);color:var(--brand-600);}
+.pg.a{background:var(--brand-600);border-color:var(--brand-600);color:#fff;}
+
+/* ── Delete modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.mbox{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:440px;max-width:100%;overflow:hidden;}
+.mhd{padding:18px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.mhd-t{font-size:15px;font-weight:700;color:var(--text-1);}
+.mcl{width:32px;height:32px;border:none;background:transparent;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.mcl:hover{background:#f3f4f6;color:var(--text-1);}
+.mbdy{padding:24px;}
+.mftr{padding:14px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:8px;}
+.del-warn-icon{width:48px;height:48px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.del-warn-icon svg{width:24px;height:24px;color:#dc2626;}
+.del-msg{text-align:center;font-size:13px;color:var(--text-2);line-height:1.6;}
+.del-msg strong{color:var(--text-1);}
+
+/* ── Column configurator panel ── */
+.col-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.18);z-index:299;display:none;}
+.col-panel-overlay.open{display:block;}
+.col-panel{position:fixed;top:0;right:-380px;bottom:0;width:360px;background:#fff;border-left:1px solid var(--border);box-shadow:-8px 0 32px rgba(0,0,0,.10);z-index:300;display:flex;flex-direction:column;transition:right .25s ease;}
+.col-panel.open{right:0;}
+.col-panel-head{padding:18px 20px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.col-panel-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.col-panel-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;}
+.col-panel-close{width:28px;height:28px;border:none;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);flex-shrink:0;transition:all .15s;}
+.col-panel-close:hover{background:#e5e7eb;color:var(--text-1);}
+.col-panel-close svg{width:14px;height:14px;}
+.col-panel-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.col-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);cursor:default;transition:background .12s;user-select:none;}
+.col-row:last-child{border-bottom:none;}
+.col-toggle{width:36px;height:20px;background:#d1d5db;border-radius:10px;position:relative;cursor:pointer;transition:background .15s;flex-shrink:0;border:none;}
+.col-toggle.on{background:var(--brand-500);}
+.col-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.col-toggle.on::after{transform:translateX(16px);}
+.col-row-label{font-size:13px;font-weight:500;color:var(--text-1);flex:1;}
+.col-row-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:9999px;background:#f3f4f6;color:var(--text-3);}
+.col-panel-foot{padding:14px 20px;border-top:1px solid var(--border2);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+
+/* ── Toast ── */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;}.tt.e{background:#dc2626;}.tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:48px 20px;}
+.empty-state svg{width:44px;height:44px;color:#d1d5db;display:block;margin:0 auto 12px;}
+.empty-state h3{font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:5px;}
+.empty-state p{font-size:12.5px;color:var(--text-3);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="nav-section">Style Management</div>
+
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="sample-list.html">Sample List</a>
+        <a class="nav-child" href="sample-create.html">Create Sample</a>
+        <a class="nav-child active" href="sampling-process-list.html">Sampling Process</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="product-list.html">Product List</a>
+        <a class="nav-child" href="product-create.html">Create Product</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-color.html">Color Master</a>
+        <a class="nav-child" href="masters-size.html">Size Master</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">RK</div>
+    <div class="sf-info">
+      <div class="sf-name">Ravi Kumar</div>
+      <div class="sf-role">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Samples</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph">
+      <div>
+        <div class="ph-title">Sampling Process</div>
+        <div class="ph-sub">Track and manage all sampling processes by status</div>
+      </div>
+      <button class="btn btn-primary" onclick="location.href='sampling-process-create.html'">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Process
+      </button>
+    </div>
+
+    <!-- Status summary strip -->
+    <div class="stat-strip" id="statStrip">
+      <div class="stat-pill active-pill active-all" id="pill-all" onclick="filterByStatus('all')">
+        <div class="stat-pill-dot" style="background:var(--brand-500);"></div>
+        <span class="stat-pill-label">All</span>
+        <span class="stat-pill-count" id="cnt-all">8</span>
+      </div>
+      <div class="stat-pill" id="pill-awaiting" onclick="filterByStatus('Awaiting')">
+        <div class="stat-pill-dot" style="background:#9ca3af;"></div>
+        <span class="stat-pill-label">Awaiting</span>
+        <span class="stat-pill-count" id="cnt-awaiting">14</span>
+      </div>
+      <div class="stat-pill" id="pill-approved" onclick="filterByStatus('Approved')">
+        <div class="stat-pill-dot" style="background:#22c55e;"></div>
+        <span class="stat-pill-label">Approved</span>
+        <span class="stat-pill-count" id="cnt-approved">8</span>
+      </div>
+      <div class="stat-pill" id="pill-rejected" onclick="filterByStatus('Rejected')">
+        <div class="stat-pill-dot" style="background:#ef4444;"></div>
+        <span class="stat-pill-label">Rejected</span>
+        <span class="stat-pill-count" id="cnt-rejected">3</span>
+      </div>
+      <div class="stat-pill" id="pill-hold" onclick="filterByStatus('Hold')">
+        <div class="stat-pill-dot" style="background:#eab308;"></div>
+        <span class="stat-pill-label">Hold</span>
+        <span class="stat-pill-count" id="cnt-hold">5</span>
+      </div>
+      <div class="stat-pill" id="pill-dispatched" onclick="filterByStatus('Dispatched')">
+        <div class="stat-pill-dot" style="background:#3b82f6;"></div>
+        <span class="stat-pill-label">Dispatched</span>
+        <span class="stat-pill-count" id="cnt-dispatched">2</span>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="fb">
+      <div class="ff sw" style="min-width:200px;">
+        <label class="ffl">Process ID</label>
+        <svg class="s-ic" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input type="text" class="fi" id="fPID" placeholder="Search SP-…" oninput="filterTable()" style="width:200px;">
+      </div>
+      <div class="ff">
+        <label class="ffl">Sample / Product No</label>
+        <input type="text" class="fi" id="fSPN" placeholder="SMP-001 or PRD-101" oninput="filterTable()" style="width:170px;">
+      </div>
+      <div class="ff">
+        <label class="ffl">Buyer Name</label>
+        <input type="text" class="fi" id="fBuyer" placeholder="e.g. H&amp;M" oninput="filterTable()" style="width:140px;">
+      </div>
+      <div class="ff">
+        <label class="ffl">Sample Status</label>
+        <select class="fi" id="fStatus" onchange="filterTable()" style="width:150px;">
+          <option value="">All Statuses</option>
+          <option>Awaiting</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+          <option>Hold</option>
+          <option>Dispatched</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label class="ffl">Required Date</label>
+        <input type="date" class="fi" id="fReqDate" onchange="filterTable()" style="width:140px;">
+      </div>
+      <div class="fb-actions">
+        <button class="btn btn-ghost" style="height:34px;" onclick="toggleColPanel()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+          Columns
+        </button>
+        <button class="btn btn-ghost" style="height:34px;" onclick="clearFilters()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="tw">
+      <table class="sm-tbl" id="procTable">
+        <thead>
+          <tr id="tableHead">
+            <th data-col="pid">Process ID</th>
+            <th data-col="type">Type</th>
+            <th data-col="spno">Sample / Product No</th>
+            <th data-col="buyer">Buyer</th>
+            <th data-col="reqdate">Required Date</th>
+            <th data-col="status">Sample Status</th>
+            <th data-col="stypes">Sample Types</th>
+            <th data-col="actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tBody">
+          <!-- rows rendered by JS -->
+        </tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <h3>No records found</h3>
+        <p>Try adjusting your filters or <a href="sampling-process-create.html" style="color:var(--brand-600);">create a new process</a>.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="btmbar">
+      <span class="ci" id="countInfo">Showing 1–8 of 8 records</span>
+      <div class="pag">
+        <button class="pg a">1</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div><!-- .app -->
+
+<!-- Delete confirmation modal -->
+<div class="overlay" id="deleteOverlay" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="mbox">
+    <div class="mhd">
+      <div class="mhd-t">Delete Sampling Process</div>
+      <button class="mcl" onclick="closeDeleteModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+      </button>
+    </div>
+    <div class="mbdy">
+      <div class="del-warn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <div class="del-msg">
+        Sample data has been added for <strong id="delProcessId">SP-XXXX</strong>. Deleting this record will permanently remove all sample lines.<br><br>
+        Are you sure you want to proceed?
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Column configurator panel -->
+<div class="col-panel-overlay" id="colPanelOverlay" onclick="closeColPanel()"></div>
+<div class="col-panel" id="colPanel">
+  <div class="col-panel-head">
+    <div>
+      <div class="col-panel-title">Configure Columns</div>
+      <div class="col-panel-sub">Toggle to show/hide table columns</div>
+    </div>
+    <button class="col-panel-close" onclick="closeColPanel()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+    </button>
+  </div>
+  <div class="col-panel-body" id="colPanelBody">
+    <!-- rendered by JS -->
+  </div>
+  <div class="col-panel-foot">
+    <button class="btn btn-ghost btn-sm" onclick="resetColDefaults()">Reset to Default</button>
+    <button class="btn btn-primary btn-sm" onclick="closeColPanel()">Done</button>
+  </div>
+</div>
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+// ── Data ──
+let allRows = [
+  {id:'SP-2026-0041', type:'Sample', spno:'SMP-001', color:'Blue/White Stripe', buyer:'H&M', reqdate:'2026-05-20', status:'Approved', stypes:'Proto, Fit'},
+  {id:'SP-2026-0042', type:'Product', spno:'PRD-102', color:'Navy/Charcoal', buyer:'Zara', reqdate:'2026-05-22', status:'Awaiting', stypes:'Salesman'},
+  {id:'SP-2026-0043', type:'Sample', spno:'SMP-003', color:'Khaki Beige', buyer:'M&S', reqdate:'2026-05-25', status:'Rejected', stypes:'TOP, Counter'},
+  {id:'SP-2026-0044', type:'Product', spno:'PRD-101', color:'Assorted', buyer:'Gap', reqdate:'2026-05-28', status:'Hold', stypes:'Fit'},
+  {id:'SP-2026-0045', type:'Sample', spno:'SMP-002', color:'White', buyer:'Next', reqdate:'2026-06-01', status:'Approved', stypes:'Pre-Prod'},
+  {id:'SP-2026-0046', type:'Sample', spno:'SMP-004', color:'Black', buyer:'Primark', reqdate:'2026-06-05', status:'Dispatched', stypes:'Proto'},
+  {id:'SP-2026-0040', type:'Product', spno:'PRD-103', color:'Olive/Black', buyer:'ASOS', reqdate:'2026-05-18', status:'Awaiting', stypes:'Fit, TOP'},
+  {id:'SP-2026-0039', type:'Sample', spno:'SMP-001', color:'Blue/White Stripe', buyer:'H&M', reqdate:'2026-05-15', status:'Approved', stypes:'Salesman'}
+];
+
+let visibleRows = [...allRows];
+let activeStatusFilter = 'all';
+let deleteTargetId = null;
+let deleteTargetRowId = null;
+
+// ── Column config ──
+const COL_DEFS = [
+  {key:'pid',    label:'Process ID',         locked:true,  visible:true},
+  {key:'type',   label:'Type',               locked:false, visible:true},
+  {key:'spno',   label:'Sample/Product No',  locked:false, visible:true},
+  {key:'buyer',  label:'Buyer',              locked:false, visible:true},
+  {key:'reqdate',label:'Required Date',      locked:false, visible:true},
+  {key:'status', label:'Sample Status',      locked:false, visible:true},
+  {key:'stypes', label:'Sample Types Count', locked:false, visible:true},
+  {key:'actions',label:'Actions',            locked:true,  visible:true}
+];
+let colState = COL_DEFS.map(c=>({...c}));
+
+// ── Sidebar toggleGroup ──
+function toggleGroup(el) {
+  const parent = el.closest('.nav-group');
+  const isOpen = parent.classList.contains('open');
+  if (isOpen) {
+    parent.classList.remove('open');
+    el.classList.remove('open','active-group');
+  } else {
+    parent.classList.add('open');
+    el.classList.add('open','active-group');
+  }
+}
+
+// ── Render table ──
+function renderTable() {
+  const tbody = document.getElementById('tBody');
+  tbody.innerHTML = '';
+  const visible = applyAllFilters();
+  if (visible.length === 0) {
+    document.getElementById('emptyState').style.display = '';
+    document.getElementById('countInfo').textContent = 'No records found';
+    return;
+  }
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('countInfo').textContent = 'Showing 1–'+visible.length+' of '+visible.length+' records';
+
+  visible.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-'+row.id;
+    tr.dataset.status = row.status;
+
+    const cells = [];
+    colState.forEach(col => {
+      if (!col.visible) return;
+      let cell = '<td>';
+      switch(col.key) {
+        case 'pid':
+          cell += '<a class="pid-link" href="sampling-process-view.html">'+escHtml(row.id)+'</a>';
+          break;
+        case 'type':
+          cell += '<span class="type-badge'+(row.type==='Product'?' product':'')+'">'+escHtml(row.type)+'</span>';
+          break;
+        case 'spno':
+          cell += '<div style="font-weight:600;color:var(--text-1);font-size:13px;">'+escHtml(row.spno)+'</div>';
+          cell += '<div style="font-size:11.5px;color:var(--text-3);margin-top:2px;">'+escHtml(row.color)+'</div>';
+          break;
+        case 'buyer':
+          cell += escHtml(row.buyer);
+          break;
+        case 'reqdate':
+          cell += '<span style="font-size:12.5px;color:var(--text-2);">'+escHtml(row.reqdate)+'</span>';
+          break;
+        case 'status':
+          cell += '<span class="sp '+statusClass(row.status)+'">'+escHtml(row.status)+'</span>';
+          break;
+        case 'stypes':
+          cell += '<div class="stype-chips">'+row.stypes.split(',').map(s=>'<span class="stc">'+escHtml(s.trim())+'</span>').join('')+'</div>';
+          break;
+        case 'actions':
+          cell += '<div class="rac">'+
+            '<button class="ab vw" onclick="location.href=\'sampling-process-view.html\'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg> View</button>'+
+            '<button class="ab" onclick="location.href=\'sampling-process-edit.html\'"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg> Edit</button>'+
+            '<button class="ab dl" onclick="openDeleteModal('+JSON.stringify(row.id)+',\'row-'+row.id+'\')"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg> Delete</button>'+
+            '</div>';
+          break;
+      }
+      cell += '</td>';
+      cells.push(cell);
+    });
+    tr.innerHTML = cells.join('');
+    tbody.appendChild(tr);
+  });
+}
+
+function applyAllFilters() {
+  const pid = (document.getElementById('fPID').value||'').toLowerCase();
+  const spn = (document.getElementById('fSPN').value||'').toLowerCase();
+  const buyer = (document.getElementById('fBuyer').value||'').toLowerCase();
+  const status = document.getElementById('fStatus').value;
+  const reqDate = document.getElementById('fReqDate').value;
+
+  return allRows.filter(row => {
+    if (activeStatusFilter !== 'all' && row.status !== activeStatusFilter) return false;
+    if (pid && !row.id.toLowerCase().includes(pid)) return false;
+    if (spn && !row.spno.toLowerCase().includes(spn)) return false;
+    if (buyer && !row.buyer.toLowerCase().includes(buyer)) return false;
+    if (status && row.status !== status) return false;
+    if (reqDate && row.reqdate !== reqDate) return false;
+    return true;
+  });
+}
+
+function filterTable() {
+  renderTable();
+}
+
+function clearFilters() {
+  document.getElementById('fPID').value = '';
+  document.getElementById('fSPN').value = '';
+  document.getElementById('fBuyer').value = '';
+  document.getElementById('fStatus').value = '';
+  document.getElementById('fReqDate').value = '';
+  filterTable();
+}
+
+// ── Status pill filter ──
+function filterByStatus(status) {
+  activeStatusFilter = status;
+  // Update pill active state
+  const pillMap = {all:'all',Awaiting:'awaiting',Approved:'approved',Rejected:'rejected',Hold:'hold',Dispatched:'dispatched'};
+  document.querySelectorAll('.stat-pill').forEach(p => {
+    p.className = 'stat-pill';
+  });
+  const key = pillMap[status] || 'all';
+  const activePill = document.getElementById('pill-'+key);
+  if (activePill) {
+    activePill.classList.add('active-pill', 'active-'+key);
+  }
+  // Sync the select filter
+  if (status !== 'all') {
+    document.getElementById('fStatus').value = status;
+  } else {
+    document.getElementById('fStatus').value = '';
+  }
+  renderTable();
+}
+
+function statusClass(s) {
+  const m = {Awaiting:'sp-awaiting',Approved:'sp-approved',Rejected:'sp-rejected',Hold:'sp-hold',Dispatched:'sp-dispatched'};
+  return m[s] || 'sp-awaiting';
+}
+
+// ── Column panel ──
+function toggleColPanel() {
+  const panel = document.getElementById('colPanel');
+  const overlay = document.getElementById('colPanelOverlay');
+  if (panel.classList.contains('open')) {
+    closeColPanel();
+  } else {
+    renderColPanel();
+    panel.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+function closeColPanel() {
+  document.getElementById('colPanel').classList.remove('open');
+  document.getElementById('colPanelOverlay').classList.remove('open');
+}
+function renderColPanel() {
+  const body = document.getElementById('colPanelBody');
+  body.innerHTML = '';
+  colState.forEach((col, idx) => {
+    const row = document.createElement('div');
+    row.className = 'col-row';
+    row.innerHTML =
+      '<span class="col-row-label">'+col.label+'</span>'+
+      (col.locked ? '<span class="col-row-tag locked">Locked</span>' :
+        '<button class="col-toggle'+(col.visible?' on':'') +'" onclick="toggleCol('+idx+',this)"></button>');
+    body.appendChild(row);
+  });
+}
+function toggleCol(idx, btn) {
+  colState[idx].visible = !colState[idx].visible;
+  btn.classList.toggle('on');
+  applyColVisibility();
+  renderTable();
+}
+function applyColVisibility() {
+  const thead = document.getElementById('tableHead');
+  const ths = thead.querySelectorAll('th');
+  colState.forEach((col, idx) => {
+    if (ths[idx]) ths[idx].style.display = col.visible ? '' : 'none';
+  });
+}
+function resetColDefaults() {
+  colState.forEach(c => { c.visible = true; });
+  applyColVisibility();
+  renderColPanel();
+  renderTable();
+}
+
+// ── Delete modal ──
+function openDeleteModal(processId, rowId) {
+  deleteTargetId = processId;
+  deleteTargetRowId = rowId;
+  document.getElementById('delProcessId').textContent = processId;
+  document.getElementById('deleteOverlay').classList.add('open');
+}
+function closeDeleteModal() {
+  document.getElementById('deleteOverlay').classList.remove('open');
+  deleteTargetId = null;
+  deleteTargetRowId = null;
+}
+function confirmDelete() {
+  if (deleteTargetId) {
+    const idx = allRows.findIndex(r => r.id === deleteTargetId);
+    if (idx > -1) allRows.splice(idx, 1);
+  }
+  closeDeleteModal();
+  renderTable();
+  toast('Sampling process deleted successfully.','s');
+}
+
+// ── Toast ──
+function toast(msg, type) {
+  type = type || 'i';
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  const icons = {
+    s:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>',
+    e:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>',
+    i:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>'
+  };
+  t.className = 'tt ' + type;
+  t.innerHTML = (icons[type]||'') + msg;
+  area.appendChild(t);
+  setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──
+renderTable();
+</script>
+</body>
+</html>

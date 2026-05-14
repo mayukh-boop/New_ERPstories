@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Sampling Process — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ── Section cards ── */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:visible;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border2);}
+.sec-hd-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:8px;}
+.sec-hd-title svg{width:15px;height:15px;color:var(--brand-500);}
+.sec-bd{padding:22px;}
+
+/* ── Grids ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+
+/* ── Form fields ── */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:0;}
+.fl{font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:4px;}
+.fl .req{color:#ef4444;font-size:14px;}
+
+/* ── Inputs ── */
+.inp{width:100%;height:44px;padding:0 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp::placeholder{color:#9ca3af;}
+.inp.err{border-color:#ef4444!important;background:#fef2f2!important;}
+.inp:disabled,.inp.readonly{background:#f9fafb;color:#6b7280;cursor:not-allowed;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+.inp.prep-field{background:#eff6ff;border-color:#bfdbfe;color:#1e40af;cursor:default;}
+.err-msg{font-size:11.5px;color:#ef4444;display:none;margin-top:2px;}
+.err-msg.show{display:block;}
+
+/* ── Inline create panel ── */
+.dd-panel{display:none;margin-top:8px;padding:14px 16px;background:#eef2ff;border:1px solid var(--brand-200);border-radius:10px;}
+.dd-panel.open{display:block;}
+.dd-pt{font-size:11px;font-weight:700;color:var(--brand-700);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.dd-pa{display:flex;gap:8px;margin-top:10px;}
+
+/* ── Multi-select ── */
+.ms-wrap{position:relative;}
+.ms-trigger{min-height:44px;padding:6px 36px 6px 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:5px;position:relative;transition:border-color .15s,background .15s;}
+.ms-trigger.open,.ms-trigger:focus{outline:none;border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.ms-trigger-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280;}
+.ms-trigger-arrow svg{width:12px;height:12px;}
+.ms-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;background:var(--brand-100);color:var(--brand-700);white-space:nowrap;}
+.ms-chip-x{background:none;border:none;cursor:pointer;color:var(--brand-500);padding:0;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;}
+.ms-chip-x:hover{background:var(--brand-200);}
+.ms-placeholder{color:#9ca3af;font-size:13.5px;}
+.ms-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:240px;overflow-y:auto;}
+.ms-dropdown.open{display:block;}
+.ms-opt{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;transition:background .12s;}
+.ms-opt:hover{background:var(--brand-50);}
+.ms-opt input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.ms-divider{height:1px;background:var(--border2);margin:4px 0;}
+.ms-create-opt{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--brand-600);font-weight:600;}
+.ms-create-opt:hover{background:var(--brand-50);}
+.ms-create-opt svg{width:14px;height:14px;}
+
+/* ── Radio options ── */
+.radio-group{display:flex;gap:10px;margin-bottom:18px;}
+.radio-opt{display:flex;align-items:center;gap:8px;padding:10px 20px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--text-2);transition:all .15s;user-select:none;}
+.radio-opt input[type=radio]{accent-color:var(--brand-600);width:16px;height:16px;cursor:pointer;}
+.radio-opt.selected{border-color:var(--brand-500);background:var(--brand-50);color:var(--brand-700);}
+
+/* ── Action bars ── */
+.action-bar{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;}
+
+/* ── Buttons ── */
+.btn{height:40px;padding:0 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-sm{height:34px;padding:0 14px;font-size:12.5px;}
+.btn svg{width:15px;height:15px;}
+
+/* ── Sample Lines table ── */
+.sl-table-wrap{overflow-x:auto;}
+.sl-table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px;}
+.sl-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 12px;border-bottom:2px solid var(--border2);background:#f9fafb;white-space:nowrap;}
+.sl-table td{padding:9px 12px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.sl-table tr:last-child td{border-bottom:none;}
+.add-row td{background:#f5f7ff;border-bottom:2px dashed var(--brand-200)!important;}
+.add-row td:first-child{text-align:center;font-size:18px;color:var(--brand-400);font-weight:700;}
+
+/* ── Inline table inputs ── */
+.tbl-inp{width:100%;height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.tbl-inp:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(91,95,199,.1);}
+.tbl-inp.err{border-color:#ef4444!important;}
+select.tbl-inp{padding-right:24px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;}
+
+/* ── Create new link ── */
+.create-link{font-size:11px;color:var(--brand-600);font-weight:600;cursor:pointer;margin-top:4px;display:inline-flex;align-items:center;gap:3px;}
+.create-link:hover{text-decoration:underline;}
+.td-create-panel{display:none;margin-top:6px;padding:10px 12px;background:#eef2ff;border:1px solid var(--brand-200);border-radius:8px;}
+.td-create-panel.open{display:block;}
+
+/* ── Type chip in table ── */
+.type-chip{display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11.5px;font-weight:600;background:var(--brand-100);color:var(--brand-700);white-space:nowrap;}
+
+/* ── Status pills ── */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-pending{background:#f3f4f6;color:#4b5563;}.sp-pending::before{background:#9ca3af;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-approved-comments{background:#eff6ff;color:#1d4ed8;}.sp-approved-comments::before{background:#3b82f6;}
+.sp-rejected{background:#fef2f2;color:#991b1b;}.sp-rejected::before{background:#ef4444;}
+.sp-hold{background:#fefce8;color:#854d0e;}.sp-hold::before{background:#eab308;}
+
+/* ── Attachment chip ── */
+.att-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;font-size:11.5px;background:#f3f4f6;color:var(--text-2);border:1px solid var(--border);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.att-chip svg{width:11px;height:11px;flex-shrink:0;}
+
+/* ── File upload btn ── */
+.file-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:500;color:var(--text-2);background:#fff;cursor:pointer;transition:all .15s;}
+.file-btn:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.file-btn svg{width:13px;height:13px;}
+
+/* ── Edit row actions ── */
+.row-actions{display:flex;align-items:center;gap:5px;}
+.icon-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;}
+.icon-btn:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.icon-btn.dl{border-color:#fecaca;color:#ef4444;background:#fef2f2;}
+.icon-btn.dl:hover{background:#fee2e2;}
+.icon-btn svg{width:13px;height:13px;}
+.edit-cell{display:flex;align-items:center;gap:6px;}
+.edit-cell input{flex:1;height:30px;padding:0 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12.5px;font-family:inherit;outline:none;transition:border-color .15s;}
+.edit-cell input:focus{border-color:var(--brand-500);}
+.save-btn{height:28px;padding:0 10px;border-radius:6px;font-size:11.5px;font-weight:600;border:none;cursor:pointer;background:var(--brand-600);color:#fff;font-family:inherit;}
+.cancel-btn{height:28px;padding:0 8px;border-radius:6px;font-size:11.5px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;background:#fff;color:var(--text-2);font-family:inherit;}
+
+/* ── Sample Status cards ── */
+.sstat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.sstat-card{border:2px solid var(--border);border-radius:12px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;user-select:none;}
+.sstat-card:hover{border-color:#d1d5db;}
+.sstat-card.selected-approved{border-color:#22c55e;background:#f0fdf4;}
+.sstat-card.selected-rejected{border-color:#ef4444;background:#fef2f2;}
+.sstat-card.selected-hold{border-color:#eab308;background:#fefce8;}
+.sstat-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.sstat-label{font-size:14px;font-weight:600;color:var(--text-1);}
+.sstat-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;}
+
+/* ── Toast ── */
+.ta{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.tt{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tsi .25s ease;display:flex;align-items:center;gap:8px;}
+.tt.s{background:#16a34a;}.tt.e{background:#dc2626;}.tt.i{background:var(--brand-600);}
+@keyframes tsi{from{transform:translateX(70px);opacity:0}to{transform:none;opacity:1}}
+
+input[type=number].inp::-webkit-inner-spin-button,
+input[type=number].inp::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number].inp{-moz-appearance:textfield;}
+
+@media(max-width:960px){.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.g2,.g4{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="nav-section">Style Management</div>
+
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="sample-list.html">Sample List</a>
+        <a class="nav-child" href="sample-create.html">Create Sample</a>
+        <a class="nav-child active" href="sampling-process-list.html">Sampling Process</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="product-list.html">Product List</a>
+        <a class="nav-child" href="product-create.html">Create Product</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Masters</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-color.html">Color Master</a>
+        <a class="nav-child" href="masters-size.html">Size Master</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">RK</div>
+    <div class="sf-info">
+      <div class="sf-name">Ravi Kumar</div>
+      <div class="sf-role">Admin Access</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Samples</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page header -->
+    <div class="ph" style="margin-bottom:18px;">
+      <div>
+        <div class="ph-title">Create Sampling Process</div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 1: HEADER DETAILS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title"></div>
+        <div style="font-size:12px;color:var(--text-3);">Auto ID: <span style="font-weight:700;color:var(--brand-700);font-size:13px;">SP-2026-0047</span></div>
+      </div>
+      <div class="sec-bd">
+
+        <!-- Type Radio -->
+        <div class="fg" style="margin-bottom:18px;">
+          <label class="fl">Type <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt selected" id="radioSample" onclick="selectRadio('sample')">
+              <input type="radio" name="processType" value="sample" checked>
+              Sample
+            </label>
+            <label class="radio-opt" id="radioProduct" onclick="selectRadio('product')">
+              <input type="radio" name="processType" value="product">
+              Product
+            </label>
+          </div>
+        </div>
+
+        <!-- Conditional: Sample group -->
+        <div id="sampleGroup">
+          <div class="g2" style="margin-bottom:18px;">
+            <div class="fg">
+              <label class="fl" for="sampleNo">Sample No <span class="req">*</span></label>
+              <select class="inp" id="sampleNo" onchange="prepopulateFromSample(this.value)">
+                <option value="">— Select Sample —</option>
+                <option value="SMP-001">SMP-001</option>
+                <option value="SMP-002">SMP-002</option>
+                <option value="SMP-003">SMP-003</option>
+                <option value="SMP-004">SMP-004</option>
+              </select>
+              <span class="err-msg" id="errSampleNo">Please select a Sample No.</span>
+            </div>
+            <div class="fg">
+              <label class="fl">Sample Description</label>
+              <input type="text" class="inp prep-field readonly" id="sampleDesc" readonly placeholder="Auto-filled on selection">
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditional: Product group (hidden by default) -->
+        <div id="productGroup" style="display:none;">
+          <div class="g2" style="margin-bottom:18px;">
+            <div class="fg">
+              <label class="fl" for="productNo">Product No <span class="req">*</span></label>
+              <select class="inp" id="productNo" onchange="prepopulateFromProduct(this.value)">
+                <option value="">— Select Product —</option>
+                <option value="PRD-101">PRD-101</option>
+                <option value="PRD-102">PRD-102</option>
+                <option value="PRD-103">PRD-103</option>
+                <option value="PRD-104">PRD-104</option>
+              </select>
+              <span class="err-msg" id="errProductNo">Please select a Product No.</span>
+            </div>
+            <div class="fg">
+              <label class="fl">Product Description</label>
+              <input type="text" class="inp prep-field readonly" id="productDesc" readonly placeholder="Auto-filled on selection">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Color | Sample Date -->
+        <div class="g2" style="margin-bottom:18px;">
+          <div class="fg">
+            <label class="fl">Color</label>
+            <input type="text" class="inp prep-field readonly" id="colorField" readonly placeholder="Auto-filled">
+          </div>
+          <div class="fg">
+            <label class="fl" for="sampleDate">Sample Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="sampleDate">
+            <span class="err-msg" id="errSampleDate">Sample Date is required.</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Buyer | Brand | Season | Merchandiser -->
+        <div class="g4" style="margin-bottom:18px;">
+          <div class="fg">
+            <label class="fl" for="buyerName">Buyer Name</label>
+            <input type="text" class="inp" id="buyerName" placeholder="e.g. H&amp;M">
+          </div>
+          <div class="fg">
+            <label class="fl" for="brandName">Brand</label>
+            <input type="text" class="inp" id="brandName" placeholder="e.g. H&amp;M Studio">
+          </div>
+          <div class="fg">
+            <label class="fl" for="season">Season</label>
+            <input type="text" class="inp" id="season" placeholder="e.g. SS26">
+          </div>
+          <div class="fg">
+            <label class="fl" for="merchandiser">Merchandiser</label>
+            <input type="text" class="inp" id="merchandiser" placeholder="e.g. Priya R.">
+          </div>
+        </div>
+
+        <!-- Row 4: Size (multi-select) | Fabric(Color) -->
+        <div class="g2" style="margin-bottom:18px;">
+          <div class="fg">
+            <label class="fl">Size</label>
+            <div class="ms-wrap" id="sizeWrap">
+              <div class="ms-trigger" id="sizeTrigger" onclick="toggleMsDropdown(event)">
+                <span class="ms-placeholder" id="sizePlaceholder">Select sizes…</span>
+                <div class="ms-trigger-arrow"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 8L1 3h10z"/></svg></div>
+              </div>
+              <div class="ms-dropdown" id="sizeDropdown">
+                <div class="ms-create-opt" onclick="showSizeCreate(event)">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                  + Create New Size
+                </div>
+                <div class="ms-divider"></div>
+                <label class="ms-opt"><input type="checkbox" value="XS" onchange="updateSizeChips()"> XS</label>
+                <label class="ms-opt"><input type="checkbox" value="S" onchange="updateSizeChips()"> S</label>
+                <label class="ms-opt"><input type="checkbox" value="M" onchange="updateSizeChips()"> M</label>
+                <label class="ms-opt"><input type="checkbox" value="L" onchange="updateSizeChips()"> L</label>
+                <label class="ms-opt"><input type="checkbox" value="XL" onchange="updateSizeChips()"> XL</label>
+                <label class="ms-opt"><input type="checkbox" value="XXL" onchange="updateSizeChips()"> XXL</label>
+                <label class="ms-opt"><input type="checkbox" value="3XL" onchange="updateSizeChips()"> 3XL</label>
+              </div>
+              <!-- Inline create new size panel -->
+              <div class="dd-panel" id="sizeCreatePanel">
+                <div class="dd-pt">Add New Size</div>
+                <input type="text" class="inp" id="newSizeInput" placeholder="Enter size label (e.g. 4XL)" style="height:38px;font-size:13px;">
+                <div class="dd-pa">
+                  <button class="btn btn-primary btn-sm" onclick="addNewSize()">Add</button>
+                  <button class="btn btn-ghost btn-sm" onclick="closeSizeCreate()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Fabric (Color)</label>
+            <input type="text" class="inp prep-field readonly" id="fabricField" readonly placeholder="Auto-filled">
+          </div>
+        </div>
+
+        <!-- Row 5: Sample Qty | Required Date | Planned Completion | Dispatch Date -->
+        <div class="g4">
+          <div class="fg">
+            <label class="fl" for="sampleQty">Sample Qty</label>
+            <input type="number" class="inp" id="sampleQty" placeholder="0" min="0">
+          </div>
+          <div class="fg">
+            <label class="fl" for="requiredDate">Required Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="requiredDate">
+            <span class="err-msg" id="errRequiredDate">Required Date is mandatory.</span>
+          </div>
+          <div class="fg">
+            <label class="fl" for="plannedDate">Planned Completion</label>
+            <input type="date" class="inp" id="plannedDate">
+          </div>
+          <div class="fg">
+            <label class="fl" for="dispatchDate">Dispatch Date</label>
+            <input type="date" class="inp" id="dispatchDate">
+          </div>
+        </div>
+
+      </div><!-- .sec-bd -->
+    </div><!-- section 1 -->
+
+    <!-- ══ SECTION 2: SAMPLE LINES ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+          Sample Lines
+        </div>
+        <span style="font-size:12px;color:var(--text-3);" id="lineCountBadge">0 lines added</span>
+      </div>
+      <div class="sec-bd" style="padding:0;">
+        <div class="sl-table-wrap">
+          <table class="sl-table" id="slTable">
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th style="min-width:200px;">Sample Type <span style="color:#ef4444;">*</span></th>
+                <th style="min-width:180px;">Sample Remarks <span style="color:#ef4444;">*</span></th>
+                <th style="min-width:180px;">Approval Status <span style="color:#ef4444;">*</span></th>
+                <th style="min-width:140px;">Approved By</th>
+                <th style="min-width:160px;">Attachment</th>
+                <th style="min-width:90px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="slBody">
+              <!-- data rows injected by JS -->
+            </tbody>
+            <tfoot>
+              <tr class="add-row" id="addRow">
+                <td style="width:40px;font-size:20px;color:var(--brand-400);font-weight:700;text-align:center;">+</td>
+                <td>
+                  <select class="tbl-inp" id="addType">
+                    <option value="">— Select Type —</option>
+                    <option>Proto Sample</option>
+                    <option>Fit Sample</option>
+                    <option>Salesman Sample</option>
+                    <option>Pre-Production Sample</option>
+                    <option>TOP Sample</option>
+                    <option>Counter Sample</option>
+                  </select>
+                  <div class="create-link" onclick="showTypeCreate()">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="10" height="10"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                    Create new type
+                  </div>
+                  <div class="td-create-panel" id="typeCreatePanel">
+                    <div style="font-size:11px;font-weight:700;color:var(--brand-700);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">New Sample Type</div>
+                    <input type="text" class="tbl-inp" id="newTypeInput" placeholder="Type name…">
+                    <div style="display:flex;gap:6px;margin-top:8px;">
+                      <button class="save-btn" onclick="addNewType()">Add</button>
+                      <button class="cancel-btn" onclick="closeTypeCreate()">Cancel</button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <input type="text" class="tbl-inp" id="addRemarks" placeholder="Enter remarks…">
+                </td>
+                <td>
+                  <select class="tbl-inp" id="addStatus">
+                    <option value="">— Select Status —</option>
+                    <option>Pending</option>
+                    <option>Approved</option>
+                    <option>Approved with Comments</option>
+                    <option>Rejected</option>
+                    <option>On Hold</option>
+                  </select>
+                  <div class="create-link" onclick="showApprovalCreate()">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="10" height="10"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                    Create new status
+                  </div>
+                  <div class="td-create-panel" id="approvalCreatePanel">
+                    <div style="font-size:11px;font-weight:700;color:var(--brand-700);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">New Approval Status</div>
+                    <input type="text" class="tbl-inp" id="newApprovalInput" placeholder="Status name…">
+                    <div style="display:flex;gap:6px;margin-top:8px;">
+                      <button class="save-btn" onclick="addNewApprovalStatus()">Add</button>
+                      <button class="cancel-btn" onclick="closeApprovalCreate()">Cancel</button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <input type="text" class="tbl-inp" id="addApprovedBy" placeholder="Name…">
+                </td>
+                <td>
+                  <input type="file" id="addFile" style="display:none;" onchange="handleFileSelect(this)">
+                  <button class="file-btn" onclick="document.getElementById('addFile').click()">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/></svg>
+                    Upload
+                  </button>
+                  <span id="addFileName" style="font-size:11.5px;color:var(--text-3);margin-left:6px;display:none;"></span>
+                </td>
+                <td>
+                  <button class="btn btn-primary btn-sm" onclick="addSampleLine()" style="height:34px;padding:0 14px;font-size:12.5px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                    Add
+                  </button>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3: SAMPLE STATUS ══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-title">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+          Sample Status
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div style="display:flex;align-items:center;gap:16px;max-width:420px;">
+          <div class="fg" style="flex:1;">
+            <label class="fl">Sample Status</label>
+            <select class="inp" id="sampleStatusSel" onchange="updateStatusBadge(this.value)">
+              <option value="">— Select Status —</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="hold">Hold</option>
+            </select>
+          </div>
+          <div style="padding-top:22px;" id="statusBadgeWrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom action bar -->
+    <div class="action-bar">
+      <button class="btn btn-ghost btn-sm" onclick="location.href='sampling-process-list.html'">Back</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-ghost btn-sm" onclick="saveDraft()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+        Save Draft
+      </button>
+      <button class="btn btn-success btn-sm" onclick="saveSubmit()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+        Save &amp; Submit
+      </button>
+    </div>
+
+  </main>
+</div>
+</div><!-- .app -->
+
+<!-- Toast area -->
+<div class="ta" id="toastArea"></div>
+
+<script>
+// ── Mock data ──
+const sampleData = {
+  'SMP-001': {desc:'Oxford Button-Down Shirt — Blue/White Stripe', color:'Blue/White Stripe', fabric:'Cotton Oxford 120 GSM — Blue'},
+  'SMP-002': {desc:'Polo Shirt Pique Knit — White', color:'White', fabric:'Pique Knit 180 GSM — White'},
+  'SMP-003': {desc:'Chino Trousers Regular Fit — Khaki Beige', color:'Khaki Beige', fabric:'Stretch Twill 240 GSM — Khaki'},
+  'SMP-004': {desc:'Bomber Jacket Nylon Shell — Black', color:'Black', fabric:'Nylon Ripstop 110 GSM — Black'}
+};
+const productData = {
+  'PRD-101': {desc:'Classic Fit Dress Shirt Long Sleeve', color:'Assorted', fabric:'Cotton Poplin 100 GSM'},
+  'PRD-102': {desc:'Slim Fit Formal Trousers', color:'Navy / Charcoal', fabric:'Wool Blend 280 GSM'},
+  'PRD-103': {desc:'Puffer Jacket Quilted', color:'Olive / Black', fabric:'Polyester Taffeta 70D'},
+  'PRD-104': {desc:'Casual Polo Shirt', color:'Multicolor', fabric:'Cotton Jersey 200 GSM'}
+};
+
+// ── State ──
+let lines = [];
+let lineCounter = 0;
+let editState = {}; // {idx, field}
+let selectedSstat = '';
+let currentType = 'sample';
+
+// ── Sidebar toggleGroup ──
+function toggleGroup(el) {
+  const parent = el.closest('.nav-group');
+  const isOpen = parent.classList.contains('open');
+  if (isOpen) {
+    parent.classList.remove('open');
+    el.classList.remove('open','active-group');
+  } else {
+    parent.classList.add('open');
+    el.classList.add('open','active-group');
+  }
+}
+
+// ── Type radio switch ──
+function selectRadio(type) {
+  currentType = type;
+  if (type === 'sample') {
+    document.getElementById('radioSample').classList.add('selected');
+    document.getElementById('radioProduct').classList.remove('selected');
+    document.getElementById('sampleGroup').style.display = '';
+    document.getElementById('productGroup').style.display = 'none';
+    // clear product fields
+    document.getElementById('productNo').value = '';
+    document.getElementById('productDesc').value = '';
+    document.getElementById('colorField').value = '';
+    document.getElementById('fabricField').value = '';
+  } else {
+    document.getElementById('radioProduct').classList.add('selected');
+    document.getElementById('radioSample').classList.remove('selected');
+    document.getElementById('productGroup').style.display = '';
+    document.getElementById('sampleGroup').style.display = 'none';
+    // clear sample fields
+    document.getElementById('sampleNo').value = '';
+    document.getElementById('sampleDesc').value = '';
+    document.getElementById('colorField').value = '';
+    document.getElementById('fabricField').value = '';
+  }
+}
+
+// ── Prepopulate ──
+function prepopulateFromSample(val) {
+  const d = sampleData[val];
+  if (d) {
+    document.getElementById('sampleDesc').value = d.desc;
+    document.getElementById('colorField').value = d.color;
+    document.getElementById('fabricField').value = d.fabric;
+  } else {
+    document.getElementById('sampleDesc').value = '';
+    document.getElementById('colorField').value = '';
+    document.getElementById('fabricField').value = '';
+  }
+  document.getElementById('errSampleNo').classList.remove('show');
+  document.getElementById('sampleNo').classList.remove('err');
+}
+function prepopulateFromProduct(val) {
+  const d = productData[val];
+  if (d) {
+    document.getElementById('productDesc').value = d.desc;
+    document.getElementById('colorField').value = d.color;
+    document.getElementById('fabricField').value = d.fabric;
+  } else {
+    document.getElementById('productDesc').value = '';
+    document.getElementById('colorField').value = '';
+    document.getElementById('fabricField').value = '';
+  }
+  document.getElementById('errProductNo').classList.remove('show');
+  document.getElementById('productNo').classList.remove('err');
+}
+
+// ── Size multi-select ──
+function toggleMsDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('sizeDropdown');
+  const tr = document.getElementById('sizeTrigger');
+  const isOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) { dd.classList.add('open'); tr.classList.add('open'); }
+}
+function updateSizeChips() {
+  const checks = document.querySelectorAll('#sizeDropdown input[type=checkbox]:checked');
+  const trigger = document.getElementById('sizeTrigger');
+  const placeholder = document.getElementById('sizePlaceholder');
+  // Remove existing chips
+  trigger.querySelectorAll('.ms-chip').forEach(c => c.remove());
+  if (checks.length === 0) {
+    placeholder.style.display = '';
+    return;
+  }
+  placeholder.style.display = 'none';
+  checks.forEach(cb => {
+    const chip = document.createElement('span');
+    chip.className = 'ms-chip';
+    chip.dataset.val = cb.value;
+    chip.innerHTML = cb.value + '<button class="ms-chip-x" onclick="removeSize(event,\''+cb.value+'\')"><svg viewBox="0 0 20 20" fill="currentColor" width="10" height="10"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>';
+    trigger.insertBefore(chip, trigger.querySelector('.ms-trigger-arrow'));
+  });
+}
+function removeSize(e, val) {
+  e.stopPropagation();
+  const cb = document.querySelector('#sizeDropdown input[value="'+val+'"]');
+  if (cb) cb.checked = false;
+  updateSizeChips();
+}
+function showSizeCreate(e) {
+  e.stopPropagation();
+  document.getElementById('sizeCreatePanel').classList.add('open');
+  document.getElementById('sizeDropdown').classList.remove('open');
+  document.getElementById('sizeTrigger').classList.remove('open');
+}
+function closeSizeCreate() {
+  document.getElementById('sizeCreatePanel').classList.remove('open');
+  document.getElementById('newSizeInput').value = '';
+}
+function addNewSize() {
+  const val = document.getElementById('newSizeInput').value.trim();
+  if (!val) { toast('Enter a size label.','e'); return; }
+  const dd = document.getElementById('sizeDropdown');
+  const opt = document.createElement('label');
+  opt.className = 'ms-opt';
+  opt.innerHTML = '<input type="checkbox" value="'+val+'" onchange="updateSizeChips()"> '+val;
+  dd.appendChild(opt);
+  opt.querySelector('input').checked = true;
+  closeSizeCreate();
+  updateSizeChips();
+  toast('Size "'+val+'" added.','s');
+}
+
+// ── Type & Approval create ──
+function showTypeCreate() {
+  document.getElementById('typeCreatePanel').classList.add('open');
+}
+function closeTypeCreate() {
+  document.getElementById('typeCreatePanel').classList.remove('open');
+  document.getElementById('newTypeInput').value = '';
+}
+function addNewType() {
+  const val = document.getElementById('newTypeInput').value.trim();
+  if (!val) { toast('Enter a type name.','e'); return; }
+  const sel = document.getElementById('addType');
+  const opt = document.createElement('option');
+  opt.value = val; opt.text = val;
+  sel.appendChild(opt);
+  sel.value = val;
+  closeTypeCreate();
+  toast('Type "'+val+'" added.','s');
+}
+function showApprovalCreate() {
+  document.getElementById('approvalCreatePanel').classList.add('open');
+}
+function closeApprovalCreate() {
+  document.getElementById('approvalCreatePanel').classList.remove('open');
+  document.getElementById('newApprovalInput').value = '';
+}
+function addNewApprovalStatus() {
+  const val = document.getElementById('newApprovalInput').value.trim();
+  if (!val) { toast('Enter a status name.','e'); return; }
+  const sel = document.getElementById('addStatus');
+  const opt = document.createElement('option');
+  opt.value = val; opt.text = val;
+  sel.appendChild(opt);
+  sel.value = val;
+  closeApprovalCreate();
+  toast('Status "'+val+'" added.','s');
+}
+
+// ── File select ──
+function handleFileSelect(input) {
+  const name = input.files[0] ? input.files[0].name : '';
+  const label = document.getElementById('addFileName');
+  if (name) {
+    label.textContent = name;
+    label.style.display = 'inline';
+  } else {
+    label.style.display = 'none';
+  }
+}
+
+// ── Add sample line ──
+function addSampleLine() {
+  const typeEl = document.getElementById('addType');
+  const remarksEl = document.getElementById('addRemarks');
+  const statusEl = document.getElementById('addStatus');
+  const approvedByEl = document.getElementById('addApprovedBy');
+  const fileEl = document.getElementById('addFile');
+  let valid = true;
+  [typeEl, remarksEl, statusEl].forEach(el => el.classList.remove('err'));
+  if (!typeEl.value) { typeEl.classList.add('err'); valid = false; }
+  if (!remarksEl.value.trim()) { remarksEl.classList.add('err'); valid = false; }
+  if (!statusEl.value) { statusEl.classList.add('err'); valid = false; }
+  if (!valid) { toast('Please fill all mandatory fields (Type, Remarks, Status).','e'); return; }
+
+  const fileName = fileEl.files[0] ? fileEl.files[0].name : '';
+  lineCounter++;
+  const line = {
+    id: lineCounter,
+    type: typeEl.value,
+    remarks: remarksEl.value.trim(),
+    status: statusEl.value,
+    approvedBy: approvedByEl.value.trim(),
+    file: fileName
+  };
+  lines.push(line);
+  renderLines();
+  // Reset add row
+  typeEl.value = ''; remarksEl.value = ''; statusEl.value = '';
+  approvedByEl.value = ''; fileEl.value = '';
+  document.getElementById('addFileName').style.display = 'none';
+  [typeEl, remarksEl, statusEl].forEach(el => el.classList.remove('err'));
+  closeTypeCreate(); closeApprovalCreate();
+  toast('Sample line added.','s');
+}
+
+function renderLines() {
+  const tbody = document.getElementById('slBody');
+  tbody.innerHTML = '';
+  lines.forEach((line, idx) => {
+    const statusClass = statusPillClass(line.status);
+    const tr = document.createElement('tr');
+    tr.id = 'lineRow'+idx;
+    // Remarks cell content
+    let remarksCell;
+    if (editState.idx === idx && editState.field === 'remarks') {
+      remarksCell = '<div class="edit-cell"><input type="text" value="'+escHtml(line.remarks)+'" id="editRemarksInput'+idx+'" onkeydown="if(event.key===\'Enter\')saveCell(\'remarks\','+idx+')"><button class="save-btn" onclick="saveCell(\'remarks\','+idx+')">Save</button><button class="cancel-btn" onclick="cancelCell(\'remarks\','+idx+')">&#x2715;</button></div>';
+    } else {
+      remarksCell = '<span>'+escHtml(line.remarks)+'</span> <button class="icon-btn" onclick="editCell(\'remarks\','+idx+')" title="Edit" style="width:22px;height:22px;margin-left:4px;"><svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>';
+    }
+    // Attachment cell
+    let attCell;
+    if (editState.idx === idx && editState.field === 'attachment') {
+      attCell = '<div class="edit-cell"><input type="file" id="editFileInput'+idx+'" style="flex:1;font-size:11.5px;"><button class="save-btn" onclick="saveCell(\'attachment\','+idx+')">Save</button><button class="cancel-btn" onclick="cancelCell(\'attachment\','+idx+')">&#x2715;</button></div>';
+    } else if (line.file) {
+      attCell = '<span class="att-chip"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"/></svg>'+escHtml(line.file)+'</span> <button class="icon-btn" onclick="editCell(\'attachment\','+idx+')" title="Change" style="width:22px;height:22px;margin-left:4px;"><svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg></button>';
+    } else {
+      attCell = '<button class="icon-btn" onclick="editCell(\'attachment\','+idx+')" title="Upload" style="width:22px;height:22px;"><svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/></svg></button>';
+    }
+
+    tr.innerHTML =
+      '<td style="font-size:12px;font-weight:600;color:var(--text-3);">'+(idx+1)+'</td>'+
+      '<td><span class="type-chip">'+escHtml(line.type)+'</span></td>'+
+      '<td>'+remarksCell+'</td>'+
+      '<td><span class="sp '+statusClass+'">'+escHtml(line.status)+'</span></td>'+
+      '<td style="font-size:13px;color:var(--text-2);">'+escHtml(line.approvedBy)+'</td>'+
+      '<td>'+attCell+'</td>'+
+      '<td><button class="icon-btn dl" onclick="deleteLine('+idx+')" title="Delete"><svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg></button></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('lineCountBadge').textContent = lines.length + ' line' + (lines.length !== 1 ? 's' : '') + ' added';
+}
+
+function editCell(field, idx) {
+  editState = {idx, field};
+  renderLines();
+  if (field === 'remarks') {
+    const inp = document.getElementById('editRemarksInput'+idx);
+    if (inp) { inp.focus(); inp.select(); }
+  }
+}
+function saveCell(field, idx) {
+  if (field === 'remarks') {
+    const val = document.getElementById('editRemarksInput'+idx);
+    if (val) lines[idx].remarks = val.value.trim() || lines[idx].remarks;
+  } else if (field === 'attachment') {
+    const fi = document.getElementById('editFileInput'+idx);
+    if (fi && fi.files[0]) lines[idx].file = fi.files[0].name;
+  }
+  editState = {};
+  renderLines();
+}
+function cancelCell(field, idx) {
+  editState = {};
+  renderLines();
+}
+function deleteLine(idx) {
+  lines.splice(idx, 1);
+  if (editState.idx === idx) editState = {};
+  renderLines();
+  toast('Line removed.','i');
+}
+
+function statusPillClass(status) {
+  const map = {
+    'Pending':'sp-pending',
+    'Approved':'sp-approved',
+    'Approved with Comments':'sp-approved-comments',
+    'Rejected':'sp-rejected',
+    'On Hold':'sp-hold'
+  };
+  return map[status] || 'sp-pending';
+}
+
+// ── Sample status dropdown badge ──
+function updateStatusBadge(val) {
+  const wrap = document.getElementById('statusBadgeWrap');
+  if (!wrap) return;
+  const map = {
+    approved: '<span class="sp sp-approved">Approved</span>',
+    rejected: '<span class="sp sp-rejected">Rejected</span>',
+    hold:     '<span class="sp sp-hold">Hold</span>',
+    pending:  '<span class="sp sp-awaiting">Pending</span>',
+  };
+  wrap.innerHTML = map[val] || '';
+  selectedSstat = val;
+}
+
+// ── Save actions ──
+function saveDraft() {
+  toast('Draft saved successfully.','i');
+}
+function saveSubmit() {
+  let valid = true;
+  // Clear errors
+  ['sampleNo','productNo','sampleDate','requiredDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('err');
+  });
+  ['errSampleNo','errProductNo','errSampleDate','errRequiredDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+
+  if (currentType === 'sample') {
+    if (!document.getElementById('sampleNo').value) {
+      document.getElementById('sampleNo').classList.add('err');
+      document.getElementById('errSampleNo').classList.add('show');
+      valid = false;
+    }
+  } else {
+    if (!document.getElementById('productNo').value) {
+      document.getElementById('productNo').classList.add('err');
+      document.getElementById('errProductNo').classList.add('show');
+      valid = false;
+    }
+  }
+  if (!document.getElementById('sampleDate').value) {
+    document.getElementById('sampleDate').classList.add('err');
+    document.getElementById('errSampleDate').classList.add('show');
+    valid = false;
+  }
+  if (!document.getElementById('requiredDate').value) {
+    document.getElementById('requiredDate').classList.add('err');
+    document.getElementById('errRequiredDate').classList.add('show');
+    valid = false;
+  }
+  if (!valid) { toast('Please fill all mandatory fields before submitting.','e'); return; }
+  toast('Sampling process submitted successfully!','s');
+  setTimeout(()=>{ location.href='sampling-process-list.html'; }, 1200);
+}
+
+// ── Close dropdowns on outside click ──
+function closeAllDropdowns() {
+  document.getElementById('sizeDropdown').classList.remove('open');
+  document.getElementById('sizeTrigger').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('sizeWrap');
+  if (!wrap.contains(e.target)) closeAllDropdowns();
+});
+
+// ── Toast ──
+function toast(msg, type) {
+  type = type || 'i';
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  const icons = {s:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>',e:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>',i:'<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>'};
+  t.className = 'tt ' + type;
+  t.innerHTML = (icons[type]||'') + msg;
+  area.appendChild(t);
+  setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init render
+renderLines();
+</script>
+</body>
+</html>

@@ -142,6 +142,27 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
 /* Sample number link */
 .sno-link{color:var(--brand-700);font-weight:600;cursor:pointer;text-decoration:none;}
 .sno-link:hover{text-decoration:underline;}
+
+/* ── Column config panel ── */
+.col-cfg-wrap{position:relative;}
+.col-config-panel{position:fixed;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);z-index:600;min-width:260px;padding:14px 16px;display:none;}
+.col-config-panel.open{display:block;}
+.col-cfg-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;}
+.col-cfg-hint{font-size:10.5px;color:var(--text-3);margin-bottom:10px;}
+.col-cfg-list{display:flex;flex-direction:column;}
+.col-cfg-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--border2);border-radius:6px;transition:background .1s;user-select:none;}
+.col-cfg-row:last-child{border-bottom:none;}
+.col-cfg-row.dragging{opacity:.35;}
+.col-cfg-row.drag-over{background:rgba(91,95,199,.07);outline:1.5px dashed var(--brand-400);border-radius:6px;}
+.col-cfg-drag{cursor:grab;color:#cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:2px;}
+.col-cfg-drag:active{cursor:grabbing;}
+.col-cfg-drag svg{width:14px;height:14px;}
+.col-cfg-row input[type=checkbox]{accent-color:var(--brand-600);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+.col-cfg-row label{font-size:12.5px;color:var(--text-1);cursor:pointer;flex:1;min-width:0;}
+.col-cfg-arrows{display:flex;flex-direction:column;gap:2px;flex-shrink:0;}
+.col-cfg-arrows button{width:18px;height:14px;border:1px solid var(--border);border-radius:3px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);padding:0;font-size:9px;line-height:1;font-family:inherit;}
+.col-cfg-arrows button:hover{background:var(--brand-50);color:var(--brand-700);border-color:var(--brand-400);}
+.col-cfg-arrows button:disabled{opacity:.3;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -311,6 +332,17 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
           <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.553.894l-4 2A1 1 0 016 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
           Filter
         </button>
+        <div class="col-cfg-wrap">
+          <button class="btn btn-ghost btn-sm" onclick="toggleColPanel()" id="colConfigBtn" title="Customize columns">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+            Columns
+          </button>
+          <div class="col-config-panel" id="colConfigPanel">
+            <div class="col-cfg-title">Columns <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">drag to reorder</span></div>
+            <div class="col-cfg-hint">☑ visible &nbsp;·&nbsp; drag ⠿ or ↑↓ to reorder</div>
+            <div class="col-cfg-list" id="colCfgList"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -324,22 +356,11 @@ select.fi{padding-right:28px;appearance:none;background-image:url("data:image/sv
     </div>
 
     <!-- Table -->
-    <div class="tw">
+    <div class="tw" style="overflow-x:auto;">
       <table class="sm-tbl">
-        <thead>
-          <tr>
-            <th style="width:40px;">#</th>
-            <th>Sample No</th>
-            <th>Sample Image</th>
-            <th>Colors</th>
-            <th>Creation Date</th>
-            <th>Status</th>
-            <th>Created By</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+        <thead id="sampleThead"></thead>
         <tbody id="sampleTbody">
-          <tr><td colspan="8" class="empty" style="padding:48px 20px;text-align:center;color:var(--text-3);">Loading…</td></tr>
+          <tr><td colspan="11" style="padding:48px 20px;text-align:center;color:var(--text-3);">Loading…</td></tr>
         </tbody>
       </table>
     </div>
@@ -416,14 +437,29 @@ const colorMap = {
   'Teal':'#0d9488','Beige':'#d4a76a'
 };
 
+/* ── Column definitions (order = display order; visible = default shown) ── */
+let COL_DEFS = [
+  {id:'sampleNo',    label:'Sample No',          visible:true },
+  {id:'image',       label:'Image',               visible:true },
+  {id:'colors',      label:'Color',               visible:true },
+  {id:'description', label:'Sample Description',  visible:false},
+  {id:'category',    label:'Sample Category',     visible:true },
+  {id:'uom',         label:'UOM',                 visible:false},
+  {id:'date',        label:'Creation Date',        visible:true },
+  {id:'createdBy',   label:'Created By',           visible:true },
+];
+
+/* ── Column config drag state ── */
+let colDragSrcIdx = null;
+
 /* ── Sample Data ── */
 let samples = [
-  { id:'SMP-2026-006', sampleNo:'SMP-2026-006', colors:['Blue','Green'], category:'T-Shirt', date:'2026-04-30', status:'Awaiting', createdBy:'Ravi Kumar', hasImage:false, remarks:'Awaiting review from manager.' },
-  { id:'SMP-2026-005', sampleNo:'SMP-2026-005', colors:['Red'],          category:'Polo',    date:'2026-04-29', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'Approved for bulk production.' },
-  { id:'SMP-2026-004', sampleNo:'SMP-2026-004', colors:['Black','Grey'],  category:'Jacket',  date:'2026-04-28', status:'Hold',     createdBy:'Arun Nair',    hasImage:false, remarks:'Pending quality check.' },
-  { id:'SMP-2026-003', sampleNo:'SMP-2026-003', colors:['White','Yellow'],category:'T-Shirt', date:'2026-04-27', status:'Rejected', createdBy:'Ravi Kumar',   hasImage:true,  remarks:'Color fastness failed.' },
-  { id:'SMP-2026-002', sampleNo:'SMP-2026-002', colors:['Blue'],          category:'Shorts',  date:'2026-04-25', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'First wash approved.' },
-  { id:'SMP-2026-001', sampleNo:'SMP-2026-001', colors:['Red','Black'],   category:'Hoodie',  date:'2026-04-20', status:'Approved', createdBy:'Deepa Menon',  hasImage:true,  remarks:'Bulk order cleared.' },
+  { id:'SMP-2026-006', sampleNo:'SMP-2026-006', colors:['Blue','Green'], category:'T-Shirt', uom:'PCS', description:'Round neck tee with raglan sleeve detail. 180 GSM cotton jersey.',        date:'2026-04-30', status:'Awaiting', createdBy:'Ravi Kumar',   hasImage:false, remarks:'Awaiting review from manager.' },
+  { id:'SMP-2026-005', sampleNo:'SMP-2026-005', colors:['Red'],          category:'Polo',    uom:'PCS', description:'Premium pique polo with 3-button placket. 220 GSM cotton.',             date:'2026-04-29', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'Approved for bulk production.' },
+  { id:'SMP-2026-004', sampleNo:'SMP-2026-004', colors:['Black','Grey'],  category:'Jacket',  uom:'SET', description:'Two-piece tracksuit set with zip-front jacket and jogger pants.',       date:'2026-04-28', status:'Hold',     createdBy:'Arun Nair',    hasImage:false, remarks:'Pending quality check.' },
+  { id:'SMP-2026-003', sampleNo:'SMP-2026-003', colors:['White','Yellow'],category:'T-Shirt', uom:'PCS', description:'Drop shoulder tee with washed-out graphic print. 160 GSM cotton.',    date:'2026-04-27', status:'Rejected', createdBy:'Ravi Kumar',   hasImage:true,  remarks:'Color fastness failed.' },
+  { id:'SMP-2026-002', sampleNo:'SMP-2026-002', colors:['Blue'],          category:'Shorts',  uom:'PCS', description:'Swim shorts with mesh lining and drawcord waist. Quick-dry fabric.',   date:'2026-04-25', status:'Approved', createdBy:'Priya Sharma', hasImage:true,  remarks:'First wash approved.' },
+  { id:'SMP-2026-001', sampleNo:'SMP-2026-001', colors:['Red','Black'],   category:'Hoodie',  uom:'PCS', description:'Fleece hoodie with kangaroo pocket. 320 GSM brushed fleece interior.', date:'2026-04-20', status:'Approved', createdBy:'Deepa Menon',  hasImage:true,  remarks:'Bulk order cleared.' },
 ];
 
 let archivedSamples = [
@@ -436,14 +472,53 @@ const PAGE_SIZE = 10;
 let currentPage = 1;
 let filteredData = [...samples];
 
+/* ── Build dynamic table header ── */
+function buildHeader() {
+  const visibleCols = COL_DEFS.filter(c => c.visible);
+  let h = `<tr><th style="width:40px;">#</th>`;
+  visibleCols.forEach(c => { h += `<th>${c.label}</th>`; });
+  h += `<th>Status</th><th>Actions</th></tr>`;
+  document.getElementById('sampleThead').innerHTML = h;
+}
+
+/* ── Cell renderers for configurable columns ── */
+function buildCells(s) {
+  const colorSwatches = s.colors.map(c =>
+    `<span class="cc" style="background:${colorMap[c]||'#ccc'};width:18px;height:18px;border-radius:4px;display:inline-block;border:1.5px solid rgba(0,0,0,.15);margin-right:3px;" title="${c}"></span>`
+  ).join('') + `<span class="cc-label" style="margin-left:2px;">${s.colors.join(', ')}</span>`;
+
+  const thumb = s.hasImage
+    ? `<div class="thumb-wrap" onclick="openImgFs('${s.colors[0]}','${s.sampleNo}')" title="Click to expand">
+         <div style="width:100%;height:100%;background:linear-gradient(135deg,${colorMap[s.colors[0]]||'#6366f1'}99,${colorMap[s.colors[s.colors.length-1]]||'#818cf8'}dd);display:flex;align-items:center;justify-content:center;">
+           <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.7)" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+         </div>
+       </div>`
+    : `<div class="thumb-ph"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg></div>`;
+
+  const renderers = {
+    sampleNo:    () => `<td><a class="sno-link" onclick="goView('${s.id}')">${s.sampleNo}</a></td>`,
+    image:       () => `<td>${thumb}</td>`,
+    colors:      () => `<td><div class="color-chips">${colorSwatches}</div></td>`,
+    description: () => `<td style="max-width:220px;"><div style="font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;" title="${s.description||''}">${s.description||'—'}</div></td>`,
+    category:    () => `<td style="white-space:nowrap;">${s.category||'—'}</td>`,
+    uom:         () => `<td><span style="font-size:11px;font-weight:700;background:#f1f5f9;padding:2px 8px;border-radius:5px;color:#475569;">${s.uom||'—'}</span></td>`,
+    date:        () => `<td style="white-space:nowrap;">${formatDate(s.date)}</td>`,
+    createdBy:   () => `<td>${s.createdBy}</td>`,
+  };
+
+  return COL_DEFS.filter(c => c.visible).map(c => renderers[c.id] ? renderers[c.id]() : '').join('');
+}
+
 /* ── Render table ── */
 function renderTable() {
+  buildHeader();
   const tbody = document.getElementById('sampleTbody');
   const start = (currentPage - 1) * PAGE_SIZE;
   const pageData = filteredData.slice(start, start + PAGE_SIZE);
+  const colSpan = COL_DEFS.filter(c => c.visible).length + 3; // +3 for #, Status, Actions
 
   if (!filteredData.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="padding:48px 20px;text-align:center;">
+    tbody.innerHTML = `<tr><td colspan="${colSpan}" style="padding:48px 20px;text-align:center;">
       <svg viewBox="0 0 20 20" fill="currentColor" style="width:40px;height:40px;color:#d1d5db;display:block;margin:0 auto 10px;"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.553.894l-4 2A1 1 0 016 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/></svg>
       <div style="font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:4px;">No samples found</div>
       <div style="font-size:12px;color:var(--text-3);">Try adjusting your filters.</div>
@@ -457,20 +532,6 @@ function renderTable() {
     const rowClass = s.status === 'Approved' ? 'row-approved' : s.status === 'Rejected' ? 'row-rejected' : s.status === 'Hold' ? 'row-hold' : '';
     const statusClass = 'sp sp-' + s.status.toLowerCase();
     const num = start + idx + 1;
-
-    // Color swatches
-    const colorSwatches = s.colors.map(c =>
-      `<span class="cc" title="${c}" style="background:${colorMap[c]||'#ccc'};width:18px;height:18px;border-radius:4px;display:inline-block;border:1.5px solid rgba(0,0,0,.15);margin-right:3px;" title="${c}"></span>`
-    ).join('') + `<span class="cc-label" style="margin-left:4px;">${s.colors.join(', ')}</span>`;
-
-    // Thumb
-    const thumb = s.hasImage
-      ? `<div class="thumb-wrap" onclick="openImgFs('${s.colors[0]}', '${s.sampleNo}')" title="Click to expand">
-           <div style="width:100%;height:100%;background:linear-gradient(135deg,${colorMap[s.colors[0]]||'#6366f1'}99,${colorMap[s.colors[s.colors.length-1]]||'#818cf8'}dd);display:flex;align-items:center;justify-content:center;">
-             <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.7)" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
-           </div>
-         </div>`
-      : `<div class="thumb-ph"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg></div>`;
 
     // Actions
     let actions = `<div class="rac">`;
@@ -493,23 +554,99 @@ function renderTable() {
 
     return `<tr class="${rowClass}" data-id="${s.id}">
       <td style="color:var(--text-3);font-weight:600;font-size:12px;">${num}</td>
-      <td><a class="sno-link" onclick="goView('${s.id}')">${s.sampleNo}</a></td>
-      <td>${thumb}</td>
-      <td>${colorSwatches}</td>
-      <td style="white-space:nowrap;">${formatDate(s.date)}</td>
+      ${buildCells(s)}
       <td><span class="${statusClass}">${s.status}</span></td>
-      <td>${s.createdBy}</td>
       <td>${actions}</td>
     </tr>`;
   }).join('');
 
-  // Count info
   const total = filteredData.length;
   const showing = Math.min(PAGE_SIZE, total - start);
   document.getElementById('countInfo').textContent = `Showing ${start+1}–${start+showing} of ${total} records`;
-
-  // Pagination
   renderPagination(total);
+}
+
+/* ── Column config panel ── */
+function renderColPanel() {
+  const list = document.getElementById('colCfgList');
+  list.innerHTML = COL_DEFS.map((c, i) => `
+    <div class="col-cfg-row" draggable="true" data-idx="${i}"
+         ondragstart="colDragStart(event,${i})"
+         ondragover="colDragOver(event,${i})"
+         ondragleave="colDragLeave(event)"
+         ondrop="colDrop(event,${i})"
+         ondragend="colDragEnd(event)">
+      <span class="col-cfg-drag" title="Drag to reorder">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 2a2 2 0 11.001 4.001A2 2 0 017 2zm0 6a2 2 0 11.001 4.001A2 2 0 017 6zm0 6a2 2 0 11.001 4.001A2 2 0 017 14zm6-8a2 2 0 11.001 4.001A2 2 0 0113 6zm0 6a2 2 0 11.001 4.001A2 2 0 0113 12zm0-12a2 2 0 11.001 4.001A2 2 0 0113 0z"/></svg>
+      </span>
+      <input type="checkbox" id="col-${c.id}" ${c.visible?'checked':''} onchange="colToggleVisible(${i})">
+      <label for="col-${c.id}">${c.label}</label>
+      <div class="col-cfg-arrows">
+        <button onclick="colMove(${i},-1)" title="Move up" ${i===0?'disabled':''}>▲</button>
+        <button onclick="colMove(${i},1)" title="Move down" ${i===COL_DEFS.length-1?'disabled':''}>▼</button>
+      </div>
+    </div>`).join('');
+}
+
+function colToggleVisible(i) {
+  COL_DEFS[i].visible = !COL_DEFS[i].visible;
+  renderColPanel();
+  renderTable();
+}
+
+function colMove(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= COL_DEFS.length) return;
+  [COL_DEFS[i], COL_DEFS[j]] = [COL_DEFS[j], COL_DEFS[i]];
+  renderColPanel();
+  renderTable();
+}
+
+function colDragStart(e, i) {
+  colDragSrcIdx = i;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function colDragOver(e, i) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function colDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function colDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.col-cfg-row').forEach(r => r.classList.remove('drag-over'));
+}
+function colDrop(e, i) {
+  e.preventDefault();
+  if (colDragSrcIdx === null || colDragSrcIdx === i) return;
+  const moved = COL_DEFS.splice(colDragSrcIdx, 1)[0];
+  COL_DEFS.splice(i, 0, moved);
+  colDragSrcIdx = null;
+  renderColPanel();
+  renderTable();
+}
+
+function toggleColPanel() {
+  const panel = document.getElementById('colConfigPanel');
+  const isOpen = panel.classList.contains('open');
+  if (!isOpen) {
+    renderColPanel();
+    panel.classList.add('open');
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', function outsideColClick(e) {
+        if (!document.getElementById('colConfigBtn').contains(e.target) && !panel.contains(e.target)) {
+          panel.classList.remove('open');
+          document.removeEventListener('click', outsideColClick);
+        }
+      });
+    }, 0);
+  } else {
+    panel.classList.remove('open');
+  }
 }
 
 function renderPagination(total) {
@@ -678,6 +815,7 @@ function applyAccessControl() {
 /* ── Init ── */
 filteredData = [...samples];
 applyAccessControl();
+buildHeader();
 renderTable();
 </script>
 </body>
