@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Work Order — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+
+/* ── Sidebar overrides ── */
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;}.sf-role{color:#94a3b8!important;}.sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Section cards ── */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:visible;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);}
+.sec-hd-left{display:flex;align-items:center;gap:10px;}
+.sec-num{width:24px;height:24px;border-radius:6px;background:var(--brand-600);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-bd{padding:0 0 12px;}
+
+/* ── Grids ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+
+/* ── Form fields ── */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:12.5px;font-weight:600;color:#374151;}
+.fl .req{color:#ef4444;}
+
+/* ── Inputs ── */
+.inp{width:100%;height:40px;padding:0 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.inp::placeholder{color:#9ca3af;}
+.inp[readonly]{background:#f8fafc;color:#64748b;cursor:default;}
+.inp[readonly]:focus{border-color:#e2e8f0;box-shadow:none;background:#f8fafc;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+
+/* ── Buttons ── */
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;text-decoration:none;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn svg{width:14px;height:14px;}
+
+/* ── Tabs ── */
+.tab-strip{display:flex;gap:2px;border-bottom:2px solid var(--border2);margin-bottom:0;}
+.tab-btn{padding:10px 18px;font-size:13px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0;display:inline-flex;align-items:center;gap:6px;transition:color .15s;font-family:inherit;}
+.tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.tab-btn.active{color:var(--brand-600);border-bottom-color:var(--brand-500);}
+.tab-count{background:var(--brand-100);color:var(--brand-700);border-radius:9999px;padding:1px 8px;font-size:11px;font-weight:700;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── Info banners ── */
+.info-banner{display:flex;gap:9px;padding:11px 15px;border-radius:9px;font-size:12.5px;margin:0 20px 12px;}
+.info-banner svg,.info-banner .ms{flex-shrink:0;margin-top:1px;}
+.info-banner.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+.info-banner.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.info-banner.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+.info-banner.red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+
+/* ── Field hint / note ── */
+.field-note{font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.4;}
+
+/* ── Collapsible section toggle ── */
+.collapsible-hd{cursor:pointer;user-select:none;}
+.collapsible-hd:hover .sec-title{color:var(--brand-600);}
+.collapse-icon{transition:transform .2s;color:var(--text-3);}
+.collapsed .collapse-icon{transform:rotate(-90deg);}
+.sec-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:700;background:var(--brand-100);color:var(--brand-700);margin-left:4px;}
+
+/* ── Section body pads ── */
+.sp20{padding:16px 20px;}
+
+/* ── Table: costing-style ── */
+.ct-wrap{overflow-x:auto;padding:0 20px 4px;}
+.ct{width:100%;border-collapse:collapse;font-size:12.5px;}
+.ct th{padding:8px 10px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f8fafc;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.ct th.r{text-align:right;}
+.ct td{padding:6px 10px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.ct tbody tr:last-child td{border-bottom:none;}
+.ct tbody tr:hover td{background:#f8fafd;}
+.ct tfoot td{padding:9px 10px;font-weight:700;font-size:12.5px;background:#f8fafc;border-top:2px solid var(--border2);}
+.ct tfoot .tf-label{color:var(--text-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;}
+
+/* ── Inline cell inputs ── */
+.ci{width:100%;height:30px;padding:0 7px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.ci:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(37,99,235,.10);}
+.ci::placeholder{color:#c4c9d4;}
+.ci.ro{background:#f8fafc;color:#64748b;cursor:default;}
+.ci.ro:focus{border-color:var(--border);box-shadow:none;}
+.ci.num{text-align:right;font-variant-numeric:tabular-nums;}
+.rn{color:var(--text-3);font-size:11px;text-align:center;width:28px;user-select:none;}
+
+/* ── Row number ── */
+.seq-cell{color:var(--text-3);font-size:12px;text-align:center;font-variant-numeric:tabular-nums;width:36px;}
+
+/* ── Delete btn ── */
+.del-btn{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.del-btn:hover{background:#fee2e2;color:#ef4444;}
+.del-btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+.del-btn svg{width:13px;height:13px;}
+
+/* ── Add process dashed btn ── */
+.add-row-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1.5px dashed var(--border);border-radius:8px;font-size:12.5px;font-weight:600;color:var(--text-3);background:transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin:8px 20px;}
+.add-row-btn:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.add-row-btn svg{width:13px;height:13px;}
+
+/* ── BOM status badges ── */
+.bom-ok{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;background:#f0fdf4;color:#166534;}
+.bom-low{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;background:#fffbeb;color:#92400e;}
+
+/* ── Process status badge ── */
+.ps-notstarted{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280;}
+.ps-inprogress{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;background:#eff6ff;color:#2563eb;}
+.ps-done{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;background:#f0fdf4;color:#16a34a;}
+
+/* ── Assign vendor link/btn ── */
+.assign-link{font-size:12px;font-weight:600;color:var(--brand-600);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;transition:color .15s;}
+.assign-link:hover{color:var(--brand-700);text-decoration:underline;}
+
+/* ── Vendor panel (floating) ── */
+.vendor-panel{display:none;position:absolute;background:#fff;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);z-index:300;width:280px;padding:14px 16px;}
+.vendor-panel.open{display:block;}
+.vp-title{font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.vp-close{background:none;border:none;cursor:pointer;color:var(--text-3);padding:2px;font-size:14px;line-height:1;display:flex;align-items:center;}
+.vp-close:hover{color:var(--text-1);}
+.vp-row{margin-bottom:10px;}
+.vp-label{font-size:11.5px;font-weight:600;color:#374151;margin-bottom:4px;display:block;}
+.vp-sel{width:100%;height:32px;padding:0 8px;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;font-family:inherit;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;background-color:#fff;}
+.vp-sel:focus{border-color:var(--brand-500);}
+.vp-inp{width:100%;height:32px;padding:0 8px;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;font-family:inherit;outline:none;background:#fff;}
+.vp-inp:focus{border-color:var(--brand-500);}
+.vp-apply{width:100%;height:30px;background:var(--brand-600);color:#fff;border:none;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;transition:background .15s;}
+.vp-apply:hover{background:var(--brand-700);}
+
+/* ── Job work radios ── */
+.jw-radio-grp{display:flex;gap:8px;margin-top:4px;}
+.jw-radio-opt{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-3);transition:all .15s;user-select:none;}
+.jw-radio-opt:has(input:checked){border-color:var(--brand-500);background:var(--brand-50);color:var(--brand-700);}
+.jw-radio-opt input[type=radio]{accent-color:var(--brand-600);width:13px;height:13px;cursor:inherit;}
+
+/* ── BOM inner tabs ── */
+.bom-tab-strip{display:flex;gap:4px;padding:12px 20px 0;border-bottom:1px solid var(--border2);}
+.bom-tab-btn{padding:5px 13px;font-size:12px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:6px 6px 0 0;transition:color .15s;font-family:inherit;}
+.bom-tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.bom-tab-btn.active{color:var(--brand-600);border-bottom-color:var(--brand-500);}
+.bom-count{display:inline-flex;align-items:center;padding:1px 6px;border-radius:9999px;font-size:10px;font-weight:700;background:var(--brand-100);color:var(--brand-700);margin-left:3px;}
+
+/* ── Summary bar ── */
+.summary-bar{margin:8px 20px 4px;padding:8px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:#92400e;font-weight:600;}
+.summary-bar svg{width:14px;height:14px;flex-shrink:0;color:#f97316;}
+
+/* ── WO number chip ── */
+.wo-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--brand-50);border:1.5px solid var(--brand-200);border-radius:10px;font-size:13px;font-weight:700;color:var(--brand-700);}
+.wo-draft-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:9999px;background:#f3f4f6;color:#6b7280;margin-left:4px;}
+
+/* ── Grayed row ── */
+.row-grayed td{color:#b0bec5!important;}
+.row-grayed .ci{color:#b0bec5;background:#f8fafc;}
+
+/* ── Vertical align helpers ── */
+.va-mid{vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <!-- Production Orders group -->
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <!-- Work Orders group -->
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="work-order-list.html">Work Order List</a>
+        <a class="nav-child active" href="work-order-create.html">New Work Order</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">category</span></span>
+        <span class="nav-parent-label">Masters</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-vendor.html">Vendors</a>
+        <a class="nav-child" href="masters-fabric.html">Fabric</a>
+        <a class="nav-child" href="masters-color.html">Colors</a>
+        <a class="nav-child" href="masters-uom.html">Units of Measure</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
+      <a href="production-order-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Production</a>
+      <span style="color:var(--text-3);">/</span>
+      <a href="work-order-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Work Orders</a>
+      <span style="color:var(--text-3);">/</span>
+      <span style="color:var(--text-1);">New Work Order</span>
+    </span>
+    <div class="topbar-right">
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-600);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ── Page title + WO chip + actions ── -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <h1 style="font-size:20px;font-weight:800;color:var(--text-1);">New Work Order</h1>
+          <div class="wo-chip">
+            <span class="material-symbols-outlined" style="font-size:15px;color:var(--brand-500);">assignment</span>
+            WO-2026-006
+            <span class="wo-draft-pill">Draft</span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-3);">Create a work order linked to a production order and define the production workflow</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <a href="work-order-list.html" class="btn btn-ghost">Cancel</a>
+        <button class="btn btn-ghost" onclick="saveDraft()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Draft
+        </button>
+        <button class="btn btn-success" onclick="saveAndIssue()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Save &amp; Issue
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Two-Tab strip ── -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 1px 4px rgba(0,0,0,.04);padding:0 16px;margin-bottom:0;border-bottom:none;">
+      <div class="tab-strip">
+        <button class="tab-btn active" id="tab-details-btn" onclick="switchTab('details')">
+          <span class="material-symbols-outlined" style="font-size:16px;">edit_note</span>
+          Work Order Details
+        </button>
+        <button class="tab-btn" id="tab-workflow-btn" onclick="switchTab('workflow')">
+          <span class="material-symbols-outlined" style="font-size:16px;">account_tree</span>
+          Workflow &amp; Processes
+          <span class="tab-count">9</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 1: WORK ORDER DETAILS               -->
+    <!-- ════════════════════════════════════════ -->
+    <div id="tab-details" class="tab-panel active">
+
+      <!-- SECTION 1: Production Order & Dates -->
+      <div class="sec" style="border-radius:0 0 0 0;border-top:none;margin-bottom:16px;">
+        <div class="sec-hd">
+          <div class="sec-hd-left">
+            <div class="sec-num">1</div>
+            <div>
+              <div class="sec-title">Production Order &amp; Dates</div>
+              <div class="sec-sub">Link this work order to a production order and set schedule dates</div>
+            </div>
+          </div>
+        </div>
+        <div class="sec-bd sp20">
+          <div class="g3" style="margin-bottom:6px;">
+            <!-- Production Order select -->
+            <div class="fg">
+              <label class="fl">Production Order <span class="req">*</span></label>
+              <select class="inp" id="poSelect" onchange="onPoSelect(this.value)">
+                <option value="">Select production order…</option>
+                <option value="PRD-2026-0043" selected>PRD-2026-0043 — Women's Casual Shirt (Navy Blue) — 3,000 pcs</option>
+                <option value="PRD-2026-0044">PRD-2026-0044 — Men's Polo T-Shirt (White) — 5,000 pcs</option>
+                <option value="PRD-2026-0045">PRD-2026-0045 — Kids' Denim Jacket (Indigo) — 2,000 pcs</option>
+              </select>
+              <div class="field-note" style="display:flex;align-items:center;gap:5px;">
+                <span class="material-symbols-outlined" style="font-size:13px;color:#94a3b8;">info</span>
+                Only production orders not yet linked to a work order are shown
+              </div>
+            </div>
+            <!-- WO Date -->
+            <div class="fg">
+              <label class="fl">WO Date <span class="req">*</span></label>
+              <input type="date" class="inp" id="woDate" value="2026-05-19">
+            </div>
+            <!-- Delivery Date -->
+            <div class="fg">
+              <label class="fl">Delivery Date <span class="req">*</span></label>
+              <input type="date" class="inp" id="deliveryDate">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Style Information (shown after PO select) -->
+      <div class="sec" id="secStyleInfo">
+        <div class="sec-hd">
+          <div class="sec-hd-left">
+            <div class="sec-num">2</div>
+            <div>
+              <div class="sec-title">Style Information</div>
+              <div class="sec-sub">Pre-filled from the selected production order</div>
+            </div>
+          </div>
+        </div>
+        <div class="sec-bd">
+          <div class="info-banner blue" style="margin-top:12px;">
+            <span class="material-symbols-outlined" style="font-size:15px;color:#3b82f6;">info</span>
+            <span>Fields below are pre-filled from the selected production order. Workflow can be modified.</span>
+          </div>
+          <div class="sp20" style="padding-top:4px;">
+            <div class="g4" style="margin-bottom:16px;">
+              <div class="fg">
+                <label class="fl">Product / Sample No</label>
+                <input type="text" class="inp" id="productNo" readonly value="CVS-2026-F12 (Navy Blue)">
+              </div>
+              <div class="fg" style="grid-column:span 2;">
+                <label class="fl">Description</label>
+                <input type="text" class="inp" id="styleDesc" readonly value="Women's Casual Shirt — AW 2026 — M&amp;S UK">
+              </div>
+              <div class="fg">
+                <label class="fl">Season</label>
+                <input type="text" class="inp" id="styleSeason" readonly value="AW 2026">
+              </div>
+            </div>
+            <div class="g4" style="margin-bottom:8px;">
+              <div class="fg">
+                <label class="fl">Brand</label>
+                <input type="text" class="inp" id="styleBrand" readonly value="M&amp;S UK">
+              </div>
+              <div class="fg" style="grid-column:span 3;">
+                <label class="fl">Workflow <span class="req">*</span></label>
+                <select class="inp" id="workflowSelect" onchange="onWorkflowChange(this.value)">
+                  <option value="standard7" selected>Standard 7-Step</option>
+                  <option value="cut2pack">Cut-to-Pack</option>
+                  <option value="wash_pack">Wash &amp; Pack</option>
+                  <option value="full">Full Process</option>
+                  <option value="custom">Custom…</option>
+                </select>
+                <div class="field-note" style="display:flex;align-items:center;gap:5px;">
+                  <span class="material-symbols-outlined" style="font-size:13px;color:#94a3b8;">tips_and_updates</span>
+                  Selecting 'Custom…' lets you build a workflow from scratch in Tab 2
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Size & Quantity (collapsible) -->
+      <div class="sec" id="secSizeQty">
+        <div class="sec-hd collapsible-hd" onclick="toggleCollapse('sizeQtyBody', this)">
+          <div class="sec-hd-left">
+            <div class="sec-num">3</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="sec-title">Size &amp; Quantity</div>
+              <span class="sec-badge">7 sizes, 3,000 pcs total</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined collapse-icon" style="font-size:18px;">expand_more</span>
+        </div>
+        <div id="sizeQtyBody" class="sec-bd">
+          <div class="ct-wrap" style="padding-top:8px;">
+            <table class="ct" style="min-width:560px;">
+              <thead>
+                <tr>
+                  <th style="width:70px;">Size</th>
+                  <th class="r" style="width:110px;">Ordered Qty</th>
+                  <th style="width:160px;">Article No</th>
+                  <th style="width:160px;">SKU No</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>XS</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="200" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-XS-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-XS-001" style="width:100%;"></td>
+                </tr>
+                <tr>
+                  <td><strong>S</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="500" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-S-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-S-001" style="width:100%;"></td>
+                </tr>
+                <tr>
+                  <td><strong>M</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="800" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-M-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-M-001" style="width:100%;"></td>
+                </tr>
+                <tr>
+                  <td><strong>L</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="700" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-L-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-L-001" style="width:100%;"></td>
+                </tr>
+                <tr>
+                  <td><strong>XL</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="500" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-XL-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-XL-001" style="width:100%;"></td>
+                </tr>
+                <tr>
+                  <td><strong>XXL</strong></td>
+                  <td style="text-align:right;"><input class="ci num" type="number" value="300" min="0" style="width:90px;"></td>
+                  <td><input class="ci" placeholder="e.g. ART-XXL-001" style="width:100%;"></td>
+                  <td><input class="ci" placeholder="e.g. SKU-XXL-001" style="width:100%;"></td>
+                </tr>
+                <tr class="row-grayed">
+                  <td><strong style="color:#b0bec5;">XXXL</strong></td>
+                  <td style="text-align:right;"><input class="ci num ro" type="number" value="0" min="0" style="width:90px;" readonly></td>
+                  <td><input class="ci ro" placeholder="—" style="width:100%;" readonly></td>
+                  <td><input class="ci ro" placeholder="—" style="width:100%;" readonly></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="tf-label">Total</td>
+                  <td style="text-align:right;font-weight:700;color:var(--brand-700);" id="sizeTotal">3,000</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: BOM Details -->
+      <div class="sec" id="secBOM">
+        <div class="sec-hd">
+          <div class="sec-hd-left">
+            <div class="sec-num">4</div>
+            <div>
+              <div class="sec-title">Bill of Materials</div>
+              <div class="sec-sub">Materials required for this work order (auto-loaded from production order BOM)</div>
+            </div>
+          </div>
+        </div>
+        <!-- BOM inner tabs -->
+        <div class="bom-tab-strip">
+          <button class="bom-tab-btn active" onclick="switchBomTab('all', this)">All <span class="bom-count">8</span></button>
+          <button class="bom-tab-btn" onclick="switchBomTab('fabric', this)">Fabric <span class="bom-count">2</span></button>
+          <button class="bom-tab-btn" onclick="switchBomTab('trim', this)">Trims <span class="bom-count">6</span></button>
+        </div>
+        <div class="sec-bd">
+          <div class="info-banner blue" style="margin-top:12px;">
+            <span class="material-symbols-outlined" style="font-size:15px;color:#3b82f6;">calculate</span>
+            <span>Consumption and quantities are calculated against this work order's total qty (3,000 pcs)</span>
+          </div>
+          <div class="ct-wrap" style="padding-top:4px;">
+            <table class="ct" id="bomTable" style="min-width:820px;">
+              <thead>
+                <tr>
+                  <th style="width:28px;">#</th>
+                  <th style="min-width:160px;">Material</th>
+                  <th style="width:110px;">Type</th>
+                  <th style="width:110px;">Color / Shade</th>
+                  <th style="width:55px;">UOM</th>
+                  <th class="r" style="width:110px;">Consumption/Unit</th>
+                  <th class="r" style="width:100px;">Required Qty</th>
+                  <th class="r" style="width:100px;">Available Qty</th>
+                  <th style="width:90px;text-align:center;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="bomBody">
+                <!-- rows rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+          <div class="summary-bar">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            2 materials need attention — Available qty below required
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Job Work -->
+      <div class="sec" id="secJobWork">
+        <div class="sec-hd">
+          <div class="sec-hd-left">
+            <div class="sec-num">5</div>
+            <div>
+              <div class="sec-title">Job Work</div>
+              <div class="sec-sub">Specify whether any part of this work order is outsourced</div>
+            </div>
+          </div>
+        </div>
+        <div class="sec-bd sp20">
+          <div class="fg" style="max-width:480px;">
+            <label class="fl">Job Work</label>
+            <div class="jw-radio-grp">
+              <label class="jw-radio-opt">
+                <input type="radio" name="jobWork" value="no" checked onchange="toggleJobWork('no')"> No
+              </label>
+              <label class="jw-radio-opt">
+                <input type="radio" name="jobWork" value="yes" onchange="toggleJobWork('yes')"> Yes
+              </label>
+            </div>
+            <div id="jwNoNote" class="field-note" style="display:flex;align-items:center;gap:5px;margin-top:6px;">
+              <span class="material-symbols-outlined" style="font-size:13px;color:#94a3b8;">home_work</span>
+              This work order will be processed in-house
+            </div>
+            <div id="jwVendorField" style="display:none;margin-top:12px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;">
+                <div class="fg">
+                  <label class="fl">Job Work Vendor <span class="req">*</span></label>
+                  <select class="inp">
+                    <option value="">Select vendor…</option>
+                    <option>ABC Embroidery Works</option>
+                    <option>XYZ Printing House</option>
+                    <option>PQR Washing Unit</option>
+                  </select>
+                </div>
+                <div class="fg">
+                  <label class="fl">Job Work Price (₹/pc)</label>
+                  <input type="number" class="inp" placeholder="0.00" step="0.01" min="0">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-details -->
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- TAB 2: WORKFLOW & PROCESSES             -->
+    <!-- ════════════════════════════════════════ -->
+    <div id="tab-workflow" class="tab-panel" style="background:#fff;border:1px solid var(--border);border-radius:0 0 16px 16px;box-shadow:0 1px 6px rgba(0,0,0,.04);">
+
+      <div style="padding:16px 20px 0;">
+        <div class="info-banner blue" style="margin:0 0 0 0;">
+          <span class="material-symbols-outlined" style="font-size:15px;color:#3b82f6;">account_tree</span>
+          <span><strong>Workflow: Standard 7-Step</strong> — 9 processes pre-loaded from the selected production order's workflow. Assign a vendor and price per process. Processes not yet started can be deleted.</span>
+        </div>
+      </div>
+
+      <div style="padding:12px 20px 20px;">
+        <div style="overflow-x:auto;">
+          <table class="ct" id="processTable" style="min-width:720px;">
+            <thead>
+              <tr>
+                <th style="width:48px;text-align:center;">Seq</th>
+                <th style="min-width:200px;">Process Name</th>
+                <th style="width:120px;">Status</th>
+                <th style="width:200px;">Vendor</th>
+                <th class="r" style="width:120px;">Price (₹/pc)</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="processBody">
+              <!-- rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-workflow -->
+
+    <!-- ── Bottom actions ── -->
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;margin-bottom:30px;">
+      <a href="work-order-list.html" class="btn btn-ghost">Cancel</a>
+      <button class="btn btn-ghost" onclick="saveDraft()">Save Draft</button>
+      <button class="btn btn-success" onclick="saveAndIssue()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Save &amp; Issue
+      </button>
+    </div>
+
+  </main>
+</div><!-- /main -->
+</div><!-- /app -->
+
+
+<script>
+// ─────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────
+const BOM_DATA = [
+  {id:1, mat:'Cotton Poplin',       type:'Fabric-Main',    color:'Navy Blue', uom:'MTR', cons:1.500, reqQty:4500, availQty:5200, ok:true,  filter:'fabric'},
+  {id:2, mat:'Viscose Lining',      type:'Fabric-Lining',  color:'White',     uom:'MTR', cons:0.300, reqQty:900,  availQty:400,  ok:false, filter:'fabric'},
+  {id:3, mat:'Horn Button 4-hole',  type:'Trim-Button',    color:'Natural',   uom:'PCS', cons:8,     reqQty:24000,availQty:28000,ok:true,  filter:'trim'},
+  {id:4, mat:'YKK Zipper 20cm',     type:'Trim-Zipper',    color:'Silver',    uom:'PCS', cons:1,     reqQty:3000, availQty:2800, ok:false, filter:'trim'},
+  {id:5, mat:'Poly Thread 40s',     type:'Trim-Thread',    color:'Navy',      uom:'CONE',cons:0.050, reqQty:150,  availQty:200,  ok:true,  filter:'trim'},
+  {id:6, mat:'Woven Label Main',    type:'Trim-Label',     color:'—',         uom:'PCS', cons:1,     reqQty:3000, availQty:3500, ok:true,  filter:'trim'},
+  {id:7, mat:'Printed Size Label',  type:'Trim-Label',     color:'—',         uom:'PCS', cons:1,     reqQty:3200, availQty:3200, ok:true,  filter:'trim'},
+  {id:8, mat:'OPP Polybag 30×40',   type:'Trim-Packing',   color:'Clear',     uom:'PCS', cons:1,     reqQty:3000, availQty:3100, ok:true,  filter:'trim'},
+];
+
+const DEFAULT_PROCESSES = [
+  'Cutting',
+  'Fusing / Interlining',
+  'Sewing',
+  'Checking (Inline QC)',
+  'Washing',
+  'Finishing & Ironing',
+  'Final QC',
+  'Packing',
+  'Export Packing',
+];
+
+let processRows = [];
+let activeVendorRow = null;
+let processCtr = 0;
+
+// ─────────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────────
+function switchTab(tab) {
+  ['details','workflow'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-' + t + '-btn').classList.toggle('active', t === tab);
+  });
+  // Adjust tab-details section border-radius when switching
+  const detailsPanel = document.getElementById('tab-details');
+  if (tab === 'details') {
+    // First sec in details should connect to tab strip
+  }
+}
+
+// ─────────────────────────────────────────────────
+// PO SELECT
+// ─────────────────────────────────────────────────
+function onPoSelect(val) {
+  const show = !!val;
+  ['secStyleInfo','secSizeQty','secBOM','secJobWork'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  });
+}
+
+// ─────────────────────────────────────────────────
+// WORKFLOW CHANGE
+// ─────────────────────────────────────────────────
+function onWorkflowChange(val) {
+  if (val === 'custom') {
+    switchTab('workflow');
+  }
+}
+
+// ─────────────────────────────────────────────────
+// JOB WORK TOGGLE
+// ─────────────────────────────────────────────────
+function toggleJobWork(val) {
+  document.getElementById('jwNoNote').style.display    = val === 'no'  ? 'flex' : 'none';
+  document.getElementById('jwVendorField').style.display = val === 'yes' ? 'block' : 'none';
+}
+
+// ─────────────────────────────────────────────────
+// COLLAPSIBLE SECTIONS
+// ─────────────────────────────────────────────────
+function toggleCollapse(bodyId, headerEl) {
+  const body = document.getElementById(bodyId);
+  const icon = headerEl.querySelector('.collapse-icon');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  if (icon) icon.style.transform = isHidden ? '' : 'rotate(-90deg)';
+}
+
+// ─────────────────────────────────────────────────
+// BOM TABLE RENDERING
+// ─────────────────────────────────────────────────
+function renderBomTable(filter) {
+  const tbody = document.getElementById('bomBody');
+  const rows = filter === 'all' ? BOM_DATA : BOM_DATA.filter(r => r.filter === filter);
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td class="rn">${r.id}</td>
+      <td style="font-weight:500;">${r.mat}</td>
+      <td><span style="font-size:11.5px;color:var(--text-3);">${r.type}</span></td>
+      <td style="font-size:12.5px;">${r.color}</td>
+      <td style="font-size:12.5px;font-weight:600;">${r.uom}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;">${r.cons.toFixed(3)}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">${r.reqQty.toLocaleString()}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;">${r.availQty.toLocaleString()}</td>
+      <td style="text-align:center;">
+        ${r.ok
+          ? '<span class="bom-ok"><span style="font-size:13px;">✓</span> OK</span>'
+          : '<span class="bom-low"><span style="font-size:13px;">⚠</span> Low</span>'
+        }
+      </td>
+    </tr>
+  `).join('');
+}
+
+function switchBomTab(filter, btn) {
+  document.querySelectorAll('.bom-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBomTable(filter);
+}
+
+// ─────────────────────────────────────────────────
+// PROCESS TABLE
+// ─────────────────────────────────────────────────
+function renderProcessTable() {
+  const tbody = document.getElementById('processBody');
+  tbody.innerHTML = processRows.map((row, idx) => {
+    const canDelete = row.status === 'Not Started';
+    const seqNum = idx + 1;
+    return `
+      <tr id="prow-${row.id}">
+        <td class="seq-cell">${seqNum}</td>
+        <td style="font-weight:500;">${row.name}</td>
+        <td><span class="ps-notstarted">${row.status}</span></td>
+        <td>
+          <select class="ci" style="min-width:180px;" onchange="updateProcessVendor(${row.id}, this.value)">
+            <option value="">— Select vendor —</option>
+            <option value="In-house" ${row.vendor==='In-house'?'selected':''}>In-house</option>
+            <option value="ABC Embroidery Works" ${row.vendor==='ABC Embroidery Works'?'selected':''}>ABC Embroidery Works</option>
+            <option value="XYZ Printing House" ${row.vendor==='XYZ Printing House'?'selected':''}>XYZ Printing House</option>
+            <option value="PQR Washing Unit" ${row.vendor==='PQR Washing Unit'?'selected':''}>PQR Washing Unit</option>
+          </select>
+        </td>
+        <td style="text-align:right;">
+          <input class="ci num" type="number" step="0.01" value="${row.price||''}" placeholder="0.00" style="width:90px;" oninput="updateProcessPrice(${row.id}, this.value)">
+        </td>
+        <td style="text-align:center;">
+          <button class="del-btn" onclick="deleteProcess(${row.id})" ${canDelete ? '' : 'disabled'} title="${canDelete ? 'Delete process' : 'Cannot delete — process in progress or done'}">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  // Update badge count on tab
+  updateProcessTabBadge();
+}
+
+function updateProcessTabBadge() {
+  const tabBtn = document.getElementById('tab-workflow-btn');
+  const countSpan = tabBtn.querySelector('.tab-count');
+  if (countSpan) countSpan.textContent = processRows.length;
+}
+
+function initProcessRows() {
+  processRows = DEFAULT_PROCESSES.map((name, i) => ({
+    id: ++processCtr,
+    name,
+    status: 'Not Started',
+    vendor: '',
+    price: 0,
+    editable: false,
+  }));
+  renderProcessTable();
+}
+
+function updateProcessVendor(id, val) {
+  const row = processRows.find(r => r.id === id);
+  if (row) row.vendor = val;
+}
+
+function deleteProcess(id) {
+  const row = processRows.find(r => r.id === id);
+  if (!row) return;
+  if (row.status !== 'Not Started') {
+    alert('Cannot delete a process that is already in progress or completed.');
+    return;
+  }
+  if (!confirm(`Delete process "${row.name || '(unnamed)'}"?`)) return;
+  processRows = processRows.filter(r => r.id !== id);
+  renderProcessTable();
+}
+
+function updateProcessName(id, val) {
+  const row = processRows.find(r => r.id === id);
+  if (row) row.name = val;
+}
+
+function updateProcessPrice(id, val) {
+  const row = processRows.find(r => r.id === id);
+  if (row) row.price = val;
+}
+
+
+// ─────────────────────────────────────────────────
+// SIDEBAR TOGGLE
+// ─────────────────────────────────────────────────
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+// ─────────────────────────────────────────────────
+// ACTIONS
+// ─────────────────────────────────────────────────
+function saveDraft() {
+  alert('Work order saved as Draft!\n(In production: POST /cedge/api/v1/work-orders with status=DRAFT)');
+}
+
+function saveAndIssue() {
+  const po = document.getElementById('poSelect').value;
+  const delivery = document.getElementById('deliveryDate').value;
+  if (!po) { alert('Please select a Production Order.'); return; }
+  if (!delivery) { alert('Please set a Delivery Date.'); return; }
+  alert('Work Order WO-2026-006 issued successfully!\n(In production: POST /cedge/api/v1/work-orders with status=ISSUED)');
+}
+
+// ─────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Page loads with PRD-2026-0043 already selected — show all sections
+  onPoSelect('PRD-2026-0043');
+  renderBomTable('all');
+  initProcessRows();
+});
+</script>
+</body>
+</html>

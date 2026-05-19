@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Orders — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-draft     {background:#f3f4f6;color:#4b5563;}
+.sp-inprogress{background:#eff6ff;color:#1e40af;}
+.sp-completed {background:#f0fdf4;color:#166534;}
+.sp-overdue   {background:#fef2f2;color:#991b1b;}
+.sp-cancelled {background:#f3f4f6;color:#6b7280;}
+
+/* Job Work badges */
+.jw{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;white-space:nowrap;letter-spacing:.02em;}
+.jw-yes{background:#fff7ed;color:#c2410c;}
+.jw-no {background:#f3f4f6;color:#6b7280;}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all var(--ease-md);}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.stat-card.active{border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.stat-num{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11.5px;color:var(--text-3);font-weight:500;}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:500;}
+
+/* Toolbar */
+.list-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:320px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-3);}
+.search-input{height:34px;padding:0 10px 0 32px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;width:100%;outline:none;font-family:inherit;background:var(--surface);}
+.search-input:focus{border-color:var(--brand-500);}
+.filter-sel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:12.5px;outline:none;font-family:inherit;background:var(--surface);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.filter-sel:focus{border-color:var(--brand-500);}
+.date-input{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:12.5px;outline:none;font-family:inherit;background:var(--surface);color:var(--text-2);}
+.date-input:focus{border-color:var(--brand-500);}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+.wo-table{width:100%;border-collapse:collapse;font-size:13px;}
+.wo-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 14px;border-bottom:2px solid var(--border2);background:var(--gray-50);white-space:nowrap;}
+.wo-table td{padding:11px 14px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.wo-table tr:last-child td{border-bottom:none;}
+.wo-table tr:hover td{background:var(--brand-50);}
+
+/* Row actions */
+.row-actions{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;}
+.icon-action{width:28px;height:28px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;text-decoration:none;}
+.icon-action.view:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action.edit:hover{border-color:#86efac;color:#15803d;background:#f0fdf4;}
+.icon-action.pdf:hover{border-color:#fde68a;color:#92400e;background:#fffbeb;}
+.icon-action.del:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2;}
+.icon-action.barcode{background:#fff7ed;color:#c2410c;border-color:#fed7aa;}
+.icon-action.barcode:hover{background:#ffedd5;border-color:#fb923c;}
+.icon-action svg{width:13px;height:13px;}
+
+/* Toast */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* Pagination footer */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border2);background:var(--gray-50);font-size:12.5px;color:var(--text-3);}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:12px;font-family:inherit;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.pag-btn:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.pag-btn.active{background:var(--brand-600);color:#fff;border-color:var(--brand-600);}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── Configure Columns Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--surface);border-radius:var(--r-xl);box-shadow:0 20px 60px rgba(0,0,0,.25);width:420px;max-width:94vw;overflow:hidden;transform:translateY(12px);transition:transform .2s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.modal-title-icon{width:30px;height:30px;border-radius:var(--r-md);background:var(--brand-50);display:flex;align-items:center;justify-content:center;color:var(--brand-600);}
+.modal-close{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;}
+.modal-close:hover{background:var(--border2);color:var(--text-1);}
+.modal-body{padding:16px 22px 0;max-height:420px;overflow-y:auto;}
+.modal-hint{font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.5;}
+.col-chk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);}
+.col-chk-row:last-child{border-bottom:none;}
+.col-chk-row input[type="checkbox"]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.col-chk-label{font-size:13px;font-weight:500;color:var(--text-1);cursor:pointer;user-select:none;}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 18px;border-top:1px solid var(--border);margin-top:4px;}
+.btn-reset{height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-reset:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-apply{height:34px;padding:0 20px;border:none;border-radius:var(--r-md);background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-apply:hover{background:var(--brand-700);}
+
+/* ── Barcode Modal ── */
+.bc-modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:600;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto;}
+.bc-modal-overlay.open{display:flex;}
+.bc-modal{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:900px;max-width:100%;display:flex;flex-direction:column;overflow:hidden;}
+.bc-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:#f8fafc;flex-shrink:0;}
+.bc-modal-title{font-size:15px;font-weight:700;color:var(--text-1);}
+.bc-modal-actions{display:flex;gap:8px;align-items:center;}
+.bc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:20px;}
+.bc-card{border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;background:#fff;}
+.bc-card-header{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;}
+.bc-style-info{font-size:11px;color:var(--text-2);margin-bottom:8px;line-height:1.6;}
+.bc-barcode-wrap{display:flex;justify-content:center;margin:6px 0;}
+.bc-barcode-wrap svg{max-width:100%;}
+.bc-size-info{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2);}
+.bc-meta{font-size:10.5px;color:var(--text-3);margin-top:3px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="work-order-list.html">Work Order List</a>
+        <a class="nav-child" href="work-order-create.html">Create Work Order</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+        <a class="nav-child" href="masters-operation.html">Operations</a>
+        <a class="nav-child" href="masters-aisle.html">Aisle / Location</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Production</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page heading -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">Work Orders</div>
+        <div class="ph-sub">Manage and track all work orders linked to production runs</div>
+      </div>
+      <a href="work-order-create.html" class="btn btn-primary btn-sm" style="margin-top:8px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        New Work Order
+      </a>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card active" id="sc-All">
+        <div class="stat-num">12</div>
+        <div class="stat-label">Total Work Orders</div>
+        <div class="stat-sub" style="color:var(--text-3);">All statuses</div>
+      </div>
+      <div class="stat-card" id="sc-Draft">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Draft</div>
+        <div class="stat-sub" style="color:#9ca3af;">Not yet activated</div>
+      </div>
+      <div class="stat-card" id="sc-InProgress">
+        <div class="stat-num">6</div>
+        <div class="stat-label">In Progress</div>
+        <div class="stat-sub" style="color:#1e40af;">Currently active</div>
+      </div>
+      <div class="stat-card" id="sc-Completed">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Completed</div>
+        <div class="stat-sub" style="color:#166534;">Finished</div>
+      </div>
+      <div class="stat-card" id="sc-Overdue">
+        <div class="stat-num" style="color:#dc2626;">1</div>
+        <div class="stat-label">Overdue</div>
+        <div class="stat-sub" style="color:#dc2626;">Past delivery date</div>
+      </div>
+    </div>
+
+    <!-- Filter bar + toolbar -->
+    <div class="list-toolbar">
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input class="search-input" id="searchInput" placeholder="Search WO # or style…" oninput="applyFilter()">
+      </div>
+      <!-- Status filter -->
+      <select class="filter-sel" id="filterStatus" onchange="applyFilter()">
+        <option value="">All Statuses</option>
+        <option value="Draft">Draft</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <!-- Production Order filter -->
+      <select class="filter-sel" id="filterPrdOrder" onchange="applyFilter()">
+        <option value="">All Production Orders</option>
+        <option value="PRD-2026-0039">PRD-2026-0039</option>
+        <option value="PRD-2026-0040">PRD-2026-0040</option>
+        <option value="PRD-2026-0041">PRD-2026-0041</option>
+        <option value="PRD-2026-0042">PRD-2026-0042</option>
+        <option value="PRD-2026-0044">PRD-2026-0044</option>
+      </select>
+      <!-- Date From -->
+      <input type="date" class="date-input" id="filterDateFrom" onchange="applyFilter()" title="Date From">
+      <!-- Date To -->
+      <input type="date" class="date-input" id="filterDateTo" onchange="applyFilter()" title="Date To">
+
+      <div style="flex:1;"></div>
+
+      <!-- Configure Columns button -->
+      <button class="act-btn" onclick="openColModal()" title="Configure Columns" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;">
+        <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        Columns
+      </button>
+
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="wo-table" id="mainTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none;text-align:center;padding:60px 20px;color:var(--text-3);">
+        <span class="material-symbols-outlined" style="font-size:48px;color:var(--gray-300);display:block;margin-bottom:14px;">assignment</span>
+        <h3 style="font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px;">No Work Orders found</h3>
+        <p style="font-size:13px;margin-bottom:14px;">Try adjusting your filters or create a new Work Order.</p>
+        <a href="work-order-create.html" class="btn btn-primary btn-sm">Create Work Order</a>
+      </div>
+      <!-- Pagination footer -->
+      <div class="pagination" id="paginationFooter">
+        <span id="paginationInfo">Showing 5 of 12 records</span>
+        <div class="pag-btns">
+          <button class="pag-btn" disabled>&laquo;</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn">&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════ Configure Columns Modal ════════ -->
+<div class="modal-overlay" id="colModal" onclick="handleColOverlayClick(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="colModalTitle">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon">
+          <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        </div>
+        <span id="colModalTitle">Configure Columns</span>
+      </div>
+      <button class="modal-close" onclick="closeColModal()" title="Close">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">Select which columns to display in the table. The <strong>#</strong> and <strong>Actions</strong> columns are always shown.</p>
+      <div id="colChkContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-reset" onclick="resetColVisibility()">Reset</button>
+      <button class="btn-apply" onclick="applyColVisibility()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Barcode Modal ════════ -->
+<div class="bc-modal-overlay" id="barcodeModal" onclick="handleBcOverlayClick(event)">
+  <div class="bc-modal" id="bcModalContent">
+    <div class="bc-modal-hd">
+      <div class="bc-modal-title" id="bcModalTitle">Size Barcodes</div>
+      <div class="bc-modal-actions">
+        <button onclick="downloadBarcodePDF()" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border:none;border-radius:8px;background:#d97706;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+          <span class="material-symbols-outlined" style="font-size:15px;">picture_as_pdf</span>
+          Download PDF
+        </button>
+        <button onclick="closeBarcodeModal()" style="width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">
+          <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="bc-grid" id="bcGrid"></div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ── Work Order data ── */
+const WORK_ORDERS = [
+  {
+    wo_number: 'WO-2026-001',
+    production_order: 'PRD-2026-0039',
+    style: "Women's Woven Shirt — Navy Stripe",
+    season: 'AW 2026',
+    brand: 'M&S UK',
+    workflow: 'Cut-to-Pack',
+    wo_date: '2026-05-02',
+    delivery_date: '2026-06-15',
+    job_work: 'No',
+    status: 'In Progress'
+  },
+  {
+    wo_number: 'WO-2026-002',
+    production_order: 'PRD-2026-0042',
+    style: "Women's Blouse — Floral Print",
+    season: 'SS 2027',
+    brand: 'Next UK',
+    workflow: 'Wash & Pack',
+    wo_date: '2026-05-08',
+    delivery_date: '2026-07-30',
+    job_work: 'Yes',
+    status: 'Draft'
+  },
+  {
+    wo_number: 'WO-2026-003',
+    production_order: 'PRD-2026-0040',
+    style: "Men's Slim Chinos — Khaki",
+    season: 'AW 2026',
+    brand: 'ASDA',
+    workflow: 'Standard 7-Step',
+    wo_date: '2026-04-10',
+    delivery_date: '2026-05-01',
+    job_work: 'No',
+    status: 'Completed'
+  },
+  {
+    wo_number: 'WO-2026-004',
+    production_order: 'PRD-2026-0041',
+    style: "Kids' Denim Jacket — Indigo",
+    season: 'AW 2026',
+    brand: 'H&M',
+    workflow: 'Standard 7-Step',
+    wo_date: '2026-05-12',
+    delivery_date: '2026-07-15',
+    job_work: 'No',
+    status: 'In Progress'
+  },
+  {
+    wo_number: 'WO-2026-005',
+    production_order: 'PRD-2026-0044',
+    style: "Men's Polo T-Shirt — White",
+    season: 'SS 2027',
+    brand: 'Primark',
+    workflow: 'Cut-to-Pack',
+    wo_date: '2026-05-16',
+    delivery_date: '2026-08-01',
+    job_work: 'No',
+    status: 'Draft'
+  }
+];
+
+/* ── Column label defaults ── */
+const DEFAULT_LABELS = {
+  wo_number:        'WO Number',
+  production_order: 'Production Order',
+  style:            'Style / Description',
+  season:           'Season',
+  brand:            'Brand',
+  workflow:         'Workflow',
+  wo_date:          'WO Date',
+  delivery_date:    'Delivery Date',
+  job_work:         'Job Work',
+  status:           'Status'
+};
+
+let columnLabels = Object.assign({}, DEFAULT_LABELS);
+
+/* ── Column visibility state (all visible by default) ── */
+let colVisible = {};
+Object.keys(DEFAULT_LABELS).forEach(k => { colVisible[k] = true; });
+
+/* ── Status helpers ── */
+const statusCls = {
+  'Draft':       'sp-draft',
+  'In Progress': 'sp-inprogress',
+  'Completed':   'sp-completed',
+  'Overdue':     'sp-overdue',
+  'Cancelled':   'sp-cancelled'
+};
+
+/* ── Format date for display ── */
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${months[+m-1]} ${y}`;
+}
+
+/* ── Build table header ── */
+function buildHeader() {
+  const keys = Object.keys(DEFAULT_LABELS);
+  let h = '<tr><th style="width:36px;">#</th>';
+  keys.forEach(k => {
+    h += `<th id="th-${k}" data-col="${k}">${columnLabels[k].toUpperCase()}</th>`;
+  });
+  h += '<th style="width:150px;">ACTIONS</th></tr>';
+  document.getElementById('tableHead').innerHTML = h;
+  applyColumnVisibility();
+}
+
+/* ── Apply column visibility to th and td elements ── */
+function applyColumnVisibility() {
+  Object.keys(DEFAULT_LABELS).forEach(k => {
+    const display = colVisible[k] ? '' : 'none';
+    /* header cell */
+    const th = document.getElementById(`th-${k}`);
+    if (th) th.style.display = display;
+    /* all body cells for this column */
+    document.querySelectorAll(`td[data-col="${k}"]`).forEach(td => {
+      td.style.display = display;
+    });
+  });
+}
+
+/* ── Apply filters and render rows ── */
+function applyFilter() {
+  buildHeader();
+  const q          = document.getElementById('searchInput').value.toLowerCase();
+  const fStatus    = document.getElementById('filterStatus').value;
+  const fPrd       = document.getElementById('filterPrdOrder').value;
+  const fDateFrom  = document.getElementById('filterDateFrom').value;
+  const fDateTo    = document.getElementById('filterDateTo').value;
+
+  let rows = WORK_ORDERS.filter(o => {
+    if (q && !o.wo_number.toLowerCase().includes(q) && !o.style.toLowerCase().includes(q) && !o.production_order.toLowerCase().includes(q)) return false;
+    if (fStatus && o.status !== fStatus) return false;
+    if (fPrd && o.production_order !== fPrd) return false;
+    if (fDateFrom && o.wo_date < fDateFrom) return false;
+    if (fDateTo   && o.wo_date > fDateTo)   return false;
+    return true;
+  });
+
+  const tbody   = document.getElementById('tableBody');
+  const empty   = document.getElementById('emptyState');
+  const pagFoot = document.getElementById('paginationFooter');
+  const pagInfo = document.getElementById('paginationInfo');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    pagFoot.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  pagFoot.style.display = 'flex';
+  pagInfo.textContent = `Showing ${rows.length} of 12 records`;
+
+  tbody.innerHTML = rows.map((o, i) => {
+    const jwCls = o.job_work === 'Yes' ? 'jw-yes' : 'jw-no';
+    const spCls = statusCls[o.status] || 'sp-draft';
+    return `<tr>
+      <td style="color:var(--text-3);font-size:11px;">${i + 1}</td>
+      <td data-col="wo_number">
+        <a href="work-order-view.html" style="font-weight:700;color:var(--brand-600);font-size:13px;text-decoration:none;">${o.wo_number}</a>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${fmtDate(o.wo_date)}</div>
+      </td>
+      <td data-col="production_order">
+        <div style="font-weight:600;font-size:12.5px;color:var(--brand-700);">${o.production_order}</div>
+      </td>
+      <td data-col="style">
+        <div style="font-size:12.5px;font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.style}">${o.style}</div>
+      </td>
+      <td data-col="season" style="font-size:12.5px;">${o.season || '—'}</td>
+      <td data-col="brand" style="font-size:12.5px;font-weight:500;">${o.brand}</td>
+      <td data-col="workflow"><div style="font-size:12px;color:var(--text-2);">${o.workflow}</div></td>
+      <td data-col="wo_date" style="font-size:12px;">${fmtDate(o.wo_date)}</td>
+      <td data-col="delivery_date" style="font-size:12px;">${fmtDate(o.delivery_date)}</td>
+      <td data-col="job_work"><span class="jw ${jwCls}">${o.job_work}</span></td>
+      <td data-col="status"><span class="sp ${spCls}">${o.status}</span></td>
+      <td>
+        <div class="row-actions">
+          <a href="work-order-view.html" class="icon-action view" title="View Work Order">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
+          </a>
+          <button class="icon-action barcode" title="Size Barcodes" onclick="openBarcodeModal('${o.wo_number}')">
+            <span class="material-symbols-outlined" style="font-size:14px;">qr_code</span>
+          </button>
+          <a href="work-order-edit.html" class="icon-action edit" title="Edit Work Order">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          </a>
+          <button class="icon-action pdf" title="Download PDF" onclick="toast('Generating PDF for ${o.wo_number}…','info')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="icon-action del" title="Delete Work Order" onclick="deleteWO('${o.wo_number}', this)">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  applyColumnVisibility();
+}
+
+/* ── Delete confirmation ── */
+function deleteWO(woNum, btn) {
+  if (!confirm(`Are you sure you want to delete Work Order ${woNum}?\nThis action cannot be undone.`)) return;
+  const row = btn.closest('tr');
+  if (row) row.remove();
+  toast(`Work Order ${woNum} deleted.`, 'success');
+}
+
+/* ── Sidebar nav toggle ── */
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ── Toast notification ── */
+function toast(msg, type = 'info') {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ════════ Configure Columns Modal ════════ */
+
+function openColModal() {
+  renderColCheckboxes();
+  document.getElementById('colModal').classList.add('open');
+}
+
+function closeColModal() {
+  document.getElementById('colModal').classList.remove('open');
+}
+
+function handleColOverlayClick(e) {
+  if (e.target === document.getElementById('colModal')) closeColModal();
+}
+
+function renderColCheckboxes() {
+  const container = document.getElementById('colChkContainer');
+  const keys = Object.keys(DEFAULT_LABELS);
+  container.innerHTML = keys.map(k => `
+    <div class="col-chk-row">
+      <input type="checkbox" id="col-chk-${k}" ${colVisible[k] ? 'checked' : ''}>
+      <label class="col-chk-label" for="col-chk-${k}">${DEFAULT_LABELS[k]}</label>
+    </div>
+  `).join('');
+}
+
+function applyColVisibility() {
+  const keys = Object.keys(DEFAULT_LABELS);
+  keys.forEach(k => {
+    const chk = document.getElementById(`col-chk-${k}`);
+    if (chk) colVisible[k] = chk.checked;
+  });
+  applyColumnVisibility();
+  closeColModal();
+  toast('Column visibility updated.', 'success');
+}
+
+function resetColVisibility() {
+  Object.keys(DEFAULT_LABELS).forEach(k => { colVisible[k] = true; });
+  /* Re-tick all checkboxes in the modal */
+  Object.keys(DEFAULT_LABELS).forEach(k => {
+    const chk = document.getElementById(`col-chk-${k}`);
+    if (chk) chk.checked = true;
+  });
+  toast('All columns shown.', 'info');
+}
+
+/* ════════ Barcode Feature ════════ */
+
+const WO_SIZE_DATA = {
+  'WO-2026-001': [
+    {size:'XS',   qty:300,  articleNo:'CVS-F04-XS',   skuNo:'SKU-F04-XS-001'},
+    {size:'S',    qty:700,  articleNo:'CVS-F04-S',    skuNo:'SKU-F04-S-001'},
+    {size:'M',    qty:1200, articleNo:'CVS-F04-M',    skuNo:'SKU-F04-M-001'},
+    {size:'L',    qty:1100, articleNo:'CVS-F04-L',    skuNo:'SKU-F04-L-001'},
+    {size:'XL',   qty:800,  articleNo:'CVS-F04-XL',   skuNo:'SKU-F04-XL-001'},
+    {size:'XXL',  qty:600,  articleNo:'CVS-F04-XXL',  skuNo:'SKU-F04-XXL-001'},
+    {size:'XXXL', qty:300,  articleNo:'CVS-F04-XXXL', skuNo:'SKU-F04-XXXL-001'},
+  ],
+  'WO-2026-002': [
+    {size:'S', qty:400, articleNo:'BLS-S', skuNo:'SKU-BLS-S'},
+    {size:'M', qty:600, articleNo:'BLS-M', skuNo:'SKU-BLS-M'},
+    {size:'L', qty:400, articleNo:'BLS-L', skuNo:'SKU-BLS-L'}
+  ],
+  'WO-2026-003': [
+    {size:'S',  qty:200, articleNo:'CHN-S',  skuNo:'SKU-CHN-S'},
+    {size:'M',  qty:500, articleNo:'CHN-M',  skuNo:'SKU-CHN-M'},
+    {size:'L',  qty:400, articleNo:'CHN-L',  skuNo:'SKU-CHN-L'},
+    {size:'XL', qty:200, articleNo:'CHN-XL', skuNo:'SKU-CHN-XL'}
+  ],
+  'WO-2026-004': [
+    {size:'4Y',  qty:300, articleNo:'DJK-4Y',  skuNo:'SKU-DJK-4Y'},
+    {size:'6Y',  qty:500, articleNo:'DJK-6Y',  skuNo:'SKU-DJK-6Y'},
+    {size:'8Y',  qty:500, articleNo:'DJK-8Y',  skuNo:'SKU-DJK-8Y'},
+    {size:'10Y', qty:400, articleNo:'DJK-10Y', skuNo:'SKU-DJK-10Y'},
+    {size:'12Y', qty:300, articleNo:'DJK-12Y', skuNo:'SKU-DJK-12Y'}
+  ],
+  'WO-2026-005': [
+    {size:'S',  qty:800,  articleNo:'POL-S',  skuNo:'SKU-POL-S'},
+    {size:'M',  qty:1200, articleNo:'POL-M',  skuNo:'SKU-POL-M'},
+    {size:'L',  qty:1000, articleNo:'POL-L',  skuNo:'SKU-POL-L'},
+    {size:'XL', qty:600,  articleNo:'POL-XL', skuNo:'SKU-POL-XL'}
+  ],
+};
+
+/* Active WO for barcode printing */
+let _bcWoNumber = null;
+
+function openBarcodeModal(woNumber) {
+  _bcWoNumber = woNumber;
+  const wo = WORK_ORDERS.find(o => o.wo_number === woNumber);
+  const sizes = WO_SIZE_DATA[woNumber] || [];
+
+  document.getElementById('bcModalTitle').textContent = `Size Barcodes — ${woNumber}`;
+
+  const woIdSafe = woNumber.replace(/-/g, '');
+
+  const cards = sizes.map(s => {
+    const svgId = `bc-svg-${woIdSafe}-${s.size}`;
+    return `
+      <div class="bc-card">
+        <div class="bc-card-header">C-Edge ERP</div>
+        <div class="bc-style-info">
+          <strong>Style:</strong> ${wo ? wo.style.split(' — ')[0] : woNumber}<br>
+          <strong>Color:</strong> ${wo ? (wo.style.includes('—') ? wo.style.split(' — ')[1] : '—') : '—'}<br>
+          <strong>Season:</strong> ${wo ? wo.season : '—'} &nbsp;|&nbsp; ${wo ? wo.brand : '—'}
+        </div>
+        <div class="bc-barcode-wrap">
+          <svg id="${svgId}"></svg>
+        </div>
+        <div class="bc-size-info">
+          <span>Size: <strong>${s.size}</strong></span>
+          <span>Qty: <strong>${s.qty}</strong></span>
+        </div>
+        <div class="bc-meta">Art: ${s.articleNo}</div>
+        <div class="bc-meta">SKU: ${s.skuNo}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('bcGrid').innerHTML = cards;
+  document.getElementById('barcodeModal').classList.add('open');
+
+  /* Render barcodes after DOM update */
+  requestAnimationFrame(() => {
+    sizes.forEach(s => {
+      const barcodeVal = `${woIdSafe}${s.size}`.replace(/[^A-Za-z0-9]/g, '');
+      const svgId = `bc-svg-${woIdSafe}-${s.size}`;
+      try {
+        JsBarcode(`#${svgId}`, barcodeVal, {
+          format: 'CODE128',
+          width: 1.8,
+          height: 50,
+          displayValue: true,
+          fontSize: 11,
+          margin: 4
+        });
+      } catch(e) {
+        console.warn('Barcode error for', barcodeVal, e);
+      }
+    });
+  });
+}
+
+function closeBarcodeModal() {
+  document.getElementById('barcodeModal').classList.remove('open');
+  _bcWoNumber = null;
+}
+
+function handleBcOverlayClick(e) {
+  if (e.target === document.getElementById('barcodeModal')) closeBarcodeModal();
+}
+
+function downloadBarcodePDF() {
+  if (!_bcWoNumber) return;
+  const { jsPDF } = window.jspdf;
+  const wo = WORK_ORDERS.find(o => o.wo_number === _bcWoNumber);
+  const sizes = WO_SIZE_DATA[_bcWoNumber] || [];
+
+  const styleName = wo ? wo.style.split(' — ')[0] : _bcWoNumber;
+  const colorName = wo && wo.style.includes(' — ') ? wo.style.split(' — ')[1] : '—';
+  const season = wo ? wo.season : '—';
+  const brand  = wo ? wo.brand  : '—';
+
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const m = 10;
+
+  /* ── Page header ── */
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+  doc.text('SIZE BARCODES', m, 14);
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(80);
+  doc.text(`${_bcWoNumber}  |  ${styleName} — ${colorName}  |  ${season}  |  ${brand}`, m, 20);
+  doc.setDrawColor(200); doc.setLineWidth(0.3); doc.line(m, 23, W - m, 23);
+
+  /* ── Card grid layout: 3 columns ── */
+  const cols = 3;
+  const gap = 4;
+  const cardW = (W - m * 2 - gap * (cols - 1)) / cols; // ~56mm
+  let startY = 27;
+
+  sizes.forEach((s, i) => {
+    const col = i % cols;
+    const rowInPage = Math.floor((i % 6) / cols);
+
+    /* new page every 6 cards (2 rows × 3 cols) */
+    if (i > 0 && i % 6 === 0) {
+      doc.addPage();
+      startY = 14;
+    }
+
+    const x = m + col * (cardW + gap);
+    const y = startY + rowInPage * 72;
+
+    /* render barcode to canvas */
+    const barcodeVal = `${_bcWoNumber.replace(/-/g,'')}${s.size}`.replace(/[^A-Za-z0-9]/g,'');
+    const cvs = document.createElement('canvas');
+    JsBarcode(cvs, barcodeVal, { format:'CODE128', width:1.6, height:38, displayValue:true, fontSize:9, margin:3, background:'#ffffff', lineColor:'#000000' });
+    const bcImgData = cvs.toDataURL('image/png');
+    const bcW = cardW - 6;
+    const bcH = (cvs.height / cvs.width) * bcW;
+
+    /* card border */
+    doc.setDrawColor(209,213,219); doc.setFillColor(255,255,255);
+    doc.roundedRect(x, y, cardW, 68, 2, 2, 'FD');
+
+    /* company */
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(107,114,128);
+    doc.text('C-EDGE ERP', x+3, y+5);
+
+    /* style info */
+    doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text(styleName.length > 24 ? styleName.substring(0,24)+'…' : styleName, x+3, y+10);
+    doc.setFont('helvetica','normal'); doc.setTextColor(80);
+    doc.text(`Color: ${colorName}`, x+3, y+14.5);
+    doc.text(`${season}  |  ${brand}`, x+3, y+18.5);
+
+    /* barcode image */
+    doc.addImage(bcImgData, 'PNG', x+3, y+21, bcW, bcH);
+
+    /* size / qty row */
+    const iy = y + 21 + bcH + 3;
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text(`Size: ${s.size}`, x+3, iy);
+    doc.text(`Qty: ${s.qty}`, x + cardW - 3, iy, { align:'right' });
+
+    /* article & sku */
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(80);
+    doc.text(`Art: ${s.articleNo}`, x+3, iy+4.5);
+    doc.text(`SKU: ${s.skuNo}`, x+3, iy+8.5);
+
+    /* divider above size row */
+    doc.setDrawColor(229,231,235); doc.setLineWidth(0.2);
+    doc.line(x+2, iy-2, x+cardW-2, iy-2);
+  });
+
+  doc.save(`${_bcWoNumber}-size-barcodes.pdf`);
+}
+
+/* ── Init ── */
+applyFilter();
+</script>
+</body>
+</html>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Order — WO-2026-001 — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+
+/* ── Sidebar overrides ── */
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Buttons ── */
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;text-decoration:none;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-outline-blue{background:#fff;color:var(--brand-600);border:1.5px solid var(--brand-300);}.btn-outline-blue:hover{background:var(--brand-50);border-color:var(--brand-500);}
+.btn-pdf{background:#d97706;color:#fff;border:none;}.btn-pdf:hover{background:#b45309;}
+
+/* ── Status pills ── */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:9999px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;}
+.sp-inprogress{background:#eff6ff;color:#1e40af;}.sp-inprogress::before{background:#2563eb;}
+.sp-done{background:#f0fdf4;color:#166534;}.sp-done::before{background:#22c55e;}
+.sp-notstarted{background:#f3f4f6;color:#6b7280;}.sp-notstarted::before{background:#9ca3af;}
+
+/* ── Summary stat cards ── */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.sum-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.sum-card-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;}
+.sum-card-value{font-size:22px;font-weight:800;color:var(--text-1);line-height:1.1;margin-bottom:4px;}
+.sum-card-sub{font-size:11.5px;color:var(--text-3);margin-top:4px;}
+
+/* countdown chip */
+.countdown-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:700;background:#fffbeb;color:#92400e;border:1px solid #fde68a;margin-top:6px;}
+
+/* green badge for job work */
+.jw-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:11.5px;font-weight:700;background:#f0fdf4;color:#166534;margin-top:6px;}
+
+/* ── Tabs ── */
+.tab-strip{display:flex;gap:0;border-bottom:2px solid var(--border2);margin-bottom:20px;}
+.tab-btn{padding:10px 20px;font-size:13px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:7px;transition:color .15s;}
+.tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.tab-btn.active{color:var(--brand-600);border-bottom-color:var(--brand-500);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+/* ── View card ── */
+.view-card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:18px;overflow:hidden;}
+.view-card-hd{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border2);background:#fafbfe;}
+.vc-icon{width:28px;height:28px;border-radius:8px;background:var(--brand-600);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vc-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.view-card-body{padding:20px;}
+
+/* info grid */
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.info-item{padding:14px 20px;border-bottom:1px solid var(--border2);}
+.info-item:nth-last-child(-n+3){border-bottom:none;}
+.info-item:not(:nth-child(3n)){border-right:1px solid var(--border2);}
+.info-lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px;}
+.info-val{font-size:13.5px;font-weight:600;color:var(--text-1);}
+.info-val a{color:var(--brand-600);text-decoration:none;font-weight:700;}.info-val a:hover{text-decoration:underline;}
+
+/* ── View tables ── */
+.vt{width:100%;border-collapse:collapse;font-size:12.5px;}
+.vt thead th{padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.vt thead th.r{text-align:right;}
+.vt thead th.c{text-align:center;}
+.vt tbody td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.vt tbody td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.vt tbody td.c{text-align:center;}
+.vt tbody tr:hover td{background:#f5f8ff;}
+.vt tbody tr:last-child td{border-bottom:none;}
+.vt tfoot td{padding:10px 14px;font-weight:700;background:#f9fafb;border-top:2px solid var(--border2);font-variant-numeric:tabular-nums;}
+.vt tfoot td.r{text-align:right;}
+
+/* stock status badges */
+.stock-ok{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:700;background:#f0fdf4;color:#166534;}
+.stock-low{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:700;background:#fffbeb;color:#92400e;}
+
+/* attention notice */
+.notice-warn{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fffbeb;border-top:1px solid #fde68a;font-size:12.5px;font-weight:600;color:#92400e;}
+
+/* ── Workflow tab ── */
+.progress-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.progress-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.progress-pct{font-size:13px;font-weight:700;color:var(--brand-600);}
+.progress-bar-bg{height:10px;background:#e2e8f0;border-radius:9999px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--brand-600);border-radius:9999px;transition:width .4s ease;}
+.progress-sub{font-size:11.5px;color:var(--text-3);margin-top:7px;}
+
+/* process status */
+.ps-done{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;background:#f0fdf4;color:#166534;}
+.ps-done::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;}
+.ps-inprogress{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;background:#eff6ff;color:#1e40af;}
+.ps-inprogress::before{content:'';width:6px;height:6px;border-radius:50%;background:#2563eb;}
+.ps-notstarted{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;background:#f3f4f6;color:#6b7280;}
+.ps-notstarted::before{content:'';width:6px;height:6px;border-radius:50%;background:#9ca3af;}
+
+/* breadcrumb */
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);margin-bottom:6px;}
+.breadcrumb a{color:var(--text-3);text-decoration:none;font-weight:500;}.breadcrumb a:hover{color:var(--brand-600);}
+.breadcrumb .sep{color:#cbd5e1;}
+
+/* ─────────────────────────
+   PRINT / PDF STYLES
+───────────────────────── */
+.print-doc{display:none;}
+
+@media print {
+  .no-print,
+  .sidebar,
+  .topbar,
+  .tab-strip,
+  .page-actions,
+  .summary-grid,
+  .tab-panel,
+  .progress-wrap { display:none!important; }
+
+  .app { display:block!important; }
+  .main { margin:0!important; padding:0!important; }
+  .page { padding:8px!important; max-width:100%!important; }
+  body { background:#fff!important; font-size:11px!important; }
+  :root { --bg:#fff; --border:#ccc; --border2:#e0e0e0; }
+
+  .print-doc { display:block!important; }
+
+  @page { margin:10mm 12mm; size:A4 portrait; }
+
+  /* print doc internals */
+  .pd-header { border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:14px; }
+  .pd-section { margin-bottom:14px; }
+  .pd-section-title { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#333; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:8px; }
+  .pd-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px 20px; margin-bottom:10px; }
+  .pd-info-item { font-size:10px; color:#222; padding:2px 0; }
+  .pd-info-item .pil { font-weight:600; color:#555; }
+  .pd-table { width:100%; border-collapse:collapse; font-size:10px; margin-bottom:4px; page-break-inside:avoid; }
+  .pd-table th { padding:5px 8px; font-size:8.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#555; background:#f5f5f5; border:1px solid #ccc; text-align:left; white-space:nowrap; }
+  .pd-table th.r { text-align:right; }
+  .pd-table td { padding:5px 8px; border:1px solid #ddd; vertical-align:middle; }
+  .pd-table td.r { text-align:right; font-variant-numeric:tabular-nums; }
+  .pd-table tfoot td { font-weight:700; background:#f0f0f0; border-top:2px solid #999; }
+  .pd-table tfoot td.r { text-align:right; }
+  .pd-footer { border-top:1px solid #ccc; padding-top:6px; margin-top:12px; display:flex; justify-content:space-between; font-size:8.5px; color:#888; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar no-print">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Orders</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="work-order-list.html">Work Orders</a>
+        <a class="nav-child" href="work-order-create.html">Create Work Order</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar no-print">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;">
+      <a href="#" style="color:var(--text-3);text-decoration:none;font-weight:500;">Production</a>
+      <span style="color:#cbd5e1;">/</span>
+      <a href="work-order-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Work Orders</a>
+      <span style="color:#cbd5e1;">/</span>
+      <span style="color:var(--text-1);font-weight:700;">WO-2026-001</span>
+    </span>
+    <div class="topbar-right">
+      <div style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-600);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ── Page header ── -->
+    <div class="page-actions" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div class="breadcrumb no-print">
+          <a href="#">Production</a>
+          <span class="sep">/</span>
+          <a href="work-order-list.html">Work Orders</a>
+          <span class="sep">/</span>
+          <span style="color:var(--text-1);font-weight:600;">WO-2026-001</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+          <h1 style="font-size:22px;font-weight:800;color:var(--text-1);margin:0;">WO-2026-001</h1>
+          <span class="sp sp-inprogress">In Progress</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-3);margin-top:5px;">Women's Woven Shirt — AW 2026 &nbsp;·&nbsp; M&amp;S UK &nbsp;·&nbsp; 5,000 pcs &nbsp;·&nbsp; Production Order: PRD-2026-0039</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <a href="work-order-list.html" class="btn btn-ghost">
+          <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+          Back
+        </a>
+        <a href="work-order-edit.html" class="btn btn-outline-blue">
+          <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+          Edit
+        </a>
+        <button class="btn btn-pdf" onclick="downloadPDF()">
+          <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span>
+          Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Summary Cards ── -->
+    <div class="summary-grid no-print">
+      <div class="sum-card">
+        <div class="sum-card-label">WO Date</div>
+        <div class="sum-card-value">02 May 2026</div>
+        <div class="sum-card-sub">Date created</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-card-label">Delivery Date</div>
+        <div class="sum-card-value">15 Jun 2026</div>
+        <div><span class="countdown-chip">
+          <span class="material-symbols-outlined" style="font-size:13px;">schedule</span>
+          27 days left
+        </span></div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-card-label">Total Qty</div>
+        <div class="sum-card-value">5,000</div>
+        <div class="sum-card-sub">pieces</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-card-label">Job Work</div>
+        <div class="sum-card-value" style="font-size:18px;">In-house</div>
+        <div><span class="jw-badge">
+          <span class="material-symbols-outlined" style="font-size:13px;">factory</span>
+          Internal Production
+        </span></div>
+      </div>
+    </div>
+
+    <!-- ── Tab Strip ── -->
+    <div class="tab-strip no-print">
+      <button class="tab-btn active" id="btn-details" onclick="switchTab('details')">
+        <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+        Work Order Details
+      </button>
+      <button class="tab-btn" id="btn-workflow" onclick="switchTab('workflow')">
+        <span class="material-symbols-outlined" style="font-size:16px;">account_tree</span>
+        Workflow &amp; Processes
+      </button>
+    </div>
+
+    <!-- ════════════════════
+         TAB 1 — Details
+    ════════════════════ -->
+    <div id="panel-details" class="tab-panel active">
+
+      <!-- Production & Style Info -->
+      <div class="view-card">
+        <div class="view-card-hd">
+          <div class="vc-icon"><span class="material-symbols-outlined" style="font-size:16px;color:#fff;">style</span></div>
+          <span class="vc-title">Production &amp; Style</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-lbl">Production Order</div>
+            <div class="info-val"><a href="production-order.html">PRD-2026-0039</a></div>
+          </div>
+          <div class="info-item">
+            <div class="info-lbl">Product / Sample</div>
+            <div class="info-val">CVS-2026-F04 (Navy Stripe)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-lbl">Description</div>
+            <div class="info-val">Women's Woven Shirt — AW 2026</div>
+          </div>
+          <div class="info-item">
+            <div class="info-lbl">Season</div>
+            <div class="info-val">AW 2026</div>
+          </div>
+          <div class="info-item">
+            <div class="info-lbl">Brand</div>
+            <div class="info-val">M&amp;S UK</div>
+          </div>
+          <div class="info-item">
+            <div class="info-lbl">Workflow</div>
+            <div class="info-val">Standard 7-Step</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Size & Quantity -->
+      <div class="view-card">
+        <div class="view-card-hd">
+          <div class="vc-icon"><span class="material-symbols-outlined" style="font-size:16px;color:#fff;">straighten</span></div>
+          <span class="vc-title">Size &amp; Quantity Breakdown</span>
+        </div>
+        <table class="vt">
+          <thead>
+            <tr>
+              <th>Size</th>
+              <th class="r">Ordered Qty</th>
+              <th class="r">WO Qty</th>
+              <th>Article No</th>
+              <th>SKU No</th>
+              <th class="r">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>XS</td><td class="r">300</td><td class="r">300</td><td>CVS-F04-XS</td><td>SKU-F04-XS-001</td><td class="r">6.0%</td></tr>
+            <tr><td>S</td><td class="r">700</td><td class="r">700</td><td>CVS-F04-S</td><td>SKU-F04-S-001</td><td class="r">14.0%</td></tr>
+            <tr><td>M</td><td class="r">1,200</td><td class="r">1,200</td><td>CVS-F04-M</td><td>SKU-F04-M-001</td><td class="r">24.0%</td></tr>
+            <tr><td>L</td><td class="r">1,100</td><td class="r">1,100</td><td>CVS-F04-L</td><td>SKU-F04-L-001</td><td class="r">22.0%</td></tr>
+            <tr><td>XL</td><td class="r">800</td><td class="r">800</td><td>CVS-F04-XL</td><td>SKU-F04-XL-001</td><td class="r">16.0%</td></tr>
+            <tr><td>XXL</td><td class="r">600</td><td class="r">600</td><td>CVS-F04-XXL</td><td>SKU-F04-XXL-001</td><td class="r">12.0%</td></tr>
+            <tr><td>XXXL</td><td class="r">300</td><td class="r">300</td><td>CVS-F04-XXXL</td><td>SKU-F04-XXXL-001</td><td class="r">6.0%</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Total</td>
+              <td class="r">5,000</td>
+              <td class="r">5,000</td>
+              <td colspan="2"></td>
+              <td class="r">100%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- BOM Details -->
+      <div class="view-card">
+        <div class="view-card-hd">
+          <div class="vc-icon"><span class="material-symbols-outlined" style="font-size:16px;color:#fff;">inventory</span></div>
+          <span class="vc-title">Bill of Materials</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="vt">
+            <thead>
+              <tr>
+                <th style="width:32px;">#</th>
+                <th>Material</th>
+                <th>Type</th>
+                <th>Color / Shade</th>
+                <th>UOM</th>
+                <th class="r">Consumption<br><span style="font-weight:400;text-transform:none;letter-spacing:0;">/Unit</span></th>
+                <th class="r">Required Qty</th>
+                <th class="r">Available Qty</th>
+                <th class="c">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">1</td>
+                <td style="font-weight:500;">Cotton Poplin Woven</td>
+                <td style="color:var(--text-3);font-size:12px;">Fabric-Main</td>
+                <td>Navy Stripe</td>
+                <td>MTR</td>
+                <td class="r">1.600</td>
+                <td class="r">8,000</td>
+                <td class="r">9,200</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">2</td>
+                <td style="font-weight:500;">Poly-Cotton Lining</td>
+                <td style="color:var(--text-3);font-size:12px;">Fabric-Lining</td>
+                <td>White</td>
+                <td>MTR</td>
+                <td class="r">0.250</td>
+                <td class="r">1,250</td>
+                <td class="r" style="color:#92400e;font-weight:600;">800</td>
+                <td class="c"><span class="stock-low">&#9888; Low</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">3</td>
+                <td style="font-weight:500;">Shell Button 4-hole</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Button</td>
+                <td>Cream</td>
+                <td>PCS</td>
+                <td class="r">7</td>
+                <td class="r">35,000</td>
+                <td class="r">42,000</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">4</td>
+                <td style="font-weight:500;">Invisible Zipper 22cm</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Zipper</td>
+                <td>Beige</td>
+                <td>PCS</td>
+                <td class="r">1</td>
+                <td class="r">5,000</td>
+                <td class="r" style="color:#92400e;font-weight:600;">4,500</td>
+                <td class="c"><span class="stock-low">&#9888; Low</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">5</td>
+                <td style="font-weight:500;">Poly Thread 40s</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Thread</td>
+                <td>Navy</td>
+                <td>CONE</td>
+                <td class="r">0.060</td>
+                <td class="r">300</td>
+                <td class="r">380</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">6</td>
+                <td style="font-weight:500;">Woven Label Main</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Label</td>
+                <td style="color:var(--text-3);">—</td>
+                <td>PCS</td>
+                <td class="r">1</td>
+                <td class="r">5,000</td>
+                <td class="r">5,800</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">7</td>
+                <td style="font-weight:500;">Printed Size Label</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Label</td>
+                <td style="color:var(--text-3);">—</td>
+                <td>PCS</td>
+                <td class="r">1</td>
+                <td class="r">5,000</td>
+                <td class="r">5,200</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">8</td>
+                <td style="font-weight:500;">OPP Polybag 40×50</td>
+                <td style="color:var(--text-3);font-size:12px;">Trim-Packing</td>
+                <td>Clear</td>
+                <td>PCS</td>
+                <td class="r">1</td>
+                <td class="r">5,000</td>
+                <td class="r">5,500</td>
+                <td class="c"><span class="stock-ok">&#10003; OK</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-warn">
+          <span class="material-symbols-outlined" style="font-size:17px;flex-shrink:0;">warning</span>
+          2 materials require attention — stock below required level
+        </div>
+      </div>
+
+    </div><!-- /panel-details -->
+
+    <!-- ════════════════════
+         TAB 2 — Workflow
+    ════════════════════ -->
+    <div id="panel-workflow" class="tab-panel">
+
+      <!-- Progress bar -->
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-title">Workflow Completion — Standard 7-Step</span>
+          <span class="progress-pct">22% complete</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:22%;"></div>
+        </div>
+        <div class="progress-sub">2 of 9 processes completed &nbsp;·&nbsp; 1 process in progress &nbsp;·&nbsp; 6 not started</div>
+      </div>
+
+      <!-- Process table -->
+      <div class="view-card">
+        <div class="view-card-hd">
+          <div class="vc-icon"><span class="material-symbols-outlined" style="font-size:16px;color:#fff;">account_tree</span></div>
+          <span class="vc-title">Process Workflow</span>
+        </div>
+        <table class="vt">
+          <thead>
+            <tr>
+              <th style="width:42px;">Seq</th>
+              <th>Process Name</th>
+              <th>Status</th>
+              <th>Vendor</th>
+              <th class="r">Price (&#8377;/pc)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">1</td>
+              <td style="font-weight:600;">Cutting</td>
+              <td><span class="ps-done">Done</span></td>
+              <td style="color:var(--text-3);">In-house</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">2</td>
+              <td style="font-weight:600;">Fusing / Interlining</td>
+              <td><span class="ps-done">Done</span></td>
+              <td style="color:var(--text-3);">In-house</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr style="background:#f0f7ff;">
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">3</td>
+              <td style="font-weight:600;">Sewing</td>
+              <td><span class="ps-inprogress">In Progress</span></td>
+              <td style="color:var(--text-3);">In-house</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">4</td>
+              <td style="font-weight:500;color:var(--text-2);">Checking (Inline QC)</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td style="color:var(--text-3);">Not Assigned</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">5</td>
+              <td style="font-weight:500;color:var(--text-2);">Washing</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td>ABC Washing Ltd</td>
+              <td class="r">&#8377;4.50</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">6</td>
+              <td style="font-weight:500;color:var(--text-2);">Finishing &amp; Ironing</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td style="color:var(--text-3);">Not Assigned</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">7</td>
+              <td style="font-weight:500;color:var(--text-2);">Final QC</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td style="color:var(--text-3);">Not Assigned</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">8</td>
+              <td style="font-weight:500;color:var(--text-2);">Packing</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td style="color:var(--text-3);">Not Assigned</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-3);font-size:12px;">9</td>
+              <td style="font-weight:500;color:var(--text-2);">Export Packing</td>
+              <td><span class="ps-notstarted">Not Started</span></td>
+              <td style="color:var(--text-3);">Not Assigned</td>
+              <td class="r" style="color:var(--text-3);">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /panel-workflow -->
+
+    <div style="height:30px;"></div>
+
+    <!-- ══════════════════════════════════
+         PRINT-ONLY DOCUMENT (.print-doc)
+    ══════════════════════════════════ -->
+    <div class="print-doc">
+
+      <!-- Company header -->
+      <div class="pd-header">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:18px;font-weight:900;letter-spacing:.03em;color:#000;">WORK ORDER</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;font-weight:600;letter-spacing:.05em;">C-Edge ERP — Stitch ERP</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;font-weight:700;color:#333;">Status: <span style="color:#1d4ed8;">In Progress</span></div>
+            <div style="font-size:9.5px;color:#888;margin-top:3px;">Printed: 19 May 2026</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:4px 30px;font-size:10px;">
+          <div><span style="font-weight:700;color:#333;">WO No:</span> WO-2026-001</div>
+          <div><span style="font-weight:700;color:#333;">Date:</span> 02 May 2026</div>
+          <div><span style="font-weight:700;color:#333;">Production Order:</span> PRD-2026-0039</div>
+          <div><span style="font-weight:700;color:#333;">Delivery Date:</span> 15 Jun 2026</div>
+        </div>
+      </div>
+
+      <!-- Style Information -->
+      <div class="pd-section">
+        <div class="pd-section-title">Style Information</div>
+        <div class="pd-info-grid">
+          <div class="pd-info-item"><span class="pil">Product / Sample:</span> CVS-2026-F04 (Navy Stripe)</div>
+          <div class="pd-info-item"><span class="pil">Description:</span> Women's Woven Shirt — AW 2026</div>
+          <div class="pd-info-item"><span class="pil">Season:</span> AW 2026</div>
+          <div class="pd-info-item"><span class="pil">Brand:</span> M&amp;S UK</div>
+          <div class="pd-info-item"><span class="pil">Workflow:</span> Standard 7-Step</div>
+          <div class="pd-info-item"><span class="pil">Job Work:</span> In-house</div>
+        </div>
+      </div>
+
+      <!-- Size & Quantity -->
+      <div class="pd-section">
+        <div class="pd-section-title">Size &amp; Quantity</div>
+        <table class="pd-table">
+          <thead>
+            <tr>
+              <th>Size</th>
+              <th class="r">Ordered Qty</th>
+              <th class="r">WO Qty</th>
+              <th>Article No</th>
+              <th>SKU No</th>
+              <th class="r">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>XS</td><td class="r">300</td><td class="r">300</td><td>CVS-F04-XS</td><td>SKU-F04-XS-001</td><td class="r">6.0%</td></tr>
+            <tr><td>S</td><td class="r">700</td><td class="r">700</td><td>CVS-F04-S</td><td>SKU-F04-S-001</td><td class="r">14.0%</td></tr>
+            <tr><td>M</td><td class="r">1,200</td><td class="r">1,200</td><td>CVS-F04-M</td><td>SKU-F04-M-001</td><td class="r">24.0%</td></tr>
+            <tr><td>L</td><td class="r">1,100</td><td class="r">1,100</td><td>CVS-F04-L</td><td>SKU-F04-L-001</td><td class="r">22.0%</td></tr>
+            <tr><td>XL</td><td class="r">800</td><td class="r">800</td><td>CVS-F04-XL</td><td>SKU-F04-XL-001</td><td class="r">16.0%</td></tr>
+            <tr><td>XXL</td><td class="r">600</td><td class="r">600</td><td>CVS-F04-XXL</td><td>SKU-F04-XXL-001</td><td class="r">12.0%</td></tr>
+            <tr><td>XXXL</td><td class="r">300</td><td class="r">300</td><td>CVS-F04-XXXL</td><td>SKU-F04-XXXL-001</td><td class="r">6.0%</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td style="font-weight:700;">Total</td><td class="r">5,000</td><td class="r">5,000</td><td colspan="2"></td><td class="r">100%</td></tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Bill of Materials -->
+      <div class="pd-section" style="page-break-inside:avoid;">
+        <div class="pd-section-title">Bill of Materials</div>
+        <table class="pd-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Material</th>
+              <th>Type</th>
+              <th>Color / Shade</th>
+              <th>UOM</th>
+              <th class="r">Cons./Unit</th>
+              <th class="r">Required</th>
+              <th class="r">Available</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Cotton Poplin Woven</td><td>Fabric-Main</td><td>Navy Stripe</td><td>MTR</td><td class="r">1.600</td><td class="r">8,000</td><td class="r">9,200</td><td>OK</td></tr>
+            <tr><td>2</td><td>Poly-Cotton Lining</td><td>Fabric-Lining</td><td>White</td><td>MTR</td><td class="r">0.250</td><td class="r">1,250</td><td class="r">800</td><td style="font-weight:700;">LOW</td></tr>
+            <tr><td>3</td><td>Shell Button 4-hole</td><td>Trim-Button</td><td>Cream</td><td>PCS</td><td class="r">7</td><td class="r">35,000</td><td class="r">42,000</td><td>OK</td></tr>
+            <tr><td>4</td><td>Invisible Zipper 22cm</td><td>Trim-Zipper</td><td>Beige</td><td>PCS</td><td class="r">1</td><td class="r">5,000</td><td class="r">4,500</td><td style="font-weight:700;">LOW</td></tr>
+            <tr><td>5</td><td>Poly Thread 40s</td><td>Trim-Thread</td><td>Navy</td><td>CONE</td><td class="r">0.060</td><td class="r">300</td><td class="r">380</td><td>OK</td></tr>
+            <tr><td>6</td><td>Woven Label Main</td><td>Trim-Label</td><td>—</td><td>PCS</td><td class="r">1</td><td class="r">5,000</td><td class="r">5,800</td><td>OK</td></tr>
+            <tr><td>7</td><td>Printed Size Label</td><td>Trim-Label</td><td>—</td><td>PCS</td><td class="r">1</td><td class="r">5,000</td><td class="r">5,200</td><td>OK</td></tr>
+            <tr><td>8</td><td>OPP Polybag 40×50</td><td>Trim-Packing</td><td>Clear</td><td>PCS</td><td class="r">1</td><td class="r">5,000</td><td class="r">5,500</td><td>OK</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:9.5px;font-weight:600;color:#92400e;margin-top:5px;">* 2 materials require attention — stock below required level (rows 2, 4)</div>
+      </div>
+
+      <!-- Process Workflow -->
+      <div class="pd-section" style="page-break-inside:avoid;">
+        <div class="pd-section-title">Process Workflow &nbsp;·&nbsp; Standard 7-Step &nbsp;·&nbsp; 22% Complete (2/9 processes done)</div>
+        <table class="pd-table">
+          <thead>
+            <tr>
+              <th style="width:32px;">Seq</th>
+              <th>Process Name</th>
+              <th>Status</th>
+              <th>Vendor</th>
+              <th class="r">Price (&#8377;/pc)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Cutting</td><td>Done</td><td>In-house</td><td class="r">—</td></tr>
+            <tr><td>2</td><td>Fusing / Interlining</td><td>Done</td><td>In-house</td><td class="r">—</td></tr>
+            <tr><td>3</td><td>Sewing</td><td>In Progress</td><td>In-house</td><td class="r">—</td></tr>
+            <tr><td>4</td><td>Checking (Inline QC)</td><td>Not Started</td><td>Not Assigned</td><td class="r">—</td></tr>
+            <tr><td>5</td><td>Washing</td><td>Not Started</td><td>ABC Washing Ltd</td><td class="r">&#8377;4.50</td></tr>
+            <tr><td>6</td><td>Finishing &amp; Ironing</td><td>Not Started</td><td>Not Assigned</td><td class="r">—</td></tr>
+            <tr><td>7</td><td>Final QC</td><td>Not Started</td><td>Not Assigned</td><td class="r">—</td></tr>
+            <tr><td>8</td><td>Packing</td><td>Not Started</td><td>Not Assigned</td><td class="r">—</td></tr>
+            <tr><td>9</td><td>Export Packing</td><td>Not Started</td><td>Not Assigned</td><td class="r">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Print footer -->
+      <div class="pd-footer">
+        <span>C-Edge ERP &nbsp;·&nbsp; Work Order WO-2026-001 &nbsp;·&nbsp; CVS-2026-F04 (Navy Stripe)</span>
+        <span>Printed: 19 May 2026 &nbsp;·&nbsp; Status: In Progress &nbsp;·&nbsp; Confidential</span>
+      </div>
+
+    </div><!-- /print-doc -->
+
+  </main>
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+function switchTab(tab) {
+  document.getElementById('btn-details').classList.toggle('active', tab === 'details');
+  document.getElementById('btn-workflow').classList.toggle('active', tab === 'workflow');
+  document.getElementById('panel-details').classList.toggle('active', tab === 'details');
+  document.getElementById('panel-workflow').classList.toggle('active', tab === 'workflow');
+}
+
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const m = 14;
+  let y = 18;
+
+  const hline = (yy, w) => { doc.setDrawColor(200); doc.setLineWidth(0.3); doc.line(m, yy, (w||W) - m, yy); };
+  const sectionBar = (title, yy) => {
+    doc.setFillColor(239, 246, 255);
+    doc.rect(m, yy, W - m*2, 6.5, 'F');
+    doc.setDrawColor(191, 219, 254);
+    doc.rect(m, yy, W - m*2, 6.5, 'S');
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(30, 64, 175);
+    doc.text(title.toUpperCase(), m + 2.5, yy + 4.4);
+    doc.setTextColor(0);
+    return yy + 10;
+  };
+  const kv = (label, val, lx, vx, yy) => {
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(80);
+    doc.text(label, lx, yy);
+    doc.setFont('helvetica','normal'); doc.setTextColor(20);
+    doc.text(val, vx, yy);
+  };
+
+  /* ── Header ── */
+  doc.setFontSize(20); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+  doc.text('WORK ORDER', m, y);
+  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(100);
+  doc.text('C-Edge ERP — Stitch ERP', m, y + 5.5);
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(29,78,216);
+  doc.text('IN PROGRESS', W - m, y, { align: 'right' });
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(120);
+  const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  doc.text('Printed: ' + today, W - m, y + 5.5, { align: 'right' });
+  y += 9; hline(y); y += 6;
+
+  /* ── WO meta ── */
+  const c2 = W/2;
+  kv('WO Number:', 'WO-2026-001', m, m+28, y);
+  kv('Production Order:', 'PRD-2026-0039', c2, c2+36, y); y += 6;
+  kv('WO Date:', '02 May 2026', m, m+28, y);
+  kv('Delivery Date:', '15 Jun 2026', c2, c2+36, y); y += 9;
+
+  /* ── Style Info ── */
+  y = sectionBar('Style Information', y);
+  kv('Product/Sample:', 'CVS-2026-F04 (Navy Stripe)', m, m+30, y);
+  kv('Description:', "Women's Woven Shirt — AW 2026", c2, c2+26, y); y += 6;
+  kv('Season:', 'AW 2026', m, m+30, y);
+  kv('Brand:', 'M&S UK', c2, c2+26, y); y += 6;
+  kv('Workflow:', 'Standard 7-Step', m, m+30, y);
+  kv('Job Work:', 'In-house', c2, c2+26, y); y += 9;
+
+  /* ── Size & Quantity ── */
+  y = sectionBar('Size & Quantity', y);
+  doc.autoTable({
+    startY: y, margin: { left: m, right: m },
+    head: [['Size','Ordered Qty','WO Qty','Article No','SKU No','%']],
+    body: [
+      ['XS','300','300','CVS-F04-XS','SKU-F04-XS-001','6.0%'],
+      ['S','700','700','CVS-F04-S','SKU-F04-S-001','14.0%'],
+      ['M','1,200','1,200','CVS-F04-M','SKU-F04-M-001','24.0%'],
+      ['L','1,100','1,100','CVS-F04-L','SKU-F04-L-001','22.0%'],
+      ['XL','800','800','CVS-F04-XL','SKU-F04-XL-001','16.0%'],
+      ['XXL','600','600','CVS-F04-XXL','SKU-F04-XXL-001','12.0%'],
+      ['XXXL','300','300','CVS-F04-XXXL','SKU-F04-XXXL-001','6.0%'],
+    ],
+    foot: [['Total','5,000','5,000','','','100%']],
+    headStyles:{ fillColor:[37,99,235], textColor:255, fontSize:8, fontStyle:'bold' },
+    footStyles:{ fillColor:[240,242,247], fontStyle:'bold', fontSize:8 },
+    bodyStyles:{ fontSize:8 },
+    alternateRowStyles:{ fillColor:[248,250,252] },
+    theme:'grid',
+    columnStyles:{ 0:{halign:'center',fontStyle:'bold'}, 1:{halign:'right'}, 2:{halign:'right'}, 5:{halign:'right'} }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  /* ── BOM ── */
+  if (y > 210) { doc.addPage(); y = 18; }
+  y = sectionBar('Bill of Materials', y);
+  doc.autoTable({
+    startY: y, margin: { left: m, right: m },
+    head: [['#','Material','Type','Color / Shade','UOM','Cons./Unit','Req Qty','Avail Qty','Status']],
+    body: [
+      ['1','Cotton Poplin Woven','Fabric-Main','Navy Stripe','MTR','1.600','8,000','9,200','OK'],
+      ['2','Poly-Cotton Lining','Fabric-Lining','White','MTR','0.250','1,250','800','LOW'],
+      ['3','Shell Button 4-hole','Trim-Button','Cream','PCS','7','35,000','42,000','OK'],
+      ['4','Invisible Zipper 22cm','Trim-Zipper','Beige','PCS','1','5,000','4,500','LOW'],
+      ['5','Poly Thread 40s','Trim-Thread','Navy','CONE','0.060','300','380','OK'],
+      ['6','Woven Label Main','Trim-Label','—','PCS','1','5,000','5,800','OK'],
+      ['7','Printed Size Label','Trim-Label','—','PCS','1','5,000','5,200','OK'],
+      ['8','OPP Polybag 40x50','Trim-Packing','Clear','PCS','1','5,000','5,500','OK'],
+    ],
+    headStyles:{ fillColor:[37,99,235], textColor:255, fontSize:7.5, fontStyle:'bold' },
+    bodyStyles:{ fontSize:7.5 },
+    alternateRowStyles:{ fillColor:[248,250,252] },
+    theme:'grid',
+    columnStyles:{ 0:{halign:'center'}, 5:{halign:'right'}, 6:{halign:'right'}, 7:{halign:'right'} },
+    didParseCell(d) {
+      if (d.section==='body' && d.column.index===8 && d.cell.text[0]==='LOW') {
+        d.cell.styles.textColor = [180,50,0]; d.cell.styles.fontStyle = 'bold';
+      }
+    }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  /* ── Process Workflow ── */
+  if (y > 210) { doc.addPage(); y = 18; }
+  y = sectionBar('Process Workflow — Standard 7-Step (22% Complete)', y);
+  doc.autoTable({
+    startY: y, margin: { left: m, right: m },
+    head: [['Seq','Process Name','Status','Vendor','Price (₹/pc)']],
+    body: [
+      ['1','Cutting','Done','In-house','—'],
+      ['2','Fusing / Interlining','Done','In-house','—'],
+      ['3','Sewing','In Progress','In-house','—'],
+      ['4','Checking (Inline QC)','Not Started','Not Assigned','—'],
+      ['5','Washing','Not Started','ABC Washing Ltd','4.50'],
+      ['6','Finishing & Ironing','Not Started','Not Assigned','—'],
+      ['7','Final QC','Not Started','Not Assigned','—'],
+      ['8','Packing','Not Started','Not Assigned','—'],
+      ['9','Export Packing','Not Started','Not Assigned','—'],
+    ],
+    headStyles:{ fillColor:[37,99,235], textColor:255, fontSize:8, fontStyle:'bold' },
+    bodyStyles:{ fontSize:8 },
+    alternateRowStyles:{ fillColor:[248,250,252] },
+    theme:'grid',
+    columnStyles:{ 0:{halign:'center',fontStyle:'bold'}, 4:{halign:'right'} },
+    didParseCell(d) {
+      if (d.section==='body' && d.column.index===2) {
+        if (d.cell.text[0]==='Done')        d.cell.styles.textColor=[22,163,74];
+        else if (d.cell.text[0]==='In Progress') d.cell.styles.textColor=[29,78,216];
+        else                                d.cell.styles.textColor=[100,116,139];
+      }
+    }
+  });
+
+  /* ── Footer ── */
+  const fy = doc.lastAutoTable.finalY + 6;
+  doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(140);
+  doc.text('C-Edge ERP — Stitch ERP', m, fy);
+  doc.text('WO-2026-001  |  CVS-2026-F04 (Navy Stripe)  |  Confidential', W - m, fy, { align:'right' });
+
+  doc.save('WO-2026-001.pdf');
+}
+
+function toggleGroup(el) {
+  var g = el.closest('.nav-group');
+  g.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+</script>
+</body>
+</html>

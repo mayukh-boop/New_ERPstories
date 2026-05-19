@@ -96,6 +96,7 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 | NE-14B | QC Inspection Page + Debit Notes | `grn-qc.html` | `QcInspection`, `DebitNote`, `VendorReturn`, `InventoryMovement` |
 | NE-PM-01 to NE-PM-08 | Product Management Module | `product-list.html`, `product-create.html`, `product-edit.html`, `product-view.html` | `products`, `product_sizes`, `product_bom`, `product_customer_names`, `product_descriptions`, `product_attachments`, `size_master` |
 | NE-CST-01 to NE-CST-04 | Garment Costing Sheet | `costing-list.html`, `costing-create.html`, `costing-edit.html`, `costing-view.html` | `costing_header`, `costing_fabric_lines`, `costing_cm_lines`, `costing_packing_lines`, `costing_overhead_lines` |
+| NE-WO-01 to NE-WO-04 | Work Order (Production sub-module) | `work-order-list.html`, `work-order-create.html`, `work-order-edit.html`, `work-order-view.html` | `work_orders`, `work_order_size_lines`, `work_order_bom_lines`, `work_order_processes` |
 
 ---
 
@@ -121,7 +122,11 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 ├── costing-list.html                   # Garment costing list — all styles, PDF download, stats
 ├── costing-create.html                 # Create costing — product/sample selector, BOM auto-load, 5 sections, live calc
 ├── costing-edit.html                   # Edit costing — pre-filled from CVS-2026-F04 PDF data
-└── costing-view.html                   # View costing (read-only) — PDF/print output, summary cards
+├── costing-view.html                   # View costing (read-only) — PDF/print output, summary cards
+├── work-order-list.html                # Work Order list — stats, filters, customizable column labels
+├── work-order-create.html              # Create Work Order — PO selector, auto-populate, size/BOM/job work, workflow tab
+├── work-order-edit.html                # Edit Work Order — locked PO, editable delivery/workflow, locked processes
+└── work-order-view.html                # View Work Order (read-only) — progress bar, print/PDF layout
 ```
 
 
