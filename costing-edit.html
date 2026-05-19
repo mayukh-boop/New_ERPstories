@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Costing — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:visible;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);}
+.sec-hd-left{display:flex;align-items:center;gap:10px;}
+.sec-num{width:24px;height:24px;border-radius:6px;background:var(--brand-600);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-totals{display:flex;gap:16px;align-items:center;}
+.sec-total-item{text-align:right;}
+.sec-total-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.sec-total-value{font-size:14px;font-weight:700;margin-top:1px;}
+.sec-total-bud{color:#92400e;}
+.sec-total-app{color:#166534;}
+.sec-total-act{color:#1e40af;}
+.sec-bd{padding:0 0 12px;}
+
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:12.5px;font-weight:600;color:#374151;}
+.fl .req{color:#ef4444;}
+
+.inp{width:100%;height:40px;padding:0 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp::placeholder{color:#9ca3af;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn svg{width:14px;height:14px;}
+.btn-warning{background:#d97706;color:#fff;}.btn-warning:hover{background:#b45309;}
+
+.ct-wrap{overflow-x:auto;padding:0 20px 4px;}
+.ct{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px;}
+.ct th{padding:8px 8px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.ct th.r{text-align:right;}
+.ct td{padding:4px 4px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.ct tbody tr:last-child td{border-bottom:none;}
+.ct tbody tr:hover td{background:#fafbff;}
+.ct tfoot td{padding:8px 8px;font-weight:700;font-size:12.5px;background:#f9fafb;border-top:2px solid var(--border2);}
+.ct tfoot .tf-label{color:var(--text-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;}
+.ct tfoot .tf-bud{color:#92400e;}.ct tfoot .tf-app{color:#166534;}.ct tfoot .tf-act{color:#1e40af;}
+
+.ci{width:100%;height:30px;padding:0 7px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.ci:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(91,95,199,.1);}
+.ci::placeholder{color:#c4c9d4;}
+.ci.wide{min-width:160px;}
+.ci.num{text-align:right;font-variant-numeric:tabular-nums;}
+select.ci{padding-right:22px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;cursor:pointer;}
+
+.var-cell{text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap;padding:0 8px!important;}
+.v-over{color:#dc2626;font-weight:600;}
+.v-save{color:#16a34a;font-weight:600;}
+.v-zero{color:#9ca3af;}
+.v-none{color:#d1d5db;}
+.rn{color:var(--text-3);font-size:11px;text-align:center;width:28px;user-select:none;}
+.del-btn{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.del-btn:hover{background:#fee2e2;color:#ef4444;}
+.del-btn svg{width:13px;height:13px;}
+.add-row-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1.5px dashed var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-3);background:transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin:8px 20px;}
+.add-row-btn:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.add-row-btn svg{width:13px;height:13px;}
+
+.fob-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.fob-tbl th{padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);text-align:right;}
+.fob-tbl th:first-child{text-align:left;}
+.fob-tbl td{padding:9px 14px;border-bottom:1px solid var(--border2);text-align:right;font-variant-numeric:tabular-nums;}
+.fob-tbl td:first-child{text-align:left;font-weight:500;color:var(--text-2);}
+.fob-tbl tr.fob-grand td{font-weight:700;font-size:13.5px;background:#f5f7ff;border-top:2px solid var(--border);}
+.fob-tbl tr.fob-order td{font-size:13px;background:#eef2ff;font-weight:700;}
+.fob-td-bud{color:#92400e;}.fob-td-app{color:#166534;}.fob-td-act{color:#1e40af;}
+
+/* Status change banner */
+.status-banner{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin-bottom:16px;}
+.status-banner svg{width:16px;height:16px;color:#16a34a;flex-shrink:0;}
+.status-banner-text{font-size:12.5px;color:#166534;}
+.info-banner{display:flex;gap:8px;padding:10px 14px;border-radius:8px;font-size:12.5px;margin:0 20px 8px;}
+.info-banner svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;}
+.info-banner.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.info-banner.amber svg{color:#d97706;}
+
+/* ── Production Order Tab Strip ── */
+.po-tabs-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.po-tabs-strip{display:flex;align-items:stretch;border-bottom:2px solid var(--border);}
+.po-tab-btn{padding:12px 20px;font-size:12px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;transition:all .15s;white-space:nowrap;flex:1;border-right:1px solid var(--border2);}
+.po-tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.po-tab-btn.active{color:var(--brand-700);border-bottom-color:var(--brand-500);background:var(--brand-50);}
+.po-tab-btn:last-of-type{border-right:none;}
+.po-tab-top{display:flex;align-items:center;gap:8px;}
+.po-tab-po{font-size:13px;font-weight:800;color:var(--text-1);}
+.po-tab-btn.active .po-tab-po{color:var(--brand-700);}
+.po-tab-info{font-size:11px;color:var(--text-3);}
+.po-tab-btn.active .po-tab-info{color:var(--brand-400);}
+.po-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.badge-sample{background:#fdf4ff;color:#7e22ce;}
+.badge-product{background:#f0fdf4;color:#15803d;}
+.po-tab-pdf-wrap{display:flex;align-items:center;padding:0 16px;border-left:1px solid var(--border2);flex-shrink:0;}
+.po-tab-panel{display:none;}.po-tab-panel.active{display:block;}
+.readonly-notice{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;font-size:12.5px;color:#5b21b6;margin-bottom:16px;}
+.readonly-notice svg{width:14px;height:14px;flex-shrink:0;}
+
+/* ── Print ── */
+.print-hd{display:none;}
+@media print{
+  @page{size:A4 landscape;margin:12mm 14mm;}
+  html,body{margin:0!important;padding:0!important;background:#fff!important;}
+  html,body,.app,.main,.page{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;}
+  /* hide all chrome */
+  .sidebar,.topbar,.po-tabs-strip,.no-print,.add-row-btn,.info-banner,.status-banner,.del-btn,.btn{display:none!important;}
+  /* tab panel visibility */
+  .po-tabs-wrap{border:none!important;border-radius:0!important;margin:0!important;padding:0!important;}
+  .po-tab-panel{display:none!important;}
+  .po-tab-panel.active{display:block!important;}
+  /* print header */
+  .print-hd{display:flex!important;align-items:flex-start;justify-content:space-between;padding:0 0 10px;border-bottom:2px solid #111;margin-bottom:14px;}
+  .print-hd-left{font-size:15px;font-weight:800;color:#111;}
+  .print-hd-sub{font-size:10.5px;color:#444;margin-top:3px;}
+  .print-hd-right{text-align:right;font-size:10.5px;color:#444;line-height:1.6;}
+  /* sections — no break-inside:avoid so multi-row sections flow across pages */
+  .sec{box-shadow:none!important;border:1px solid #ccc!important;border-radius:6px!important;margin-bottom:10px!important;overflow:visible!important;}
+  .sec-hd{background:#f5f5f5!important;padding:8px 14px!important;break-after:avoid!important;page-break-after:avoid!important;}
+  .sec-title{font-size:12px!important;}.sec-sub{font-size:10px!important;}
+  .sec-num{width:20px!important;height:20px!important;font-size:10px!important;}
+  .sec-totals{gap:12px!important;}
+  .sec-total-label{font-size:9px!important;}.sec-total-value{font-size:12px!important;}
+  /* fix overflow clipping — the main culprit */
+  .ct-wrap{overflow:visible!important;padding:0 10px 4px!important;}
+  .ct{width:100%!important;min-width:0!important;font-size:9px!important;border-collapse:collapse!important;}
+  .ct thead{display:table-header-group!important;}
+  .ct th{font-size:8px!important;padding:4px 5px!important;white-space:normal!important;}
+  .ct td{font-size:9px!important;padding:2px 5px!important;}
+  .ct tbody tr{break-inside:avoid!important;page-break-inside:avoid!important;}
+  .ct tfoot{display:table-footer-group!important;}
+  .ct tfoot td{font-size:9.5px!important;padding:4px 5px!important;}
+  /* FOB summary table */
+  .fob-tbl{width:100%!important;font-size:10px!important;}
+  .fob-tbl th{font-size:9px!important;padding:5px 10px!important;}
+  .fob-tbl td{font-size:10px!important;padding:6px 10px!important;}
+  .fob-tbl tr.fob-grand td{font-size:12px!important;}
+  .fob-tbl tr.fob-order td{font-size:11px!important;}
+  /* inputs look like plain text */
+  input,select,textarea{border:none!important;border-bottom:1px solid #bbb!important;background:transparent!important;-webkit-appearance:none!important;padding:0!important;color:#111!important;font-size:inherit!important;height:auto!important;width:auto!important;border-radius:0!important;}
+  .ci{border:none!important;border-bottom:1px solid #bbb!important;background:transparent!important;font-size:9px!important;color:#111!important;padding:0!important;height:auto!important;min-width:0!important;}
+  select.ci{background-image:none!important;padding-right:0!important;}
+  .inp{border:none!important;border-bottom:1px solid #bbb!important;background:transparent!important;height:auto!important;padding:2px 0!important;border-radius:0!important;font-size:10.5px!important;}
+  /* header form grid */
+  .g4{grid-template-columns:1fr 1fr 1fr 1fr!important;}
+  .sec-bd{padding:10px 14px!important;}
+  /* misc */
+  .card{box-shadow:none!important;border:1px solid #ddd!important;}
+  .readonly-notice{background:#f5f3ff!important;border:1px solid #ddd6fe!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .var-cell{font-size:8.5px!important;}
+  .v-over,.v-save{font-weight:600!important;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Style Management</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children"><a class="nav-child" href="product-list.html">Product List</a></div>
+    </div>
+    <div class="nav-section">Costing</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm1 5a1 1 0 100 2h6a1 1 0 100-2H7zm-1 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Costing</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="costing-list.html">Costing Sheet</a>
+        <a class="nav-child active" href="#">Edit Costing</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;">
+      <a href="costing-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Costing</a>
+      <span style="color:var(--text-3);margin:0 6px;">/</span>
+      <a href="costing-view.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">CVS-2026-F04</a>
+      <span style="color:var(--text-3);margin:0 6px;">/</span>
+      Edit
+    </span>
+    <div class="topbar-right">
+      <a href="costing-view.html" class="btn btn-ghost" style="height:32px;font-size:12px;">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
+        View
+      </a>
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-500);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Print-only header -->
+    <div class="print-hd" id="printHd">
+      <div>
+        <div class="print-hd-left">Stitch ERP &mdash; Garment Costing Sheet</div>
+        <div class="print-hd-sub" id="printHdSub">CVS-2026-F04 &middot; Women's Woven Shirt &mdash; Navy Stripe &middot; AW 2026 &middot; M&amp;S UK</div>
+      </div>
+      <div class="print-hd-right" id="printHdRight">PRD-2026-0042 &middot; 5,000 pcs &middot; 02 May 2026<br>Printed: <span id="printDate"></span></div>
+    </div>
+
+    <!-- Production Order Tab Strip -->
+    <div class="po-tabs-wrap" style="margin-bottom:20px;">
+      <div class="po-tabs-strip">
+        <button class="po-tab-btn" id="btn-sample" onclick="switchTab('sample')">
+          <span class="po-badge badge-sample">SAMPLE</span>
+          <span style="font-size:13px;font-weight:700;color:inherit;">PRD-2026-0039</span>
+          <span style="font-size:11px;font-weight:400;color:var(--text-3);">S-2026-WS-01 &middot; 50 pcs &middot; 22 Apr 2026 &middot; Factory 3</span>
+        </button>
+        <button class="po-tab-btn active" id="btn-product" onclick="switchTab('product')">
+          <span class="po-badge badge-product">PRODUCT</span>
+          <span style="font-size:13px;font-weight:700;color:inherit;">PRD-2026-0042</span>
+          <span style="font-size:11px;font-weight:400;color:var(--text-3);">CVS-2026-F04 &middot; 5,000 pcs &middot; 02 May 2026 &middot; Factory 1</span>
+        </button>
+        <div class="po-tab-pdf-wrap">
+          <button class="btn btn-ghost" style="height:32px;font-size:12px;" onclick="downloadPDF()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample Panel (read-only) -->
+    <div id="panel-sample" class="po-tab-panel">
+      <div class="readonly-notice">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        Sample phase completed — this costing has been converted to product <strong>CVS-2026-F04</strong>. Sample costing is read-only.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div class="card" style="padding:14px 16px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Sample Qty</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text-1);">50 pcs</div>
+          <div style="font-size:11px;color:var(--text-3);">S-2026-WS-01</div>
+        </div>
+        <div class="card" style="padding:14px 16px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Budgeted FOB</div>
+          <div style="font-size:22px;font-weight:800;color:var(--brand-700);">$9.20</div>
+          <div style="font-size:11px;color:var(--text-3);">/pc</div>
+        </div>
+        <div class="card" style="padding:14px 16px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Sample Factory</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text-1);">Factory 3</div>
+          <div style="font-size:11px;color:var(--text-3);">Bangalore</div>
+        </div>
+        <div class="card" style="padding:14px 16px;text-align:center;">
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Status</div>
+          <div style="font-size:14px;font-weight:700;color:#15803d;">Converted</div>
+          <div style="font-size:11px;color:var(--text-3);">&#8594; CVS-2026-F04</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-hd"><div class="sec-hd-left"><div class="sec-num">1</div><div><div class="sec-title">Fabric &amp; Materials</div><div class="sec-sub">Budgeted cost at sample stage</div></div></div></div>
+        <div class="sec-bd" style="padding:16px 20px;">
+          <table class="cost-tbl" style="width:100%;">
+            <thead><tr><th>Material</th><th>Unit</th><th>Consumption</th><th>Rate</th><th style="text-align:right;">Budgeted</th></tr></thead>
+            <tbody>
+              <tr><td>Main fabric — navy stripe poplin</td><td>m</td><td>1.50</td><td>$2.40</td><td style="text-align:right;">$3.60</td></tr>
+              <tr><td>Lining &amp; interlining</td><td>m</td><td>0.30</td><td>$0.72</td><td style="text-align:right;">$0.22</td></tr>
+              <tr><td>Trims &amp; labels</td><td>set</td><td>1</td><td>$0.18</td><td style="text-align:right;">$0.18</td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="4" style="font-weight:700;">Section Total</td><td style="text-align:right;font-weight:700;">$4.00</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="sec" style="margin-top:12px;">
+        <div class="sec-hd"><div class="sec-hd-left"><div class="sec-num">2</div><div><div class="sec-title">CM + Packing + Overhead</div><div class="sec-sub">Budgeted at sample stage</div></div></div></div>
+        <div class="sec-bd" style="padding:16px 20px;">
+          <table class="cost-tbl" style="width:100%;">
+            <thead><tr><th>Item</th><th style="text-align:right;">Budgeted</th></tr></thead>
+            <tbody>
+              <tr><td>Cut &amp; Make (CM)</td><td style="text-align:right;">$2.80</td></tr>
+              <tr><td>Packing materials</td><td style="text-align:right;">$0.25</td></tr>
+              <tr><td>Overheads &amp; commissions</td><td style="text-align:right;">$0.80</td></tr>
+            </tbody>
+            <tfoot><tr><td style="font-weight:700;">Sub-total</td><td style="text-align:right;font-weight:700;">$3.85</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="padding:14px 20px;margin-top:12px;display:flex;align-items:center;gap:24px;margin-bottom:20px;">
+        <div style="font-size:12px;color:var(--text-3);font-weight:600;">COG (Sample)</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text-1);">$7.85</div>
+        <div style="font-size:12px;color:var(--text-3);font-weight:600;margin-left:16px;">Profit (10%)</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text-1);">$0.78</div>
+        <div style="font-size:12px;color:var(--text-3);font-weight:600;margin-left:16px;">Budgeted FOB</div>
+        <div style="font-size:22px;font-weight:800;color:var(--brand-700);">$9.20 / pc</div>
+      </div>
+    </div><!-- end panel-sample -->
+
+    <!-- Product Panel (editable) -->
+    <div id="panel-product" class="po-tab-panel active">
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:3px;">Edit Costing — CVS-2026-F04</h1>
+        <p style="font-size:13px;color:var(--text-3);">Women's Woven Shirt — Navy Stripe · AW 2026 · M&amp;S UK</p>
+      </div>
+      <div style="display:flex;gap:8px;" class="no-print">
+        <a href="costing-list.html" class="btn btn-ghost">Cancel</a>
+        <button class="btn btn-warning" onclick="updateStatus()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Update Status
+        </button>
+        <button class="btn btn-primary" onclick="saveEdit()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Status banner -->
+    <div class="status-banner" style="margin-bottom:16px;">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+      <div class="status-banner-text">
+        <strong>Status: Production Running</strong> — Approved FOB: $8.71/pc · Actual tracking is active. Edit any field and save.
+      </div>
+    </div>
+
+    <!-- Header Info -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">H</div>
+          <div><div class="sec-title">Costing Header</div><div class="sec-sub">Style, buyer and order information</div></div>
+        </div>
+      </div>
+      <div class="sec-bd" style="padding:20px;">
+        <div class="g4" style="margin-bottom:16px;">
+          <div class="fg">
+            <label class="fl">Description</label>
+            <input type="text" class="inp" id="description" value="Women's Woven Shirt — Navy Stripe">
+          </div>
+          <div class="fg">
+            <label class="fl">Costing Date</label>
+            <input type="date" class="inp" id="costingDate" value="2026-05-02">
+          </div>
+          <div class="fg">
+            <label class="fl">Season</label>
+            <select class="inp" id="season">
+              <option>AW 2026</option><option>SS 2027</option><option>AW 2027</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Status</label>
+            <select class="inp" id="costStatus">
+              <option value="budgeted">Budgeted</option>
+              <option value="approved">Approved</option>
+              <option value="actual" selected>Actual (Production Running)</option>
+            </select>
+          </div>
+        </div>
+        <div class="g4">
+          <div class="fg" style="grid-column:span 2;">
+            <label class="fl">Type &amp; Style</label>
+            <!-- Disabled radios showing the pre-set type for this costing record -->
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <label style="display:flex;align-items:center;gap:5px;padding:5px 13px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:600;color:#9ca3af;opacity:0.6;cursor:not-allowed;user-select:none;">
+                <input type="radio" name="itemType" value="Sample" disabled> Sample
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;padding:5px 13px;border:1.5px solid var(--brand-500);border-radius:7px;font-size:12px;font-weight:600;background:var(--brand-50);color:var(--brand-700);cursor:not-allowed;user-select:none;">
+                <input type="radio" name="itemType" value="Product" checked disabled> Product
+              </label>
+            </div>
+            <input type="text" class="inp" value="Women's Woven Shirt — Navy Stripe" readonly style="background:#f9fafb;color:#6b7280;">
+          </div>
+          <!-- Product No readonly -->
+          <div class="fg">
+            <label class="fl">Product No</label>
+            <input type="text" class="inp" value="CVS-2026-F04" readonly style="background:#f9fafb;color:#374151;font-weight:600;letter-spacing:.02em;">
+          </div>
+          <div class="fg">
+            <label class="fl">Buyer</label>
+            <input type="text" class="inp" id="buyer" value="M&amp;S UK">
+          </div>
+          <div class="fg">
+            <label class="fl">Order Qty</label>
+            <input type="number" class="inp" id="orderQty" value="5000" oninput="recalcSummary()">
+          </div>
+          <div class="fg">
+            <label class="fl">Currency (FOB)</label>
+            <select class="inp"><option>USD</option><option>EUR</option><option>GBP</option></select>
+          </div>
+          <div class="fg">
+            <label class="fl">Profit Margin %</label>
+            <input type="number" class="inp" id="profitPct" value="10" min="0" max="100" step="0.1" oninput="recalcSummary()">
+          </div>
+          <div class="fg">
+            <label class="fl">Internal Remarks</label>
+            <input type="text" class="inp" value="AW 2026 Main Range">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Fabric & Trims -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">1</div>
+          <div><div class="sec-title">Fabric &amp; Trims</div><div class="sec-sub">BOM loaded from product CVS-2026-F04</div></div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s1Bud">$3.86</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s1App">$4.00</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s1Act">$4.22</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:180px;">Description</th>
+                <th style="width:65px;">Unit</th>
+                <th style="width:85px;" class="r">Consumption</th>
+                <th style="width:80px;" class="r">Rate ($)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="fabricBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s1TotBud">$3.86</td>
+                <td style="text-align:right;" class="tf-app" id="s1TotApp">$4.00</td>
+                <td style="text-align:right;" class="tf-act" id="s1TotAct">$4.22</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addFabricRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Row
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 2: CM -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">2</div>
+          <div><div class="sec-title">Cutting &amp; Making (CM)</div><div class="sec-sub">Process operations from production order workflow</div></div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s2Bud">$2.66</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s2App">$2.73</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s2Act">$2.89</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:160px;">Operation</th>
+                <th style="width:90px;">Dept</th>
+                <th style="width:75px;" class="r">SAM (min)</th>
+                <th style="width:85px;" class="r">Rate ($/hr)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cmBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s2TotBud">$2.66</td>
+                <td style="text-align:right;" class="tf-app" id="s2TotApp">$2.73</td>
+                <td style="text-align:right;" class="tf-act" id="s2TotAct">$2.89</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addCMRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Operation
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 3: Packaging -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">3</div>
+          <div><div class="sec-title">Packaging &amp; Packing</div><div class="sec-sub">Packing RM / Packing Trims from product BOM</div></div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s3Bud">$0.25</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s3App">$0.25</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s3Act">$0.26</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:180px;">Item</th>
+                <th style="width:65px;">Unit</th>
+                <th style="width:70px;" class="r">Qty</th>
+                <th style="width:80px;" class="r">Rate ($)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="packingBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s3TotBud">$0.25</td>
+                <td style="text-align:right;" class="tf-app" id="s3TotApp">$0.25</td>
+                <td style="text-align:right;" class="tf-act" id="s3TotAct">$0.26</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addPackingRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Row
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 4: Overhead -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">4</div>
+          <div><div class="sec-title">Overhead &amp; Compliance</div><div class="sec-sub">Factory overhead, compliance, agent commission</div></div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s4Bud">$0.87</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s4App">$0.89</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s4Act">$0.93</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="info-banner amber" style="margin-top:12px;">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <span>For <strong>% on CM</strong> basis, Budgeted auto-calculates from CM section total. For <strong>% on FOB</strong>, enter amounts manually.</span>
+        </div>
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:160px;">Item / Label</th>
+                <th style="width:110px;">Basis</th>
+                <th style="width:75px;" class="r">Rate</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="overheadBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s4TotBud">$0.87</td>
+                <td style="text-align:right;" class="tf-app" id="s4TotApp">$0.89</td>
+                <td style="text-align:right;" class="tf-act" id="s4TotAct">$0.93</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addOverheadRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Overhead Line
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 5: FOB Summary -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">5</div>
+          <div><div class="sec-title">Profit Margin &amp; FOB Summary</div><div class="sec-sub">Auto-calculated from all sections above</div></div>
+        </div>
+      </div>
+      <div class="sec-bd" style="padding:16px 20px;">
+        <table class="fob-tbl">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:220px;">Item</th>
+              <th>Basis</th><th>Rate</th>
+              <th>Budgeted</th><th>Approved</th><th>Actual</th>
+              <th>App vs Act</th><th>Bud vs Act</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cost of Goods (Subtotal)</td>
+              <td style="text-align:right;color:var(--text-3);font-size:11.5px;">S1+S2+S3+S4</td>
+              <td style="text-align:right;color:var(--text-3);">—</td>
+              <td class="fob-td-bud" id="cogBud">$7.64</td>
+              <td class="fob-td-app" id="cogApp">$7.87</td>
+              <td class="fob-td-act" id="cogAct">$8.30</td>
+              <td class="var-cell" id="cogVarAppAct"><span class="v-over">▲ $0.43</span></td>
+              <td class="var-cell" id="cogVarBudAct"><span class="v-over">▲ $0.66</span></td>
+            </tr>
+            <tr>
+              <td>
+                Profit Margin
+                <input type="number" id="profitPctInline" value="10" min="0" max="100" step="0.1"
+                  style="width:50px;height:24px;padding:0 5px;border:1.5px solid var(--border);border-radius:5px;font-size:11.5px;font-family:inherit;margin-left:6px;text-align:right;"
+                  oninput="document.getElementById('profitPct').value=this.value;recalcSummary()"> %
+              </td>
+              <td style="text-align:right;color:var(--text-3);font-size:11.5px;">% on Cost</td>
+              <td style="text-align:right;color:var(--text-3);" id="profitRateDisp">10%</td>
+              <td class="fob-td-bud" id="profitBud">$0.78</td>
+              <td class="fob-td-app" id="profitApp">$0.84</td>
+              <td class="fob-td-act" id="profitAct">$0.65</td>
+              <td class="var-cell" id="profitVarAppAct"><span class="v-save">▼ $0.19</span></td>
+              <td class="var-cell" id="profitVarBudAct"><span class="v-save">▼ $0.13</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="fob-grand">
+              <td>Total FOB Cost / Pc</td><td></td><td></td>
+              <td class="fob-td-bud" id="fobBud">$8.42</td>
+              <td class="fob-td-app" id="fobApp">$8.71</td>
+              <td class="fob-td-act" id="fobAct">$8.95</td>
+              <td class="var-cell" id="fobVarAppAct"><span class="v-over">▲ $0.24</span></td>
+              <td class="var-cell" id="fobVarBudAct"><span class="v-over">▲ $0.53</span></td>
+            </tr>
+            <tr class="fob-order">
+              <td>Total Order Value (<span id="qtyDisp">5,000</span> pcs)</td><td></td><td></td>
+              <td class="fob-td-bud" id="orderBud">$42,100</td>
+              <td class="fob-td-app" id="orderApp">$43,550</td>
+              <td class="fob-td-act" id="orderAct">$44,750</td>
+              <td class="var-cell" id="orderVarAppAct"><span class="v-over">▲ $1,200</span></td>
+              <td class="var-cell" id="orderVarBudAct"><span class="v-over">▲ $2,650</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bottom actions -->
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:30px;" class="no-print">
+      <a href="costing-list.html" class="btn btn-ghost">Cancel</a>
+      <button class="btn btn-warning" onclick="updateStatus()">Update Status</button>
+      <button class="btn btn-primary" onclick="saveEdit()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+        Save Changes
+      </button>
+    </div>
+
+    </div><!-- end panel-product -->
+
+  </main>
+</div>
+</div>
+
+<script>
+// Pre-filled data from PDF — CVS-2026-F04
+const FABRIC_DATA = [
+  {desc:"Main fabric — navy stripe poplin", unit:"m", cons:1.45, rate:2.40, bud:3.48, app:3.62, act:3.80},
+  {desc:"Lining — white poly", unit:"m", cons:0.20, rate:0.70, bud:0.14, app:0.14, act:0.16},
+  {desc:"Fusible interlining", unit:"m", cons:0.08, rate:0.75, bud:0.06, app:0.06, act:0.07},
+  {desc:"Buttons — 4-hole 12mm (×7)", unit:"pcs", cons:7, rate:0.013, bud:0.09, app:0.09, act:0.10},
+  {desc:"Sewing thread", unit:"cone", cons:0.02, rate:1.50, bud:0.03, app:0.03, act:0.03},
+  {desc:"Care label", unit:"pcs", cons:1, rate:0.02, bud:0.02, app:0.02, act:0.02},
+  {desc:"Main label + size label", unit:"pcs", cons:1, rate:0.04, bud:0.04, app:0.04, act:0.04},
+];
+const CM_DATA = [
+  {op:"Cutting", dept:"Cutting", sam:4.2, rate:5.43, bud:0.38, app:0.38, act:0.40},
+  {op:"Stitching — body assembly", dept:"Sewing", sam:12.8, rate:4.50, bud:0.96, app:0.98, act:1.05},
+  {op:"Collar & cuff attachment", dept:"Sewing", sam:6.5, rate:4.80, bud:0.52, app:0.55, act:0.58},
+  {op:"Button attachment & BH", dept:"Sewing", sam:3.2, rate:5.25, bud:0.28, app:0.28, act:0.30},
+  {op:"Finishing & pressing", dept:"Finishing", sam:5.0, rate:4.56, bud:0.38, app:0.40, act:0.42},
+  {op:"Quality checking", dept:"QC", sam:2.0, rate:4.20, bud:0.14, app:0.14, act:0.14},
+];
+const PACKING_DATA = [
+  {desc:"Polybag — individual", unit:"pcs", qty:1, rate:0.04, bud:0.04, app:0.04, act:0.04},
+  {desc:"Hanger", unit:"pcs", qty:1, rate:0.06, bud:0.06, app:0.06, act:0.07},
+  {desc:"Inner carton", unit:"pcs", qty:0.083, rate:0.60, bud:0.05, app:0.05, act:0.05},
+  {desc:"Export carton (12 pcs)", unit:"pcs", qty:0.083, rate:0.96, bud:0.08, app:0.08, act:0.08},
+  {desc:"Tissue paper & pin set", unit:"set", qty:1, rate:0.02, bud:0.02, app:0.02, act:0.02},
+];
+const OVERHEAD_DATA = [
+  {label:"Factory overhead", basis:"pct_cm", rate:18, bud:0.48, app:0.49, act:0.52},
+  {label:"Social compliance audit", basis:"fixed", rate:0.06, bud:0.06, app:0.06, act:0.06},
+  {label:"Testing & inspection (TPI)", basis:"fixed", rate:0.08, bud:0.08, app:0.08, act:0.08},
+  {label:"Buying agent commission", basis:"pct_fob", rate:3, bud:0.25, app:0.26, act:0.27},
+];
+
+let rowCounters = {f:0, cm:0, pk:0, oh:0};
+
+function addFabricRow(data){
+  const n = ++rowCounters.f; const d = data||{};
+  const tr = document.createElement('tr'); tr.dataset.type='fabric';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Material description…" value="${d.desc||''}"></td>
+    <td><input class="ci" placeholder="m/pcs…" value="${d.unit||''}" style="width:55px;"></td>
+    <td><input class="ci num" type="number" step="0.001" placeholder="0.000" value="${d.cons||''}" oninput="calcFabricRow(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.001" placeholder="0.000" value="${d.rate||''}" oninput="calcFabricRow(this)" style="width:75px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.bud||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.app||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.act||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"></td><td class="var-cell"></td>
+    <td><button class="del-btn" onclick="delRow(this)"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('fabricBody').appendChild(tr);
+  updateRowVarianceFromData(tr, d.bud, d.app, d.act);
+}
+
+function addCMRow(data){
+  const n = ++rowCounters.cm; const d = data||{};
+  const tr = document.createElement('tr'); tr.dataset.type='cm';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Operation name…" value="${d.op||''}"></td>
+    <td><input class="ci" placeholder="Dept…" value="${d.dept||''}" style="width:82px;"></td>
+    <td><input class="ci num" type="number" step="0.1" placeholder="0.0" value="${d.sam||''}" oninput="calcCMRow(this)" style="width:70px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.rate||''}" oninput="calcCMRow(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.bud||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.app||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.act||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"></td><td class="var-cell"></td>
+    <td><button class="del-btn" onclick="delRow(this)"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('cmBody').appendChild(tr);
+  updateRowVarianceFromData(tr, d.bud, d.app, d.act);
+}
+
+function addPackingRow(data){
+  const n = ++rowCounters.pk; const d = data||{};
+  const tr = document.createElement('tr'); tr.dataset.type='packing';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Packing item…" value="${d.desc||''}"></td>
+    <td><input class="ci" placeholder="pcs/set…" value="${d.unit||''}" style="width:55px;"></td>
+    <td><input class="ci num" type="number" step="0.001" placeholder="0.000" value="${d.qty||''}" oninput="calcPackingRow(this)" style="width:65px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.rate||''}" oninput="calcPackingRow(this)" style="width:75px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.bud||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.app||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.act||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"></td><td class="var-cell"></td>
+    <td><button class="del-btn" onclick="delRow(this)"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('packingBody').appendChild(tr);
+  updateRowVarianceFromData(tr, d.bud, d.app, d.act);
+}
+
+function addOverheadRow(data){
+  const n = ++rowCounters.oh; const d = data||{};
+  const tr = document.createElement('tr'); tr.dataset.type='overhead';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="e.g. Factory overhead, TPI, Agent commission…" value="${d.label||''}"></td>
+    <td>
+      <select class="ci" style="width:105px;" onchange="calcOverheadRow(this)">
+        <option value="pct_cm" ${(d.basis||'pct_cm')==='pct_cm'?'selected':''}>% on CM</option>
+        <option value="pct_fob" ${d.basis==='pct_fob'?'selected':''}>% on FOB</option>
+        <option value="fixed" ${d.basis==='fixed'?'selected':''}>Per Pc Fixed</option>
+        <option value="pct_cog" ${d.basis==='pct_cog'?'selected':''}>% on COG</option>
+      </select>
+    </td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.rate||''}" oninput="calcOverheadRow(this)" style="width:70px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.bud||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.app||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.act||''}" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"></td><td class="var-cell"></td>
+    <td><button class="del-btn" onclick="delRow(this)"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('overheadBody').appendChild(tr);
+  updateRowVarianceFromData(tr, d.bud, d.app, d.act);
+}
+
+function updateRowVarianceFromData(tr, bud, app, act){
+  const varCells = tr.querySelectorAll('.var-cell');
+  if(varCells.length < 2) return;
+  if(app > 0 && act > 0){ const d=act-app; varCells[0].innerHTML=varHtml(d); }
+  else varCells[0].innerHTML='<span class="v-none">—</span>';
+  if(bud > 0 && act > 0){ const d=act-bud; varCells[1].innerHTML=varHtml(d); }
+  else varCells[1].innerHTML='<span class="v-none">—</span>';
+}
+
+function varHtml(diff){
+  if(Math.abs(diff)<0.001) return '<span class="v-zero">—</span>';
+  const sign=diff>0?'▲':'▼'; const cls=diff>0?'v-over':'v-save';
+  return `<span class="${cls}">${sign} $${Math.abs(diff).toFixed(2)}</span>`;
+}
+
+function delRow(btn){ btn.closest('tr').remove(); recalcSectionTotals(); }
+
+function getInputs(tr){ return tr.querySelectorAll('input[type=number]'); }
+
+function calcFabricRow(inp){
+  const tr=inp.closest('tr'); const ins=getInputs(tr);
+  const v=(parseFloat(ins[0].value)||0)*(parseFloat(ins[1].value)||0);
+  if(v>0) ins[2].value=v.toFixed(2);
+  updateRowVarianceFromData(tr, parseFloat(ins[2].value)||0, parseFloat(ins[3].value)||0, parseFloat(ins[4].value)||0);
+  recalcSectionTotals();
+}
+function calcCMRow(inp){
+  const tr=inp.closest('tr'); const ins=getInputs(tr);
+  const v=((parseFloat(ins[0].value)||0)/60)*(parseFloat(ins[1].value)||0);
+  if(v>0) ins[2].value=v.toFixed(2);
+  updateRowVarianceFromData(tr, parseFloat(ins[2].value)||0, parseFloat(ins[3].value)||0, parseFloat(ins[4].value)||0);
+  recalcSectionTotals();
+}
+function calcPackingRow(inp){
+  const tr=inp.closest('tr'); const ins=getInputs(tr);
+  const v=(parseFloat(ins[0].value)||0)*(parseFloat(ins[1].value)||0);
+  if(v>0) ins[2].value=v.toFixed(2);
+  updateRowVarianceFromData(tr, parseFloat(ins[2].value)||0, parseFloat(ins[3].value)||0, parseFloat(ins[4].value)||0);
+  recalcSectionTotals();
+}
+function calcOverheadRow(inp){
+  const tr=inp.closest('tr'); const ins=getInputs(tr);
+  const basis=tr.querySelector('select').value;
+  const rate=parseFloat(ins[0].value)||0;
+  let v=0;
+  if(basis==='pct_cm') v=(rate/100)*getSectionBudTotal('cmBody');
+  else if(basis==='fixed') v=rate;
+  else if(basis==='pct_cog') v=(rate/100)*(getSectionBudTotal('fabricBody')+getSectionBudTotal('cmBody')+getSectionBudTotal('packingBody'));
+  if(v>0) ins[1].value=v.toFixed(2);
+  updateRowVarianceFromData(tr, parseFloat(ins[1].value)||0, parseFloat(ins[2].value)||0, parseFloat(ins[3].value)||0);
+  recalcSectionTotals();
+}
+function calcRowTotals(inp){
+  const tr=inp.closest('tr'); const type=tr.dataset.type;
+  const ins=getInputs(tr);
+  const budIdx=(type==='overhead')?1:2; const appIdx=(type==='overhead')?2:3; const actIdx=(type==='overhead')?3:4;
+  updateRowVarianceFromData(tr, parseFloat(ins[budIdx].value)||0, parseFloat(ins[appIdx].value)||0, parseFloat(ins[actIdx].value)||0);
+  recalcSectionTotals();
+}
+
+function getSectionBudTotal(id){
+  let t=0;
+  document.querySelectorAll(`#${id} tr`).forEach(tr=>{
+    const ins=getInputs(tr); const idx=(tr.dataset.type==='overhead')?1:2;
+    t+=parseFloat(ins[idx]?.value)||0;
+  });
+  return t;
+}
+function getSecTotals(id){
+  const isOH=id==='overheadBody';
+  const bi=isOH?1:2,ai=isOH?2:3,ci=isOH?3:4; let b=0,a=0,c=0;
+  document.querySelectorAll(`#${id} tr`).forEach(tr=>{
+    const ins=getInputs(tr);
+    b+=parseFloat(ins[bi]?.value)||0;
+    a+=parseFloat(ins[ai]?.value)||0;
+    c+=parseFloat(ins[ci]?.value)||0;
+  });
+  return {bud:b,app:a,act:c};
+}
+function fmt(v,z){ return v>0?`$${v.toFixed(2)}`:(z||'—'); }
+
+function recalcSectionTotals(){
+  const s1=getSecTotals('fabricBody'), s2=getSecTotals('cmBody'), s3=getSecTotals('packingBody'), s4=getSecTotals('overheadBody');
+  const upd=(bId,aId,cId,s)=>{ document.getElementById(bId).textContent=fmt(s.bud,'$0.00'); document.getElementById(aId).textContent=fmt(s.app); document.getElementById(cId).textContent=fmt(s.act); };
+  upd('s1TotBud','s1TotApp','s1TotAct',s1); upd('s1Bud','s1App','s1Act',s1);
+  upd('s2TotBud','s2TotApp','s2TotAct',s2); upd('s2Bud','s2App','s2Act',s2);
+  upd('s3TotBud','s3TotApp','s3TotAct',s3); upd('s3Bud','s3App','s3Act',s3);
+  upd('s4TotBud','s4TotApp','s4TotAct',s4); upd('s4Bud','s4App','s4Act',s4);
+  recalcSummary();
+}
+
+function recalcSummary(){
+  const s1=getSecTotals('fabricBody'), s2=getSecTotals('cmBody'), s3=getSecTotals('packingBody'), s4=getSecTotals('overheadBody');
+  const pct=parseFloat(document.getElementById('profitPct').value)||0;
+  const qty=parseInt(document.getElementById('orderQty').value)||0;
+  const cogB=s1.bud+s2.bud+s3.bud+s4.bud, cogA=s1.app+s2.app+s3.app+s4.app, cogC=s1.act+s2.act+s3.act+s4.act;
+  const pB=cogB*pct/100, pA=cogA>0?cogA*pct/100:0, pC=cogC>0?cogC*pct/100:0;
+  const fB=cogB+pB, fA=cogA>0?cogA+pA:0, fC=cogC>0?cogC+pC:0;
+  document.getElementById('cogBud').textContent=fmt(cogB,'$0.00');
+  document.getElementById('cogApp').textContent=fmt(cogA);
+  document.getElementById('cogAct').textContent=fmt(cogC);
+  document.getElementById('profitBud').textContent=fmt(pB,'$0.00');
+  document.getElementById('profitApp').textContent=fmt(pA);
+  document.getElementById('profitAct').textContent=fmt(pC);
+  document.getElementById('fobBud').textContent=fmt(fB,'$0.00');
+  document.getElementById('fobApp').textContent=fmt(fA);
+  document.getElementById('fobAct').textContent=fmt(fC);
+  document.getElementById('orderBud').textContent=fmt(fB*qty,'$0.00');
+  document.getElementById('orderApp').textContent=fmt(fA*qty);
+  document.getElementById('orderAct').textContent=fmt(fC*qty);
+  document.getElementById('profitRateDisp').textContent=pct+'%';
+  document.getElementById('profitPctInline').value=pct;
+  document.getElementById('qtyDisp').textContent=qty.toLocaleString();
+  const sv=(aId,bId,bud,app,act)=>{
+    document.getElementById(aId).innerHTML=(app>0&&act>0)?varHtml(act-app):'<span class="v-none">—</span>';
+    document.getElementById(bId).innerHTML=(bud>0&&act>0)?varHtml(act-bud):'<span class="v-none">—</span>';
+  };
+  sv('cogVarAppAct','cogVarBudAct',cogB,cogA,cogC);
+  sv('profitVarAppAct','profitVarBudAct',pB,pA,pC);
+  sv('fobVarAppAct','fobVarBudAct',fB,fA,fC);
+  sv('orderVarAppAct','orderVarBudAct',fB*qty,fA*qty,fC*qty);
+}
+
+var activeTab = 'product';
+
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('btn-sample').classList.toggle('active', tab==='sample');
+  document.getElementById('btn-product').classList.toggle('active', tab==='product');
+  document.getElementById('panel-sample').classList.toggle('active', tab==='sample');
+  document.getElementById('panel-product').classList.toggle('active', tab==='product');
+}
+
+/* ── PDF helpers ── */
+function tv(id){var e=document.getElementById(id);return e?e.textContent.trim():'';}
+function iv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+function selTxt(id){var e=document.getElementById(id);return e&&e.options?e.options[e.selectedIndex].text:'';}
+function stripNum(s){return parseFloat((s||'').replace(/[$,]/g,''))||0;}
+function zp(n){return n<10?'0'+n:String(n);}
+function fmtD(v){return v?(parseFloat(v)||0).toFixed(2):'';}
+/* escape HTML entities so user input (e.g. "M&S UK") never breaks the generated document */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function vcHtml(vc){
+  if(!vc) return '<span style="color:#bbb;">&#8212;</span>';
+  var t=vc.textContent.trim();
+  if(!t||t==='—'||t==='–') return '<span style="color:#bbb;">&#8212;</span>';
+  if(t.indexOf('▲')!==-1) return '<span style="color:#dc2626;font-weight:700;">'+t+'</span>';
+  if(t.indexOf('▼')!==-1) return '<span style="color:#16a34a;font-weight:700;">'+t+'</span>';
+  return '<span style="color:#bbb;">&#8212;</span>';
+}
+
+function buildFabRows(){
+  var r='';
+  document.querySelectorAll('#fabricBody tr').forEach(function(tr,i){
+    var ins=tr.querySelectorAll('input');
+    var vc=tr.querySelectorAll('.var-cell');
+    r+='<tr>'
+      +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">'+zp(i+1)+'</td>'
+      +'<td style="font-weight:600;">'+esc(ins[0]?ins[0].value:'')+'</td>'
+      +'<td style="color:#555;">'+esc(ins[1]?ins[1].value:'')+'</td>'
+      +'<td style="text-align:right;color:#374151;">'+(ins[2]?ins[2].value:'')+'</td>'
+      +'<td style="text-align:right;color:#92400e;font-weight:600;">'+(ins[4]?'$'+fmtD(ins[4].value):'')+'</td>'
+      +'<td style="text-align:right;color:#166534;font-weight:600;">'+(ins[5]?'$'+fmtD(ins[5].value):'')+'</td>'
+      +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+(ins[6]?'$'+fmtD(ins[6].value):'')+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[0])+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[1])+'</td>'
+      +'</tr>';
+  });
+  return r;
+}
+
+function buildCMRows(){
+  var r='';
+  document.querySelectorAll('#cmBody tr').forEach(function(tr,i){
+    var ins=tr.querySelectorAll('input');
+    var vc=tr.querySelectorAll('.var-cell');
+    var sam=ins[2]?ins[2].value:'';
+    r+='<tr>'
+      +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">'+zp(i+1)+'</td>'
+      +'<td style="font-weight:600;">'+esc(ins[0]?ins[0].value:'')+'</td>'
+      +'<td style="color:#555;">'+esc(ins[1]?ins[1].value:'')+'</td>'
+      +'<td style="text-align:right;color:#374151;">'+(sam?sam+' min':'')+'</td>'
+      +'<td style="text-align:right;color:#92400e;font-weight:600;">'+(ins[4]?'$'+fmtD(ins[4].value):'')+'</td>'
+      +'<td style="text-align:right;color:#166534;font-weight:600;">'+(ins[5]?'$'+fmtD(ins[5].value):'')+'</td>'
+      +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+(ins[6]?'$'+fmtD(ins[6].value):'')+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[0])+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[1])+'</td>'
+      +'</tr>';
+  });
+  return r;
+}
+
+function buildPkRows(){
+  var r='';
+  document.querySelectorAll('#packingBody tr').forEach(function(tr,i){
+    var ins=tr.querySelectorAll('input');
+    var vc=tr.querySelectorAll('.var-cell');
+    r+='<tr>'
+      +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">'+zp(i+1)+'</td>'
+      +'<td style="font-weight:600;">'+esc(ins[0]?ins[0].value:'')+'</td>'
+      +'<td style="color:#555;">'+esc(ins[1]?ins[1].value:'')+'</td>'
+      +'<td style="text-align:right;color:#374151;">'+(ins[2]?ins[2].value:'')+'</td>'
+      +'<td style="text-align:right;color:#92400e;font-weight:600;">'+(ins[4]?'$'+fmtD(ins[4].value):'')+'</td>'
+      +'<td style="text-align:right;color:#166534;font-weight:600;">'+(ins[5]?'$'+fmtD(ins[5].value):'')+'</td>'
+      +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+(ins[6]?'$'+fmtD(ins[6].value):'')+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[0])+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[1])+'</td>'
+      +'</tr>';
+  });
+  return r;
+}
+
+function buildOHRows(){
+  var r='';
+  document.querySelectorAll('#overheadBody tr').forEach(function(tr,i){
+    var ins=tr.querySelectorAll('input');
+    var sel=tr.querySelector('select');
+    var vc=tr.querySelectorAll('.var-cell');
+    var bVal=sel?sel.value:'fixed';
+    var bTxt=sel?sel.options[sel.selectedIndex].text:'Per Pc Fixed';
+    var rateNum=ins[1]?parseFloat(ins[1].value)||0:0;
+    var rateFmt=bVal==='fixed'?'$'+rateNum.toFixed(2):rateNum+'%';
+    r+='<tr>'
+      +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">'+zp(i+1)+'</td>'
+      +'<td style="font-weight:600;">'+esc(ins[0]?ins[0].value:'')+'</td>'
+      +'<td style="color:#555;font-size:9px;">'+esc(bTxt)+'</td>'
+      +'<td style="text-align:right;color:#374151;">'+rateFmt+'</td>'
+      +'<td style="text-align:right;color:#92400e;font-weight:600;">'+(ins[2]?'$'+fmtD(ins[2].value):'')+'</td>'
+      +'<td style="text-align:right;color:#166534;font-weight:600;">'+(ins[3]?'$'+fmtD(ins[3].value):'')+'</td>'
+      +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+(ins[4]?'$'+fmtD(ins[4].value):'')+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[0])+'</td>'
+      +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(vc[1])+'</td>'
+      +'</tr>';
+  });
+  return r;
+}
+
+function pdfCss(){
+  return '@page{size:A4 landscape;margin:12mm 14mm;}'
+    +'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'
+    +'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:10px;color:#111;background:#fff;}'
+    /* document header */
+    +'.doc-hd{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:1.5px solid #ccc;margin-bottom:12px;}'
+    +'.doc-meta{font-size:9px;color:#555;margin-bottom:3px;}'
+    +'.doc-title{font-size:21px;font-weight:800;color:#111;margin-bottom:7px;line-height:1.15;}'
+    +'.doc-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;}'
+    +'.pill{border:1px solid #d1d5db;border-radius:20px;padding:2px 9px;font-size:8px;color:#374151;font-weight:500;}'
+    +'.status-pill{display:inline-block;border:1px solid #d1d5db;border-radius:20px;padding:2px 9px;font-size:8px;color:#374151;font-weight:600;}'
+    +'.doc-hd-r{text-align:right;}'
+    +'.doc-type{font-size:10px;font-weight:700;color:#374151;letter-spacing:.05em;text-transform:uppercase;}'
+    +'.doc-sub-r{font-size:8.5px;color:#888;margin-top:2px;}'
+    /* summary cards */
+    +'.cards{display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr;gap:8px;margin-bottom:10px;}'
+    +'.card{border:1px solid #e5e7eb;border-radius:6px;padding:8px 12px;}'
+    +'.card-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;margin-bottom:3px;}'
+    +'.card-val{font-size:22px;font-weight:800;color:#111;line-height:1.1;}'
+    +'.card-val.gn{color:#166534;}'
+    +'.card-val.bl{color:#1e40af;}'
+    +'.card-sub{font-size:8.5px;color:#555;margin-top:2px;}'
+    +'.card-tots{margin-top:4px;}'
+    +'.ct-row{font-size:9px;color:#555;margin-top:2px;}'
+    +'.ct-row strong{color:#111;font-weight:700;}'
+    /* legend */
+    +'.legend{display:flex;gap:14px;align-items:center;margin-bottom:10px;font-size:8.5px;padding:5px 0;border-bottom:1px solid #f0f0f0;}'
+    +'.lg-b{color:#92400e;}'
+    +'.lg-a{color:#166534;}'
+    +'.lg-c{color:#1e40af;}'
+    +'.lg-ov{color:#dc2626;font-weight:700;}'
+    +'.lg-sv{color:#16a34a;font-weight:700;}'
+    /* sections — no break-inside:avoid so long sections flow across pages */
+    +'.sec{border:1px solid #e5e7eb;border-radius:6px;margin-bottom:8px;overflow:visible;}'
+    +'.sec-hd{display:flex;align-items:stretch;justify-content:space-between;background:#f9fafb;border-bottom:1px solid #e5e7eb;}'
+    +'.sec-name-area{display:flex;align-items:center;gap:8px;padding:9px 14px;}'
+    +'.sec-dot{width:8px;height:8px;background:#374151;border-radius:50%;flex-shrink:0;}'
+    +'.sec-name{font-size:11px;font-weight:700;color:#111;}'
+    +'.sec-tots{display:flex;align-items:stretch;}'
+    +'.sec-tot{padding:6px 12px;text-align:right;border-left:1px solid #e5e7eb;display:flex;flex-direction:column;justify-content:center;}'
+    +'.stl{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;}'
+    +'.stb{font-size:13px;font-weight:800;color:#92400e;}'
+    +'.sta{font-size:13px;font-weight:800;color:#166534;}'
+    +'.stc{font-size:13px;font-weight:800;color:#1e40af;}'
+    /* tables — thead repeats on every page, rows never slice mid-row */
+    +'.tbl-wrap{padding:0 14px 6px;}'
+    +'table{width:100%;border-collapse:collapse;}'
+    +'thead{display:table-header-group;}'
+    +'thead th{padding:5px 8px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;background:#f9fafb;border-bottom:1.5px solid #e5e7eb;text-align:left;white-space:nowrap;}'
+    +'thead th.r{text-align:right;}'
+    +'tbody td{padding:4px 8px;border-bottom:1px solid #f3f4f6;vertical-align:middle;font-size:9.5px;}'
+    +'tbody tr{break-inside:avoid;page-break-inside:avoid;}'
+    +'tbody tr:last-child td{border-bottom:none;}'
+    +'tfoot{display:table-footer-group;}'
+    +'tfoot td{padding:5px 8px;font-size:9px;font-weight:700;background:#f3f4f6;border-top:1.5px solid #e5e7eb;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;}'
+    +'tfoot td.bud{color:#92400e;font-size:11px;text-align:right;text-transform:none;letter-spacing:0;}'
+    +'tfoot td.app{color:#166534;font-size:11px;text-align:right;text-transform:none;letter-spacing:0;}'
+    +'tfoot td.act{color:#1e40af;font-size:11px;text-align:right;text-transform:none;letter-spacing:0;}'
+    /* grand total rows — stay whole, never slice */
+    +'.fob-row{break-inside:avoid;page-break-inside:avoid;break-before:avoid;page-break-before:avoid;}'
+    +'.fob-row td{padding:7px 8px;font-size:11px;font-weight:800;background:#eff6ff;border-top:2px solid #bfdbfe;color:#111;}'
+    +'.fob-row td.bud{color:#92400e;font-size:14px;text-align:right;}'
+    +'.fob-row td.app{color:#166534;font-size:14px;text-align:right;}'
+    +'.fob-row td.act{color:#1e40af;font-size:14px;text-align:right;}'
+    +'.fob-row td.var{font-size:9px;text-align:right;}'
+    +'.ord-row{break-inside:avoid;page-break-inside:avoid;break-before:avoid;page-break-before:avoid;}'
+    +'.ord-row td{padding:7px 8px;font-size:11px;font-weight:800;background:#e0e7ff;border-top:1px solid #c7d2fe;color:#111;}'
+    +'.ord-row td.bud{color:#92400e;font-size:14px;text-align:right;}'
+    +'.ord-row td.app{color:#166534;font-size:14px;text-align:right;}'
+    +'.ord-row td.act{color:#1e40af;font-size:14px;text-align:right;}'
+    +'.ord-row td.var{font-size:9px;text-align:right;}'
+    /* footer — always on its own at the end, never orphaned mid-page */
+    +'.footer{margin-top:14px;padding-top:8px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af;break-before:avoid;page-break-before:avoid;}';
+}
+
+function secBlock(nameHtml, totB, totA, totC, tableInner){
+  var totHtml = totB
+    ? '<div class="sec-tots">'
+      +'<div class="sec-tot"><div class="stl">Budgeted</div><div class="stb">'+totB+'</div></div>'
+      +'<div class="sec-tot"><div class="stl">Approved</div><div class="sta">'+totA+'</div></div>'
+      +'<div class="sec-tot"><div class="stl">Actual</div><div class="stc">'+totC+'</div></div>'
+      +'</div>'
+    : '<div class="sec-tots"></div>';
+  return '<div class="sec">'
+    +'<div class="sec-hd">'
+    +'<div class="sec-name-area"><div class="sec-dot"></div><div class="sec-name">'+nameHtml+'</div></div>'
+    +totHtml
+    +'</div>'
+    +'<div class="tbl-wrap">'+tableInner+'</div>'
+    +'</div>';
+}
+
+function tblHdr(cols){
+  var h='<thead><tr>';
+  for(var i=0;i<cols.length;i++){h+='<th'+(cols[i].r?' class="r"':'')+'>'+(cols[i].t||'')+'</th>';}
+  return h+'</tr></thead>';
+}
+
+function secFtr(span, b, a, c, extraCols){
+  return '<tfoot><tr>'
+    +'<td colspan="'+span+'" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;">Section total</td>'
+    +'<td class="bud">'+b+'</td><td class="app">'+a+'</td><td class="act">'+c+'</td>'
+    +(extraCols||'<td colspan="2"></td>')
+    +'</tr></tfoot>';
+}
+
+function buildProductPDF(today){
+  var desc=esc(iv('description'));
+  var season=esc(selTxt('season')||'AW 2026');
+  var status=esc(selTxt('costStatus')||'');
+  var buyer=esc(iv('buyer'));
+  var qty=iv('orderQty');
+  var profPct=iv('profitPct');
+
+  var fobB=tv('fobBud'), fobA=tv('fobApp'), fobC=tv('fobAct');
+  var fobBN=stripNum(fobB), fobAN=stripNum(fobA), fobCN=stripNum(fobC);
+  var appVsBud=(fobAN>=fobBN?'+':'')+'\$'+(Math.abs(fobAN-fobBN).toFixed(2))+' vs budget';
+  var actVsApp=(fobCN>=fobAN?'+':'')+'\$'+(Math.abs(fobCN-fobAN).toFixed(2))+' vs approved';
+
+  var ordB=tv('orderBud'), ordA=tv('orderApp'), ordC=tv('orderAct');
+  var ordBN=stripNum(ordB), ordAN=stripNum(ordA), ordCN=stripNum(ordC);
+  var ordVarAA=(ordCN>=ordAN?'+':'-')+'\$'+Math.abs(ordCN-ordAN).toLocaleString('en-US',{maximumFractionDigits:0})+' vs App';
+  var ordVarBA=(ordCN>=ordBN?'+':'-')+'\$'+Math.abs(ordCN-ordBN).toLocaleString('en-US',{maximumFractionDigits:0})+' vs Bud';
+
+  var s1b=tv('s1TotBud'),s1a=tv('s1TotApp'),s1c=tv('s1TotAct');
+  var s2b=tv('s2TotBud'),s2a=tv('s2TotApp'),s2c=tv('s2TotAct');
+  var s3b=tv('s3TotBud'),s3a=tv('s3TotApp'),s3c=tv('s3TotAct');
+  var s4b=tv('s4TotBud'),s4a=tv('s4TotApp'),s4c=tv('s4TotAct');
+  var cogB=tv('cogBud'),cogA=tv('cogApp'),cogC=tv('cogAct');
+  var prB=tv('profitBud'),prA=tv('profitApp'),prC=tv('profitAct'),prRate=tv('profitRateDisp');
+  var fobVAA=document.getElementById('fobVarAppAct')?document.getElementById('fobVarAppAct').textContent.trim():'';
+  var fobVBA=document.getElementById('fobVarBudAct')?document.getElementById('fobVarBudAct').textContent.trim():'';
+  var fobVAAfmt=fobVAA.indexOf('▲')!==-1?'<span style="color:#dc2626;font-weight:700;">'+fobVAA+' vs App</span>':fobVAA.indexOf('▼')!==-1?'<span style="color:#16a34a;font-weight:700;">'+fobVAA+' vs App</span>':'';
+  var fobVBAfmt=fobVBA.indexOf('▲')!==-1?'<span style="color:#dc2626;font-weight:700;">'+fobVBA+' vs Bud</span>':fobVBA.indexOf('▼')!==-1?'<span style="color:#16a34a;font-weight:700;">'+fobVBA+' vs Bud</span>':'';
+
+  var cogVAA=document.getElementById('cogVarAppAct');
+  var cogVBA=document.getElementById('cogVarBudAct');
+  var prVAA=document.getElementById('profitVarAppAct');
+  var prVBA=document.getElementById('profitVarBudAct');
+  var qtyDisp=tv('qtyDisp');
+  var qtyN=parseInt(qty)||5000;
+
+  var fabRows=buildFabRows(), cmRows=buildCMRows(), pkRows=buildPkRows(), ohRows=buildOHRows();
+
+  var fabTbl=tblHdr([{t:'#'},{t:'Description'},{t:'Unit'},{t:'Consumption',r:1},{t:'Budgeted',r:1},{t:'Approved',r:1},{t:'Actual',r:1},{t:'App vs Act',r:1},{t:'Bud vs Act',r:1}])
+    +'<tbody>'+fabRows+'</tbody>'+secFtr(4,s1b,s1a,s1c,'<td colspan="2"></td>');
+
+  var cmTbl=tblHdr([{t:'#'},{t:'Operation'},{t:'Dept'},{t:'SAM',r:1},{t:'Budgeted',r:1},{t:'Approved',r:1},{t:'Actual',r:1},{t:'App vs Act',r:1},{t:'Bud vs Act',r:1}])
+    +'<tbody>'+cmRows+'</tbody>'+secFtr(4,s2b,s2a,s2c,'<td colspan="2"></td>');
+
+  var pkTbl=tblHdr([{t:'#'},{t:'Item'},{t:'Unit'},{t:'Qty',r:1},{t:'Budgeted',r:1},{t:'Approved',r:1},{t:'Actual',r:1},{t:'App vs Act',r:1},{t:'Bud vs Act',r:1}])
+    +'<tbody>'+pkRows+'</tbody>'+secFtr(4,s3b,s3a,s3c,'<td colspan="2"></td>');
+
+  var ohTbl=tblHdr([{t:'#'},{t:'Item'},{t:'Basis'},{t:'Rate',r:1},{t:'Budgeted',r:1},{t:'Approved',r:1},{t:'Actual',r:1},{t:'App vs Act',r:1},{t:'Bud vs Act',r:1}])
+    +'<tbody>'+ohRows+'</tbody>'+secFtr(4,s4b,s4a,s4c,'<td colspan="2"></td>');
+
+  var fobTbl=tblHdr([{t:'#'},{t:'Item'},{t:'Basis'},{t:'Rate',r:1},{t:'Budgeted',r:1},{t:'Approved',r:1},{t:'Actual',r:1},{t:'App vs Act',r:1},{t:'Bud vs Act',r:1}])
+    +'<tbody>'
+    +'<tr>'
+    +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">01</td>'
+    +'<td style="font-weight:600;">Cost of goods (subtotal)</td>'
+    +'<td style="color:#9ca3af;">&#8212;</td><td style="color:#9ca3af;text-align:right;">&#8212;</td>'
+    +'<td style="text-align:right;color:#92400e;font-weight:600;">'+cogB+'</td>'
+    +'<td style="text-align:right;color:#166534;font-weight:600;">'+cogA+'</td>'
+    +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+cogC+'</td>'
+    +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(cogVAA)+'</td>'
+    +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(cogVBA)+'</td>'
+    +'</tr>'
+    +'<tr>'
+    +'<td style="color:#bbb;text-align:center;font-size:8px;width:22px;">02</td>'
+    +'<td style="font-weight:600;">Profit margin</td>'
+    +'<td style="color:#9ca3af;font-size:9px;">% on cost</td><td style="text-align:right;color:#374151;">'+prRate+'</td>'
+    +'<td style="text-align:right;color:#92400e;font-weight:600;">'+prB+'</td>'
+    +'<td style="text-align:right;color:#166534;font-weight:600;">'+prA+'</td>'
+    +'<td style="text-align:right;color:#1e40af;font-weight:600;">'+prC+'</td>'
+    +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(prVAA)+'</td>'
+    +'<td style="text-align:right;font-size:8.5px;white-space:nowrap;">'+vcHtml(prVBA)+'</td>'
+    +'</tr>'
+    +'</tbody>'
+    +'<tbody>'
+    +'<tr class="fob-row">'
+    +'<td colspan="4" style="font-size:11px;font-weight:800;padding:7px 8px;">Total FOB cost / piece</td>'
+    +'<td class="bud">'+fobB+'</td><td class="app">'+fobA+'</td><td class="act">'+fobC+'</td>'
+    +'<td class="var">'+fobVAAfmt+'</td><td class="var">'+fobVBAfmt+'</td>'
+    +'</tr>'
+    +'<tr class="ord-row">'
+    +'<td colspan="4" style="font-size:11px;font-weight:800;padding:7px 8px;">Total order value ('+esc(qtyDisp)+' pcs)</td>'
+    +'<td class="bud">'+ordB+'</td><td class="app">'+ordA+'</td><td class="act">'+ordC+'</td>'
+    +'<td class="var"><span style="color:#dc2626;font-weight:700;">'+ordVarAA+'</span></td>'
+    +'<td class="var"><span style="color:#dc2626;font-weight:700;">'+ordVarBA+'</span></td>'
+    +'</tr>'
+    +'</tbody>';
+
+  var h='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+    +'<title>Garment Costing Sheet — CVS-2026-F04</title>'
+    +'<style>'+pdfCss()+'</style></head><body>'
+
+    /* document header */
+    +'<div class="doc-hd">'
+    +'<div>'
+    +'<div class="doc-meta">Style No: CVS-2026-F04 &nbsp;&middot;&nbsp; Season: '+season+' &nbsp;&middot;&nbsp; Buyer: '+buyer+'</div>'
+    +'<div class="doc-title">'+desc+'</div>'
+    +'<div class="doc-pills">'
+    +'<span class="pill">Qty: '+qtyN.toLocaleString()+' pcs</span>'
+    +'<span class="pill">FOB: USD</span>'
+    +'<span class="pill">Costing Date: 02 May 2026</span>'
+    +'</div>'
+    +'<span class="status-pill">'+status+'</span>'
+    +'</div>'
+    +'<div class="doc-hd-r">'
+    +'<div class="doc-type">Garment Costing Sheet</div>'
+    +'<div class="doc-sub-r">Budgeted / Approved / Actual</div>'
+    +'</div>'
+    +'</div>'
+
+    /* summary cards */
+    +'<div class="cards">'
+    +'<div class="card"><div class="card-lbl">Budgeted Cost / PC</div><div class="card-val">'+fobB+'</div><div class="card-sub">Pre-season estimate</div></div>'
+    +'<div class="card"><div class="card-lbl">Approved Cost / PC</div><div class="card-val gn">'+fobA+'</div><div class="card-sub">'+appVsBud+'</div></div>'
+    +'<div class="card"><div class="card-lbl">Actual Cost / PC</div><div class="card-val bl">'+fobC+'</div><div class="card-sub">'+actVsApp+'</div></div>'
+    +'<div class="card"><div class="card-lbl">Total Order ('+qtyN.toLocaleString()+' pcs)</div>'
+    +'<div class="card-tots">'
+    +'<div class="ct-row">Budgeted &nbsp;<strong>'+ordB+'</strong></div>'
+    +'<div class="ct-row">Approved &nbsp;<strong style="color:#166534;">'+ordA+'</strong></div>'
+    +'<div class="ct-row">Actual &nbsp;<strong style="color:#1e40af;">'+ordC+'</strong></div>'
+    +'</div></div>'
+    +'</div>'
+
+    /* legend */
+    +'<div class="legend">'
+    +'<span class="lg-b">&#9679; Budgeted</span>'
+    +'<span class="lg-a">&#9679; Approved</span>'
+    +'<span class="lg-c">&#9679; Actual</span>'
+    +'<span class="lg-ov">&#9650; over budget</span>'
+    +'<span class="lg-sv">&#9660; saving</span>'
+    +'</div>'
+
+    /* sections */
+    +secBlock('1. Fabric &amp; Trims',s1b,s1a,s1c,'<table>'+fabTbl+'</table>')
+    +secBlock('2. Cutting &amp; Making (CM)',s2b,s2a,s2c,'<table>'+cmTbl+'</table>')
+    +secBlock('3. Packaging &amp; Packing',s3b,s3a,s3c,'<table>'+pkTbl+'</table>')
+    +secBlock('4. Overhead &amp; Compliance',s4b,s4a,s4c,'<table>'+ohTbl+'</table>')
+    +secBlock('5. Profit Margin &amp; FOB Summary',fobB,fobA,fobC,'<table>'+fobTbl+'</table>')
+
+    /* footer */
+    +'<div class="footer">'
+    +'<span>Codeverse Technologies &nbsp;&middot;&nbsp; Garment Costing Sheet &nbsp;&middot;&nbsp; CVS-2026-F04</span>'
+    +'<span>Generated: '+today+' &nbsp;&middot;&nbsp; Confidential</span>'
+    +'</div>'
+
+    +'</body></html>';
+  return h;
+}
+
+function buildSamplePDF(today){
+  var fobBs='$9.20', ordBs='$460.00';
+  var h='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+    +'<title>Garment Costing Sheet — S-2026-WS-01</title>'
+    +'<style>'+pdfCss()+'</style></head><body>'
+    +'<div class="doc-hd"><div>'
+    +'<div class="doc-meta">Sample No: S-2026-WS-01 &nbsp;&middot;&nbsp; Season: AW 2026 &nbsp;&middot;&nbsp; Buyer: M&amp;S UK</div>'
+    +'<div class="doc-title">Women\'s Woven Shirt &#8212; Navy Stripe</div>'
+    +'<div class="doc-pills"><span class="pill">Qty: 50 pcs</span><span class="pill">FOB: USD</span><span class="pill">Costing Date: 22 Apr 2026</span></div>'
+    +'<span class="status-pill">Budgeted &middot; Converted &#8594; CVS-2026-F04</span>'
+    +'</div>'
+    +'<div class="doc-hd-r"><div class="doc-type">Garment Costing Sheet</div><div class="doc-sub-r">Sample Stage (Budgeted only)</div></div>'
+    +'</div>'
+    +'<div class="cards">'
+    +'<div class="card"><div class="card-lbl">Budgeted FOB / PC</div><div class="card-val">'+fobBs+'</div><div class="card-sub">Sample stage estimate</div></div>'
+    +'<div class="card"><div class="card-lbl">Sample Factory</div><div class="card-val" style="font-size:16px;">Factory 3</div><div class="card-sub">Bangalore</div></div>'
+    +'<div class="card"><div class="card-lbl">Sample Qty</div><div class="card-val" style="font-size:16px;">50 pcs</div><div class="card-sub">S-2026-WS-01</div></div>'
+    +'<div class="card"><div class="card-lbl">Total Order (50 pcs)</div><div class="card-tots"><div class="ct-row">Budgeted &nbsp;<strong>'+ordBs+'</strong></div></div></div>'
+    +'</div>'
+    +secBlock('1. Fabric &amp; Materials','$4.00','','',
+      '<table>'+tblHdr([{t:'#'},{t:'Material'},{t:'Unit'},{t:'Consumption',r:1},{t:'Budgeted',r:1}])
+      +'<tbody>'
+      +'<tr><td style="color:#bbb;text-align:center;font-size:8px;width:22px;">01</td><td style="font-weight:600;">Main fabric &#8212; navy stripe poplin</td><td style="color:#555;">m</td><td style="text-align:right;">1.50</td><td style="text-align:right;color:#92400e;font-weight:600;">$3.60</td></tr>'
+      +'<tr><td style="color:#bbb;text-align:center;font-size:8px;">02</td><td style="font-weight:600;">Lining &amp; interlining</td><td style="color:#555;">m</td><td style="text-align:right;">0.30</td><td style="text-align:right;color:#92400e;font-weight:600;">$0.22</td></tr>'
+      +'<tr><td style="color:#bbb;text-align:center;font-size:8px;">03</td><td style="font-weight:600;">Trims &amp; labels</td><td style="color:#555;">set</td><td style="text-align:right;">1</td><td style="text-align:right;color:#92400e;font-weight:600;">$0.18</td></tr>'
+      +'</tbody>'
+      +'<tfoot><tr><td colspan="4" style="font-size:9px;font-weight:700;text-transform:uppercase;color:#6b7280;">Section total</td><td class="bud">$4.00</td></tr></tfoot>'
+      +'</table>')
+    +secBlock('2. CM + Packing + Overhead','$3.85','','',
+      '<table>'+tblHdr([{t:'Item'},{t:'Budgeted',r:1}])
+      +'<tbody>'
+      +'<tr><td style="font-weight:600;">Cut &amp; Make (CM)</td><td style="text-align:right;color:#92400e;font-weight:600;">$2.80</td></tr>'
+      +'<tr><td style="font-weight:600;">Packing materials</td><td style="text-align:right;color:#92400e;font-weight:600;">$0.25</td></tr>'
+      +'<tr><td style="font-weight:600;">Overheads &amp; commissions</td><td style="text-align:right;color:#92400e;font-weight:600;">$0.80</td></tr>'
+      +'</tbody>'
+      +'<tfoot><tr><td style="font-size:9px;font-weight:700;text-transform:uppercase;color:#6b7280;">Sub-total</td><td class="bud">$3.85</td></tr></tfoot>'
+      +'</table>')
+    +secBlock('5. FOB Summary (Sample Stage)',fobBs,'','',
+      '<table>'+tblHdr([{t:'Item'},{t:'Amount',r:1}])
+      +'<tbody>'
+      +'<tr><td style="font-weight:600;">Cost of Goods (COG)</td><td style="text-align:right;color:#92400e;font-weight:600;">$7.85</td></tr>'
+      +'<tr><td style="font-weight:600;">Profit margin (10%)</td><td style="text-align:right;color:#92400e;font-weight:600;">$0.78</td></tr>'
+      +'</tbody>'
+      +'<tr class="fob-row"><td colspan="1" style="font-size:11px;font-weight:800;padding:7px 8px;">Budgeted FOB / Pc</td><td class="bud" style="font-size:14px;text-align:right;padding:7px 8px;">$9.20</td></tr>'
+      +'<tr class="ord-row"><td colspan="1" style="font-size:11px;font-weight:800;padding:7px 8px;">Total Order Value (50 pcs)</td><td class="bud" style="font-size:14px;text-align:right;padding:7px 8px;">$460.00</td></tr>'
+      +'</table>')
+    +'<div class="footer">'
+    +'<span>Codeverse Technologies &nbsp;&middot;&nbsp; Garment Costing Sheet &nbsp;&middot;&nbsp; S-2026-WS-01</span>'
+    +'<span>Generated: '+today+' &nbsp;&middot;&nbsp; Confidential</span>'
+    +'</div>'
+    +'</body></html>';
+  return h;
+}
+
+function downloadPDF(){
+  var today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  var html=activeTab==='sample'?buildSamplePDF(today):buildProductPDF(today);
+  /* Blob URL ensures the page loads as a full resource with a proper load event,
+     avoiding document.write truncation issues on large HTML */
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var w=window.open(url,'_blank','width=1280,height=900');
+  if(!w){alert('Please allow popups to download the PDF.');return;}
+  w.addEventListener('load',function(){
+    w.focus();
+    setTimeout(function(){w.print();URL.revokeObjectURL(url);},500);
+  });
+}
+
+function toggleGroup(el){ const g=el.closest('.nav-group'); g.classList.toggle('open'); el.classList.toggle('open'); el.classList.toggle('active-group'); }
+function saveEdit(){ alert('Changes saved! (In production: PUT /cedge/api/v1/costing/CVS-2026-F04)'); }
+function updateStatus(){ alert('Status updated! (In production: PATCH /cedge/api/v1/costing/CVS-2026-F04/status)'); }
+
+window.addEventListener('DOMContentLoaded',()=>{
+  FABRIC_DATA.forEach(r=>addFabricRow(r));
+  CM_DATA.forEach(r=>addCMRow(r));
+  PACKING_DATA.forEach(r=>addPackingRow(r));
+  OVERHEAD_DATA.forEach(r=>addOverheadRow(r));
+  recalcSectionTotals();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Costing — CVS-2026-F04 — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ── Screen styles ── */
+.cost-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:hidden;}
+.cost-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);}
+.cost-card-title{display:flex;align-items:center;gap:10px;}
+.cc-num{width:24px;height:24px;border-radius:6px;background:var(--brand-600);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cc-name{font-size:13px;font-weight:700;color:var(--text-1);}
+.cc-totals{display:flex;gap:20px;}
+.cct{text-align:right;}
+.cct-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.cct-val{font-size:14px;font-weight:700;margin-top:1px;}
+.cct-bud{color:#92400e;}.cct-app{color:#166534;}.cct-act{color:#1e40af;}
+
+/* View table */
+.vt{width:100%;border-collapse:collapse;font-size:12.5px;}
+.vt th{padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.vt th.r{text-align:right;}
+.vt td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.vt td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.vt tr:last-child td{border-bottom:none;}
+.vt tbody tr:hover td{background:#f8f9ff;}
+.vt tfoot td{padding:9px 14px;font-weight:700;background:#f9fafb;border-top:2px solid var(--border2);}
+.vt tfoot .tf-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);}
+.vt tfoot .tf-bud{color:#92400e;text-align:right;font-variant-numeric:tabular-nums;}
+.vt tfoot .tf-app{color:#166534;text-align:right;font-variant-numeric:tabular-nums;}
+.vt tfoot .tf-act{color:#1e40af;text-align:right;font-variant-numeric:tabular-nums;}
+
+/* Variance */
+.v-over{color:#dc2626;font-weight:600;}
+.v-save{color:#16a34a;font-weight:600;}
+.v-zero{color:#9ca3af;}
+
+/* Cost summary header cards */
+.cost-summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1.4fr;gap:14px;margin-bottom:20px;}
+.cost-sum-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.csc-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;}
+.csc-value{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px;}
+.csc-bud{color:#92400e;}
+.csc-app{color:#166534;}
+.csc-act{color:#1e40af;}
+.csc-change{font-size:12px;font-weight:600;color:var(--text-3);}
+.csc-change.pos{color:#dc2626;}
+.csc-change.neg{color:#16a34a;}
+
+.csc-total{background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%);border:1px solid var(--brand-200);}
+.csc-total .csc-label{color:var(--brand-700);}
+.csc-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.csc-total-row:last-child{margin-bottom:0;}
+.csc-tr-lbl{font-size:11.5px;color:var(--brand-600);}
+.csc-tr-val{font-size:14px;font-weight:700;}
+.csc-tr-bud{color:#92400e;}.csc-tr-app{color:#166534;}.csc-tr-act{color:#1e40af;}
+
+/* Status pill */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-running{background:#fdf4ff;color:#6b21a8;}.sp-running::before{background:#a855f7;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+
+/* Buttons */
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-pdf{background:#d97706;color:#fff;}.btn-pdf:hover{background:#b45309;}
+.btn svg{width:14px;height:14px;}
+
+/* Legend dots */
+.legend{display:flex;gap:16px;align-items:center;margin-bottom:12px;padding:0 20px;}
+.ld{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;}
+.ld::before{content:'';width:8px;height:8px;border-radius:50%;display:inline-block;}
+.ld-bud::before{background:#f59e0b;}
+.ld-app::before{background:#22c55e;}
+.ld-act::before{background:#3b82f6;}
+.ld-over::before{background:#ef4444;}
+.ld-save::before{background:#16a34a;}
+
+/* FOB Summary */
+.fob-summary{width:100%;border-collapse:collapse;font-size:12.5px;}
+.fob-summary th{padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);text-align:right;}
+.fob-summary th:first-child{text-align:left;}
+.fob-summary td{padding:10px 14px;border-bottom:1px solid var(--border2);text-align:right;font-variant-numeric:tabular-nums;}
+.fob-summary td:first-child{text-align:left;font-weight:500;color:var(--text-2);}
+.fob-grand td{font-weight:700;font-size:14px;background:#f5f7ff;border-top:2px solid var(--brand-200);}
+.fob-order td{font-size:13px;background:#eef2ff;font-weight:700;border-bottom:none;}
+
+/* ══════════════════
+   PRINT / PDF STYLES
+═══════════════════ */
+@media print {
+  .no-print, .sidebar, .topbar, .main > header { display:none!important; }
+  .app { display:block!important; }
+  .main { margin:0!important; padding:0!important; }
+  .page { padding:12px!important; max-width:100%!important; }
+  body { background:#fff!important; font-size:11px!important; }
+  :root { --bg:#fff; --border:#ddd; --border2:#eee; }
+
+  .print-header { display:block!important; }
+  .cost-summary-grid { grid-template-columns:1fr 1fr 1fr 1.4fr; margin-bottom:14px; }
+  .cost-sum-card { padding:12px 14px; border-radius:8px; }
+  .csc-value { font-size:20px; }
+  .cost-card { break-inside:avoid; margin-bottom:12px; border-radius:8px; }
+  .cost-card-hd { padding:10px 14px; }
+  .vt td, .vt th { padding:6px 10px; font-size:11px; }
+  .vt tfoot td { padding:7px 10px; }
+  .fob-summary td, .fob-summary th { padding:7px 10px; font-size:11px; }
+  .fob-grand td { font-size:12px; }
+  .legend { margin-bottom:8px; padding:0 14px; }
+  .page-actions { display:none!important; }
+  @page { margin:12mm 14mm; size:A4 landscape; }
+}
+
+/* Print header (hidden on screen) */
+.print-header { display:none; }
+
+/* ── Production Order Tab Strip ── */
+.po-tabs-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.po-tabs-strip{display:flex;align-items:stretch;border-bottom:2px solid var(--border);}
+.po-tab-btn{padding:12px 20px;font-size:12px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;transition:all .15s;white-space:nowrap;flex:1;border-right:1px solid var(--border2);}
+.po-tab-btn:hover{color:var(--brand-600);background:var(--brand-50);}
+.po-tab-btn.active{color:var(--brand-700);border-bottom-color:var(--brand-500);background:var(--brand-50);}
+.po-tab-btn:last-of-type{border-right:none;}
+.po-tab-top{display:flex;align-items:center;gap:8px;}
+.po-tab-po{font-size:13px;font-weight:800;color:var(--text-1);}
+.po-tab-btn.active .po-tab-po{color:var(--brand-700);}
+.po-tab-info{font-size:11px;color:var(--text-3);}
+.po-tab-btn.active .po-tab-info{color:var(--brand-400);}
+.po-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.badge-sample{background:#fdf4ff;color:#7e22ce;}
+.badge-product{background:#f0fdf4;color:#15803d;}
+.po-tab-pdf{display:flex;align-items:center;padding:0 16px;border-left:1px solid var(--border2);flex-shrink:0;}
+/* Tab panels */
+.po-tab-panel{display:none;}.po-tab-panel.active{display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar no-print">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Style Management</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children"><a class="nav-child" href="product-list.html">Product List</a></div>
+    </div>
+    <div class="nav-section">Costing</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm1 5a1 1 0 100 2h6a1 1 0 100-2H7zm-1 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Costing</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="costing-list.html">Costing Sheet</a>
+        <a class="nav-child active" href="#">CVS-2026-F04</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar no-print">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;">
+      <a href="costing-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Costing</a>
+      <span style="color:var(--text-3);margin:0 6px;">/</span>
+      CVS-2026-F04
+    </span>
+    <div class="topbar-right">
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-500);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Production Order Tabs -->
+    <div class="po-tabs-wrap no-print">
+      <div class="po-tabs-strip">
+        <button class="po-tab-btn" id="btn-sample" onclick="switchTab('sample')">
+          <div class="po-tab-top">
+            <span class="po-badge badge-sample">SAMPLE</span>
+            <span class="po-tab-po">PRD-2026-0039</span>
+          </div>
+          <div class="po-tab-info">S-2026-WS-01 &nbsp;&middot;&nbsp; 50 pcs &nbsp;&middot;&nbsp; 22 Apr 2026 &nbsp;&middot;&nbsp; Factory 3 — Bangalore</div>
+        </button>
+        <button class="po-tab-btn active" id="btn-product" onclick="switchTab('product')">
+          <div class="po-tab-top">
+            <span class="po-badge badge-product">PRODUCT</span>
+            <span class="po-tab-po">PRD-2026-0042</span>
+          </div>
+          <div class="po-tab-info">CVS-2026-F04 &nbsp;&middot;&nbsp; 5,000 pcs &nbsp;&middot;&nbsp; 02 May 2026 &nbsp;&middot;&nbsp; Factory 1 — Tirupur</div>
+        </button>
+        <div class="po-tab-pdf">
+          <button class="btn btn-pdf" id="tabPdfBtn" onclick="downloadPDF()" style="height:32px;font-size:12px;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0v-7z" clip-rule="evenodd"/></svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample tab panel -->
+    <div id="panel-sample" class="po-tab-panel">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <h1 style="font-size:18px;font-weight:800;color:var(--text-1);">S-2026-WS-01</h1>
+            <span class="sp sp-budgeted">Converted to Product</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-3);">Women's Woven Shirt — Navy Stripe &nbsp;·&nbsp; AW 2026 &nbsp;·&nbsp; M&amp;S UK &nbsp;·&nbsp; 50 pcs (Sample Run) &nbsp;·&nbsp; FOB USD &nbsp;·&nbsp; 22 Apr 2026</p>
+          <p style="font-size:12px;color:#7e22ce;margin-top:4px;font-weight:600;">&#8594; Converted to Product CVS-2026-F04 &nbsp;·&nbsp; Production Order PRD-2026-0042</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <a href="costing-list.html" class="btn btn-ghost" style="height:32px;font-size:12px;">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+            Back
+          </a>
+        </div>
+      </div>
+      <!-- Sample summary cards (budgeted only) -->
+      <div class="cost-summary-grid" style="margin-bottom:16px;">
+        <div class="cost-sum-card">
+          <div class="csc-label">Budgeted Cost / Pc</div>
+          <div class="csc-value csc-bud">$14.20</div>
+          <div class="csc-change">Sample run estimate</div>
+        </div>
+        <div class="cost-sum-card" style="opacity:.55;">
+          <div class="csc-label">Approved Cost / Pc</div>
+          <div class="csc-value" style="color:#d1d5db;">—</div>
+          <div class="csc-change">N/A — sample converted</div>
+        </div>
+        <div class="cost-sum-card" style="opacity:.55;">
+          <div class="csc-label">Actual Cost / Pc</div>
+          <div class="csc-value" style="color:#d1d5db;">—</div>
+          <div class="csc-change">N/A — sample converted</div>
+        </div>
+        <div class="cost-sum-card csc-total">
+          <div class="csc-label">Sample Order (50 pcs)</div>
+          <div class="csc-total-row"><div class="csc-tr-lbl">Budgeted Total</div><div class="csc-tr-val csc-tr-bud">$710</div></div>
+          <div class="csc-total-row"><div class="csc-tr-lbl">Approved</div><div class="csc-tr-val" style="color:#d1d5db;">—</div></div>
+          <div class="csc-total-row"><div class="csc-tr-lbl">Actual</div><div class="csc-tr-val" style="color:#d1d5db;">—</div></div>
+        </div>
+      </div>
+      <!-- Sample cost breakdown -->
+      <div class="cost-card">
+        <div class="cost-card-hd">
+          <div class="cost-card-title"><div class="cc-num">1</div><div class="cc-name">Fabric &amp; Trims</div></div>
+          <div class="cc-totals"><div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$7.50</div></div></div>
+        </div>
+        <table class="vt">
+          <thead><tr><th style="width:28px;">#</th><th>Description</th><th style="width:55px;">Unit</th><th class="r">Budgeted</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Linen-blend woven fabric</td><td>m</td><td class="r">$5.80</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Fusible interlining</td><td>m</td><td class="r">$0.50</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Buttons (×7) + sewing thread</td><td>set</td><td class="r">$0.30</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Labels (care + size + main)</td><td>set</td><td class="r">$0.90</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3" class="tf-lbl">Section Total</td><td class="tf-bud">$7.50</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-hd">
+          <div class="cost-card-title"><div class="cc-num">2</div><div class="cc-name">Cutting &amp; Making (CM)</div></div>
+          <div class="cc-totals"><div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$4.80</div></div></div>
+        </div>
+        <table class="vt">
+          <thead><tr><th style="width:28px;">#</th><th>Operation</th><th style="width:90px;">Dept</th><th class="r">Budgeted</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Cutting &amp; marking</td><td>Cutting</td><td class="r">$0.55</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Stitching — body assembly</td><td>Sewing</td><td class="r">$2.20</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Collar &amp; placket attachment</td><td>Sewing</td><td class="r">$1.20</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Finishing &amp; quality check</td><td>Finishing</td><td class="r">$0.85</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3" class="tf-lbl">Section Total</td><td class="tf-bud">$4.80</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-hd">
+          <div class="cost-card-title"><div class="cc-num">3</div><div class="cc-name">Packaging &amp; Packing</div></div>
+          <div class="cc-totals"><div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$0.50</div></div></div>
+        </div>
+        <table class="vt">
+          <thead><tr><th style="width:28px;">#</th><th>Item</th><th style="width:55px;">Unit</th><th class="r">Budgeted</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Polybag + tissue</td><td>set</td><td class="r">$0.08</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Hanger</td><td>pcs</td><td class="r">$0.06</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Sample carton</td><td>pcs</td><td class="r">$0.36</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3" class="tf-lbl">Section Total</td><td class="tf-bud">$0.50</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-hd">
+          <div class="cost-card-title"><div class="cc-num">4</div><div class="cc-name">Overhead &amp; Compliance</div></div>
+          <div class="cc-totals"><div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$0.90</div></div></div>
+        </div>
+        <table class="vt">
+          <thead><tr><th style="width:28px;">#</th><th>Item</th><th style="width:110px;">Basis</th><th class="r">Budgeted</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Factory overhead</td><td style="color:var(--text-3);font-size:11.5px;">% on CM</td><td class="r">$0.50</td></tr>
+            <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Sample courier &amp; handling</td><td style="color:var(--text-3);font-size:11.5px;">Fixed</td><td class="r">$0.40</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3" class="tf-lbl">Section Total</td><td class="tf-bud">$0.90</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="cost-card">
+        <div class="cost-card-hd"><div class="cost-card-title"><div class="cc-num">5</div><div class="cc-name">Sample FOB Summary</div></div></div>
+        <div style="padding:0 0 8px;">
+          <table class="fob-summary">
+            <thead><tr><th style="text-align:left;padding-left:20px;width:200px;">Item</th><th>Basis</th><th>Budgeted</th></tr></thead>
+            <tbody>
+              <tr><td style="padding-left:20px;">Cost of Goods (S1–S4)</td><td style="color:var(--text-3);font-size:11.5px;">Total</td><td style="color:#92400e;font-weight:600;">$13.70</td></tr>
+              <tr><td style="padding-left:20px;">Profit Margin</td><td style="color:var(--text-3);font-size:11.5px;">~4%</td><td style="color:#92400e;font-weight:600;">$0.50</td></tr>
+            </tbody>
+            <tfoot>
+              <tr class="fob-grand"><td style="padding-left:20px;">Total FOB Cost / Pc</td><td></td><td style="color:#92400e;">$14.20</td></tr>
+              <tr class="fob-order"><td style="padding-left:20px;">Total Sample Value (50 pcs)</td><td></td><td style="color:#92400e;">$710</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div style="height:20px;"></div>
+    </div><!-- end panel-sample -->
+
+    <!-- Product tab panel (existing costing detail) -->
+    <div id="panel-product" class="po-tab-panel active">
+
+    <!-- Print-only header -->
+    <div class="print-header" style="margin-bottom:16px;border-bottom:2px solid #000;padding-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:3px;">Product No: CVS-2026-F04 · Season: AW 2026 · Buyer: M&amp;S UK</div>
+          <div style="font-size:18px;font-weight:800;">Women's Woven Shirt — Navy Stripe</div>
+          <div style="font-size:11px;color:#555;margin-top:4px;">Qty: 5,000 pcs &nbsp;·&nbsp; FOB: USD &nbsp;·&nbsp; Costing Date: 02 May 2026 &nbsp;·&nbsp; <strong>Approved · Production Running</strong></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px;font-weight:700;letter-spacing:.05em;">GARMENT COSTING SHEET</div>
+          <div style="font-size:10px;color:#555;">Budgeted / Approved / Actual</div>
+          <div style="font-size:9px;color:#888;margin-top:6px;">Generated: 14 May 2026 · Codeverse Technologies</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen page header + actions -->
+    <div class="page-actions" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <h1 style="font-size:20px;font-weight:800;color:var(--text-1);">CVS-2026-F04</h1>
+          <span class="sp sp-running">Production Running</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-3);">Women's Woven Shirt — Navy Stripe &nbsp;·&nbsp; AW 2026 &nbsp;·&nbsp; M&amp;S UK &nbsp;·&nbsp; 5,000 pcs &nbsp;·&nbsp; FOB USD &nbsp;·&nbsp; Costed: 02 May 2026</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="costing-list.html" class="btn btn-ghost">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Back to List
+        </a>
+        <a href="costing-edit.html" class="btn btn-ghost">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          Edit
+        </a>
+        <button class="btn btn-pdf" onclick="downloadPDF()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0v-7z" clip-rule="evenodd"/></svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="cost-summary-grid">
+      <div class="cost-sum-card">
+        <div class="csc-label">Budgeted Cost / Pc</div>
+        <div class="csc-value csc-bud">$8.42</div>
+        <div class="csc-change">Pre-season estimate</div>
+      </div>
+      <div class="cost-sum-card">
+        <div class="csc-label">Approved Cost / Pc</div>
+        <div class="csc-value csc-app">$8.71</div>
+        <div class="csc-change pos">+$0.29 vs budget</div>
+      </div>
+      <div class="cost-sum-card">
+        <div class="csc-label">Actual Cost / Pc</div>
+        <div class="csc-value csc-act">$8.95</div>
+        <div class="csc-change pos">+$0.24 vs approved</div>
+      </div>
+      <div class="cost-sum-card csc-total">
+        <div class="csc-label">Total Order (5,000 pcs)</div>
+        <div class="csc-total-row"><div class="csc-tr-lbl">Budgeted</div><div class="csc-tr-val csc-tr-bud">$42,100</div></div>
+        <div class="csc-total-row"><div class="csc-tr-lbl">Approved</div><div class="csc-tr-val csc-tr-app">$43,550</div></div>
+        <div class="csc-total-row"><div class="csc-tr-lbl">Actual</div><div class="csc-tr-val csc-tr-act">$44,750</div></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend no-print">
+      <span class="ld ld-bud">Budgeted</span>
+      <span class="ld ld-app">Approved</span>
+      <span class="ld ld-act">Actual</span>
+      <span style="color:var(--text-3);font-size:11px;margin-left:4px;">|</span>
+      <span class="ld ld-over" style="font-size:11px;">▲ over budget</span>
+      <span class="ld ld-save" style="font-size:11px;">▼ saving</span>
+    </div>
+
+    <!-- Section 1: Fabric & Trims -->
+    <div class="cost-card">
+      <div class="cost-card-hd">
+        <div class="cost-card-title">
+          <div class="cc-num">1</div>
+          <div class="cc-name">Fabric &amp; Trims</div>
+        </div>
+        <div class="cc-totals">
+          <div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$3.86</div></div>
+          <div class="cct"><div class="cct-lbl">Approved</div><div class="cct-val cct-app">$4.00</div></div>
+          <div class="cct"><div class="cct-lbl">Actual</div><div class="cct-val cct-act">$4.22</div></div>
+        </div>
+      </div>
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="width:28px;">#</th>
+            <th>Description</th>
+            <th style="width:55px;">Unit</th>
+            <th class="r" style="width:90px;">Consumption</th>
+            <th class="r" style="width:80px;">Rate ($)</th>
+            <th class="r" style="width:90px;">Budgeted</th>
+            <th class="r" style="width:90px;">Approved</th>
+            <th class="r" style="width:90px;">Actual</th>
+            <th class="r" style="width:90px;">App vs Act</th>
+            <th class="r" style="width:90px;">Bud vs Act</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Main fabric — navy stripe poplin</td><td>m</td><td class="r">1.45</td><td class="r">2.40</td><td class="r">$3.48</td><td class="r" style="color:#166534;font-weight:600;">$3.62</td><td class="r" style="color:#1e40af;font-weight:600;">$3.80</td><td class="r"><span class="v-over">▲ $0.18</span></td><td class="r"><span class="v-over">▲ $0.32</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Lining — white poly</td><td>m</td><td class="r">0.20</td><td class="r">0.70</td><td class="r">$0.14</td><td class="r" style="color:#166534;font-weight:600;">$0.14</td><td class="r" style="color:#1e40af;font-weight:600;">$0.16</td><td class="r"><span class="v-over">▲ $0.02</span></td><td class="r"><span class="v-over">▲ $0.02</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Fusible interlining</td><td>m</td><td class="r">0.08</td><td class="r">0.75</td><td class="r">$0.06</td><td class="r" style="color:#166534;font-weight:600;">$0.06</td><td class="r" style="color:#1e40af;font-weight:600;">$0.07</td><td class="r"><span class="v-over">▲ $0.01</span></td><td class="r"><span class="v-over">▲ $0.01</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Buttons — 4-hole 12mm (×7)</td><td>pcs</td><td class="r">7</td><td class="r">0.013</td><td class="r">$0.09</td><td class="r" style="color:#166534;font-weight:600;">$0.09</td><td class="r" style="color:#1e40af;font-weight:600;">$0.10</td><td class="r"><span class="v-over">▲ $0.01</span></td><td class="r"><span class="v-over">▲ $0.01</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">05</td><td>Sewing thread</td><td>cone</td><td class="r">0.02</td><td class="r">1.50</td><td class="r">$0.03</td><td class="r" style="color:#166534;font-weight:600;">$0.03</td><td class="r" style="color:#1e40af;font-weight:600;">$0.03</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">06</td><td>Care label</td><td>pcs</td><td class="r">1</td><td class="r">0.02</td><td class="r">$0.02</td><td class="r" style="color:#166534;font-weight:600;">$0.02</td><td class="r" style="color:#1e40af;font-weight:600;">$0.02</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">07</td><td>Main label + size label</td><td>pcs</td><td class="r">1</td><td class="r">0.04</td><td class="r">$0.04</td><td class="r" style="color:#166534;font-weight:600;">$0.04</td><td class="r" style="color:#1e40af;font-weight:600;">$0.04</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5" class="tf-lbl">Section Total</td><td class="tf-bud">$3.86</td><td class="tf-app">$4.00</td><td class="tf-act">$4.22</td><td colspan="2"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Section 2: CM -->
+    <div class="cost-card">
+      <div class="cost-card-hd">
+        <div class="cost-card-title">
+          <div class="cc-num">2</div>
+          <div class="cc-name">Cutting &amp; Making (CM)</div>
+        </div>
+        <div class="cc-totals">
+          <div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$2.66</div></div>
+          <div class="cct"><div class="cct-lbl">Approved</div><div class="cct-val cct-app">$2.73</div></div>
+          <div class="cct"><div class="cct-lbl">Actual</div><div class="cct-val cct-act">$2.89</div></div>
+        </div>
+      </div>
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="width:28px;">#</th>
+            <th>Operation</th>
+            <th style="width:90px;">Dept</th>
+            <th class="r" style="width:85px;">SAM (min)</th>
+            <th class="r" style="width:85px;">Rate ($/hr)</th>
+            <th class="r" style="width:90px;">Budgeted</th>
+            <th class="r" style="width:90px;">Approved</th>
+            <th class="r" style="width:90px;">Actual</th>
+            <th class="r" style="width:90px;">App vs Act</th>
+            <th class="r" style="width:90px;">Bud vs Act</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Cutting</td><td>Cutting</td><td class="r">4.2</td><td class="r">5.43</td><td class="r">$0.38</td><td class="r" style="color:#166534;font-weight:600;">$0.38</td><td class="r" style="color:#1e40af;font-weight:600;">$0.40</td><td class="r"><span class="v-over">▲ $0.02</span></td><td class="r"><span class="v-over">▲ $0.02</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Stitching — body assembly</td><td>Sewing</td><td class="r">12.8</td><td class="r">4.50</td><td class="r">$0.96</td><td class="r" style="color:#166534;font-weight:600;">$0.98</td><td class="r" style="color:#1e40af;font-weight:600;">$1.05</td><td class="r"><span class="v-over">▲ $0.07</span></td><td class="r"><span class="v-over">▲ $0.09</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Collar &amp; cuff attachment</td><td>Sewing</td><td class="r">6.5</td><td class="r">4.80</td><td class="r">$0.52</td><td class="r" style="color:#166534;font-weight:600;">$0.55</td><td class="r" style="color:#1e40af;font-weight:600;">$0.58</td><td class="r"><span class="v-over">▲ $0.03</span></td><td class="r"><span class="v-over">▲ $0.06</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Button attachment &amp; BH</td><td>Sewing</td><td class="r">3.2</td><td class="r">5.25</td><td class="r">$0.28</td><td class="r" style="color:#166534;font-weight:600;">$0.28</td><td class="r" style="color:#1e40af;font-weight:600;">$0.30</td><td class="r"><span class="v-over">▲ $0.02</span></td><td class="r"><span class="v-over">▲ $0.02</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">05</td><td>Finishing &amp; pressing</td><td>Finishing</td><td class="r">5.0</td><td class="r">4.56</td><td class="r">$0.38</td><td class="r" style="color:#166534;font-weight:600;">$0.40</td><td class="r" style="color:#1e40af;font-weight:600;">$0.42</td><td class="r"><span class="v-over">▲ $0.02</span></td><td class="r"><span class="v-over">▲ $0.04</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">06</td><td>Quality checking</td><td>QC</td><td class="r">2.0</td><td class="r">4.20</td><td class="r">$0.14</td><td class="r" style="color:#166534;font-weight:600;">$0.14</td><td class="r" style="color:#1e40af;font-weight:600;">$0.14</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5" class="tf-lbl">Section Total</td><td class="tf-bud">$2.66</td><td class="tf-app">$2.73</td><td class="tf-act">$2.89</td><td colspan="2"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Section 3: Packaging -->
+    <div class="cost-card">
+      <div class="cost-card-hd">
+        <div class="cost-card-title">
+          <div class="cc-num">3</div>
+          <div class="cc-name">Packaging &amp; Packing</div>
+        </div>
+        <div class="cc-totals">
+          <div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$0.25</div></div>
+          <div class="cct"><div class="cct-lbl">Approved</div><div class="cct-val cct-app">$0.25</div></div>
+          <div class="cct"><div class="cct-lbl">Actual</div><div class="cct-val cct-act">$0.26</div></div>
+        </div>
+      </div>
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="width:28px;">#</th>
+            <th>Item</th>
+            <th style="width:55px;">Unit</th>
+            <th class="r" style="width:70px;">Qty</th>
+            <th class="r" style="width:80px;">Rate ($)</th>
+            <th class="r" style="width:90px;">Budgeted</th>
+            <th class="r" style="width:90px;">Approved</th>
+            <th class="r" style="width:90px;">Actual</th>
+            <th class="r" style="width:90px;">App vs Act</th>
+            <th class="r" style="width:90px;">Bud vs Act</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Polybag — individual</td><td>pcs</td><td class="r">1</td><td class="r">0.04</td><td class="r">$0.04</td><td class="r" style="color:#166534;font-weight:600;">$0.04</td><td class="r" style="color:#1e40af;font-weight:600;">$0.04</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Hanger</td><td>pcs</td><td class="r">1</td><td class="r">0.06</td><td class="r">$0.06</td><td class="r" style="color:#166534;font-weight:600;">$0.06</td><td class="r" style="color:#1e40af;font-weight:600;">$0.07</td><td class="r"><span class="v-over">▲ $0.01</span></td><td class="r"><span class="v-over">▲ $0.01</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Inner carton</td><td>pcs</td><td class="r">0.083</td><td class="r">0.60</td><td class="r">$0.05</td><td class="r" style="color:#166534;font-weight:600;">$0.05</td><td class="r" style="color:#1e40af;font-weight:600;">$0.05</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Export carton (12 pcs)</td><td>pcs</td><td class="r">0.083</td><td class="r">0.96</td><td class="r">$0.08</td><td class="r" style="color:#166534;font-weight:600;">$0.08</td><td class="r" style="color:#1e40af;font-weight:600;">$0.08</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">05</td><td>Tissue paper &amp; pin set</td><td>set</td><td class="r">1</td><td class="r">0.02</td><td class="r">$0.02</td><td class="r" style="color:#166534;font-weight:600;">$0.02</td><td class="r" style="color:#1e40af;font-weight:600;">$0.02</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5" class="tf-lbl">Section Total</td><td class="tf-bud">$0.25</td><td class="tf-app">$0.25</td><td class="tf-act">$0.26</td><td colspan="2"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Section 4: Overhead -->
+    <div class="cost-card">
+      <div class="cost-card-hd">
+        <div class="cost-card-title">
+          <div class="cc-num">4</div>
+          <div class="cc-name">Overhead &amp; Compliance</div>
+        </div>
+        <div class="cc-totals">
+          <div class="cct"><div class="cct-lbl">Budgeted</div><div class="cct-val cct-bud">$0.87</div></div>
+          <div class="cct"><div class="cct-lbl">Approved</div><div class="cct-val cct-app">$0.89</div></div>
+          <div class="cct"><div class="cct-lbl">Actual</div><div class="cct-val cct-act">$0.93</div></div>
+        </div>
+      </div>
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="width:28px;">#</th>
+            <th>Item</th>
+            <th style="width:110px;">Basis</th>
+            <th class="r" style="width:70px;">Rate</th>
+            <th class="r" style="width:90px;">Budgeted</th>
+            <th class="r" style="width:90px;">Approved</th>
+            <th class="r" style="width:90px;">Actual</th>
+            <th class="r" style="width:90px;">App vs Act</th>
+            <th class="r" style="width:90px;">Bud vs Act</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-3);font-size:11px;">01</td><td>Factory overhead</td><td style="color:var(--text-3);font-size:11.5px;">% on CM</td><td class="r">18%</td><td class="r">$0.48</td><td class="r" style="color:#166534;font-weight:600;">$0.49</td><td class="r" style="color:#1e40af;font-weight:600;">$0.52</td><td class="r"><span class="v-over">▲ $0.03</span></td><td class="r"><span class="v-over">▲ $0.04</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">02</td><td>Social compliance audit</td><td style="color:var(--text-3);font-size:11.5px;">Per Pc Fixed</td><td class="r">$0.06</td><td class="r">$0.06</td><td class="r" style="color:#166534;font-weight:600;">$0.06</td><td class="r" style="color:#1e40af;font-weight:600;">$0.06</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">03</td><td>Testing &amp; inspection (TPI)</td><td style="color:var(--text-3);font-size:11.5px;">Per Pc Fixed</td><td class="r">$0.08</td><td class="r">$0.08</td><td class="r" style="color:#166534;font-weight:600;">$0.08</td><td class="r" style="color:#1e40af;font-weight:600;">$0.08</td><td class="r"><span class="v-zero">—</span></td><td class="r"><span class="v-zero">—</span></td></tr>
+          <tr><td style="color:var(--text-3);font-size:11px;">04</td><td>Buying agent commission</td><td style="color:var(--text-3);font-size:11.5px;">% FOB</td><td class="r">3%</td><td class="r">$0.25</td><td class="r" style="color:#166534;font-weight:600;">$0.26</td><td class="r" style="color:#1e40af;font-weight:600;">$0.27</td><td class="r"><span class="v-over">▲ $0.01</span></td><td class="r"><span class="v-over">▲ $0.02</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="4" class="tf-lbl">Section Total</td><td class="tf-bud">$0.87</td><td class="tf-app">$0.89</td><td class="tf-act">$0.93</td><td colspan="2"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Section 5: FOB Summary -->
+    <div class="cost-card">
+      <div class="cost-card-hd">
+        <div class="cost-card-title">
+          <div class="cc-num">5</div>
+          <div class="cc-name">Profit Margin &amp; FOB Summary</div>
+        </div>
+      </div>
+      <div style="padding:0 0 8px;">
+        <table class="fob-summary">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:20px;width:220px;">Item</th>
+              <th>Basis</th>
+              <th>Rate</th>
+              <th>Budgeted</th>
+              <th>Approved</th>
+              <th>Actual</th>
+              <th>App vs Act</th>
+              <th>Bud vs Act</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding-left:20px;">Cost of Goods (Subtotal)</td>
+              <td style="color:var(--text-3);font-size:11.5px;">S1+S2+S3+S4</td>
+              <td style="color:var(--text-3);">—</td>
+              <td style="color:#92400e;font-weight:600;">$7.64</td>
+              <td style="color:#166534;font-weight:600;">$7.87</td>
+              <td style="color:#1e40af;font-weight:600;">$8.30</td>
+              <td><span class="v-over">▲ $0.43</span></td>
+              <td><span class="v-over">▲ $0.66</span></td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px;">Profit Margin</td>
+              <td style="color:var(--text-3);font-size:11.5px;">% on Cost</td>
+              <td style="color:var(--text-3);">10%</td>
+              <td style="color:#92400e;font-weight:600;">$0.78</td>
+              <td style="color:#166534;font-weight:600;">$0.84</td>
+              <td style="color:#1e40af;font-weight:600;">$0.65</td>
+              <td><span class="v-save">▼ $0.19</span></td>
+              <td><span class="v-save">▼ $0.13</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="fob-grand">
+              <td style="padding-left:20px;">Total FOB Cost / Pc</td>
+              <td></td><td></td>
+              <td style="color:#92400e;">$8.42</td>
+              <td style="color:#166534;">$8.71</td>
+              <td style="color:#1e40af;">$8.95</td>
+              <td><span class="v-over">▲ $0.24 vs App</span></td>
+              <td><span class="v-over">▲ $0.53 vs Bud</span></td>
+            </tr>
+            <tr class="fob-order">
+              <td style="padding-left:20px;">Total Order Value (5,000 pcs)</td>
+              <td></td><td></td>
+              <td style="color:#92400e;">$42,100</td>
+              <td style="color:#166534;">$43,550</td>
+              <td style="color:#1e40af;">$44,750</td>
+              <td><span class="v-over">+$1,200 vs App</span></td>
+              <td><span class="v-over">+$2,650 vs Bud</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer note (print-only) -->
+    <div class="print-header" style="margin-top:14px;border-top:1px solid #ddd;padding-top:8px;display:flex;justify-content:space-between;">
+      <span style="font-size:9px;color:#888;">Codeverse Technologies · Garment Costing Sheet · CVS-2026-F04</span>
+      <span style="font-size:9px;color:#888;">Generated: 14 May 2026 · Confidential</span>
+    </div>
+
+    <div style="height:30px;"></div>
+
+    </div><!-- end panel-product -->
+
+  </main>
+</div>
+</div>
+
+<script>
+var activeTab = 'product';
+
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('btn-sample').classList.toggle('active', tab==='sample');
+  document.getElementById('btn-product').classList.toggle('active', tab==='product');
+  document.getElementById('panel-sample').classList.toggle('active', tab==='sample');
+  document.getElementById('panel-product').classList.toggle('active', tab==='product');
+}
+
+function downloadPDF(){
+  if(activeTab==='sample'){
+    /* Sample tab PDF: print just the sample panel */
+    var samplePanel = document.getElementById('panel-sample');
+    samplePanel.classList.add('active');
+    document.getElementById('panel-product').classList.remove('active');
+    var origTitle = document.title;
+    document.title = 'Sample Costing — S-2026-WS-01 — PRD-2026-0039';
+    window.print();
+    setTimeout(function(){
+      document.title = origTitle;
+      document.getElementById('panel-sample').classList.toggle('active', activeTab==='sample');
+      document.getElementById('panel-product').classList.toggle('active', activeTab==='product');
+    }, 500);
+    return;
+  }
+  /* Product tab PDF */
+  const btn = document.getElementById('tabPdfBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Generating…'; }
+  document.querySelectorAll('.print-header').forEach(el=>el.style.display='block');
+  window.print();
+  setTimeout(function(){
+    document.querySelectorAll('.print-header').forEach(el=>el.style.display='none');
+    if(btn){
+      btn.disabled=false;
+      btn.innerHTML='<svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0v-7z" clip-rule="evenodd"/></svg> Download PDF';
+    }
+  }, 500);
+}
+
+function toggleGroup(el){
+  const g=el.closest('.nav-group');
+  g.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+</script>
+</body>
+</html>

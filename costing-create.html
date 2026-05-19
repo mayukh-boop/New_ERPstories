@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Costing — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* ── Section cards ── */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:visible;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);}
+.sec-hd-left{display:flex;align-items:center;gap:10px;}
+.sec-num{width:24px;height:24px;border-radius:6px;background:var(--brand-600);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-totals{display:flex;gap:16px;align-items:center;}
+.sec-total-item{text-align:right;}
+.sec-total-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.sec-total-value{font-size:14px;font-weight:700;margin-top:1px;}
+.sec-total-bud{color:#92400e;}
+.sec-total-app{color:#166534;}
+.sec-total-act{color:#1e40af;}
+.sec-bd{padding:0 0 12px;}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+.g5{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:14px;}
+
+/* Form fields */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:12.5px;font-weight:600;color:#374151;}
+.fl .req{color:#ef4444;}
+
+/* Inputs */
+.inp{width:100%;height:40px;padding:0 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(91,95,199,.12);}
+.inp::placeholder{color:#9ca3af;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+
+/* Buttons */
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn svg{width:14px;height:14px;}
+
+/* Costing table */
+.ct-wrap{overflow-x:auto;padding:0 20px 4px;}
+.ct{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px;}
+.ct th{padding:8px 8px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.ct th.r{text-align:right;}
+.ct td{padding:4px 4px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.ct tbody tr:last-child td{border-bottom:none;}
+.ct tbody tr:hover td{background:#fafbff;}
+.ct tfoot td{padding:8px 8px;font-weight:700;font-size:12.5px;background:#f9fafb;border-top:2px solid var(--border2);}
+.ct tfoot .tf-label{color:var(--text-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;}
+.ct tfoot .tf-bud{color:#92400e;}
+.ct tfoot .tf-app{color:#166534;}
+.ct tfoot .tf-act{color:#1e40af;}
+
+/* Costing inputs */
+.ci{width:100%;height:30px;padding:0 7px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.ci:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(91,95,199,.1);}
+.ci::placeholder{color:#c4c9d4;}
+.ci.wide{min-width:160px;}
+.ci.num{text-align:right;font-variant-numeric:tabular-nums;}
+select.ci{padding-right:22px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;cursor:pointer;}
+
+/* Variance cells */
+.var-cell{text-align:right;font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap;padding:0 8px!important;}
+.v-over{color:#dc2626;font-weight:600;}
+.v-save{color:#16a34a;font-weight:600;}
+.v-zero{color:#9ca3af;}
+.v-none{color:#d1d5db;}
+
+/* Row number */
+.rn{color:var(--text-3);font-size:11px;text-align:center;width:28px;user-select:none;}
+
+/* Delete btn */
+.del-btn{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.del-btn:hover{background:#fee2e2;color:#ef4444;}
+.del-btn svg{width:13px;height:13px;}
+
+/* Add row button */
+.add-row-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1.5px dashed var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-3);background:transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin:8px 20px;}
+.add-row-btn:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.add-row-btn svg{width:13px;height:13px;}
+
+/* No-PO notice */
+.no-po-notice{margin:12px 20px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;display:flex;align-items:flex-start;gap:10px;}
+.no-po-notice svg{width:16px;height:16px;color:#d97706;flex-shrink:0;margin-top:1px;}
+.no-po-notice-text{font-size:12.5px;color:#92400e;}
+.no-po-notice-text strong{display:block;font-weight:700;margin-bottom:2px;}
+
+/* FOB Summary table */
+.fob-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.fob-tbl th{padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f9fafb;border-bottom:2px solid var(--border2);text-align:right;}
+.fob-tbl th:first-child{text-align:left;}
+.fob-tbl td{padding:9px 14px;border-bottom:1px solid var(--border2);text-align:right;font-variant-numeric:tabular-nums;}
+.fob-tbl td:first-child{text-align:left;font-weight:500;color:var(--text-2);}
+.fob-tbl tr.fob-grand td{font-weight:700;font-size:13.5px;background:#f5f7ff;border-top:2px solid var(--border);}
+.fob-tbl tr.fob-order td{font-size:13px;background:#eef2ff;font-weight:700;}
+.fob-td-bud{color:#92400e;}
+.fob-td-app{color:#166534;}
+.fob-td-act{color:#1e40af;}
+
+/* Info banner */
+.info-banner{display:flex;gap:8px;padding:10px 14px;border-radius:8px;font-size:12.5px;margin:0 20px 8px;}
+.info-banner svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;}
+.info-banner.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+.info-banner.blue svg{color:#3b82f6;}
+.info-banner.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.info-banner.amber svg{color:#d97706;}
+
+/* Product selector custom dropdown */
+.prod-sel-wrap{position:relative;}
+.prod-sel-trigger{cursor:pointer;}
+.prod-sel-dd{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:280px;overflow-y:auto;}
+.prod-sel-dd.open{display:block;}
+.psd-search{padding:10px 12px;border-bottom:1px solid var(--border2);}
+.psd-search input{width:100%;height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;font-family:inherit;outline:none;}
+.psd-search input:focus{border-color:var(--brand-500);}
+.psd-group-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);padding:8px 12px 4px;}
+.psd-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer;transition:background .12s;}
+.psd-item:hover{background:var(--brand-50);}
+.psd-item-name{font-size:13px;font-weight:500;color:var(--text-1);}
+.psd-item-meta{font-size:11px;color:var(--text-3);}
+.psd-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:9999px;}
+.psd-product{background:#f0fdf4;color:#15803d;}
+.psd-sample{background:#fdf4ff;color:#7e22ce;}
+
+/* Type radio toggle */
+.type-radio-group{display:flex;gap:6px;margin-bottom:8px;}
+.type-radio-opt{display:flex;align-items:center;gap:5px;padding:5px 13px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-3);transition:all .15s;user-select:none;line-height:1;}
+.type-radio-opt:has(input:checked){border-color:var(--brand-500);background:var(--brand-50);color:var(--brand-700);}
+.type-radio-opt.disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
+.type-radio-opt input[type=radio]{accent-color:var(--brand-600);width:13px;height:13px;cursor:inherit;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Style Management</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Samples</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children"><a class="nav-child" href="sample-list.html">Sample List</a><a class="nav-child" href="sample-create.html">Create Sample</a></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children"><a class="nav-child" href="product-list.html">Product List</a><a class="nav-child" href="product-create.html">Create Product</a></div>
+    </div>
+    <div class="nav-section">Costing</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm1 5a1 1 0 100 2h6a1 1 0 100-2H7zm-1 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Costing</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="costing-list.html">Costing Sheet</a>
+        <a class="nav-child active" href="costing-create.html">New Costing</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;">
+      <a href="costing-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Costing</a>
+      <span style="color:var(--text-3);margin:0 6px;">/</span>
+      New Costing
+    </span>
+    <div class="topbar-right">
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-500);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page title + actions -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:3px;">New Costing Sheet</h1>
+        <p style="font-size:13px;color:var(--text-3);">Create a garment costing with Budgeted, Approved &amp; Actual cost breakdown</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a href="costing-list.html" class="btn btn-ghost">Cancel</a>
+        <button class="btn btn-ghost" onclick="saveDraft()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save Draft
+        </button>
+        <button class="btn btn-success" onclick="saveApproved()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Save &amp; Approve
+        </button>
+      </div>
+    </div>
+
+    <!-- Header Info -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">H</div>
+          <div>
+            <div class="sec-title">Costing Header</div>
+            <div class="sec-sub">Style, buyer and order information</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd" style="padding:20px;">
+        <div class="g4" style="margin-bottom:16px;">
+          <div class="fg">
+            <label class="fl">Description</label>
+            <input type="text" class="inp" id="description" placeholder="Style description…">
+          </div>
+          <div class="fg">
+            <label class="fl">Costing Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="costingDate" value="2026-05-16">
+          </div>
+          <div class="fg">
+            <label class="fl">Season <span class="req">*</span></label>
+            <select class="inp" id="season">
+              <option value="">Select season…</option>
+              <option>AW 2026</option>
+              <option>SS 2027</option>
+              <option>AW 2027</option>
+              <option>SS 2028</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Status</label>
+            <select class="inp" id="costStatus">
+              <option value="budgeted" selected>Budgeted</option>
+              <option value="approved">Approved</option>
+              <option value="actual">Actual</option>
+            </select>
+          </div>
+        </div>
+        <div class="g4">
+          <!-- Type radios + item selector -->
+          <div class="fg" style="grid-column:span 2;">
+            <label class="fl">Type &amp; Style <span class="req">*</span></label>
+            <div class="type-radio-group" id="typeRadioGroup">
+              <label class="type-radio-opt" id="radioOptSample">
+                <input type="radio" name="itemType" value="Sample" onchange="onTypeChange('Sample')"> Sample
+              </label>
+              <label class="type-radio-opt" id="radioOptProduct">
+                <input type="radio" name="itemType" value="Product" onchange="onTypeChange('Product')"> Product
+              </label>
+            </div>
+            <div class="prod-sel-wrap">
+              <input type="text" class="inp prod-sel-trigger" id="prodSelInput" placeholder="Select…" readonly onclick="toggleProdDD()" value="">
+              <div class="prod-sel-dd" id="prodSelDD">
+                <div class="psd-search"><input type="text" placeholder="Search by name, code…" oninput="filterProdDD(this.value)" id="psdSearch"></div>
+                <div id="psdList"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Sample / Product No (readonly, filled on selection) -->
+          <div class="fg">
+            <label class="fl" id="itemNoLabel">Sample No</label>
+            <input type="text" class="inp" id="itemNoField" readonly placeholder="—" style="background:#f9fafb;color:#374151;font-weight:600;letter-spacing:.02em;">
+          </div>
+          <div class="fg">
+            <label class="fl">Buyer</label>
+            <input type="text" class="inp" id="buyer" placeholder="e.g. M&amp;S UK">
+          </div>
+          <div class="fg">
+            <label class="fl">Order Qty</label>
+            <input type="number" class="inp" id="orderQty" placeholder="0" value="5000" oninput="recalcSummary()">
+          </div>
+          <div class="fg">
+            <label class="fl">Currency (FOB)</label>
+            <select class="inp" id="currency">
+              <option>USD</option><option>EUR</option><option>GBP</option><option>INR</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Profit Margin %</label>
+            <input type="number" class="inp" id="profitPct" placeholder="10" value="10" min="0" max="100" step="0.1" oninput="recalcSummary()">
+          </div>
+          <div class="fg">
+            <label class="fl">Internal Remarks</label>
+            <input type="text" class="inp" id="remarks" placeholder="Optional notes…">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Fabric & Trims -->
+    <div class="sec" id="secFabric">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">1</div>
+          <div>
+            <div class="sec-title">Fabric &amp; Trims</div>
+            <div class="sec-sub">Auto-loaded from product BOM (non-packing materials)</div>
+          </div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s1Bud">$0.00</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s1App">—</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s1Act">—</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:180px;">Description</th>
+                <th style="width:65px;">Unit</th>
+                <th style="width:85px;" class="r">Consumption</th>
+                <th style="width:80px;" class="r">Rate ($)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="fabricBody">
+              <!-- rows added dynamically -->
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s1TotBud">$0.00</td>
+                <td style="text-align:right;" class="tf-app" id="s1TotApp">—</td>
+                <td style="text-align:right;" class="tf-act" id="s1TotAct">—</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addFabricRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Row
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 2: Cutting & Making -->
+    <div class="sec" id="secCM">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">2</div>
+          <div>
+            <div class="sec-title">Cutting &amp; Making (CM)</div>
+            <div class="sec-sub" id="cmSubtext">Select a product or sample to load process operations</div>
+          </div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s2Bud">$0.00</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s2App">—</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s2Act">—</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div id="noPoBanner" class="no-po-notice" style="display:none;">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          <div class="no-po-notice-text">
+            <strong>No production order found for this style</strong>
+            Process operations are not yet defined. Enter CM operations manually below.
+          </div>
+        </div>
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:160px;">Operation</th>
+                <th style="width:90px;">Dept</th>
+                <th style="width:75px;" class="r">SAM (min)</th>
+                <th style="width:85px;" class="r">Rate ($/hr)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cmBody">
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s2TotBud">$0.00</td>
+                <td style="text-align:right;" class="tf-app" id="s2TotApp">—</td>
+                <td style="text-align:right;" class="tf-act" id="s2TotAct">—</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addCMRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Operation
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 3: Packaging & Packing -->
+    <div class="sec" id="secPacking">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">3</div>
+          <div>
+            <div class="sec-title">Packaging &amp; Packing</div>
+            <div class="sec-sub">Auto-loaded from BOM — Packing RM / Packing Trims type</div>
+          </div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s3Bud">$0.00</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s3App">—</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s3Act">—</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:180px;">Item</th>
+                <th style="width:65px;">Unit</th>
+                <th style="width:70px;" class="r">Qty</th>
+                <th style="width:80px;" class="r">Rate ($)</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="packingBody">
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s3TotBud">$0.00</td>
+                <td style="text-align:right;" class="tf-app" id="s3TotApp">—</td>
+                <td style="text-align:right;" class="tf-act" id="s3TotAct">—</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addPackingRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Row
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 4: Overhead & Compliance -->
+    <div class="sec" id="secOverhead">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">4</div>
+          <div>
+            <div class="sec-title">Overhead &amp; Compliance</div>
+            <div class="sec-sub">Factory overhead, compliance, agent commission — add as many lines as needed</div>
+          </div>
+        </div>
+        <div class="sec-totals">
+          <div class="sec-total-item"><div class="sec-total-label">Budgeted</div><div class="sec-total-value sec-total-bud" id="s4Bud">$0.00</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Approved</div><div class="sec-total-value sec-total-app" id="s4App">—</div></div>
+          <div class="sec-total-item"><div class="sec-total-label">Actual</div><div class="sec-total-value sec-total-act" id="s4Act">—</div></div>
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="info-banner amber" style="margin-top:12px;">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <span>For <strong>% on CM</strong> basis, Budgeted auto-calculates from the CM section total. For <strong>% on FOB</strong>, enter the amount manually as it depends on the final FOB price.</span>
+        </div>
+        <div class="ct-wrap">
+          <table class="ct">
+            <thead>
+              <tr>
+                <th style="width:28px;">#</th>
+                <th style="min-width:160px;">Item / Label</th>
+                <th style="width:110px;">Basis</th>
+                <th style="width:75px;" class="r">Rate</th>
+                <th style="width:85px;" class="r">Budgeted</th>
+                <th style="width:85px;" class="r">Approved</th>
+                <th style="width:85px;" class="r">Actual</th>
+                <th style="width:80px;" class="r">App vs Act</th>
+                <th style="width:80px;" class="r">Bud vs Act</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="overheadBody">
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="tf-label">Section Total</td>
+                <td style="text-align:right;" class="tf-bud" id="s4TotBud">$0.00</td>
+                <td style="text-align:right;" class="tf-app" id="s4TotApp">—</td>
+                <td style="text-align:right;" class="tf-act" id="s4TotAct">—</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addOverheadRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Overhead Line
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 5: Profit Margin & FOB Summary -->
+    <div class="sec" id="secSummary">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">5</div>
+          <div>
+            <div class="sec-title">Profit Margin &amp; FOB Summary</div>
+            <div class="sec-sub">Auto-calculated from all sections above</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd" style="padding:16px 20px;">
+        <table class="fob-tbl">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:220px;">Item</th>
+              <th>Basis</th>
+              <th>Rate</th>
+              <th>Budgeted</th>
+              <th>Approved</th>
+              <th>Actual</th>
+              <th>App vs Act</th>
+              <th>Bud vs Act</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cost of Goods (Subtotal)</td>
+              <td style="text-align:right;color:var(--text-3);font-size:11.5px;">S1+S2+S3+S4</td>
+              <td style="text-align:right;color:var(--text-3);">—</td>
+              <td class="fob-td-bud" id="cogBud">$0.00</td>
+              <td class="fob-td-app" id="cogApp">—</td>
+              <td class="fob-td-act" id="cogAct">—</td>
+              <td class="var-cell" id="cogVarAppAct"><span class="v-none">—</span></td>
+              <td class="var-cell" id="cogVarBudAct"><span class="v-none">—</span></td>
+            </tr>
+            <tr>
+              <td>
+                Profit Margin
+                <input type="number" id="profitPctInline" value="10" min="0" max="100" step="0.1"
+                  style="width:50px;height:24px;padding:0 5px;border:1.5px solid var(--border);border-radius:5px;font-size:11.5px;font-family:inherit;margin-left:6px;text-align:right;"
+                  oninput="document.getElementById('profitPct').value=this.value;recalcSummary()"> %
+              </td>
+              <td style="text-align:right;color:var(--text-3);font-size:11.5px;">% on Cost</td>
+              <td style="text-align:right;color:var(--text-3);" id="profitRateDisp">10%</td>
+              <td class="fob-td-bud" id="profitBud">$0.00</td>
+              <td class="fob-td-app" id="profitApp">—</td>
+              <td class="fob-td-act" id="profitAct">—</td>
+              <td class="var-cell" id="profitVarAppAct"><span class="v-none">—</span></td>
+              <td class="var-cell" id="profitVarBudAct"><span class="v-none">—</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="fob-grand">
+              <td>Total FOB Cost / Pc</td>
+              <td></td><td></td>
+              <td class="fob-td-bud" id="fobBud">$0.00</td>
+              <td class="fob-td-app" id="fobApp">—</td>
+              <td class="fob-td-act" id="fobAct">—</td>
+              <td class="var-cell" id="fobVarAppAct"><span class="v-none">—</span></td>
+              <td class="var-cell" id="fobVarBudAct"><span class="v-none">—</span></td>
+            </tr>
+            <tr class="fob-order">
+              <td>Total Order Value (<span id="qtyDisp">5,000</span> pcs)</td>
+              <td></td><td></td>
+              <td class="fob-td-bud" id="orderBud">$0.00</td>
+              <td class="fob-td-app" id="orderApp">—</td>
+              <td class="fob-td-act" id="orderAct">—</td>
+              <td class="var-cell" id="orderVarAppAct"><span class="v-none">—</span></td>
+              <td class="var-cell" id="orderVarBudAct"><span class="v-none">—</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bottom actions -->
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:30px;">
+      <a href="costing-list.html" class="btn btn-ghost">Cancel</a>
+      <button class="btn btn-ghost" onclick="saveDraft()">Save Draft</button>
+      <button class="btn btn-success" onclick="saveApproved()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Save &amp; Approve
+      </button>
+    </div>
+
+  </main>
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── Data ──────────────────────────────────────────
+const ITEMS = [
+  { id:'P001', code:'CVS-2026-F04', name:"Women's Woven Shirt — Navy Stripe", type:'Product', season:'AW 2026', buyer:'M&S UK', hasPO: true },
+  { id:'P002', code:'CVS-2026-M01', name:"Men's Slim-Fit Oxford Button-Down", type:'Product', season:'SS 2027', buyer:'Next UK', hasPO: false },
+  { id:'P003', code:'CVS-2026-K05', name:"Kids Graphic Hoodie — Coral Print", type:'Product', season:'AW 2026', buyer:'ASDA', hasPO: false },
+  { id:'S001', code:'S-2026-W02', name:"Women's Linen Blouse — Pre-Sample", type:'Sample', season:'SS 2027', buyer:'H&M', hasPO: false },
+  { id:'S002', code:'S-2026-M03', name:"Men's Cargo Trouser — Grey", type:'Sample', season:'AW 2026', buyer:'Next UK', hasPO: false },
+];
+
+const BOM = {
+  P001: {
+    fabric:[
+      {desc:"Main fabric — navy stripe poplin", unit:"m", cons:1.45},
+      {desc:"Lining — white poly", unit:"m", cons:0.20},
+      {desc:"Fusible interlining", unit:"m", cons:0.08},
+      {desc:"Buttons — 4-hole 12mm (×7)", unit:"pcs", cons:7},
+      {desc:"Sewing thread", unit:"cone", cons:0.02},
+      {desc:"Care label", unit:"pcs", cons:1},
+      {desc:"Main label + size label", unit:"pcs", cons:1},
+    ],
+    packing:[
+      {desc:"Polybag — individual", unit:"pcs", qty:1},
+      {desc:"Hanger", unit:"pcs", qty:1},
+      {desc:"Inner carton", unit:"pcs", qty:0.083},
+      {desc:"Export carton (12 pcs)", unit:"pcs", qty:0.083},
+      {desc:"Tissue paper & pin set", unit:"set", qty:1},
+    ]
+  },
+  P002: {
+    fabric:[
+      {desc:"Oxford cotton fabric", unit:"m", cons:1.80},
+      {desc:"Fusible interlining", unit:"m", cons:0.12},
+      {desc:"Buttons — 4-hole 11mm (×8)", unit:"pcs", cons:8},
+      {desc:"Sewing thread", unit:"cone", cons:0.03},
+      {desc:"Care label", unit:"pcs", cons:1},
+      {desc:"Size label", unit:"pcs", cons:1},
+    ],
+    packing:[
+      {desc:"Polybag — individual", unit:"pcs", qty:1},
+      {desc:"Collar insert board", unit:"pcs", qty:1},
+      {desc:"Export carton (12 pcs)", unit:"pcs", qty:0.083},
+      {desc:"Tissue paper", unit:"pcs", qty:2},
+    ]
+  },
+};
+
+const CM_PROCESSES = {
+  P001:[
+    {op:"Cutting", dept:"Cutting", sam:4.2},
+    {op:"Stitching — body assembly", dept:"Sewing", sam:12.8},
+    {op:"Collar & cuff attachment", dept:"Sewing", sam:6.5},
+    {op:"Button attachment & BH", dept:"Sewing", sam:3.2},
+    {op:"Finishing & pressing", dept:"Finishing", sam:5.0},
+    {op:"Quality checking", dept:"QC", sam:2.0},
+  ]
+};
+
+let selectedId = null;
+let activeType = 'Sample'; // 'Sample' or 'Product'
+let rowCounters = {f:0, cm:0, pk:0, oh:0};
+
+// ── Type radio logic ───────────────────────────────
+function initTypeRadios(){
+  const hasSamples  = ITEMS.some(i=>i.type==='Sample');
+  const hasProducts = ITEMS.some(i=>i.type==='Product');
+
+  const optSample  = document.getElementById('radioOptSample');
+  const optProduct = document.getElementById('radioOptProduct');
+
+  if(!hasSamples)  optSample.classList.add('disabled');
+  if(!hasProducts) optProduct.classList.add('disabled');
+
+  // Default: prefer Sample; fall back to Product if no samples
+  if(hasSamples){
+    optSample.querySelector('input').checked = true;
+    activeType = 'Sample';
+  } else {
+    optProduct.querySelector('input').checked = true;
+    activeType = 'Product';
+  }
+  updateItemNoLabel();
+  renderProdList('');
+}
+
+function onTypeChange(type){
+  activeType = type;
+  selectedId = null;
+  document.getElementById('prodSelInput').value = '';
+  document.getElementById('itemNoField').value = '';
+  updateItemNoLabel();
+  renderProdList('');
+}
+
+function updateItemNoLabel(){
+  document.getElementById('itemNoLabel').textContent = activeType === 'Sample' ? 'Sample No' : 'Product No';
+  document.getElementById('prodSelInput').placeholder = activeType === 'Sample' ? 'Select sample…' : 'Select product…';
+}
+
+// ── Product/Sample selector ────────────────────────
+function renderProdList(filter){
+  const list = document.getElementById('psdList');
+  const lower = (filter||'').toLowerCase();
+  const filtered = ITEMS.filter(i=>
+    i.type === activeType &&
+    (!lower || i.name.toLowerCase().includes(lower) || i.code.toLowerCase().includes(lower))
+  );
+  let html = '';
+  const badgeCls = activeType === 'Product' ? 'psd-product' : 'psd-sample';
+  if(filtered.length){
+    filtered.forEach(i=>{
+      html += `<div class="psd-item" onclick="selectItem('${i.id}')">
+        <div><div class="psd-item-name">${i.name}</div><div class="psd-item-meta">${i.code} · ${i.season}</div></div>
+        <span class="psd-badge ${badgeCls}">${i.type}</span>
+      </div>`;
+    });
+  }
+  if(!html) html = '<div style="padding:14px;text-align:center;color:#9ca3af;font-size:12.5px;">No results</div>';
+  list.innerHTML = html;
+}
+
+function toggleProdDD(){
+  const dd = document.getElementById('prodSelDD');
+  const isOpen = dd.classList.contains('open');
+  if(!isOpen){ renderProdList(''); document.getElementById('psdSearch').value=''; }
+  dd.classList.toggle('open');
+}
+function filterProdDD(v){ renderProdList(v); }
+
+function selectItem(id){
+  selectedId = id;
+  const item = ITEMS.find(i=>i.id===id);
+  document.getElementById('prodSelInput').value = item.name;
+  document.getElementById('itemNoField').value = item.code;
+  document.getElementById('prodSelDD').classList.remove('open');
+  document.getElementById('buyer').value = item.buyer;
+  const seasonSel = document.getElementById('season');
+  seasonSel.value = item.season;
+  // Auto-fill description only if blank
+  const descEl = document.getElementById('description');
+  if(!descEl.value.trim()) descEl.value = item.name;
+  loadBOM(id);
+  loadCM(id, item.hasPO);
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.prod-sel-wrap')) document.getElementById('prodSelDD').classList.remove('open');
+});
+
+// ── BOM Loading ───────────────────────────────────
+function loadBOM(id){
+  const bom = BOM[id] || {fabric:[], packing:[]};
+  // Clear & reload fabric
+  document.getElementById('fabricBody').innerHTML = '';
+  rowCounters.f = 0;
+  bom.fabric.forEach(r => addFabricRow(r));
+  // Clear & reload packing
+  document.getElementById('packingBody').innerHTML = '';
+  rowCounters.pk = 0;
+  bom.packing.forEach(r => addPackingRow(r));
+}
+
+function loadCM(id, hasPO){
+  document.getElementById('cmBody').innerHTML = '';
+  rowCounters.cm = 0;
+  const banner = document.getElementById('noPoBanner');
+  if(hasPO && CM_PROCESSES[id]){
+    banner.style.display = 'none';
+    document.getElementById('cmSubtext').textContent = 'Process operations loaded from production order workflow';
+    CM_PROCESSES[id].forEach(r => addCMRow(r));
+  } else {
+    banner.style.display = 'flex';
+    document.getElementById('cmSubtext').textContent = 'No production order — enter operations manually';
+  }
+}
+
+// ── Row builders ─────────────────────────────────
+function addFabricRow(data){
+  const n = ++rowCounters.f;
+  const d = data||{};
+  const tr = document.createElement('tr');
+  tr.dataset.type = 'fabric';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Material description…" value="${d.desc||''}"></td>
+    <td><input class="ci" placeholder="m/pcs…" value="${d.unit||''}" style="width:55px;"></td>
+    <td><input class="ci num" type="number" step="0.001" placeholder="0.00" value="${d.cons||''}" oninput="calcFabricRow(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcFabricRow(this)" style="width:75px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td><button class="del-btn" onclick="delRow(this)" title="Remove"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('fabricBody').appendChild(tr);
+}
+
+function addCMRow(data){
+  const n = ++rowCounters.cm;
+  const d = data||{};
+  const tr = document.createElement('tr');
+  tr.dataset.type = 'cm';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Operation name…" value="${d.op||''}"></td>
+    <td><input class="ci" placeholder="Dept…" value="${d.dept||''}" style="width:82px;"></td>
+    <td><input class="ci num" type="number" step="0.1" placeholder="0.0" value="${d.sam||''}" oninput="calcCMRow(this)" style="width:70px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcCMRow(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td><button class="del-btn" onclick="delRow(this)" title="Remove"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('cmBody').appendChild(tr);
+}
+
+function addPackingRow(data){
+  const n = ++rowCounters.pk;
+  const d = data||{};
+  const tr = document.createElement('tr');
+  tr.dataset.type = 'packing';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="Packing item description…" value="${d.desc||''}"></td>
+    <td><input class="ci" placeholder="pcs/set…" value="${d.unit||''}" style="width:55px;"></td>
+    <td><input class="ci num" type="number" step="0.001" placeholder="0.000" value="${d.qty||''}" oninput="calcPackingRow(this)" style="width:65px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcPackingRow(this)" style="width:75px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td><button class="del-btn" onclick="delRow(this)" title="Remove"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('packingBody').appendChild(tr);
+}
+
+function addOverheadRow(data){
+  const n = ++rowCounters.oh;
+  const d = data||{};
+  const tr = document.createElement('tr');
+  tr.dataset.type = 'overhead';
+  tr.innerHTML = `
+    <td class="rn">${n}</td>
+    <td><input class="ci wide" placeholder="e.g. Factory overhead, TPI, Agent commission…" value="${d.label||''}"></td>
+    <td>
+      <select class="ci" style="width:105px;" onchange="calcOverheadRow(this)">
+        <option value="pct_cm" ${(d.basis||'pct_cm')==='pct_cm'?'selected':''}>% on CM</option>
+        <option value="pct_fob" ${d.basis==='pct_fob'?'selected':''}>% on FOB</option>
+        <option value="fixed" ${d.basis==='fixed'?'selected':''}>Per Pc Fixed</option>
+        <option value="pct_cog" ${d.basis==='pct_cog'?'selected':''}>% on COG</option>
+      </select>
+    </td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="${d.rate||''}" oninput="calcOverheadRow(this)" style="width:70px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td><input class="ci num" type="number" step="0.01" placeholder="0.00" value="" oninput="calcRowTotals(this)" style="width:80px;"></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td class="var-cell"><span class="v-none">—</span></td>
+    <td><button class="del-btn" onclick="delRow(this)" title="Remove"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button></td>`;
+  document.getElementById('overheadBody').appendChild(tr);
+}
+
+function delRow(btn){
+  const tr = btn.closest('tr');
+  tr.remove();
+  recalcAll();
+}
+
+// ── Calculations ──────────────────────────────────
+function getInputs(tr){ return tr.querySelectorAll('input[type=number]'); }
+
+function calcFabricRow(inp){
+  const tr = inp.closest('tr');
+  const inputs = getInputs(tr);
+  // inputs: [cons, rate, bud, app, act]
+  const cons = parseFloat(inputs[0].value)||0;
+  const rate = parseFloat(inputs[1].value)||0;
+  const autoBud = cons * rate;
+  if(!inputs[2].dataset.manual && autoBud > 0) inputs[2].value = autoBud.toFixed(2);
+  updateRowVariance(tr, inputs[2], inputs[3], inputs[4]);
+  recalcSectionTotals();
+}
+
+function calcCMRow(inp){
+  const tr = inp.closest('tr');
+  const inputs = getInputs(tr);
+  // inputs: [sam, rate_hr, bud, app, act]
+  const sam = parseFloat(inputs[0].value)||0;
+  const rate = parseFloat(inputs[1].value)||0;
+  const autoBud = (sam / 60) * rate;
+  if(!inputs[2].dataset.manual && autoBud > 0) inputs[2].value = autoBud.toFixed(2);
+  updateRowVariance(tr, inputs[2], inputs[3], inputs[4]);
+  recalcSectionTotals();
+}
+
+function calcPackingRow(inp){
+  const tr = inp.closest('tr');
+  const inputs = getInputs(tr);
+  // inputs: [qty, rate, bud, app, act]
+  const qty = parseFloat(inputs[0].value)||0;
+  const rate = parseFloat(inputs[1].value)||0;
+  const autoBud = qty * rate;
+  if(!inputs[2].dataset.manual && autoBud > 0) inputs[2].value = autoBud.toFixed(2);
+  updateRowVariance(tr, inputs[2], inputs[3], inputs[4]);
+  recalcSectionTotals();
+}
+
+function calcOverheadRow(inp){
+  const tr = inp.closest('tr');
+  const inputs = getInputs(tr);
+  const basis = tr.querySelector('select').value;
+  const rate = parseFloat(inputs[0].value)||0;
+  let autoBud = 0;
+  if(basis === 'pct_cm'){
+    const cmTot = getSectionBudTotal('cmBody');
+    autoBud = (rate/100) * cmTot;
+  } else if(basis === 'fixed'){
+    autoBud = rate;
+  } else if(basis === 'pct_cog'){
+    const cogTot = getSectionBudTotal('fabricBody') + getSectionBudTotal('cmBody') + getSectionBudTotal('packingBody');
+    autoBud = (rate/100) * cogTot;
+  }
+  // % on FOB → manual, don't auto-calc (circular)
+  if(!inputs[1].dataset.manual && autoBud > 0) inputs[1].value = autoBud.toFixed(2);
+  updateRowVariance(tr, inputs[1], inputs[2], inputs[3]);
+  recalcSectionTotals();
+}
+
+function calcRowTotals(inp){
+  const tr = inp.closest('tr');
+  const type = tr.dataset.type;
+  let budIdx, appIdx, actIdx;
+  if(type==='fabric'||type==='packing'){  budIdx=2; appIdx=3; actIdx=4; }
+  else if(type==='cm'){  budIdx=2; appIdx=3; actIdx=4; }
+  else if(type==='overhead'){ budIdx=1; appIdx=2; actIdx=3; }
+  const inputs = getInputs(tr);
+  inp.dataset.manual = '1';
+  updateRowVariance(tr, inputs[budIdx], inputs[appIdx], inputs[actIdx]);
+  recalcSectionTotals();
+}
+
+function updateRowVariance(tr, budInp, appInp, actInp){
+  const bud = parseFloat(budInp.value)||0;
+  const app = parseFloat(appInp.value)||0;
+  const act = parseFloat(actInp.value)||0;
+  const varCells = tr.querySelectorAll('.var-cell');
+  if(varCells.length < 2) return;
+  // App vs Act
+  if(app > 0 && act > 0){
+    const diff = act - app;
+    varCells[0].innerHTML = varHtml(diff);
+  } else varCells[0].innerHTML = '<span class="v-none">—</span>';
+  // Bud vs Act
+  if(bud > 0 && act > 0){
+    const diff = act - bud;
+    varCells[1].innerHTML = varHtml(diff);
+  } else varCells[1].innerHTML = '<span class="v-none">—</span>';
+}
+
+function varHtml(diff){
+  if(Math.abs(diff) < 0.001) return '<span class="v-zero">—</span>';
+  const sign = diff > 0 ? '▲' : '▼';
+  const cls = diff > 0 ? 'v-over' : 'v-save';
+  return `<span class="${cls}">${sign} $${Math.abs(diff).toFixed(2)}</span>`;
+}
+
+function getSectionBudTotal(bodyId){
+  let tot = 0;
+  document.querySelectorAll(`#${bodyId} tr`).forEach(tr=>{
+    const inputs = getInputs(tr);
+    const type = tr.dataset.type;
+    let idx = (type==='overhead') ? 1 : 2;
+    tot += parseFloat(inputs[idx]?.value)||0;
+  });
+  return tot;
+}
+
+function getSectionTotal(bodyId, colIdx){
+  let tot = 0;
+  document.querySelectorAll(`#${bodyId} tr`).forEach(tr=>{
+    const inputs = getInputs(tr);
+    tot += parseFloat(inputs[colIdx]?.value)||0;
+  });
+  return tot;
+}
+
+function getSectionTotals(bodyId){
+  const isOverhead = bodyId === 'overheadBody';
+  const budIdx = isOverhead ? 1 : 2;
+  const appIdx = isOverhead ? 2 : 3;
+  const actIdx = isOverhead ? 3 : 4;
+  return {
+    bud: getSectionTotal(bodyId, budIdx),
+    app: getSectionTotal(bodyId, appIdx),
+    act: getSectionTotal(bodyId, actIdx),
+  };
+}
+
+function fmtAmt(v, zero){ return (v > 0) ? `$${v.toFixed(2)}` : (zero||'—'); }
+
+function recalcSectionTotals(){
+  const s1 = getSectionTotals('fabricBody');
+  const s2 = getSectionTotals('cmBody');
+  const s3 = getSectionTotals('packingBody');
+  const s4 = getSectionTotals('overheadBody');
+
+  document.getElementById('s1TotBud').textContent = fmtAmt(s1.bud,'$0.00');
+  document.getElementById('s1TotApp').textContent = fmtAmt(s1.app);
+  document.getElementById('s1TotAct').textContent = fmtAmt(s1.act);
+  document.getElementById('s1Bud').textContent = fmtAmt(s1.bud,'$0.00');
+  document.getElementById('s1App').textContent = fmtAmt(s1.app);
+  document.getElementById('s1Act').textContent = fmtAmt(s1.act);
+
+  document.getElementById('s2TotBud').textContent = fmtAmt(s2.bud,'$0.00');
+  document.getElementById('s2TotApp').textContent = fmtAmt(s2.app);
+  document.getElementById('s2TotAct').textContent = fmtAmt(s2.act);
+  document.getElementById('s2Bud').textContent = fmtAmt(s2.bud,'$0.00');
+  document.getElementById('s2App').textContent = fmtAmt(s2.app);
+  document.getElementById('s2Act').textContent = fmtAmt(s2.act);
+
+  document.getElementById('s3TotBud').textContent = fmtAmt(s3.bud,'$0.00');
+  document.getElementById('s3TotApp').textContent = fmtAmt(s3.app);
+  document.getElementById('s3TotAct').textContent = fmtAmt(s3.act);
+  document.getElementById('s3Bud').textContent = fmtAmt(s3.bud,'$0.00');
+  document.getElementById('s3App').textContent = fmtAmt(s3.app);
+  document.getElementById('s3Act').textContent = fmtAmt(s3.act);
+
+  document.getElementById('s4TotBud').textContent = fmtAmt(s4.bud,'$0.00');
+  document.getElementById('s4TotApp').textContent = fmtAmt(s4.app);
+  document.getElementById('s4TotAct').textContent = fmtAmt(s4.act);
+  document.getElementById('s4Bud').textContent = fmtAmt(s4.bud,'$0.00');
+  document.getElementById('s4App').textContent = fmtAmt(s4.app);
+  document.getElementById('s4Act').textContent = fmtAmt(s4.act);
+
+  recalcSummary();
+}
+
+function recalcSummary(){
+  const s1 = getSectionTotals('fabricBody');
+  const s2 = getSectionTotals('cmBody');
+  const s3 = getSectionTotals('packingBody');
+  const s4 = getSectionTotals('overheadBody');
+  const pct = parseFloat(document.getElementById('profitPct').value)||0;
+  const qty = parseInt(document.getElementById('orderQty').value)||0;
+
+  const cogBud = s1.bud + s2.bud + s3.bud + s4.bud;
+  const cogApp = s1.app + s2.app + s3.app + s4.app;
+  const cogAct = s1.act + s2.act + s3.act + s4.act;
+
+  const profBud = cogBud * pct / 100;
+  const profApp = cogApp > 0 ? cogApp * pct / 100 : 0;
+  const profAct = cogAct > 0 ? cogAct * pct / 100 : 0;
+
+  const fobBud = cogBud + profBud;
+  const fobApp = cogApp > 0 ? cogApp + profApp : 0;
+  const fobAct = cogAct > 0 ? cogAct + profAct : 0;
+
+  document.getElementById('cogBud').textContent = fmtAmt(cogBud,'$0.00');
+  document.getElementById('cogApp').textContent = fmtAmt(cogApp);
+  document.getElementById('cogAct').textContent = fmtAmt(cogAct);
+  document.getElementById('profitBud').textContent = fmtAmt(profBud,'$0.00');
+  document.getElementById('profitApp').textContent = fmtAmt(profApp);
+  document.getElementById('profitAct').textContent = fmtAmt(profAct);
+  document.getElementById('fobBud').textContent = fmtAmt(fobBud,'$0.00');
+  document.getElementById('fobApp').textContent = fmtAmt(fobApp);
+  document.getElementById('fobAct').textContent = fmtAmt(fobAct);
+  document.getElementById('orderBud').textContent = fmtAmt(fobBud*qty,'$0.00');
+  document.getElementById('orderApp').textContent = fmtAmt(fobApp*qty);
+  document.getElementById('orderAct').textContent = fmtAmt(fobAct*qty);
+  document.getElementById('profitRateDisp').textContent = pct + '%';
+  document.getElementById('profitPctInline').value = pct;
+  document.getElementById('qtyDisp').textContent = qty.toLocaleString();
+
+  // Variances on summary rows
+  const setVar = (appId, budId, bud, app, act)=>{
+    document.getElementById(appId).innerHTML = (app>0&&act>0) ? varHtml(act-app) : '<span class="v-none">—</span>';
+    document.getElementById(budId).innerHTML = (bud>0&&act>0) ? varHtml(act-bud) : '<span class="v-none">—</span>';
+  };
+  setVar('cogVarAppAct','cogVarBudAct', cogBud, cogApp, cogAct);
+  setVar('profitVarAppAct','profitVarBudAct', profBud, profApp, profAct);
+  setVar('fobVarAppAct','fobVarBudAct', fobBud, fobApp, fobAct);
+  setVar('orderVarAppAct','orderVarBudAct', fobBud*qty, fobApp*qty, fobAct*qty);
+}
+
+function recalcAll(){ recalcSectionTotals(); }
+
+function toggleGroup(el){
+  const grp=el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+function saveDraft(){ alert('Draft saved! (In production: POST /cedge/api/v1/costing with status=BUDGETED)'); }
+function saveApproved(){ alert('Costing saved and approved! (In production: POST /cedge/api/v1/costing with status=APPROVED)'); }
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{
+  initTypeRadios();
+  addOverheadRow({label:'Factory overhead', basis:'pct_cm', rate:18});
+  addOverheadRow({label:'Social compliance audit', basis:'fixed', rate:0.06});
+  addOverheadRow({label:'Testing & inspection (TPI)', basis:'fixed', rate:0.08});
+  addOverheadRow({label:'Buying agent commission', basis:'pct_fob', rate:3});
+  recalcAll();
+});
+</script>
+</body>
+</html>

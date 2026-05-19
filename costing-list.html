@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Costing Sheet — Stitch ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+:root{
+  --sidebar-bg:#fff; --sidebar-hover:rgba(91,95,199,.07); --sidebar-active:rgba(91,95,199,.12);
+  --brand-500:#5b5fc7; --brand-600:#4f52b2; --brand-700:#3d40a0;
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-200:#c7d2fe; --brand-400:#818cf8;
+  --bg:#f5f6fa; --border:#e8eaf0; --border2:#f0f2f7;
+  --text-1:#111827; --text-2:#374151; --text-3:#6b7280;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#1e1f2e!important;font-weight:800!important;}.brand-sub{color:#8892a4!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#a0aec0!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#3d4462!important;font-weight:500!important;}.nav-parent-icon{color:#8892a4!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#a0aec0!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#1e1f2e!important;}.sf-role{color:#8892a4!important;}.sf-avatar{background:var(--brand-500)!important;}
+.topbar{border-bottom:1px solid #dde0ea!important;box-shadow:0 1px 4px rgba(91,95,199,.06)!important;}
+
+/* Costing status pills */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+.sp-budgeted{background:#fffbeb;color:#92400e;}.sp-budgeted::before{background:#f59e0b;}
+.sp-approved{background:#f0fdf4;color:#166534;}.sp-approved::before{background:#22c55e;}
+.sp-running{background:#fdf4ff;color:#6b21a8;}.sp-running::before{background:#a855f7;}
+
+/* Sample / Product inline badges */
+.tbadge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.04em;white-space:nowrap;}
+.tbadge-s{background:#fdf4ff;color:#7e22ce;}
+.tbadge-p{background:#f0fdf4;color:#15803d;}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.stat-label{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px;}
+.stat-value{font-size:22px;font-weight:800;color:var(--text-1);line-height:1;}
+.stat-sub{font-size:11px;color:var(--text-3);margin-top:3px;}
+
+/* Filter bar */
+.fb{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#fff;padding:12px 16px;border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.ff{display:flex;flex-direction:column;gap:4px;}
+.ffl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);}
+.fi{height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;color:var(--text-1);transition:border-color .15s;}
+.fi:focus{border-color:var(--brand-500);}
+select.fi{padding-right:26px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;cursor:pointer;}
+.sw{position:relative;}
+.sw svg.s-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3);pointer-events:none;}
+.sw .fi{padding-left:30px;}
+
+/* Table */
+.tw{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.sm-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.sm-tbl th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 12px;border-bottom:2px solid var(--border2);background:#f9fafb;white-space:nowrap;}
+.sm-tbl th.r{text-align:right;}
+.sm-tbl td{padding:11px 12px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.sm-tbl td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.sm-tbl tr:last-child td{border-bottom:none;}
+.sm-tbl tbody tr:hover td{background:#f9fbff;}
+.no-ref{color:#d1d5db;font-size:12px;font-style:italic;}
+.c-bud{color:#92400e;font-weight:600;}.c-app{color:#166534;font-weight:600;}.c-act{color:#1e40af;font-weight:600;}.c-dash{color:#d1d5db;}
+
+/* Ref cell (sample or product info block) */
+.ref-cell{display:flex;flex-direction:column;gap:3px;}
+.ref-code{font-size:12.5px;font-weight:700;color:var(--text-1);}
+.ref-po{font-size:11px;color:var(--text-3);}
+
+/* Action buttons */
+.rac{display:flex;align-items:center;gap:4px;}
+.ab{height:28px;padding:0 10px;font-size:11.5px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--text-2);transition:all .15s;font-family:inherit;text-decoration:none;}
+.ab:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.ab.vw{border-color:#c7d2fe;color:#3730a3;background:#eef2ff;}.ab.vw:hover{background:#e0e7ff;border-color:#818cf8;}
+.ab.pdf{border-color:#fde68a;color:#92400e;background:#fffbeb;}.ab.pdf:hover{background:#fef3c7;border-color:#f59e0b;}
+.ab svg{width:11px;height:11px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Stitch ERP</div>
+    <div class="brand-sub">Garment Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="location.href='#'">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4v5H3V4zm0 8h5v5H4a1 1 0 01-1-1v-4zm8-8h5v4a1 1 0 01-1 1h-4V4zm0 8h4a1 1 0 011 1v3a1 1 0 01-1 1h-4v-5z"/></svg></span>
+        <span class="nav-parent-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="nav-section">Style Management</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Products</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="product-list.html">Product List</a>
+        <a class="nav-child" href="product-create.html">Create Product</a>
+      </div>
+    </div>
+    <div class="nav-section">Costing</div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm1 5a1 1 0 100 2h6a1 1 0 100-2H7zm-1 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H7z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Costing</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="costing-list.html">Costing Sheet</a>
+      </div>
+    </div>
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h3a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span>
+        <span class="nav-parent-label">Production</span>
+        <svg class="nav-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Orders</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Costing Sheet</span>
+    <div class="topbar-right">
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-500);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:3px;">Garment Costing Sheet</h1>
+        <p style="font-size:13px;color:var(--text-3);">All samples and products — Budgeted, Approved &amp; Actual cost per production order</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Records</div>
+        <div class="stat-value">4</div>
+        <div class="stat-sub">Samples + Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-value" style="color:#92400e;">1</div>
+        <div class="stat-sub">Budgeted stage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value" style="color:#166534;">2</div>
+        <div class="stat-sub">FOB confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Production Running</div>
+        <div class="stat-value" style="color:#6b21a8;">1</div>
+        <div class="stat-sub">Actual tracking active</div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="fb">
+      <div class="ff sw">
+        <div class="ffl">Search</div>
+        <svg class="s-ic" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        <input type="text" class="fi" placeholder="Code, description, buyer…" style="width:220px;">
+      </div>
+      <div class="ff">
+        <div class="ffl">Type</div>
+        <select class="fi" style="width:130px;">
+          <option value="">All Types</option>
+          <option>Sample only</option>
+          <option>Product only</option>
+          <option>Sample + Product</option>
+        </select>
+      </div>
+      <div class="ff">
+        <div class="ffl">Season</div>
+        <select class="fi" style="width:130px;"><option value="">All Seasons</option><option>AW 2026</option><option>SS 2027</option></select>
+      </div>
+      <div class="ff">
+        <div class="ffl">Buyer</div>
+        <select class="fi" style="width:120px;"><option value="">All Buyers</option><option>M&amp;S UK</option><option>Next UK</option><option>ASDA</option><option>H&amp;M</option></select>
+      </div>
+      <div class="ff">
+        <div class="ffl">Status</div>
+        <select class="fi" style="width:140px;"><option value="">All Statuses</option><option>Budgeted</option><option>Approved</option><option>Production Running</option></select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="tw" style="overflow-x:auto;">
+      <table class="sm-tbl">
+        <thead>
+          <tr>
+            <th style="width:32px;">#</th>
+            <th>Style / Description</th>
+            <th>Sample</th>
+            <th>Sample PO</th>
+            <th>Product</th>
+            <th>Product PO</th>
+            <th>Buyer</th>
+            <th>Season</th>
+            <th>Status</th>
+            <th class="r">Bud / pc</th>
+            <th class="r">App / pc</th>
+            <th class="r">Act / pc</th>
+            <th style="width:120px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Row 1: Sample converted to Product (Women's Woven Shirt) -->
+          <tr>
+            <td style="color:var(--text-3);font-size:11px;">1</td>
+            <td>
+              <div style="font-weight:700;font-size:13px;color:var(--text-1);">Women's Woven Shirt — Navy Stripe</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">AW 2026 &nbsp;·&nbsp; Sample → Product</div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div><span class="tbadge tbadge-s">SAMPLE</span></div>
+                <div class="ref-code">S-2026-WS-01</div>
+                <div class="ref-po">50 pcs &nbsp;·&nbsp; 22 Apr 2026</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div class="ref-code" style="color:var(--brand-700);">PRD-2026-0039</div>
+                <div class="ref-po">Factory 3 — Bangalore</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div><span class="tbadge tbadge-p">PRODUCT</span></div>
+                <div class="ref-code">CVS-2026-F04</div>
+                <div class="ref-po">5,000 pcs &nbsp;·&nbsp; 02 May 2026</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div class="ref-code" style="color:var(--brand-700);">PRD-2026-0042</div>
+                <div class="ref-po">Factory 1 — Tirupur</div>
+              </div>
+            </td>
+            <td style="font-size:12.5px;font-weight:500;">M&amp;S UK</td>
+            <td style="font-size:12.5px;">AW 2026</td>
+            <td><span class="sp sp-running">Production Running</span></td>
+            <td class="r"><span class="c-bud">$8.42</span></td>
+            <td class="r"><span class="c-app">$8.71</span></td>
+            <td class="r"><span class="c-act">$8.95</span></td>
+            <td>
+              <div class="rac">
+                <a href="costing-view.html" class="ab vw">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>View
+                </a>
+                <a href="costing-edit.html" class="ab">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 2: Product only (Men's Oxford) -->
+          <tr>
+            <td style="color:var(--text-3);font-size:11px;">2</td>
+            <td>
+              <div style="font-weight:700;font-size:13px;color:var(--text-1);">Men's Slim-Fit Oxford Button-Down</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">SS 2027 &nbsp;·&nbsp; Product only</div>
+            </td>
+            <td><span class="no-ref">—</span></td>
+            <td><span class="no-ref">—</span></td>
+            <td>
+              <div class="ref-cell">
+                <div><span class="tbadge tbadge-p">PRODUCT</span></div>
+                <div class="ref-code">CVS-2026-M01</div>
+                <div class="ref-po">8,000 pcs &nbsp;·&nbsp; 08 Apr 2026</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div class="ref-code" style="color:var(--brand-700);">PRD-2026-0041</div>
+                <div class="ref-po">Factory 2 — Chennai</div>
+              </div>
+            </td>
+            <td style="font-size:12.5px;font-weight:500;">Next UK</td>
+            <td style="font-size:12.5px;">SS 2027</td>
+            <td><span class="sp sp-approved">Approved</span></td>
+            <td class="r"><span class="c-bud">$12.30</span></td>
+            <td class="r"><span class="c-app">$12.55</span></td>
+            <td class="r"><span class="c-dash">—</span></td>
+            <td>
+              <div class="rac">
+                <a href="costing-view.html" class="ab vw">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>View
+                </a>
+                <a href="costing-edit.html" class="ab">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 3: Product only (Kids Hoodie) -->
+          <tr>
+            <td style="color:var(--text-3);font-size:11px;">3</td>
+            <td>
+              <div style="font-weight:700;font-size:13px;color:var(--text-1);">Kids Graphic Hoodie — Coral Print</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">AW 2026 &nbsp;·&nbsp; Product only</div>
+            </td>
+            <td><span class="no-ref">—</span></td>
+            <td><span class="no-ref">—</span></td>
+            <td>
+              <div class="ref-cell">
+                <div><span class="tbadge tbadge-p">PRODUCT</span></div>
+                <div class="ref-code">CVS-2026-K05</div>
+                <div class="ref-po">12,000 pcs &nbsp;·&nbsp; 15 Mar 2026</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div class="ref-code" style="color:var(--brand-700);">PRD-2026-0040</div>
+                <div class="ref-po">Factory 1 — Tirupur</div>
+              </div>
+            </td>
+            <td style="font-size:12.5px;font-weight:500;">ASDA</td>
+            <td style="font-size:12.5px;">AW 2026</td>
+            <td><span class="sp sp-approved">Approved</span></td>
+            <td class="r"><span class="c-bud">$6.80</span></td>
+            <td class="r"><span class="c-app">$6.95</span></td>
+            <td class="r"><span class="c-dash">—</span></td>
+            <td>
+              <div class="rac">
+                <a href="costing-view.html" class="ab vw">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>View
+                </a>
+                <a href="costing-edit.html" class="ab">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 4: Sample only (Women's Linen Blouse) -->
+          <tr>
+            <td style="color:var(--text-3);font-size:11px;">4</td>
+            <td>
+              <div style="font-weight:700;font-size:13px;color:var(--text-1);">Women's Linen Blouse</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">SS 2027 &nbsp;·&nbsp; Sample only &nbsp;·&nbsp; Not yet converted</div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div><span class="tbadge tbadge-s">SAMPLE</span></div>
+                <div class="ref-code">S-2026-W02</div>
+                <div class="ref-po">30 pcs &nbsp;·&nbsp; 22 Apr 2026</div>
+              </div>
+            </td>
+            <td>
+              <div class="ref-cell">
+                <div class="ref-code" style="color:var(--brand-700);">PRD-2026-0050</div>
+                <div class="ref-po">Factory 3 — Bangalore</div>
+              </div>
+            </td>
+            <td><span class="no-ref">—</span></td>
+            <td><span class="no-ref">—</span></td>
+            <td style="font-size:12.5px;font-weight:500;">H&amp;M</td>
+            <td style="font-size:12.5px;">SS 2027</td>
+            <td><span class="sp sp-budgeted">Budgeted</span></td>
+            <td class="r"><span class="c-bud">$14.20</span></td>
+            <td class="r"><span class="c-dash">—</span></td>
+            <td class="r"><span class="c-dash">—</span></td>
+            <td>
+              <div class="rac">
+                <a href="costing-view.html" class="ab vw">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>View
+                </a>
+                <a href="costing-edit.html" class="ab">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border2);background:#f9fafb;">
+        <div style="font-size:12px;color:var(--text-3);">Showing 1–4 of 4 records</div>
+        <div style="display:flex;gap:4px;">
+          <button style="height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:11.5px;color:var(--text-3);" disabled>&laquo;</button>
+          <button style="height:28px;min-width:28px;padding:0 8px;border:1px solid var(--brand-600);border-radius:6px;background:var(--brand-600);cursor:pointer;font-size:11.5px;color:#fff;">1</button>
+          <button style="height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:11.5px;color:var(--text-3);" disabled>&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<script>
+function toggleGroup(el){
+  var grp=el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+</script>
+</body>
+</html>
