@@ -1271,8 +1271,8 @@ Duplicate location guard: "Limit for this location already exists. Edit it inste
 1. **Locked field enforcement on PUT** — read `colorId`, `baseUomId`, `locationId`, `rollWise` from DB before update and ignore whatever the client sent.
 2. **UOM denomination full-replace** — `DELETE FROM fabric_uom_denomination WHERE fabric_id = ?`, then re-insert. Same pattern as RM Master.
 3. **Color display** — always format as `{name} ({code})` in dropdown options. If `color_code` is null/blank, show name only — no empty brackets.
-4. **Available qty** — computed from `inventory_ledger` (SUM IN - SUM OUT for `item_type='FABRIC'`). Never stored in `fabric_masters`.
-5. **Delete guard** — query `inventory_ledger` for `item_type='FABRIC'` and `item_id=?` before soft-delete. If net qty > 0, return HTTP 400.
+4. **Available qty** — computed from `inventory_ledger` (SUM IN - SUM OUT for `item_type='FABRIC'`). Never stored in `fabric_masters`. **Deferred — see § Inventory Ledger Integration below.**
+5. **Delete guard** — query `inventory_ledger` for `item_type='FABRIC'` and `item_id=?` before soft-delete. If net qty > 0, return HTTP 400. **Deferred — see § Inventory Ledger Integration below.**
 6. **Uniqueness conflict** — catch `DataIntegrityViolationException`, map to HTTP 409 identifying which field caused the conflict.
 7. **CSV streaming** — use `StreamingResponseBody` for `/export` endpoint.
 8. **Image URL** — fabric endpoints never accept file uploads. Frontend calls `POST /upload/image` first; URL passed in payload as `imageUrl` string.
@@ -1282,13 +1282,142 @@ Duplicate location guard: "Limit for this location already exists. Edit it inste
 
 ---
 
+## Inventory Ledger Integration (Deferred — do when Inventory Module is built)
+
+The following two features **cannot be implemented until the `inventory_ledger` table exists**. They are intentionally skipped in the current implementation and must be completed as part of the Inventory Module epic.
+
+---
+
+### What is deferred
+
+| Feature | Current state | What to build |
+|---------|--------------|---------------|
+| `availableQty` on Fabric list/detail | Field absent from response; list shows `—` | Compute from `inventory_ledger` and return in `FabricDTO` |
+| Delete guard (stock check) | Hard delete allowed unconditionally | Block delete if net stock > 0; return HTTP 400 |
+
+---
+
+### When `inventory_ledger` is created, do the following
+
+#### 1. Backend — `FabricServiceImpl`
+
+**Add `availableQty` to `toDto()`:**
+
+```java
+// In FabricServiceImpl.toDto(), after building the DTO:
+BigDecimal availableQty = inventoryLedgerRepository
+    .getNetQtyByItemTypeAndItemId("FABRIC", fabric.getId());
+
+return FabricDTO.builder()
+    // ... existing fields ...
+    .availableQty(availableQty != null ? availableQty : BigDecimal.ZERO)
+    .build();
+```
+
+The repository query (native SQL):
+```sql
+SELECT COALESCE(
+    SUM(CASE WHEN movement_type = 'IN'  THEN quantity ELSE 0 END) -
+    SUM(CASE WHEN movement_type = 'OUT' THEN quantity ELSE 0 END),
+0) AS net_qty
+FROM inventory_ledger
+WHERE item_type = 'FABRIC'
+  AND item_id   = :itemId
+```
+
+**Add delete guard to `delete()`:**
+
+```java
+@Override
+@Transactional
+public ApiResponse<Void> delete(Long id) {
+    FabricMaster fabric = fabricMasterRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Fabric", "id", id));
+
+    BigDecimal stock = inventoryLedgerRepository
+        .getNetQtyByItemTypeAndItemId("FABRIC", id);
+    if (stock != null && stock.compareTo(BigDecimal.ZERO) > 0) {
+        throw new BadRequestException(
+            "Cannot delete fabric — it has " + stock.toPlainString()
+            + " " + fabric.getUomName() + " in stock");
+    }
+
+    fabricMasterRepository.delete(fabric);
+    return ApiResponse.success("Fabric deleted successfully", null);
+}
+```
+
+#### 2. Backend — `FabricDTO`
+
+Add the field:
+
+```java
+private BigDecimal availableQty;   // null until inventory_ledger exists
+```
+
+#### 3. Frontend — `FabricListPage.tsx`
+
+Replace the `—` placeholder cell with the real value once the API returns it:
+
+```tsx
+// In the table row, add column:
+<td className="px-6 py-4 text-right">
+  <span className="text-xs font-semibold text-[#191c1f]">
+    {f.availableQty != null
+      ? `${f.availableQty} ${f.uomName}`
+      : <span className="text-[#c7c4d8]">—</span>}
+  </span>
+</td>
+```
+
+Also add the column header `AVAIL. QTY` to `<thead>`.
+
+#### 4. Frontend — Delete button guard
+
+In `FabricListPage.tsx`, disable the delete button when `availableQty > 0`:
+
+```tsx
+{perms.canDelete && (
+  <button
+    onClick={() => f.availableQty && f.availableQty > 0 ? null : setConfirmId(f.id)}
+    disabled={!!f.availableQty && f.availableQty > 0}
+    title={f.availableQty && f.availableQty > 0
+      ? `Cannot delete — fabric has ${f.availableQty} ${f.uomName} in stock`
+      : 'Delete'}
+    className={cn(
+      "w-8 h-8 flex items-center justify-center rounded-lg transition-colors",
+      f.availableQty && f.availableQty > 0
+        ? "text-[#c7c4d8] cursor-not-allowed"
+        : "hover:bg-red-50 text-red-500"
+    )}
+  >
+    <span className="material-symbols-outlined text-[18px]">delete</span>
+  </button>
+)}
+```
+
+---
+
+### Checklist for when Inventory Module is built
+
+- [ ] `inventory_ledger` table created in Flyway migration (`item_type VARCHAR`, `item_id BIGINT`, `movement_type VARCHAR`, `quantity NUMERIC`)
+- [ ] `InventoryLedgerRepository.getNetQtyByItemTypeAndItemId()` native query added
+- [ ] `FabricDTO.availableQty` field added
+- [ ] `FabricServiceImpl.toDto()` populates `availableQty` from ledger
+- [ ] `FabricServiceImpl.delete()` stock guard added (HTTP 400 if stock > 0)
+- [ ] `FabricListPage.tsx` — AVAIL. QTY column shows real value
+- [ ] `FabricListPage.tsx` — delete button disabled when stock > 0 with tooltip
+- [ ] `FabricDTO` `availableQty` field is `@JsonInclude(NON_NULL)` safe (returns `0` not `null` once ledger exists)
+
+---
+
 ## Definition of Done
 
 - [ ] Flyway migration: `V{n}__create_fabric_master_tables.sql` — `fabric_masters`, `construction_type_master` (with seed data), `fabric_uom_denomination`, `fabric_inventory_limit`
 - [ ] `FabricMasterController` — 11 endpoints + `ConstructionTypeController` — 2 endpoints
 - [ ] `FabricMasterService` — create (locked fields set at creation), update (locked fields ignored), delete (stock guard), importCsv (partial success), exportCsv (StreamingResponseBody)
-- [ ] `FabricMasterDAO` — native SQL list with 4 filters + available_qty subquery
-- [ ] All write endpoints `@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")`
+- [ ] `FabricMasterDAO` — native SQL list with 4 filters + available_qty subquery *(available_qty deferred — requires inventory_ledger)*
+- [x] All write endpoints `@PreAuthorize("hasAnyAuthority('SUPER_ADMIN','ORG_ADMIN')")` ✅ done
 - [ ] Locked fields (`color_id`, `base_uom_id`, `location_id`, `roll_wise`) never overwritten on PUT
 - [ ] React: 12 hooks in `useFabricMaster.ts`, `keepPreviousData: true` on list
 - [ ] Zod schema: `createFabricSchema` + `updateFabricSchema` (locked fields omitted)
