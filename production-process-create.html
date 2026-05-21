@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Production Process — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+
+/* ── Sidebar ── */
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;}.sf-role{color:#94a3b8!important;}.sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Section cards ── */
+.sec{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);margin-bottom:16px;overflow:visible;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);}
+.sec-hd-left{display:flex;align-items:center;gap:10px;}
+.sec-num{width:24px;height:24px;border-radius:6px;background:var(--brand-600);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:700;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-bd{padding:0 0 12px;}
+
+/* ── Grids ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+
+/* ── Form fields ── */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:12.5px;font-weight:600;color:#374151;}
+.fl .req{color:#ef4444;}
+
+/* ── Inputs ── */
+.inp{width:100%;height:40px;padding:0 12px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,background .15s,box-shadow .15s;appearance:none;}
+.inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.inp::placeholder{color:#9ca3af;}
+.inp[readonly]{background:#f8fafc;color:#64748b;cursor:default;}
+.inp[readonly]:focus{border-color:#e2e8f0;box-shadow:none;background:#f8fafc;}
+select.inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+textarea.inp{height:auto;padding:10px 12px;resize:vertical;line-height:1.5;}
+
+/* ── Buttons ── */
+.btn{height:36px;padding:0 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:none;font-family:inherit;transition:all .15s;text-decoration:none;}
+.btn-primary{background:var(--brand-600);color:#fff;}.btn-primary:hover{background:var(--brand-700);}
+.btn-success{background:#16a34a;color:#fff;}.btn-success:hover{background:#15803d;}
+.btn-ghost{background:#fff;color:var(--text-2);border:1.5px solid var(--border);}.btn-ghost:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-amber{background:#d97706;color:#fff;}.btn-amber:hover{background:#b45309;}
+
+/* ── Info banners ── */
+.info-banner{display:flex;gap:9px;padding:11px 15px;border-radius:9px;font-size:12.5px;margin:0 20px 12px;}
+.info-banner.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+.info-banner.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.info-banner.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+.info-banner.purple{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6;}
+
+/* ── Field note ── */
+.field-note{font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.4;}
+
+/* ── Collapsible ── */
+.collapsible-hd{cursor:pointer;user-select:none;}
+.collapsible-hd:hover .sec-title{color:var(--brand-600);}
+.collapse-icon{transition:transform .2s;color:var(--text-3);}
+.sp20{padding:16px 20px;}
+
+/* ── Table ── */
+.ct-wrap{overflow-x:auto;padding:0 20px 4px;}
+.ct{width:100%;border-collapse:collapse;font-size:12.5px;}
+.ct th{padding:8px 10px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);background:#f8fafc;border-bottom:2px solid var(--border2);white-space:nowrap;text-align:left;}
+.ct th.r{text-align:right;}
+.ct td{padding:5px 8px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.ct tbody tr:last-child td{border-bottom:none;}
+.ct tbody tr:hover td{background:#f8fafd;}
+.ct tfoot td{padding:9px 10px;font-weight:700;font-size:12.5px;background:#f8fafc;border-top:2px solid var(--border2);}
+.ct tfoot .tf-label{color:var(--text-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;}
+
+/* ── Cell inputs ── */
+.ci{width:100%;height:30px;padding:0 7px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s;}
+.ci:focus{border-color:var(--brand-500);box-shadow:0 0 0 2px rgba(37,99,235,.10);}
+.ci::placeholder{color:#c4c9d4;}
+.ci.ro{background:#f8fafc;color:#64748b;cursor:default;}
+.ci.ro:focus{border-color:var(--border);box-shadow:none;}
+.ci.num{text-align:right;font-variant-numeric:tabular-nums;}
+
+/* ── Size cell layout ── */
+.size-cell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;}
+.avail-badge{font-size:10px;font-weight:700;color:var(--text-3);background:#f1f5f9;border:1px solid var(--border2);border-radius:4px;padding:1px 6px;white-space:nowrap;letter-spacing:.01em;cursor:default;}
+.dmg-mis-row{display:flex;gap:2px;margin-top:1px;}
+
+/* ── Size cell colours ── */
+.ci.dmg{border-color:#fca5a5;background:#fff5f5;}
+.ci.dmg:focus{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.12);}
+.ci.missed{border-color:#fdba74;background:#fff8f0;}
+.ci.missed:focus{border-color:#f97316;box-shadow:0 0 0 2px rgba(249,115,22,.12);}
+
+/* ── Row number ── */
+.seq-cell{color:var(--text-3);font-size:12px;text-align:center;font-variant-numeric:tabular-nums;width:30px;}
+
+/* ── Delete btn ── */
+.del-btn{width:26px;height:26px;background:transparent;border:none;cursor:pointer;color:#d1d5db;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.del-btn:hover{background:#fee2e2;color:#ef4444;}
+.del-btn svg{width:13px;height:13px;}
+
+/* ── Add row dashed ── */
+.add-row-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1.5px dashed var(--border);border-radius:8px;font-size:12.5px;font-weight:600;color:var(--text-3);background:transparent;cursor:pointer;transition:all .15s;font-family:inherit;margin:8px 20px;}
+.add-row-btn:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.add-row-btn svg{width:13px;height:13px;}
+
+/* ── Segment control (Inhouse/Outward) ── */
+.seg-ctrl{display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px;}
+.seg-btn{padding:7px 22px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .18s;color:var(--text-3);background:transparent;}
+.seg-btn.active{background:#fff;color:var(--brand-700);box-shadow:0 1px 4px rgba(0,0,0,.12);}
+
+/* ── Reprocess toggle ── */
+.reprocess-wrap{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1.5px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;transition:border-color .15s;user-select:none;}
+.reprocess-wrap:hover{border-color:var(--brand-400);}
+.reprocess-wrap.on{border-color:#f59e0b;background:#fffbeb;}
+.toggle-sw{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{width:36px;height:20px;border-radius:10px;background:#d1d5db;transition:background .2s;display:block;cursor:pointer;}
+.toggle-sw input:checked + .toggle-track{background:#f59e0b;}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s;pointer-events:none;}
+.toggle-sw input:checked ~ .toggle-thumb{left:19px;}
+.reprocess-label{font-size:12.5px;font-weight:600;color:var(--text-2);}
+
+/* ── Single Process radio group ── */
+.sp-radio-group{display:flex;align-items:center;gap:4px;margin-top:4px;}
+.sp-radio-opt{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-3);transition:all .15s;user-select:none;background:#fff;}
+.sp-radio-opt input[type=radio]{accent-color:var(--brand-600);width:13px;height:13px;cursor:inherit;}
+.sp-radio-opt.yes-opt:has(input:checked){border-color:#7c3aed;background:#f5f3ff;color:#5b21b6;}
+.sp-radio-opt.no-opt:has(input:checked){border-color:var(--brand-500);background:var(--brand-50);color:var(--brand-700);}
+
+/* ── GST toggle ── */
+.gst-seg{display:inline-flex;background:#f1f5f9;border-radius:8px;padding:2px;gap:1px;}
+.gst-btn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--text-3);background:transparent;}
+.gst-btn.active{background:#fff;color:var(--brand-700);box-shadow:0 1px 3px rgba(0,0,0,.10);}
+
+/* ── Tooltip ── */
+.tooltip-wrap{position:relative;display:inline-flex;align-items:center;}
+.tooltip-tip{position:absolute;left:50%;transform:translateX(-50%);top:calc(100% + 6px);background:#1e293b;color:#f1f5f9;font-size:11.5px;border-radius:7px;padding:7px 11px;white-space:normal;z-index:400;pointer-events:none;opacity:0;transition:opacity .15s;line-height:1.45;min-width:200px;max-width:280px;}
+.tooltip-wrap:hover .tooltip-tip{opacity:1;}
+
+/* ── Process Number chip ── */
+.proc-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--brand-50);border:1.5px solid var(--brand-200);border-radius:10px;font-size:13px;font-weight:700;color:var(--brand-700);}
+.proc-draft-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:9999px;background:#f3f4f6;color:#6b7280;margin-left:4px;}
+
+/* ── Sub-section heading ── */
+.sub-sec-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 8px;margin-top:4px;cursor:pointer;user-select:none;}
+.sub-sec-hd:hover .sub-sec-title{color:var(--brand-600);}
+.sub-sec-title{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;}
+.sub-sec-divider{height:1px;background:var(--border2);margin:0 20px 8px;}
+
+/* ── Sticky footer ── */
+.action-bar{position:sticky;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -2px 10px rgba(0,0,0,.06);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:100;margin-top:24px;}
+.action-bar-right{display:flex;gap:8px;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:80px;right:24px;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);transform:translateY(20px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:#16a34a;}
+.toast.draft{background:#475569;}
+.toast.purple{background:#7c3aed;}
+
+/* ── Modal overlay ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.22);width:420px;max-width:95vw;overflow:hidden;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:800;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;border-radius:6px;display:flex;align-items:center;transition:color .15s;}
+.modal-close:hover{color:var(--text-1);background:var(--border2);}
+.modal-bd{padding:18px 20px;}
+.modal-ft{padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border2);}
+.barcode-inp{width:100%;height:46px;padding:0 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;color:var(--text-1);outline:none;transition:border-color .15s,box-shadow .15s;background:#fafafa;}
+.barcode-inp:focus{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.barcode-lookup{margin-top:10px;min-height:32px;padding:8px 12px;border-radius:8px;font-size:12.5px;}
+.barcode-found{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+.barcode-notfound{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+.barcode-empty{background:#f8fafc;border:1px solid var(--border2);color:var(--text-3);}
+
+/* ── Inline barcode scan field ── */
+.scan-wrap{display:flex;align-items:center;gap:7px;background:#f8fafc;border:1.5px solid var(--border);border-radius:9px;padding:0 10px;height:34px;min-width:220px;transition:border-color .15s,box-shadow .15s;}
+.scan-wrap:focus-within{border-color:var(--brand-500);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.scan-wrap input{border:none;background:transparent;outline:none;font-size:12.5px;width:160px;font-family:inherit;color:var(--text-1);}
+.scan-wrap input::placeholder{color:#9ca3af;}
+.scan-wrap .material-symbols-outlined{font-size:16px;color:var(--text-3);flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="work-order-list.html">Work Order List</a>
+        <a class="nav-child" href="work-order-create.html">New Work Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">settings_suggest</span></span>
+        <span class="nav-parent-label">Production Process</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-process-list.html">Process List</a>
+        <a class="nav-child active" href="production-process-create.html">Create Process</a>
+        <a class="nav-child" href="#">Bulk Receive</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+        <a class="nav-child" href="masters-operation.html">Operations</a>
+        <a class="nav-child" href="masters-aisle.html">Aisle / Location</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
+      <span style="color:var(--text-3);font-weight:500;">Production</span>
+      <span style="color:var(--text-3);">/</span>
+      <a href="production-process-list.html" style="color:var(--text-3);text-decoration:none;font-weight:500;">Production Process</a>
+      <span style="color:var(--text-3);">/</span>
+      <span style="color:var(--text-1);">New Production Process</span>
+    </span>
+    <div class="topbar-right">
+      <div class="sf-avatar" style="width:32px;height:32px;font-size:12px;font-weight:700;background:var(--brand-600);border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#fff;">HS</div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ── Page title row ── -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <h1 style="font-size:20px;font-weight:800;color:var(--text-1);">New Production Process</h1>
+          <div class="proc-chip" id="procChip">
+            <span class="material-symbols-outlined" style="font-size:15px;color:var(--brand-500);">settings_suggest</span>
+            <span id="procNumDisplay">IHP-2026-031</span>
+            <span class="proc-draft-pill">Draft</span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-3);">Create an inhouse or outward DC production process</p>
+      </div>
+    </div>
+
+    <!-- ── Process type + Options row ── -->
+    <div class="sec" style="margin-bottom:16px;">
+      <div class="sec-bd" style="padding:14px 20px;">
+        <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+
+          <!-- Inhouse / Outward segment -->
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Process Type</div>
+            <div class="seg-ctrl" id="typeSegCtrl">
+              <button class="seg-btn active" id="btnInhouse" onclick="setProcessType('inhouse')">
+                <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">home_work</span>
+                &nbsp;Inhouse Process
+              </button>
+              <button class="seg-btn" id="btnOutward" onclick="setProcessType('outward')">
+                <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">local_shipping</span>
+                &nbsp;Outward DC
+              </button>
+            </div>
+          </div>
+
+          <div style="width:1px;height:50px;background:var(--border);flex-shrink:0;align-self:center;"></div>
+
+          <!-- Reprocess toggle -->
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Reprocess</div>
+            <label class="reprocess-wrap" id="reprocessWrap" for="reprocessChk" onclick="toggleReprocess()">
+              <span class="toggle-sw">
+                <input type="checkbox" id="reprocessChk" style="display:none;">
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </span>
+              <span class="reprocess-label">Reprocess Mode</span>
+              <div class="tooltip-wrap" style="margin-left:2px;" onclick="event.stopPropagation();">
+                <span class="material-symbols-outlined" style="font-size:15px;color:#94a3b8;cursor:help;">info</span>
+                <div class="tooltip-tip">When enabled, only products with damage / rejected quantities will be shown in the product dropdown.</div>
+              </div>
+            </label>
+          </div>
+
+          <div style="width:1px;height:50px;background:var(--border);flex-shrink:0;align-self:center;"></div>
+
+          <!-- Single Process radio -->
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+              Single Process
+              <div class="tooltip-wrap">
+                <span class="material-symbols-outlined" style="font-size:15px;color:#94a3b8;cursor:help;">info</span>
+                <div class="tooltip-tip">Yes = record damage / missed only (no send-receive workflow). No = normal send qty with receive workflow.</div>
+              </div>
+            </div>
+            <div class="sp-radio-group">
+              <label class="sp-radio-opt yes-opt">
+                <input type="radio" name="singleProcess" value="yes" onchange="setSingleProcess('yes')">
+                Yes
+              </label>
+              <label class="sp-radio-opt no-opt">
+                <input type="radio" name="singleProcess" value="no" onchange="setSingleProcess('no')" checked>
+                No
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner: reprocess -->
+    <div class="info-banner amber" id="reprocessBanner" style="display:none;margin:0 0 12px 0;">
+      <span class="material-symbols-outlined" style="font-size:16px;color:#d97706;">warning</span>
+      <span><strong>Reprocess mode</strong> — Only showing products with damage / rejected inventory</span>
+    </div>
+
+    <!-- Banner: single process yes -->
+    <div class="info-banner purple" id="singleProcessBanner" style="display:none;margin:0 0 12px 0;">
+      <span class="material-symbols-outlined" style="font-size:16px;color:#7c3aed;">info</span>
+      <span><strong>Single Process mode</strong> — Size table will record <strong>Damage</strong> and <strong>Missed</strong> quantities only. After saving, this process will be marked as complete — no receive workflow.</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION 1A — INHOUSE DETAILS              -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="sec" id="secInhouse">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">1</div>
+          <div>
+            <div class="sec-title">Process Details</div>
+            <div class="sec-sub">Select production location, process type and schedule</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd sp20">
+        <div class="g3" style="margin-bottom:16px;">
+
+          <div class="fg">
+            <label class="fl">Production Location <span class="req">*</span></label>
+            <select class="inp" id="ihLocation">
+              <option value="">Select location…</option>
+              <option value="factory_floor">Factory Floor A</option>
+              <option value="cutting_room">Cutting Room</option>
+              <option value="sewing_1">Sewing Unit 1</option>
+              <option value="sewing_2">Sewing Unit 2</option>
+              <option value="embroidery">Embroidery Unit</option>
+              <option value="printing">Printing Section</option>
+              <option value="washing">Washing Unit</option>
+              <option value="finishing">Finishing Area</option>
+              <option value="qc">Quality Control</option>
+              <option value="packing">Packing Area</option>
+              <option value="warehouse">Warehouse</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label class="fl">Process <span class="req">*</span></label>
+            <select class="inp" id="ihProcess">
+              <option value="">Select process…</option>
+              <option value="cutting">Cutting</option>
+              <option value="stitching">Stitching / Sewing</option>
+              <option value="embroidery">Embroidery</option>
+              <option value="screen_printing">Screen Printing</option>
+              <option value="digital_printing">Digital Printing</option>
+              <option value="washing">Washing / Dyeing</option>
+              <option value="finishing">Finishing</option>
+              <option value="checking">Checking / QC</option>
+              <option value="packing">Packing</option>
+              <option value="folding">Folding</option>
+              <option value="button_attach">Button Attachment</option>
+              <option value="trimming">Trimming</option>
+              <option value="pressing">Pressing / Ironing</option>
+              <option value="labeling">Labeling</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label class="fl">Creation Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="ihCreationDate" value="2026-05-21">
+          </div>
+
+          <div class="fg">
+            <label class="fl">Expected Completion Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="ihExpDate">
+          </div>
+
+        </div>
+        <div class="fg">
+          <label class="fl">Notes</label>
+          <textarea class="inp" id="ihNotes" rows="2" placeholder="Any remarks or instructions for this process…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION 1B — OUTWARD DC DETAILS           -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="sec" id="secOutward" style="display:none;">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">1</div>
+          <div>
+            <div class="sec-title">DC &amp; Vendor Details</div>
+            <div class="sec-sub">Define the delivery challan details, vendor and GST information</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd sp20">
+        <div class="g3" style="margin-bottom:16px;">
+          <div class="fg">
+            <label class="fl">DC / Process Name <span class="req">*</span></label>
+            <input type="text" class="inp" id="odcName" placeholder="e.g. Embroidery — ODC Batch 3">
+          </div>
+          <div class="fg">
+            <label class="fl">Process <span class="req">*</span></label>
+            <select class="inp" id="odcProcess">
+              <option value="">Select process…</option>
+              <option value="embroidery">Embroidery</option>
+              <option value="screen_printing">Screen Printing</option>
+              <option value="digital_printing">Digital Printing</option>
+              <option value="washing">Washing / Dyeing</option>
+              <option value="smocking">Smocking</option>
+              <option value="stitching">Stitching</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Vendor <span class="req">*</span></label>
+            <select class="inp" id="odcVendor">
+              <option value="">Select vendor…</option>
+              <option value="ganesh">Ganesh Textiles</option>
+              <option value="sunrise">Sunrise Embroidery</option>
+              <option value="bluestar">Blue Star Washing</option>
+              <option value="kumar">Kumar Printing</option>
+              <option value="raj">Raj Dyeing Unit</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">GST Type</label>
+            <div style="margin-top:4px;">
+              <div class="gst-seg" id="gstSeg">
+                <button class="gst-btn active" id="gstReg" onclick="setGstType('registered')">GST Registered</button>
+                <button class="gst-btn" id="gstUnreg" onclick="setGstType('unregistered')">Unregistered</button>
+              </div>
+            </div>
+          </div>
+          <div class="fg" id="gstinField">
+            <label class="fl">Vendor GSTIN</label>
+            <input type="text" class="inp" id="odcGstin" placeholder="27AABCU9603R1ZX" maxlength="15" style="text-transform:uppercase;">
+          </div>
+        </div>
+        <div class="g3" style="margin-bottom:16px;">
+          <div class="fg">
+            <label class="fl">Creation Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="odcCreationDate" value="2026-05-21">
+          </div>
+          <div class="fg">
+            <label class="fl">Expected Delivery Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="odcExpDate">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Notes</label>
+          <textarea class="inp" id="odcNotes" rows="2" placeholder="Packing instructions, special notes for vendor…"></textarea>
+        </div>
+      </div>
+
+      <!-- Transport Details -->
+      <div class="sub-sec-divider"></div>
+      <div class="sub-sec-hd" onclick="toggleSubSection('transportBody', 'transportIcon')">
+        <div class="sub-sec-title">
+          <span class="material-symbols-outlined" style="font-size:15px;color:var(--brand-500);">local_shipping</span>
+          Transport Details
+        </div>
+        <span class="material-symbols-outlined" id="transportIcon" style="font-size:17px;color:var(--text-3);transition:transform .2s;">expand_more</span>
+      </div>
+      <div id="transportBody" style="padding:0 20px 16px;">
+        <div class="g3">
+          <div class="fg">
+            <label class="fl">Transport Mode</label>
+            <select class="inp">
+              <option value="road" selected>Road</option>
+              <option value="air">Air</option>
+              <option value="rail">Rail</option>
+              <option value="ship">Ship</option>
+              <option value="hand">Hand Delivery</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Vehicle / Lorry No</label>
+            <input type="text" class="inp" placeholder="e.g. MH12AB1234">
+          </div>
+          <div class="fg">
+            <label class="fl">LR No / Docket No</label>
+            <input type="text" class="inp" placeholder="e.g. LR-2026-00432">
+          </div>
+          <div class="fg">
+            <label class="fl">Transporter Name</label>
+            <input type="text" class="inp" placeholder="e.g. Mahindra Logistics">
+          </div>
+          <div class="fg">
+            <label class="fl">Transport Date</label>
+            <input type="date" class="inp">
+          </div>
+          <div class="fg">
+            <label class="fl">Remarks</label>
+            <input type="text" class="inp" placeholder="Any transport remarks…">
+          </div>
+        </div>
+      </div>
+
+      <!-- E-Way Bill -->
+      <div class="sub-sec-divider"></div>
+      <div class="sub-sec-hd" onclick="toggleSubSection('ewayBody', 'ewayIcon')">
+        <div class="sub-sec-title">
+          <span class="material-symbols-outlined" style="font-size:15px;color:var(--brand-500);">receipt</span>
+          E-Way Bill Details
+        </div>
+        <span class="material-symbols-outlined" id="ewayIcon" style="font-size:17px;color:var(--text-3);transition:transform .2s;">expand_more</span>
+      </div>
+      <div id="ewayBody" style="padding:0 20px 16px;">
+        <div class="g3">
+          <div class="fg">
+            <label class="fl">E-Way Bill No</label>
+            <input type="text" class="inp" placeholder="12-digit E-Way Bill No" maxlength="12" inputmode="numeric">
+          </div>
+          <div class="fg">
+            <label class="fl">E-Way Bill Date</label>
+            <input type="date" class="inp">
+          </div>
+          <div class="fg">
+            <label class="fl">Valid Till</label>
+            <input type="date" class="inp">
+          </div>
+          <div class="fg">
+            <label class="fl">Distance (km)</label>
+            <input type="text" class="inp" placeholder="e.g. 120 km">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION 2 — PRODUCT LINES                 -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="sec" id="secProductLines">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num">2</div>
+          <div>
+            <div class="sec-title">Product Lines</div>
+            <div class="sec-sub" id="productLinesSub">Select Work Order and Product — sizes and quantities auto-populate</div>
+          </div>
+        </div>
+        <div class="scan-wrap">
+          <span class="material-symbols-outlined">scan_barcode</span>
+          <input type="text" id="inlineBarcodeField" placeholder="Scan barcode to add row…" autocomplete="off" onkeydown="onInlineBarcodeKey(event)">
+        </div>
+      </div>
+      <div class="sec-bd">
+        <div class="info-banner blue" id="productLinesInfoNormal" style="margin-top:12px;">
+          <span class="material-symbols-outlined" style="font-size:15px;color:#3b82f6;">info</span>
+          <span>Select a Work Order to auto-populate Production No, Buyer Order No and sizes. Enter send quantities per size.</span>
+        </div>
+        <div class="info-banner purple" id="productLinesInfoSingle" style="display:none;margin-top:12px;">
+          <span class="material-symbols-outlined" style="font-size:15px;color:#7c3aed;">info</span>
+          <span><strong>Single Process mode</strong> — Enter <strong>Damage</strong> and <strong>Missed</strong> quantities per size. Send qty is pre-filled from the work order for reference only.</span>
+        </div>
+        <div class="ct-wrap" style="padding-top:2px;">
+          <table class="ct" id="productTable" style="min-width:1100px;">
+            <thead>
+              <tr id="productTableHead"><!-- built by JS --></tr>
+            </thead>
+            <tbody id="productTableBody"><!-- rows by JS --></tbody>
+            <tfoot id="productTableFoot"><!-- by JS --></tfoot>
+          </table>
+        </div>
+        <button class="add-row-btn" onclick="addProductRow()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Add Style / Product
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION 3 — LOSS BEARER (single process)  -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="sec" id="secLossBearer" style="display:none;">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num" style="background:#dc2626;">3</div>
+          <div>
+            <div class="sec-title">Loss Allocation</div>
+            <div class="sec-sub">Damage / missed quantities detected — assign a loss bearer and optionally create a debit note</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd sp20">
+        <div class="info-banner" style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;margin:0 0 14px 0;">
+          <span class="material-symbols-outlined" style="font-size:15px;color:#dc2626;">warning</span>
+          <span id="lossQtySummary">Damage / missed quantities found across one or more lines.</span>
+        </div>
+        <div class="g3" style="margin-bottom:14px;">
+          <div class="fg">
+            <label class="fl">Loss Bearer <span class="req">*</span></label>
+            <select class="inp" id="lossBearerSelect" onchange="onLossBearerChange(this.value)">
+              <option value="">— Select bearer —</option>
+              <option value="company">Company (Internal Loss)</option>
+              <option value="vendor">Vendor / Supplier</option>
+              <option value="employee">Employee / Operator</option>
+              <option value="customer">Customer</option>
+            </select>
+          </div>
+          <div class="fg" id="lossBearerVendorField" style="display:none;">
+            <label class="fl">Vendor</label>
+            <select class="inp" id="lossBearerVendor">
+              <option value="">— Select vendor —</option>
+              <option>Ganesh Textiles</option>
+              <option>Sunrise Embroidery</option>
+              <option>Blue Star Washing</option>
+              <option>Kumar Printing</option>
+              <option>Raj Dyeing Unit</option>
+            </select>
+          </div>
+          <div class="fg" id="lossBearerEmpField" style="display:none;">
+            <label class="fl">Employee</label>
+            <select class="inp" id="lossBearerEmployee">
+              <option value="">— Select employee —</option>
+              <option>Arun M</option><option>Priya Devi</option><option>Karthik S</option>
+              <option>Rajan N</option><option>Meena L</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" style="max-width:480px;margin-bottom:14px;">
+          <label class="fl">Remarks</label>
+          <input type="text" class="inp" id="lossRemarks" placeholder="Reason for damage / missed…">
+        </div>
+        <button onclick="createDebitNote()" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 18px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+          <span class="material-symbols-outlined" style="font-size:16px;">receipt_long</span>
+          Create Debit Note
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION 4 — ATTACHMENTS                   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="sec" id="secAttachments">
+      <div class="sec-hd">
+        <div class="sec-hd-left">
+          <div class="sec-num" id="attachSecNum">3</div>
+          <div>
+            <div class="sec-title">Attachments</div>
+            <div class="sec-sub">Upload any supporting documents — images, PDFs, quality reports (max 5 MB each)</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-bd sp20">
+        <label class="attach-zone" for="attachInput" style="display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1.5px dashed var(--border);border-radius:9px;background:#fafbfe;cursor:pointer;transition:border-color .15s;font-family:inherit;" onmouseover="this.style.borderColor='var(--brand-400)';this.style.background='var(--brand-50)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='#fafbfe'">
+          <span class="material-symbols-outlined" style="font-size:20px;color:var(--brand-500);">attach_file</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text-2);">Choose files</span>
+          <span style="font-size:12px;color:var(--text-3);">JPG, PNG, PDF — max 5 MB each</span>
+        </label>
+        <input type="file" id="attachInput" multiple accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="handleAttachFiles(this.files)">
+        <div id="attachList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- ── Sticky footer ── -->
+    <div class="action-bar">
+      <a href="production-process-list.html" class="btn btn-ghost">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+        Discard
+      </a>
+      <div class="action-bar-right" id="footerBtns">
+        <!-- buttons swapped by setSingleProcess() -->
+        <button class="btn btn-ghost" onclick="saveDraft()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+          Save as Draft
+        </button>
+        <button class="btn btn-primary" onclick="sendForProcessing()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Send for Processing
+        </button>
+      </div>
+    </div>
+    <div style="height:24px;"></div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════ BARCODE MODAL ════════ -->
+<div class="modal-overlay" id="barcodeModal">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-title">
+        <span class="material-symbols-outlined" style="font-size:20px;color:var(--brand-600);">scan_barcode</span>
+        Scan Barcode
+      </div>
+      <button class="modal-close" onclick="closeBarcodeModal()">
+        <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+      </button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg">
+        <label class="fl">Scan or type barcode</label>
+        <input type="text" class="barcode-inp" id="barcodeInput" placeholder="Scan or type barcode…" autocomplete="off">
+      </div>
+      <div class="barcode-lookup barcode-empty" id="barcodeLookupMsg" style="display:none;"></div>
+      <div class="field-note" style="margin-top:8px;">Press <strong>Enter</strong> to look up and auto-populate a new row.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeBarcodeModal()">Close</button>
+      <button class="btn btn-primary" id="addBarcodeBtn" onclick="addBarcodeRow()" disabled>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Add to Lines
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────
+const WO_DATA = {
+  'WO-2026-001': {
+    productionNo: 'PRD-2026-0039', buyerOrderNo: 'BO-2026-0112', brand: 'M&S UK',
+    products: [
+      { label: "Men's Polo / Navy",  sizes: {S:20, M:35, L:30, XL:25, XXL:10} },
+      { label: "Men's Polo / White", sizes: {S:15, M:28, L:22, XL:18, XXL:8}  },
+    ]
+  },
+  'WO-2026-002': {
+    productionNo: 'PRD-2026-0040', buyerOrderNo: 'BO-2026-0113', brand: 'Zara',
+    products: [
+      { label: "Women's Kurta / Red",  sizes: {XS:10, S:30, M:40, L:25, XL:12} },
+      { label: "Women's Kurta / Blue", sizes: {XS:8,  S:22, M:36, L:20, XL:10} },
+    ]
+  },
+  'WO-2026-003': {
+    productionNo: 'PRD-2026-0041', buyerOrderNo: 'BO-2026-0114', brand: 'H&M',
+    products: [
+      { label: "Kids Jacket / Indigo", sizes: {'2Y':12, '4Y':20, '6Y':18, '8Y':15, '10Y':10} },
+    ]
+  },
+  'WO-2026-004': {
+    productionNo: 'PRD-2026-0042', buyerOrderNo: 'BO-2026-0115', brand: 'Next',
+    products: [
+      { label: "Men's Shirt / Grey", sizes: {S:25, M:45, L:40, XL:30, XXL:15} },
+    ]
+  },
+  'WO-2026-005': {
+    productionNo: 'PRD-2026-0043', buyerOrderNo: 'BO-2026-0116', brand: 'ASOS',
+    products: [
+      { label: "Women's Top / Black", sizes: {XS:14, S:26, M:38, L:28, XL:14} },
+    ]
+  },
+  'WO-2026-006': {
+    productionNo: 'PRD-2026-0044', buyerOrderNo: 'BO-2026-0117', brand: 'Primark',
+    products: [
+      { label: "Men's Chino / Khaki", sizes: {'28':10, '30':22, '32':30, '34':22, '36':12, '38':8} },
+    ]
+  },
+  'WO-2026-007': {
+    productionNo: 'PRD-2026-0045', buyerOrderNo: 'BO-2026-0118', brand: 'River Island',
+    products: [
+      { label: "Denim Jacket / Blue", sizes: {S:12, M:20, L:18, XL:14, XXL:6} },
+    ]
+  },
+  'WO-2026-008': {
+    productionNo: 'PRD-2026-0046', buyerOrderNo: 'BO-2026-0119', brand: 'George',
+    products: [
+      { label: "Track Pant / Navy", sizes: {S:18, M:30, L:28, XL:20, XXL:10} },
+    ]
+  },
+  'WO-2026-009': {
+    productionNo: 'PRD-2026-0047', buyerOrderNo: 'BO-2026-0120', brand: 'Debenhams',
+    products: [
+      { label: "Polo Shirt / White", sizes: {S:16, M:32, L:28, XL:22, XXL:8} },
+    ]
+  },
+  'WO-2026-010': {
+    productionNo: 'PRD-2026-0048', buyerOrderNo: 'BO-2026-0121', brand: 'Own Brand',
+    products: [
+      { label: "Casual Shirt / Olive", sizes: {S:20, M:36, L:32, XL:26, XXL:12} },
+    ]
+  },
+};
+
+const WO_LIST = Object.keys(WO_DATA);
+
+const EMPLOYEES = ['Arun M', 'Priya Devi', 'Karthik S', 'Rajan N', 'Meena L', 'Team A', 'Team B'];
+
+const BATCHES = ['Batch 01', 'Batch 02', 'Batch 03', 'Batch 04', 'Batch 05'];
+
+const BARCODE_DB = {
+  'BC001234': { wo: 'WO-2026-001', productIdx: 0 },
+  'BC005678': { wo: 'WO-2026-002', productIdx: 0 },
+  'BC009876': { wo: 'WO-2026-004', productIdx: 0 },
+};
+
+let currentType    = 'inhouse'; // 'inhouse' | 'outward'
+let reprocessOn    = false;
+let singleProcess  = false; // false = normal (send qty), true = damage/missed only
+let productRows    = [];
+let rowCounter     = 0;
+let currentSizes   = [];
+let barcodeResult  = null;
+
+// ──────────────────────────────────────────────
+// PROCESS TYPE TOGGLE
+// ──────────────────────────────────────────────
+function setProcessType(type) {
+  currentType = type;
+  document.getElementById('btnInhouse').classList.toggle('active', type === 'inhouse');
+  document.getElementById('btnOutward').classList.toggle('active', type === 'outward');
+  document.getElementById('secInhouse').style.display  = type === 'inhouse' ? '' : 'none';
+  document.getElementById('secOutward').style.display  = type === 'outward' ? '' : 'none';
+  const num = type === 'inhouse' ? 'IHP-2026-031' : 'ODC-2026-018';
+  document.getElementById('procNumDisplay').textContent = num;
+  const chip = document.getElementById('procChip');
+  if (type === 'outward') {
+    chip.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;font-size:13px;font-weight:700;color:#9a3412;';
+    chip.querySelector('.material-symbols-outlined').style.color = '#f97316';
+  } else {
+    chip.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--brand-50);border:1.5px solid var(--brand-200);border-radius:10px;font-size:13px;font-weight:700;color:var(--brand-700);';
+    chip.querySelector('.material-symbols-outlined').style.color = 'var(--brand-500)';
+  }
+}
+
+// ──────────────────────────────────────────────
+// REPROCESS TOGGLE
+// ──────────────────────────────────────────────
+function toggleReprocess() {
+  reprocessOn = !reprocessOn;
+  const chk    = document.getElementById('reprocessChk');
+  const wrap   = document.getElementById('reprocessWrap');
+  const banner = document.getElementById('reprocessBanner');
+  chk.checked  = reprocessOn;
+  wrap.classList.toggle('on', reprocessOn);
+  banner.style.display = reprocessOn ? 'flex' : 'none';
+}
+
+// ──────────────────────────────────────────────
+// SINGLE PROCESS RADIO
+// ──────────────────────────────────────────────
+function setSingleProcess(val) {
+  singleProcess = (val === 'yes');
+  document.getElementById('singleProcessBanner').style.display    = singleProcess ? 'flex' : 'none';
+  document.getElementById('productLinesInfoNormal').style.display  = singleProcess ? 'none' : 'flex';
+  document.getElementById('productLinesInfoSingle').style.display  = singleProcess ? 'flex' : 'none';
+
+  // Swap footer buttons
+  const ftBtns = document.getElementById('footerBtns');
+  if (singleProcess) {
+    ftBtns.innerHTML = `
+      <button class="btn btn-ghost" onclick="saveDraft()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+        Save as Draft
+      </button>
+      <button class="btn" style="background:#7c3aed;color:#fff;" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'" onclick="saveAndComplete()">
+        <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span>
+        Save &amp; Complete
+      </button>`;
+  } else {
+    ftBtns.innerHTML = `
+      <button class="btn btn-ghost" onclick="saveDraft()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+        Save as Draft
+      </button>
+      <button class="btn btn-primary" onclick="sendForProcessing()">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Send for Processing
+      </button>`;
+  }
+  // Re-render table to reflect mode
+  renderProductTable();
+}
+
+// ──────────────────────────────────────────────
+// GST TYPE
+// ──────────────────────────────────────────────
+function setGstType(type) {
+  document.getElementById('gstReg').classList.toggle('active', type === 'registered');
+  document.getElementById('gstUnreg').classList.toggle('active', type === 'unregistered');
+  document.getElementById('gstinField').style.display = type === 'registered' ? '' : 'none';
+}
+
+// ──────────────────────────────────────────────
+// COLLAPSIBLE SUB-SECTIONS
+// ──────────────────────────────────────────────
+function toggleSubSection(bodyId, iconId) {
+  const body = document.getElementById(bodyId);
+  const icon = document.getElementById(iconId);
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  icon.style.transform = hidden ? '' : 'rotate(-90deg)';
+}
+
+// ──────────────────────────────────────────────
+// PRODUCT TABLE
+// ──────────────────────────────────────────────
+function collectSizes() {
+  const s = [];
+  productRows.forEach(r => {
+    if (r.availQty) Object.keys(r.availQty).forEach(k => { if (!s.includes(k)) s.push(k); });
+  });
+  currentSizes = s;
+  return s;
+}
+
+function renderProductTable() {
+  const sizes = collectSizes();
+  const isSpMode = singleProcess;
+
+  // ── Header ──
+  let hCols = `
+    <th style="width:28px;text-align:center;">#</th>
+    <th style="min-width:120px;">Work Order No</th>
+    <th style="min-width:120px;">Production No</th>
+    <th style="min-width:120px;">Buyer Order No</th>
+    <th style="min-width:160px;">Product / Sample No</th>
+    <th style="min-width:100px;">Brand</th>
+    <th style="min-width:110px;">Process Type</th>`;
+
+  if (isSpMode) {
+    sizes.forEach(s => {
+      hCols += `<th style="min-width:90px;text-align:center;padding:8px 4px;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">${s}</div>
+        <div style="display:flex;gap:2px;justify-content:center;">
+          <span style="font-size:9px;font-weight:700;color:var(--text-3);background:#f1f5f9;border-radius:3px;padding:1px 4px;" title="Available qty from work order">Avail</span>
+          <span style="font-size:9px;font-weight:700;color:var(--brand-700);background:var(--brand-50);border-radius:3px;padding:1px 4px;" title="Processing qty">Proc</span>
+          <span style="font-size:9px;font-weight:700;color:#dc2626;background:#fef2f2;border-radius:3px;padding:1px 4px;" title="Damage">Dmg</span>
+          <span style="font-size:9px;font-weight:700;color:#d97706;background:#fffbeb;border-radius:3px;padding:1px 4px;" title="Missed/Short">Mis</span>
+        </div>
+      </th>`;
+    });
+  } else {
+    sizes.forEach(s => {
+      hCols += `<th style="min-width:80px;text-align:center;padding:8px 4px;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">${s}</div>
+        <div style="display:flex;gap:2px;justify-content:center;">
+          <span style="font-size:9px;font-weight:700;color:var(--text-3);background:#f1f5f9;border-radius:3px;padding:1px 4px;" title="Available qty from work order">Avail</span>
+          <span style="font-size:9px;font-weight:700;color:var(--brand-700);background:var(--brand-50);border-radius:3px;padding:1px 4px;" title="Processing qty">Proc</span>
+        </div>
+      </th>`;
+    });
+  }
+
+  hCols += `
+    <th class="r" style="width:86px;">Unit Price (₹)</th>
+    <th style="min-width:110px;">Employee</th>
+    <th style="min-width:96px;">Batch No</th>
+    <th class="r" style="width:96px;">Goods Value (₹)</th>
+    <th style="width:30px;"></th>`;
+
+  document.getElementById('productTableHead').innerHTML = hCols;
+
+  // ── Body rows ──
+  const tbody = document.getElementById('productTableBody');
+  tbody.innerHTML = productRows.map((row, idx) => {
+    const woOpts = `<option value="">— WO —</option>` + WO_LIST.map(w =>
+      `<option value="${w}" ${row.wo === w ? 'selected' : ''}>${w}</option>`
+    ).join('');
+
+    const prodOpts = `<option value="">— Product —</option>` +
+      (row.wo && WO_DATA[row.wo] ? WO_DATA[row.wo].products : []).map(p =>
+        `<option value="${p.label}" ${row.product === p.label ? 'selected' : ''}>${p.label}</option>`
+      ).join('');
+
+    const procOpts = `<option value="">— Select —</option>` +
+      ['Cutting','Stitching','Embroidery','Printing','Washing/Dyeing','Finishing','Packing','Other'].map(p =>
+        `<option value="${p}" ${row.processType === p ? 'selected' : ''}>${p}</option>`
+      ).join('');
+
+    const empOpts = `<option value="">— Employee —</option>` +
+      EMPLOYEES.map(e => `<option value="${e}" ${row.employee === e ? 'selected' : ''}>${e}</option>`).join('');
+
+    const batchOpts = `<option value="">— Batch —</option>` +
+      BATCHES.map(b => `<option value="${b}" ${row.batch === b ? 'selected' : ''}>${b}</option>`).join('');
+
+    let sizeCells = '';
+    if (isSpMode) {
+      sizeCells = sizes.map(s => {
+        const avail    = (row.availQty   && row.availQty[s]   !== undefined) ? row.availQty[s]   : '—';
+        const procVal  = (row.processQty && row.processQty[s] !== undefined) ? row.processQty[s] : '';
+        const dmgVal   = (row.dmg        && row.dmg[s]        !== undefined) ? row.dmg[s]        : '';
+        const missedVal= (row.missed     && row.missed[s]     !== undefined) ? row.missed[s]     : '';
+        return `<td style="padding:4px;vertical-align:middle;">
+          <div class="size-cell">
+            <span class="avail-badge" title="Available qty from work order">Avail: ${avail}</span>
+            <input class="ci num" type="number" min="0" value="${procVal}" placeholder="0"
+              oninput="updateProcessQty(${row.id},'${s}',this.value)" style="width:56px;" title="Processing Qty">
+            <div class="dmg-mis-row">
+              <input class="ci num dmg" type="number" min="0" value="${dmgVal}" placeholder="0"
+                oninput="updateDmg(${row.id},'${s}',this.value)" style="width:28px;" title="Damage">
+              <input class="ci num missed" type="number" min="0" value="${missedVal}" placeholder="0"
+                oninput="updateMissed(${row.id},'${s}',this.value)" style="width:28px;" title="Missed/Short">
+            </div>
+          </div>
+        </td>`;
+      }).join('');
+    } else {
+      sizeCells = sizes.map(s => {
+        const avail   = (row.availQty   && row.availQty[s]   !== undefined) ? row.availQty[s]   : '—';
+        const procVal = (row.processQty && row.processQty[s] !== undefined) ? row.processQty[s] : '';
+        return `<td style="padding:4px;vertical-align:middle;">
+          <div class="size-cell">
+            <span class="avail-badge" title="Available qty from work order">Avail: ${avail}</span>
+            <input class="ci num" type="number" min="0" value="${procVal}" placeholder="0"
+              oninput="updateProcessQty(${row.id},'${s}',this.value)" style="width:56px;" title="Processing Qty">
+          </div>
+        </td>`;
+      }).join('');
+    }
+
+    const gv = calcGoodsValue(row);
+
+    return `<tr id="prow-${row.id}">
+      <td class="seq-cell">${idx + 1}</td>
+      <td>
+        <select class="ci" style="min-width:110px;" onchange="onWoChange(${row.id},this.value)">
+          ${woOpts}
+        </select>
+      </td>
+      <td>
+        <input class="ci ro" type="text" readonly value="${row.productionNo || ''}" id="pno-${row.id}" style="min-width:108px;" placeholder="Auto">
+      </td>
+      <td>
+        <input class="ci ro" type="text" readonly value="${row.buyerOrderNo || ''}" id="bono-${row.id}" style="min-width:108px;" placeholder="Auto">
+      </td>
+      <td>
+        <select class="ci product-select" style="min-width:148px;" onchange="onProductChange(${row.id},this.value)">
+          ${prodOpts}
+        </select>
+      </td>
+      <td>
+        <input class="ci ro" type="text" readonly value="${row.brand || ''}" id="brand-${row.id}" style="min-width:88px;" placeholder="Auto">
+      </td>
+      <td>
+        <select class="ci" style="min-width:100px;" onchange="updateField(${row.id},'processType',this.value)">
+          ${procOpts}
+        </select>
+      </td>
+      ${sizeCells}
+      <td>
+        <input class="ci num" type="number" min="0" step="0.01" value="${row.unitPrice || ''}" placeholder="0.00"
+          oninput="updateField(${row.id},'unitPrice',this.value)" style="width:76px;">
+      </td>
+      <td>
+        <select class="ci" style="min-width:100px;" onchange="updateField(${row.id},'employee',this.value)">
+          ${empOpts}
+        </select>
+      </td>
+      <td>
+        <select class="ci" style="min-width:88px;" onchange="updateField(${row.id},'batch',this.value)">
+          ${batchOpts}
+        </select>
+      </td>
+      <td style="text-align:right;">
+        <input class="ci num ro" type="text" readonly id="gv-${row.id}"
+          value="${gv > 0 ? gv.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : ''}"
+          style="width:86px;">
+      </td>
+      <td style="text-align:center;">
+        <button class="del-btn" onclick="deleteProductRow(${row.id})" title="Remove row">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // ── Footer ──
+  const totalGV = productRows.reduce((a, r) => a + calcGoodsValue(r), 0);
+  let footSizeCols = '';
+  if (isSpMode) {
+    footSizeCols = sizes.map(s => {
+      const totDmg    = productRows.reduce((a,r) => a + (r.dmg    && r.dmg[s]    ? Number(r.dmg[s])    : 0), 0);
+      const totMissed = productRows.reduce((a,r) => a + (r.missed && r.missed[s] ? Number(r.missed[s]) : 0), 0);
+      return `<td style="text-align:center;font-size:11px;">
+        <span style="color:#dc2626;font-weight:700;">${totDmg || ''}</span>
+        ${totDmg&&totMissed?'<span style="color:#cbd5e1"> / </span>':''}
+        <span style="color:#d97706;font-weight:700;">${totMissed || ''}</span>
+      </td>`;
+    }).join('');
+  } else {
+    footSizeCols = sizes.map(s => {
+      const tot = productRows.reduce((a,r) => a + (r.processQty && r.processQty[s] ? Number(r.processQty[s]) : 0), 0);
+      return `<td style="text-align:center;font-weight:700;color:var(--brand-700);">${tot || ''}</td>`;
+    }).join('');
+  }
+
+  document.getElementById('productTableFoot').innerHTML = `<tr>
+    <td colspan="7" class="tf-label">Total Goods Value</td>
+    ${footSizeCols}
+    <td></td><td></td><td></td>
+    <td style="text-align:right;color:var(--brand-700);" id="totalGoodsValue">
+      ${totalGV > 0 ? '₹' + totalGV.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}
+    </td>
+    <td></td>
+  </tr>`;
+}
+
+function calcGoodsValue(row) {
+  if (!row.unitPrice || !row.processQty) return 0;
+  const totalQty = Object.values(row.processQty).reduce((a,v) => a + Number(v||0), 0);
+  return totalQty * Number(row.unitPrice);
+}
+
+function addProductRow() {
+  rowCounter++;
+  productRows.push({ id: rowCounter, wo:'', productionNo:'', buyerOrderNo:'', brand:'', product:'', processType:'', availQty:{}, processQty:{}, dmg:{}, missed:{}, unitPrice:'', employee:'', batch:'' });
+  renderProductTable();
+}
+
+function deleteProductRow(id) {
+  productRows = productRows.filter(r => r.id !== id);
+  renderProductTable();
+}
+
+function onWoChange(id, woVal) {
+  const row = productRows.find(r => r.id === id);
+  if (!row) return;
+  row.wo = woVal;
+  row.product = '';
+  row.availQty  = {};
+  row.processQty= {};
+  row.dmg   = {};
+  row.missed= {};
+  if (woVal && WO_DATA[woVal]) {
+    row.productionNo = WO_DATA[woVal].productionNo;
+    row.buyerOrderNo = WO_DATA[woVal].buyerOrderNo;
+    row.brand        = WO_DATA[woVal].brand || '';
+  } else {
+    row.productionNo = '';
+    row.buyerOrderNo = '';
+    row.brand        = '';
+  }
+  renderProductTable();
+}
+
+function onProductChange(id, productVal) {
+  const row = productRows.find(r => r.id === id);
+  if (!row) return;
+  row.product = productVal;
+  if (row.wo && WO_DATA[row.wo]) {
+    const prod = WO_DATA[row.wo].products.find(p => p.label === productVal);
+    if (prod) {
+      row.availQty   = { ...prod.sizes }; // readonly reference from WO
+      row.processQty = {};
+      row.dmg        = {};
+      row.missed     = {};
+      Object.keys(prod.sizes).forEach(s => { row.processQty[s] = ''; row.dmg[s] = ''; row.missed[s] = ''; });
+    }
+  }
+  renderProductTable();
+}
+
+function updateProcessQty(id, size, val) {
+  const row = productRows.find(r => r.id === id);
+  if (!row) return;
+  if (!row.processQty) row.processQty = {};
+  row.processQty[size] = val;
+  refreshGV(row);
+}
+
+function updateDmg(id, size, val) {
+  const row = productRows.find(r => r.id === id);
+  if (row) { row.dmg[size] = val; checkLossBearer(); }
+}
+
+function updateMissed(id, size, val) {
+  const row = productRows.find(r => r.id === id);
+  if (row) { row.missed[size] = val; checkLossBearer(); }
+}
+
+function checkLossBearer() {
+  let totalDmg = 0, totalMissed = 0;
+  productRows.forEach(r => {
+    Object.values(r.dmg    || {}).forEach(v => { totalDmg    += Number(v||0); });
+    Object.values(r.missed || {}).forEach(v => { totalMissed += Number(v||0); });
+  });
+  const sec = document.getElementById('secLossBearer');
+  const attachNum = document.getElementById('attachSecNum');
+  if (totalDmg > 0 || totalMissed > 0) {
+    sec.style.display = '';
+    if (attachNum) attachNum.textContent = '4';
+    const summary = document.getElementById('lossQtySummary');
+    if (summary) summary.textContent = `${totalDmg} damage pcs + ${totalMissed} missed/short pcs detected across product lines.`;
+  } else {
+    sec.style.display = 'none';
+    if (attachNum) attachNum.textContent = '3';
+  }
+}
+
+function onLossBearerChange(val) {
+  document.getElementById('lossBearerVendorField').style.display = val === 'vendor'   ? '' : 'none';
+  document.getElementById('lossBearerEmpField').style.display    = val === 'employee' ? '' : 'none';
+}
+
+function createDebitNote() {
+  const bearer = document.getElementById('lossBearerSelect').value;
+  if (!bearer) { showToast('Please select a loss bearer first.', 'draft'); return; }
+  let totalDmg = 0, totalMissed = 0;
+  productRows.forEach(r => {
+    Object.values(r.dmg    || {}).forEach(v => { totalDmg    += Number(v||0); });
+    Object.values(r.missed || {}).forEach(v => { totalMissed += Number(v||0); });
+  });
+  showToast(`Debit note created — ${totalDmg + totalMissed} pcs (${bearer})`, 'success');
+}
+
+// ── Attachments ──
+let attachedFiles = [];
+function handleAttachFiles(files) {
+  const list = document.getElementById('attachList');
+  Array.from(files).forEach(f => {
+    if (f.size > 5 * 1024 * 1024) { showToast(`${f.name} exceeds 5 MB`, 'draft'); return; }
+    attachedFiles.push(f);
+    const chip = document.createElement('div');
+    chip.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f1f5f9;border:1px solid var(--border);border-radius:999px;font-size:11.5px;color:var(--text-2);';
+    chip.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;color:var(--brand-500);">attach_file</span>${f.name}<button onclick="removeAttach(this,'${f.name}')" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;line-height:1;padding:0 2px;" title="Remove">&times;</button>`;
+    list.appendChild(chip);
+  });
+  document.getElementById('attachInput').value = '';
+}
+function removeAttach(btn, name) {
+  attachedFiles = attachedFiles.filter(f => f.name !== name);
+  btn.closest('div').remove();
+}
+
+function updateField(id, field, val) {
+  const row = productRows.find(r => r.id === id);
+  if (row) { row[field] = val; if (field === 'unitPrice') refreshGV(row); }
+}
+
+function updateProcessType(id, val) { updateField(id, 'processType', val); }
+
+function refreshGV(row) {
+  const gv = calcGoodsValue(row);
+  const el = document.getElementById('gv-' + row.id);
+  if (el) el.value = gv > 0 ? gv.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : '';
+  // update footer total
+  const totalGV = productRows.reduce((a,r) => a + calcGoodsValue(r), 0);
+  const tot = document.getElementById('totalGoodsValue');
+  if (tot) tot.textContent = totalGV > 0 ? '₹' + totalGV.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+}
+
+// ──────────────────────────────────────────────
+// BARCODE MODAL
+// ──────────────────────────────────────────────
+function openBarcodeModal() {
+  document.getElementById('barcodeModal').classList.add('open');
+  document.getElementById('barcodeInput').value = '';
+  document.getElementById('barcodeLookupMsg').style.display = 'none';
+  document.getElementById('addBarcodeBtn').disabled = true;
+  barcodeResult = null;
+  setTimeout(() => document.getElementById('barcodeInput').focus(), 100);
+}
+function closeBarcodeModal() {
+  document.getElementById('barcodeModal').classList.remove('open');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('barcodeInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupBarcode();
+  });
+});
+function lookupBarcode() {
+  const code = document.getElementById('barcodeInput').value.trim();
+  const msg  = document.getElementById('barcodeLookupMsg');
+  const btn  = document.getElementById('addBarcodeBtn');
+  msg.style.display = 'block';
+  msg.className = 'barcode-lookup';
+  if (!code) { msg.textContent = 'Enter a barcode to look up.'; msg.classList.add('barcode-empty'); btn.disabled = true; return; }
+  const found = BARCODE_DB[code];
+  if (found && WO_DATA[found.wo]) {
+    const prod = WO_DATA[found.wo].products[found.productIdx];
+    barcodeResult = { wo: found.wo, product: prod.label, sizes: { ...prod.sizes } };
+    msg.classList.add('barcode-found');
+    msg.innerHTML = `<strong>Found:</strong> ${found.wo} — ${prod.label} (${Object.entries(prod.sizes).map(([k,v])=>k+':'+v).join(', ')})`;
+    btn.disabled = false;
+  } else {
+    barcodeResult = null;
+    msg.classList.add('barcode-notfound');
+    msg.textContent = `No product found for barcode "${code}"`;
+    btn.disabled = true;
+  }
+}
+function addBarcodeRow() {
+  if (!barcodeResult) return;
+  rowCounter++;
+  const woData = WO_DATA[barcodeResult.wo];
+  const row = {
+    id: rowCounter,
+    wo: barcodeResult.wo,
+    productionNo: woData ? woData.productionNo : '',
+    buyerOrderNo: woData ? woData.buyerOrderNo : '',
+    product: barcodeResult.product,
+    processType: '',
+    brand:      woData ? (woData.brand || '') : '',
+    availQty:   { ...barcodeResult.sizes },
+    processQty: {},
+    dmg: {},
+    missed: {},
+    unitPrice: '',
+    employee: '',
+    batch: ''
+  };
+  Object.keys(barcodeResult.sizes).forEach(s => { row.processQty[s] = ''; row.dmg[s] = ''; row.missed[s] = ''; });
+  productRows.push(row);
+  renderProductTable();
+  closeBarcodeModal();
+  showToast('Product added from barcode scan', 'success');
+}
+
+// ──────────────────────────────────────────────
+// INLINE BARCODE SCAN (Product Lines header)
+// ──────────────────────────────────────────────
+function onInlineBarcodeKey(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const inp   = document.getElementById('inlineBarcodeField');
+  const code  = inp.value.trim();
+  if (!code) return;
+
+  const found = BARCODE_DB[code];
+  if (found && WO_DATA[found.wo]) {
+    const woData = WO_DATA[found.wo];
+    const prod   = woData.products[found.productIdx];
+    barcodeResult = { wo: found.wo, product: prod.label, sizes: { ...prod.sizes } };
+    addBarcodeRow();             // reuse existing function which pushes row & renders
+    inp.value = '';
+  } else {
+    inp.style.color = '#dc2626';
+    showToast(`No product found for barcode "${code}"`, 'error');
+    setTimeout(() => { inp.style.color = ''; }, 1200);
+  }
+}
+
+// ──────────────────────────────────────────────
+// SIDEBAR TOGGLE
+// ──────────────────────────────────────────────
+function toggleGroup(el) {
+  const group = el.closest('.nav-group');
+  const isOpen = group.classList.contains('open');
+  document.querySelectorAll('.nav-group.open').forEach(g => {
+    if (g !== group) {
+      g.classList.remove('open');
+      g.querySelector('.nav-parent')?.classList.remove('open');
+    }
+  });
+  group.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+
+// ──────────────────────────────────────────────
+// FORM ACTIONS
+// ──────────────────────────────────────────────
+function saveDraft() {
+  showToast('Process saved as draft', 'draft');
+}
+
+function sendForProcessing() {
+  const type = currentType;
+  // Basic required check
+  if (type === 'inhouse') {
+    if (!document.getElementById('ihLocation').value) { alert('Please select a Production Location.'); return; }
+    if (!document.getElementById('ihProcess').value)  { alert('Please select a Process.'); return; }
+  }
+  if (productRows.length === 0) { alert('Please add at least one product line.'); return; }
+  showToast('Process created and sent for processing', 'success');
+  setTimeout(() => { window.location.href = 'production-process-list.html'; }, 1800);
+}
+
+function saveAndComplete() {
+  if (productRows.length === 0) { alert('Please add at least one product line.'); return; }
+  showToast('Single process saved and marked complete', 'purple');
+  setTimeout(() => { window.location.href = 'production-process-view.html'; }, 1800);
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Init: add one blank row ──
+addProductRow();
+</script>
+</body>
+</html>

@@ -97,6 +97,7 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 | NE-PM-01 to NE-PM-08 | Product Management Module | `product-list.html`, `product-create.html`, `product-edit.html`, `product-view.html` | `products`, `product_sizes`, `product_bom`, `product_customer_names`, `product_descriptions`, `product_attachments`, `size_master` |
 | NE-CST-01 to NE-CST-04 | Garment Costing Sheet | `costing-list.html`, `costing-create.html`, `costing-edit.html`, `costing-view.html` | `costing_header`, `costing_fabric_lines`, `costing_cm_lines`, `costing_packing_lines`, `costing_overhead_lines` |
 | NE-WO-01 to NE-WO-04 | Work Order (Production sub-module) | `work-order-list.html`, `work-order-create.html`, `work-order-edit.html`, `work-order-view.html` | `work_orders`, `work_order_size_lines`, `work_order_bom_lines`, `work_order_processes` |
+| NE-PP-01 to NE-PP-04 | Production Process (Inhouse & Outward DC) | `production-process-list.html`, `production-process-create.html`, `production-process-edit.html`, `production-process-view.html` | `production_processes`, `production_process_lines`, `production_process_sizes`, `production_process_receives`, `production_process_receive_sizes` |
 
 ---
 
@@ -126,7 +127,11 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 ├── work-order-list.html                # Work Order list — stats, filters, customizable column labels
 ├── work-order-create.html              # Create Work Order — PO selector, auto-populate, size/BOM/job work, workflow tab
 ├── work-order-edit.html                # Edit Work Order — locked PO, editable delivery/workflow, locked processes
-└── work-order-view.html                # View Work Order (read-only) — progress bar, print/PDF layout
+├── work-order-view.html                # View Work Order (read-only) — progress bar, print/PDF layout
+├── production-process-list.html        # Production Process list — IHP/ODC series tabs, bulk receive modal, configurable columns
+├── production-process-create.html      # Create Production Process — Inhouse/Outward toggle, reprocess mode, barcode scan, size auto-populate
+├── production-process-edit.html        # Edit Production Process — multi-receive entries with dates, damage/rejected per size, short close
+└── production-process-view.html        # View Production Process (read-only) — receipt timeline, size-wise summary, send/receive PDFs
 ```
 
 

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Processes — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Tab bar ── */
+.tab-bar{display:flex;align-items:center;gap:4px;margin-bottom:14px;}
+.tab-pill{height:32px;padding:0 16px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface,#fff);font-size:12.5px;font-weight:600;color:var(--text-3);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+.tab-pill:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.tab-pill.active{background:var(--brand-600);color:#fff;border-color:var(--brand-600);}
+.tab-pill .tab-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;font-size:10px;font-weight:700;background:rgba(255,255,255,.25);color:inherit;}
+.tab-pill:not(.active) .tab-cnt{background:var(--border2);color:var(--text-3);}
+
+/* ── Type badges ── */
+.type-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:700;white-space:nowrap;letter-spacing:.03em;}
+.type-ihp{background:#eff6ff;color:#1e40af;}
+.type-odc{background:#fff7ed;color:#c2410c;}
+
+/* ── Status pills ── */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-draft        {background:#f3f4f6;color:#4b5563;}
+.sp-sent         {background:#eff6ff;color:#1e40af;}
+.sp-partial      {background:#fffbeb;color:#92400e;}
+.sp-received     {background:#f0fdf4;color:#166534;}
+.sp-shortclosed  {background:#f3f4f6;color:#6b7280;text-decoration:line-through;}
+
+/* ── Stat grid ── */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface,#fff);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:all .18s;}
+.stat-card:hover{box-shadow:0 4px 12px rgba(37,99,235,.1);transform:translateY(-1px);}
+.stat-card.active{border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.stat-num{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11.5px;color:var(--text-3);font-weight:500;}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:500;}
+
+/* ── Toolbar ── */
+.list-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:280px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-3);}
+.search-input{height:34px;padding:0 10px 0 32px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%;outline:none;font-family:inherit;background:#fff;}
+.search-input:focus{border-color:var(--brand-500);}
+.filter-sel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.filter-sel:focus{border-color:var(--brand-500);}
+.date-input{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;color:var(--text-2);}
+.date-input:focus{border-color:var(--brand-500);}
+
+/* ── Table ── */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.pp-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pp-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 14px;border-bottom:2px solid var(--border2);background:#f8fafc;white-space:nowrap;}
+.pp-table td{padding:11px 14px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.pp-table tr:last-child td{border-bottom:none;}
+.pp-table tr:hover td{background:var(--brand-50);}
+
+/* ── Row actions ── */
+.row-actions{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;}
+.icon-action{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;text-decoration:none;}
+.icon-action.view:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action.edit:hover{border-color:#86efac;color:#15803d;background:#f0fdf4;}
+.icon-action.edit.disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+.icon-action.pdf{color:#92400e;}
+.icon-action.pdf:hover{border-color:#fde68a;color:#92400e;background:#fffbeb;}
+.icon-action svg{width:13px;height:13px;}
+
+/* ── Toast ── */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ── Pagination ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border2);background:#f8fafc;font-size:12.5px;color:var(--text-3);}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.pag-btn:hover{border-color:var(--brand-400);color:var(--brand-700);}
+.pag-btn.active{background:var(--brand-600);color:#fff;border-color:var(--brand-600);}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── Configure Columns Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:420px;max-width:94vw;overflow:hidden;transform:translateY(12px);transition:transform .2s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.modal-title-icon{width:30px;height:30px;border-radius:8px;background:var(--brand-50);display:flex;align-items:center;justify-content:center;color:var(--brand-600);}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;}
+.modal-close:hover{background:var(--border2);color:var(--text-1);}
+.modal-body{padding:16px 22px 0;max-height:420px;overflow-y:auto;}
+.modal-hint{font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.5;}
+.col-chk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);}
+.col-chk-row:last-child{border-bottom:none;}
+.col-chk-row input[type="checkbox"]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.col-chk-label{font-size:13px;font-weight:500;color:var(--text-1);cursor:pointer;user-select:none;}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 18px;border-top:1px solid var(--border);margin-top:4px;}
+.btn-reset{height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-reset:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-apply{height:34px;padding:0 20px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-apply:hover{background:var(--brand-700);}
+
+/* ── Bulk Receive Modal ── */
+.br-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:600;display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;}
+.br-overlay.open{display:flex;}
+.br-modal{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.22);width:740px;max-width:100%;display:flex;flex-direction:column;overflow:hidden;}
+.br-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:#f8fafc;flex-shrink:0;}
+.br-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.br-close{width:30px;height:30px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;}
+.br-close:hover{background:var(--border2);}
+
+.br-filter-row{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);background:#fafbfd;flex-wrap:wrap;}
+.br-filter-label{font-size:11.5px;font-weight:600;color:var(--text-3);white-space:nowrap;}
+
+.br-body{padding:0;overflow-y:auto;max-height:calc(90vh - 220px);}
+.br-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.br-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:9px 14px;border-bottom:2px solid var(--border2);background:#f8fafc;white-space:nowrap;}
+.br-table td{padding:10px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.br-table tr.br-expand-row td{padding:0;background:#fafbfd;}
+
+.br-expand-inner{padding:14px 20px 18px;border-top:none;}
+.br-expand-label{font-size:11.5px;font-weight:700;color:var(--text-2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.br-top-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+.br-field{display:flex;flex-direction:column;gap:4px;}
+.br-field label{font-size:11px;font-weight:600;color:var(--text-3);}
+.br-field input, .br-field select{height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12.5px;font-family:inherit;outline:none;background:#fff;color:var(--text-1);}
+.br-field input:focus, .br-field select:focus{border-color:var(--brand-500);}
+.br-field input[readonly]{background:#f8fafc;color:var(--text-3);}
+
+.br-scan-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.br-scan-row input{flex:1;height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12.5px;font-family:inherit;outline:none;}
+.br-scan-row input:focus{border-color:var(--brand-500);}
+.br-scan-btn{width:32px;height:32px;border-radius:6px;border:1.5px solid #fed7aa;background:#fff7ed;color:#c2410c;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.br-scan-btn:hover{background:#ffedd5;border-color:#fb923c;}
+
+.br-size-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;}
+.br-size-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:7px 10px;border-bottom:1.5px solid var(--border2);background:#f1f5f9;}
+.br-size-table td{padding:7px 10px;border-bottom:1px solid var(--border2);}
+.br-size-table td input{width:70px;height:28px;padding:0 8px;border:1.5px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit;outline:none;text-align:center;}
+.br-size-table td input:focus{border-color:var(--brand-500);}
+
+.br-save-btn{height:32px;padding:0 18px;border:none;border-radius:7px;background:#16a34a;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;display:inline-flex;align-items:center;gap:6px;}
+.br-save-btn:hover{background:#15803d;}
+
+.br-enter-btn{height:26px;padding:0 12px;border:1.5px solid var(--brand-500);border-radius:6px;background:var(--brand-50);font-size:11.5px;font-weight:600;color:var(--brand-700);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.br-enter-btn:hover{background:var(--brand-100);}
+
+.br-ft{display:flex;align-items:center;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:#f8fafc;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="buyer-po-list.html">Buyer PO List</a>
+        <a class="nav-child" href="buyer-po.html">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+        <a class="nav-child" href="vendor-returns.html">Vendor Returns</a>
+        <a class="nav-child" href="debit-notes.html">Debit Notes</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">precision_manufacturing</span></span>
+        <span class="nav-parent-label">Production Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-order-list.html">Production Order List</a>
+        <a class="nav-child" href="production-order.html">Create Production Order</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="work-order-list.html">Work Order List</a>
+        <a class="nav-child" href="work-order-create.html">Create Work Order</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">factory</span></span>
+        <span class="nav-parent-label">Production Process</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child active" href="production-process-list.html">Process List</a>
+        <a class="nav-child" href="production-process-create.html">Create Process</a>
+        <a class="nav-child" href="production-process-bulk-receive.html">Bulk Receive</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">schema</span></span>
+        <span class="nav-parent-label">Planning &amp; TnA</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="workflow-template-list.html">Workflow Templates</a>
+        <a class="nav-child" href="workflow-designer.html">Workflow Designer</a>
+        <a class="nav-child" href="tna-tracker.html">TnA Tracker</a>
+        <a class="nav-child" href="#">Planning Board</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-list.html">All Masters</a>
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-company.html">Company Settings</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+        <a class="nav-child" href="masters-rawmaterial.html">Raw Materials</a>
+        <a class="nav-child" href="masters-garmenttype.html">Garment Types</a>
+        <a class="nav-child" href="masters-operation.html">Operations</a>
+        <a class="nav-child" href="masters-aisle.html">Aisle / Location</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Production</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page heading -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">Production Processes</div>
+        <div class="ph-sub">Manage inhouse and outward DC production process records</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <button onclick="openBulkReceive()" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border:none;border-radius:8px;background:#d97706;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+          <span class="material-symbols-outlined" style="font-size:16px;">move_to_inbox</span>
+          Bulk Receive
+        </button>
+        <a href="production-process-create.html" class="btn btn-primary btn-sm" style="height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 16px;text-decoration:none;">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          New Process
+        </a>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card active" id="sc-All" onclick="filterByStat('All', this)">
+        <div class="stat-num">12</div>
+        <div class="stat-label">Total Processes</div>
+        <div class="stat-sub" style="color:var(--text-3);">All statuses</div>
+      </div>
+      <div class="stat-card" id="sc-OpenSent" onclick="filterByStat('OpenSent', this)">
+        <div class="stat-num" style="color:#1e40af;">7</div>
+        <div class="stat-label">Open / Sent</div>
+        <div class="stat-sub" style="color:#1e40af;">Pending receipt</div>
+      </div>
+      <div class="stat-card" id="sc-Partial Received" onclick="filterByStat('Partial Received', this)">
+        <div class="stat-num" style="color:#92400e;">3</div>
+        <div class="stat-label">Partial Received</div>
+        <div class="stat-sub" style="color:#92400e;">Awaiting balance</div>
+      </div>
+      <div class="stat-card" id="sc-Received" onclick="filterByStat('Received', this)">
+        <div class="stat-num" style="color:#166534;">1</div>
+        <div class="stat-label">Fully Received</div>
+        <div class="stat-sub" style="color:#166534;">Completed</div>
+      </div>
+      <div class="stat-card" id="sc-Short Closed" onclick="filterByStat('Short Closed', this)">
+        <div class="stat-num" style="color:#6b7280;">1</div>
+        <div class="stat-label">Short Closed</div>
+        <div class="stat-sub" style="color:#6b7280;">Closed short</div>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-pill active" id="tab-All" onclick="switchTab('All')">
+        All <span class="tab-cnt">10</span>
+      </button>
+      <button class="tab-pill" id="tab-IHP" onclick="switchTab('IHP')">
+        Inhouse (IHP-) <span class="tab-cnt">5</span>
+      </button>
+      <button class="tab-pill" id="tab-ODC" onclick="switchTab('ODC')">
+        Outward DC (ODC-) <span class="tab-cnt">5</span>
+      </button>
+    </div>
+
+    <!-- Filter toolbar -->
+    <div class="list-toolbar">
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input class="search-input" id="searchInput" placeholder="Process no, product, WO no…" oninput="applyFilter()">
+      </div>
+      <!-- Status filter -->
+      <select class="filter-sel" id="filterStatus" onchange="applyFilter()">
+        <option value="">All Statuses</option>
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Partial Received">Partial Received</option>
+        <option value="Received">Received</option>
+        <option value="Short Closed">Short Closed</option>
+      </select>
+      <!-- Buyer Order No -->
+      <select class="filter-sel" id="filterBuyerOrder" onchange="applyFilter()">
+        <option value="">Buyer Order No</option>
+        <option value="BO-2026-011">BO-2026-011</option>
+        <option value="BO-2026-012">BO-2026-012</option>
+        <option value="BO-2026-013">BO-2026-013</option>
+        <option value="BO-2026-014">BO-2026-014</option>
+      </select>
+      <!-- Style/Product -->
+      <select class="filter-sel" id="filterProduct" onchange="applyFilter()">
+        <option value="">Style / Product</option>
+        <option value="Men's Polo Shirt">Men's Polo Shirt</option>
+        <option value="Women's Blouse">Women's Blouse</option>
+        <option value="Jeans Wash Process">Jeans Wash Process</option>
+        <option value="Embroidery Work">Embroidery Work</option>
+        <option value="Cutting Process">Cutting Process</option>
+        <option value="Printing — Screen">Printing — Screen</option>
+        <option value="Finishing">Finishing</option>
+        <option value="Dyeing">Dyeing</option>
+        <option value="Stitching">Stitching</option>
+        <option value="Smocking">Smocking</option>
+      </select>
+      <!-- Date From -->
+      <input type="date" class="date-input" id="filterDateFrom" onchange="applyFilter()" title="Date From">
+      <!-- Date To -->
+      <input type="date" class="date-input" id="filterDateTo" onchange="applyFilter()" title="Date To">
+
+      <div style="flex:1;"></div>
+
+      <!-- Configure Columns -->
+      <button onclick="openColModal()" title="Configure Columns" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        Columns
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="pp-table" id="mainTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:var(--text-3);">
+        <span class="material-symbols-outlined" style="font-size:48px;color:#cbd5e1;display:block;margin-bottom:14px;">factory</span>
+        <h3 style="font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px;">No Process Records Found</h3>
+        <p style="font-size:13px;margin-bottom:14px;">Try adjusting your filters or create a new production process.</p>
+        <a href="production-process-create.html" class="btn btn-primary btn-sm">Create Process</a>
+      </div>
+      <div class="pagination" id="paginationFooter">
+        <span id="paginationInfo">Showing 10 of 12 records</span>
+        <div class="pag-btns">
+          <button class="pag-btn" disabled>&laquo;</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn">&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════ Configure Columns Modal ════════ -->
+<div class="modal-overlay" id="colModal" onclick="handleColOverlayClick(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="colModalTitle">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon">
+          <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        </div>
+        <span id="colModalTitle">Configure Columns</span>
+      </div>
+      <button class="modal-close" onclick="closeColModal()" title="Close">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">Select which columns to display in the table. The <strong>#</strong> and <strong>Actions</strong> columns are always shown.</p>
+      <div id="colChkContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-reset" onclick="resetColVisibility()">Reset</button>
+      <button class="btn-apply" onclick="applyColVisibility()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Bulk Receive Modal ════════ -->
+<div class="br-overlay" id="brModal" onclick="handleBrOverlayClick(event)">
+  <div class="br-modal" id="brModalContent">
+    <div class="br-hd">
+      <div class="br-title">
+        <span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-600);">move_to_inbox</span>
+        Bulk Receive
+      </div>
+      <button class="br-close" onclick="closeBulkReceive()" title="Close">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+
+    <!-- Filter section -->
+    <div class="br-filter-row">
+      <span class="br-filter-label">Filter:</span>
+      <select class="filter-sel" id="brFilterType" style="height:32px;font-size:12.5px;" onchange="applyBrFilter()">
+        <option value="">All Types</option>
+        <option value="Inhouse">Inhouse (IHP)</option>
+        <option value="Outward">Outward DC (ODC)</option>
+      </select>
+      <select class="filter-sel" id="brFilterBuyer" style="height:32px;font-size:12.5px;" onchange="applyBrFilter()">
+        <option value="">Buyer Order No</option>
+        <option value="BO-2026-011">BO-2026-011</option>
+        <option value="BO-2026-012">BO-2026-012</option>
+        <option value="BO-2026-013">BO-2026-013</option>
+      </select>
+      <select class="filter-sel" id="brFilterProduct" style="height:32px;font-size:12.5px;" onchange="applyBrFilter()">
+        <option value="">Style / Product</option>
+        <option value="Men's Polo Shirt">Men's Polo Shirt</option>
+        <option value="Women's Blouse">Women's Blouse</option>
+        <option value="Jeans Wash Process">Jeans Wash Process</option>
+        <option value="Printing — Screen">Printing — Screen</option>
+        <option value="Dyeing">Dyeing</option>
+        <option value="Smocking">Smocking</option>
+      </select>
+      <button onclick="applyBrFilter()" style="height:32px;padding:0 14px;border:none;border-radius:7px;background:var(--brand-600);font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;">Apply Filter</button>
+    </div>
+
+    <!-- Table -->
+    <div class="br-body">
+      <table class="br-table" id="brTable">
+        <thead>
+          <tr>
+            <th style="width:36px;"><input type="checkbox" id="brSelectAll" onchange="toggleSelectAll(this)" style="width:14px;height:14px;accent-color:var(--brand-600);cursor:pointer;"></th>
+            <th>Process No</th>
+            <th>Type</th>
+            <th>Product / Style</th>
+            <th>Sizes</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="brTableBody"></tbody>
+      </table>
+    </div>
+    <div class="br-ft">
+      <button onclick="closeBulkReceive()" style="height:34px;padding:0 18px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════ */
+const PROCESSES = [
+  {
+    proc_no:      'IHP-2026-001',
+    type:         'Inhouse',
+    process_name: "Men's Polo Shirt",
+    wo_no:        'WO-2026-001',
+    fabric:       'Cotton Pique',
+    colour:       'Navy',
+    status:       'Sent',
+    created_date: '2026-05-10',
+    delivery_date:'2026-05-25',
+    created_by:   'Hemalatha S',
+    sizes:        [{size:'S',sent:10,prev_rcvd:0},{size:'M',sent:20,prev_rcvd:0},{size:'L',sent:15,prev_rcvd:0},{size:'XL',sent:10,prev_rcvd:0}]
+  },
+  {
+    proc_no:      'IHP-2026-002',
+    type:         'Inhouse',
+    process_name: "Women's Blouse",
+    wo_no:        'WO-2026-003',
+    fabric:       'Viscose Crepe',
+    colour:       'White',
+    status:       'Partial Received',
+    created_date: '2026-05-12',
+    delivery_date:'2026-05-28',
+    created_by:   'Raj Kumar',
+    sizes:        [{size:'S',sent:12,prev_rcvd:6},{size:'M',sent:20,prev_rcvd:10},{size:'L',sent:14,prev_rcvd:4}]
+  },
+  {
+    proc_no:      'ODC-2026-001',
+    type:         'Outward',
+    process_name: 'Jeans Wash Process',
+    wo_no:        'WO-2026-002',
+    fabric:       'Denim',
+    colour:       'Blue',
+    status:       'Sent',
+    created_date: '2026-05-08',
+    delivery_date:'2026-05-22',
+    created_by:   'Hemalatha S',
+    sizes:        [{size:'28',sent:15,prev_rcvd:0},{size:'30',sent:25,prev_rcvd:0},{size:'32',sent:20,prev_rcvd:0},{size:'34',sent:10,prev_rcvd:0}]
+  },
+  {
+    proc_no:      'ODC-2026-002',
+    type:         'Outward',
+    process_name: 'Embroidery Work',
+    wo_no:        'WO-2026-004',
+    fabric:       'Georgette',
+    colour:       'Red',
+    status:       'Received',
+    created_date: '2026-05-05',
+    delivery_date:'2026-05-18',
+    created_by:   'Priya M',
+    sizes:        [{size:'S',sent:8,prev_rcvd:8},{size:'M',sent:15,prev_rcvd:15},{size:'L',sent:10,prev_rcvd:10}]
+  },
+  {
+    proc_no:      'IHP-2026-003',
+    type:         'Inhouse',
+    process_name: 'Cutting Process',
+    wo_no:        'WO-2026-005',
+    fabric:       'Polyester',
+    colour:       'Black',
+    status:       'Draft',
+    created_date: '2026-05-15',
+    delivery_date:'2026-05-30',
+    created_by:   'Raj Kumar',
+    sizes:        [{size:'S',sent:20,prev_rcvd:0},{size:'M',sent:30,prev_rcvd:0},{size:'L',sent:25,prev_rcvd:0},{size:'XL',sent:15,prev_rcvd:0}]
+  },
+  {
+    proc_no:      'ODC-2026-003',
+    type:         'Outward',
+    process_name: 'Printing — Screen',
+    wo_no:        'WO-2026-001',
+    fabric:       'Cotton Pique',
+    colour:       'White',
+    status:       'Partial Received',
+    created_date: '2026-05-11',
+    delivery_date:'2026-05-24',
+    created_by:   'Hemalatha S',
+    sizes:        [{size:'S',sent:18,prev_rcvd:10},{size:'M',sent:24,prev_rcvd:12},{size:'L',sent:16,prev_rcvd:6},{size:'XL',sent:10,prev_rcvd:4}]
+  },
+  {
+    proc_no:      'IHP-2026-004',
+    type:         'Inhouse',
+    process_name: 'Finishing',
+    wo_no:        'WO-2026-006',
+    fabric:       'Linen',
+    colour:       'Beige',
+    status:       'Short Closed',
+    created_date: '2026-05-03',
+    delivery_date:'2026-05-16',
+    created_by:   'Priya M',
+    sizes:        [{size:'S',sent:10,prev_rcvd:8},{size:'M',sent:16,prev_rcvd:12},{size:'L',sent:12,prev_rcvd:9}]
+  },
+  {
+    proc_no:      'ODC-2026-004',
+    type:         'Outward',
+    process_name: 'Dyeing',
+    wo_no:        'WO-2026-007',
+    fabric:       'Cotton Voile',
+    colour:       'Ivory',
+    status:       'Sent',
+    created_date: '2026-05-14',
+    delivery_date:'2026-06-01',
+    created_by:   'Raj Kumar',
+    sizes:        [{size:'S',sent:22,prev_rcvd:0},{size:'M',sent:30,prev_rcvd:0},{size:'L',sent:20,prev_rcvd:0}]
+  },
+  {
+    proc_no:      'IHP-2026-005',
+    type:         'Inhouse',
+    process_name: 'Stitching',
+    wo_no:        'WO-2026-008',
+    fabric:       'Jersey',
+    colour:       'Grey',
+    status:       'Draft',
+    created_date: '2026-05-16',
+    delivery_date:'2026-05-31',
+    created_by:   'Hemalatha S',
+    sizes:        [{size:'S',sent:25,prev_rcvd:0},{size:'M',sent:35,prev_rcvd:0},{size:'L',sent:28,prev_rcvd:0},{size:'XL',sent:18,prev_rcvd:0}]
+  },
+  {
+    proc_no:      'ODC-2026-005',
+    type:         'Outward',
+    process_name: 'Smocking',
+    wo_no:        'WO-2026-009',
+    fabric:       'Lawn',
+    colour:       'Yellow',
+    status:       'Sent',
+    created_date: '2026-05-13',
+    delivery_date:'2026-05-27',
+    created_by:   'Priya M',
+    sizes:        [{size:'XS',sent:8,prev_rcvd:0},{size:'S',sent:14,prev_rcvd:0},{size:'M',sent:18,prev_rcvd:0},{size:'L',sent:12,prev_rcvd:0}]
+  }
+];
+
+/* ══════════════════════════════════════════════
+   COLUMN CONFIG
+══════════════════════════════════════════════ */
+const DEFAULT_LABELS = {
+  proc_no:       'Process No',
+  type:          'Type',
+  process_name:  'Process Name / Style',
+  wo_no:         'Work Order No',
+  fabric_colour: 'Product Details',
+  status:        'Status',
+  created_date:  'Created Date',
+  delivery_date: 'Delivery Date',
+  created_by:    'Created By'
+};
+
+let colVisible = {};
+Object.keys(DEFAULT_LABELS).forEach(k => { colVisible[k] = true; });
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let activeTab = 'All';
+let activeStatFilter = 'All';
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${months[+m-1]} ${y}`;
+}
+
+function sizeSummary(sizes) {
+  return sizes.map(s => `${s.size}:${s.sent}`).join(' ');
+}
+
+function typeBadge(type) {
+  if (type === 'Inhouse') return '<span class="type-badge type-ihp">IHP</span>';
+  return '<span class="type-badge type-odc">ODC</span>';
+}
+
+const statusCls = {
+  'Draft':           'sp-draft',
+  'Sent':            'sp-sent',
+  'Partial Received':'sp-partial',
+  'Received':        'sp-received',
+  'Short Closed':    'sp-shortclosed'
+};
+
+function statusPill(s) {
+  const cls = statusCls[s] || 'sp-draft';
+  return `<span class="sp ${cls}">${s}</span>`;
+}
+
+/* ══════════════════════════════════════════════
+   TAB SWITCH
+══════════════════════════════════════════════ */
+function switchTab(tab) {
+  activeTab = tab;
+  ['All','IHP','ODC'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  applyFilter();
+}
+
+/* ══════════════════════════════════════════════
+   STAT CARD FILTER
+══════════════════════════════════════════════ */
+function filterByStat(key, el) {
+  activeStatFilter = key;
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  // sync status dropdown
+  const sel = document.getElementById('filterStatus');
+  if (key === 'All') { sel.value = ''; }
+  else if (key === 'OpenSent') { sel.value = 'Sent'; }
+  else { sel.value = key; }
+  applyFilter();
+}
+
+/* ══════════════════════════════════════════════
+   BUILD HEADER
+══════════════════════════════════════════════ */
+function buildHeader() {
+  const keys = Object.keys(DEFAULT_LABELS);
+  let h = '<tr><th style="width:36px;">#</th>';
+  keys.forEach(k => {
+    h += `<th id="th-${k}" data-col="${k}">${DEFAULT_LABELS[k].toUpperCase()}</th>`;
+  });
+  h += '<th style="width:120px;">ACTIONS</th></tr>';
+  document.getElementById('tableHead').innerHTML = h;
+  applyColumnVisibility();
+}
+
+function applyColumnVisibility() {
+  Object.keys(DEFAULT_LABELS).forEach(k => {
+    const display = colVisible[k] ? '' : 'none';
+    const th = document.getElementById(`th-${k}`);
+    if (th) th.style.display = display;
+    document.querySelectorAll(`td[data-col="${k}"]`).forEach(td => {
+      td.style.display = display;
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════
+   APPLY FILTER & RENDER
+══════════════════════════════════════════════ */
+function applyFilter() {
+  buildHeader();
+  const q           = document.getElementById('searchInput').value.toLowerCase();
+  const fStatus     = document.getElementById('filterStatus').value;
+  const fDateFrom   = document.getElementById('filterDateFrom').value;
+  const fDateTo     = document.getElementById('filterDateTo').value;
+
+  let rows = PROCESSES.filter(o => {
+    // Tab filter
+    if (activeTab === 'IHP' && o.type !== 'Inhouse') return false;
+    if (activeTab === 'ODC' && o.type !== 'Outward') return false;
+
+    // Stat card filter
+    if (activeStatFilter === 'OpenSent' && o.status !== 'Sent') return false;
+    if (activeStatFilter !== 'All' && activeStatFilter !== 'OpenSent' && o.status !== activeStatFilter) return false;
+
+    // Text search
+    if (q) {
+      const hay = [o.proc_no, o.process_name, o.wo_no, o.fabric, o.colour, o.created_by].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+
+    // Status dropdown
+    if (fStatus && o.status !== fStatus) return false;
+
+    // Date
+    if (fDateFrom && o.created_date < fDateFrom) return false;
+    if (fDateTo   && o.created_date > fDateTo)   return false;
+
+    return true;
+  });
+
+  const tbody   = document.getElementById('tableBody');
+  const empty   = document.getElementById('emptyState');
+  const pagFoot = document.getElementById('paginationFooter');
+  const pagInfo = document.getElementById('paginationInfo');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    pagFoot.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  pagFoot.style.display = 'flex';
+  pagInfo.textContent = `Showing ${rows.length} of ${PROCESSES.length} records`;
+
+  const isShortClosed = s => s === 'Short Closed';
+
+  tbody.innerHTML = rows.map((o, i) => {
+    const editDisabled = isShortClosed(o.status) ? ' disabled' : '';
+    const editTitle    = isShortClosed(o.status) ? 'Cannot edit Short Closed records' : 'Edit Process';
+    return `<tr>
+      <td style="color:var(--text-3);font-size:11px;">${i + 1}</td>
+      <td data-col="proc_no">
+        <a href="production-process-view.html" style="font-weight:700;color:var(--brand-600);font-size:13px;text-decoration:none;">${o.proc_no}</a>
+      </td>
+      <td data-col="type">${typeBadge(o.type)}</td>
+      <td data-col="process_name">
+        <div style="font-size:12.5px;font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.process_name}">${o.process_name}</div>
+      </td>
+      <td data-col="wo_no">
+        <a href="work-order-view.html" style="font-weight:600;font-size:12.5px;color:var(--brand-700);text-decoration:none;">${o.wo_no}</a>
+      </td>
+      <td data-col="fabric_colour">
+        <div style="font-size:12px;color:var(--text-2);">${o.fabric}</div>
+        <div style="font-size:11px;color:var(--text-3);">${o.colour}</div>
+      </td>
+      <td data-col="status">${statusPill(o.status)}</td>
+      <td data-col="created_date" style="font-size:12px;">${fmtDate(o.created_date)}</td>
+      <td data-col="delivery_date" style="font-size:12px;">${fmtDate(o.delivery_date)}</td>
+      <td data-col="created_by" style="font-size:12px;">${o.created_by}</td>
+      <td>
+        <div class="row-actions">
+          <a href="production-process-edit.html" class="icon-action edit${editDisabled}" title="${editTitle}">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          </a>
+          <a href="production-process-view.html" class="icon-action view" title="View Process">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
+          </a>
+          <button class="icon-action pdf" title="Download PDF" onclick="downloadRowPDF('${o.proc_no}')">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  applyColumnVisibility();
+}
+
+/* ══════════════════════════════════════════════
+   PDF DOWNLOAD (single row)
+══════════════════════════════════════════════ */
+function downloadRowPDF(procNo) {
+  const o = PROCESSES.find(p => p.proc_no === procNo);
+  if (!o) return;
+  toast(`Generating PDF for ${procNo}…`, 'info');
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth();
+    const m = 14;
+
+    // Header
+    doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+    doc.text('C-EDGE ERP — Production Process', m, 16);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100);
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'})}`, W - m, 16, { align: 'right' });
+    doc.setDrawColor(200); doc.setLineWidth(0.3); doc.line(m, 19, W - m, 19);
+
+    // Details
+    const rows = [
+      ['Process No', procNo],
+      ['Type', o.type],
+      ['Process Name', o.process_name],
+      ['Work Order No', o.wo_no],
+      ['Fabric', o.fabric],
+      ['Colour', o.colour],
+      ['Status', o.status],
+      ['Created Date', fmtDate(o.created_date)],
+      ['Delivery Date', fmtDate(o.delivery_date)],
+      ['Created By', o.created_by]
+    ];
+
+    let y = 26;
+    rows.forEach(([label, val]) => {
+      doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(80);
+      doc.text(label + ':', m, y);
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(15, 23, 42);
+      doc.text(String(val), m + 40, y);
+      y += 7;
+    });
+
+    // Sizes table
+    y += 4;
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+    doc.text('Size Breakdown', m, y);
+    y += 5;
+
+    const cols = ['Size', 'Sent Qty', 'Prev Rcvd'];
+    const colWidths = [30, 40, 40];
+    let x = m;
+    doc.setFontSize(8); doc.setFillColor(241, 245, 249); doc.setDrawColor(226, 232, 240);
+    doc.rect(m, y - 4, colWidths.reduce((a,b)=>a+b,0), 6, 'FD');
+    cols.forEach((c, ci) => {
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(80);
+      doc.text(c, x + 2, y);
+      x += colWidths[ci];
+    });
+    y += 3;
+
+    o.sizes.forEach(s => {
+      x = m;
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(15, 23, 42);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(m, y + 2, m + colWidths.reduce((a,b)=>a+b,0), y + 2);
+      [String(s.size), String(s.sent), String(s.prev_rcvd)].forEach((v, vi) => {
+        doc.text(v, x + 2, y + 1);
+        x += colWidths[vi];
+      });
+      y += 6;
+    });
+
+    doc.save(`${procNo}-details.pdf`);
+    toast(`PDF saved: ${procNo}-details.pdf`, 'success');
+  } catch(e) {
+    toast('PDF generation failed.', 'error');
+    console.error(e);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   SIDEBAR TOGGLE
+══════════════════════════════════════════════ */
+function toggleGroup(el) {
+  const grp = el.closest('.nav-group');
+  grp.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const area = document.getElementById('toastArea');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+/* ══════════════════════════════════════════════
+   CONFIGURE COLUMNS MODAL
+══════════════════════════════════════════════ */
+function openColModal() {
+  renderColCheckboxes();
+  document.getElementById('colModal').classList.add('open');
+}
+
+function closeColModal() {
+  document.getElementById('colModal').classList.remove('open');
+}
+
+function handleColOverlayClick(e) {
+  if (e.target === document.getElementById('colModal')) closeColModal();
+}
+
+function renderColCheckboxes() {
+  const container = document.getElementById('colChkContainer');
+  const keys = Object.keys(DEFAULT_LABELS);
+  container.innerHTML = keys.map(k => `
+    <div class="col-chk-row">
+      <input type="checkbox" id="col-chk-${k}" ${colVisible[k] ? 'checked' : ''}>
+      <label class="col-chk-label" for="col-chk-${k}">${DEFAULT_LABELS[k]}</label>
+    </div>
+  `).join('');
+}
+
+function applyColVisibility() {
+  Object.keys(DEFAULT_LABELS).forEach(k => {
+    const chk = document.getElementById(`col-chk-${k}`);
+    if (chk) colVisible[k] = chk.checked;
+  });
+  applyColumnVisibility();
+  closeColModal();
+  toast('Column visibility updated.', 'success');
+}
+
+function resetColVisibility() {
+  Object.keys(DEFAULT_LABELS).forEach(k => {
+    colVisible[k] = true;
+    const chk = document.getElementById(`col-chk-${k}`);
+    if (chk) chk.checked = true;
+  });
+  toast('All columns shown.', 'info');
+}
+
+/* ══════════════════════════════════════════════
+   BULK RECEIVE MODAL
+══════════════════════════════════════════════ */
+let brExpandedRow = null; // which proc_no is expanded
+
+function openBulkReceive() {
+  brExpandedRow = null;
+  applyBrFilter();
+  document.getElementById('brModal').classList.add('open');
+}
+
+function closeBulkReceive() {
+  document.getElementById('brModal').classList.remove('open');
+  brExpandedRow = null;
+}
+
+function handleBrOverlayClick(e) {
+  if (e.target === document.getElementById('brModal')) closeBulkReceive();
+}
+
+function applyBrFilter() {
+  const fType    = document.getElementById('brFilterType').value;
+  const fProduct = document.getElementById('brFilterProduct').value;
+
+  // Only Sent and Partial Received
+  let rows = PROCESSES.filter(o => o.status === 'Sent' || o.status === 'Partial Received');
+  if (fType) rows = rows.filter(o => o.type === fType);
+  if (fProduct) rows = rows.filter(o => o.process_name === fProduct);
+
+  renderBrTable(rows);
+}
+
+function renderBrTable(rows) {
+  const tbody = document.getElementById('brTableBody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No open records match the selected filters.</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  rows.forEach(o => {
+    const isExpanded = brExpandedRow === o.proc_no;
+    html += `<tr id="br-row-${o.proc_no.replace(/-/g,'_')}">
+      <td><input type="checkbox" class="br-row-chk" style="width:14px;height:14px;accent-color:var(--brand-600);cursor:pointer;"></td>
+      <td>
+        <span style="font-weight:700;font-size:12.5px;color:var(--brand-600);">${o.proc_no}</span>
+      </td>
+      <td>${typeBadge(o.type)}</td>
+      <td>
+        <div style="font-size:12px;font-weight:600;">${o.process_name}</div>
+        <div style="font-size:11px;color:var(--text-3);">${o.wo_no}</div>
+      </td>
+      <td style="font-size:11px;color:var(--text-2);white-space:nowrap;">${sizeSummary(o.sizes)}</td>
+      <td>${statusPill(o.status)}</td>
+      <td>
+        <button class="br-enter-btn" onclick="toggleBrExpand('${o.proc_no}')">
+          ${isExpanded ? 'Collapse' : 'Enter Receive'}
+        </button>
+      </td>
+    </tr>`;
+
+    if (isExpanded) {
+      html += `<tr class="br-expand-row" id="br-expand-${o.proc_no.replace(/-/g,'_')}">
+        <td colspan="7">
+          <div class="br-expand-inner">
+            <div class="br-expand-label">
+              <span class="material-symbols-outlined" style="font-size:16px;color:var(--brand-600);">edit_note</span>
+              Enter Receive Details — ${o.proc_no}
+            </div>
+            <div class="br-scan-row">
+              <span style="font-size:11.5px;font-weight:600;color:var(--text-3);white-space:nowrap;">Scan Barcode:</span>
+              <input type="text" placeholder="Scan or enter barcode…" id="br-scan-${o.proc_no.replace(/-/g,'_')}" oninput="handleBarcodeScan(this,'${o.proc_no}')">
+              <button class="br-scan-btn" title="Scan barcode to auto-fill" onclick="document.getElementById('br-scan-${o.proc_no.replace(/-/g,'_')}').focus()">
+                <span class="material-symbols-outlined" style="font-size:16px;">qr_code_scanner</span>
+              </button>
+            </div>
+            <div class="br-top-fields">
+              <div class="br-field">
+                <label>Receive Date</label>
+                <input type="date" value="2026-05-20" readonly>
+              </div>
+              <div class="br-field">
+                <label>Employee</label>
+                <select>
+                  <option value="">— Select Employee —</option>
+                  <option>Hemalatha S</option>
+                  <option>Raj Kumar</option>
+                  <option>Priya M</option>
+                  <option>Anbu R</option>
+                </select>
+              </div>
+              <div class="br-field">
+                <label>Remarks</label>
+                <input type="text" placeholder="Optional remarks…">
+              </div>
+            </div>
+            <table class="br-size-table">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Sent Qty</th>
+                  <th>Prev Received</th>
+                  <th>Enter Received</th>
+                  <th>Damage</th>
+                  <th>Rejected</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${o.sizes.map(s => `<tr>
+                  <td style="font-weight:700;font-size:12px;">${s.size}</td>
+                  <td style="font-size:12px;">${s.sent}</td>
+                  <td style="font-size:12px;">${s.prev_rcvd}</td>
+                  <td><input type="number" min="0" max="${s.sent - s.prev_rcvd}" placeholder="0" style="border-color:var(--brand-300);"></td>
+                  <td><input type="number" min="0" placeholder="0"></td>
+                  <td><input type="number" min="0" placeholder="0"></td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+            <button class="br-save-btn" onclick="saveBrReceive('${o.proc_no}')">
+              <span class="material-symbols-outlined" style="font-size:15px;">check_circle</span>
+              Save Receive
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html;
+}
+
+function toggleBrExpand(procNo) {
+  if (brExpandedRow === procNo) {
+    brExpandedRow = null;
+  } else {
+    brExpandedRow = procNo;
+  }
+  applyBrFilter();
+  // scroll to expanded row after render
+  requestAnimationFrame(() => {
+    const key = procNo.replace(/-/g,'_');
+    const el = document.getElementById(`br-expand-${key}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+
+function handleBarcodeScan(input, procNo) {
+  const val = input.value.trim();
+  if (val.length >= 6) {
+    toast(`Barcode "${val}" — process ${procNo} located.`, 'info');
+    input.value = '';
+  }
+}
+
+function saveBrReceive(procNo) {
+  const o = PROCESSES.find(p => p.proc_no === procNo);
+  if (!o) return;
+  // Update status to Partial Received (simple prototype behavior)
+  if (o.status === 'Sent') o.status = 'Partial Received';
+  toast(`Receive saved for ${procNo}.`, 'success');
+  brExpandedRow = null;
+  applyBrFilter();
+  // Refresh main table too
+  applyFilter();
+}
+
+function toggleSelectAll(chk) {
+  document.querySelectorAll('.br-row-chk').forEach(c => { c.checked = chk.checked; });
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+applyFilter();
+</script>
+</body>
+</html>
