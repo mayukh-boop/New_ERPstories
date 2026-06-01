@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Job Work — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+.sec{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.sec-hd{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border2);background:#f8fafc;}
+.sec-num{width:26px;height:26px;border-radius:50%;background:var(--brand-600);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:14px;font-weight:600;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-body{padding:20px;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+
+.fl{display:flex;flex-direction:column;}
+.fl label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:6px;}
+.fl .req{color:#dc2626;}
+.inp{width:100%;height:36px;padding:0 10px;border:0;border-bottom:2px solid var(--border);background:#f8fafc;border-radius:4px 4px 0 0;font-size:13px;color:var(--text-1);box-sizing:border-box;font-family:inherit;outline:none;transition:border-color .15s,background .15s;}
+.inp:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+.inp[readonly]{background:#f1f5f9;color:var(--text-3);cursor:default;}
+.inp-note{font-size:10.5px;color:#94a3b8;margin-top:4px;}
+
+.rg{display:flex;gap:8px;flex-wrap:wrap;}
+.ro{display:flex;align-items:center;gap:7px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-2);transition:all .15s;user-select:none;}
+.ro:hover{border-color:var(--brand-300);background:var(--brand-50);}
+.ro input[type=radio]{accent-color:var(--brand-600);width:14px;height:14px;}
+.ro.on{border-color:var(--brand-600);background:var(--brand-50);color:var(--brand-800);font-weight:600;}
+
+.ib{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;font-size:12.5px;line-height:1.5;}
+.ib.blue{background:var(--brand-50);border:1px solid var(--brand-200);color:var(--brand-800);}
+.ib.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.ib .material-symbols-outlined{font-size:17px;margin-top:1px;flex-shrink:0;}
+
+/* ── Item table ── */
+.tbl-scroll{overflow-x:auto;border-top:1px solid var(--border2);}
+.itbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px;}
+.itbl thead tr:first-child th{background:#f8fafc;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:1px solid var(--border2);white-space:nowrap;vertical-align:middle;}
+.itbl thead tr:first-child th.mand{color:var(--brand-800);}
+.itbl thead tr:first-child th.sz-grp{background:#f5f3ff;color:#5b21b6;text-align:center;border-bottom:1px solid #ddd8fe;padding:6px 10px 4px;}
+.itbl thead tr.sz-row th{background:#f5f3ff;color:#7c3aed;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 6px 8px;border-bottom:2px solid var(--border2);min-width:58px;}
+.itbl td{padding:7px 8px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.itbl tbody tr:hover td{background:#fafbfd;}
+.itbl tfoot td{background:#f8fafc;font-weight:600;font-size:12.5px;border-top:2px solid var(--border2);}
+
+.ci{width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-1);box-sizing:border-box;font-family:inherit;outline:none;}
+.ci:focus{border-color:var(--brand-500);background:var(--brand-50);}
+.ci-n{text-align:right;}
+.ci-sm{max-width:64px;}
+.ci.warn{border-color:#f59e0b !important;background:#fffbeb;}
+.td-num{text-align:right;font-weight:600;color:var(--text-1);}
+.del-btn{width:28px;height:28px;border-radius:6px;border:1.5px solid #fee2e2;background:#fff5f5;color:#dc2626;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.del-btn:hover{background:#dc2626;color:#fff;border-color:#dc2626;}
+.del-btn .material-symbols-outlined{font-size:15px;}
+
+/* avail qty states */
+.av-total{font-size:12.5px;font-weight:700;color:#16a34a;}
+.av-po   {font-size:12.5px;font-weight:700;color:#2563eb;}
+.av-warn {font-size:12.5px;font-weight:700;color:#d97706;}
+.av-nil  {font-size:12px;color:#94a3b8;}
+.av-unit {font-size:10px;color:#94a3b8;display:block;margin-top:1px;}
+
+.act-bar{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--border);padding:12px 24px;display:flex;gap:10px;justify-content:flex-end;z-index:200;box-shadow:0 -4px 16px rgba(0,0,0,.06);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:440px;max-width:94vw;max-height:90vh;overflow-y:auto;transform:translateY(12px);transition:transform .2s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.modal-title-icon{width:30px;height:30px;border-radius:8px;background:var(--brand-50);display:flex;align-items:center;justify-content:center;color:var(--brand-600);}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.modal-close:hover{background:var(--border2);}
+.modal-body{padding:16px 22px;}
+.modal-hint{font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.5;}
+.modal-sect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin:14px 0 8px;}
+.col-chk-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border2);}
+.col-chk-row:last-child{border-bottom:none;}
+.col-chk-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.col-chk-label{font-size:13px;font-weight:500;color:var(--text-1);cursor:pointer;user-select:none;flex:1;}
+.mand-tag{font-size:10px;color:#94a3b8;background:#f1f5f9;padding:2px 7px;border-radius:10px;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span><span class="nav-parent-label">Buyer Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="#">Buyer PO List</a></div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span><span class="nav-parent-label">Purchase Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="purchase-order-list.html">PO List</a><a class="nav-child" href="purchase-order.html">Create PO</a></div>
+    </div>
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span><span class="nav-parent-label">Work Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="work-order-list.html">Work Order List</a><a class="nav-child" href="work-order-create.html">Create Work Order</a></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">factory</span></span><span class="nav-parent-label">Production Process</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="production-process-list.html">Process List</a><a class="nav-child" href="production-process-create.html">Create Process</a></div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">swap_horiz</span></span><span class="nav-parent-label">Job Work</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="job-work-list.html">Job Work List</a><a class="nav-child active" href="job-work-create.html">New Job Work</a></div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span><span class="nav-parent-label">Master Data</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="masters-vendor.html">Vendors</a><a class="nav-child" href="masters-color.html">Colours</a><a class="nav-child" href="masters-size.html">Sizes</a></div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Production / <a href="job-work-list.html" style="color:var(--brand-600);text-decoration:none;">Job Work</a> / New</span>
+    <div class="topbar-right"><button class="topbar-icon-btn"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg></button></div>
+  </header>
+
+  <main class="page" style="padding-bottom:72px;">
+
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">New Job Work</div>
+        <div class="ph-sub">Issue items to a job worker for processing</div>
+      </div>
+      <button onclick="openColModal()" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span class="material-symbols-outlined" style="font-size:16px;">tune</span> Configure Table Columns
+      </button>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="sec">
+      <div class="sec-hd"><div class="sec-num">1</div><div><div class="sec-title">Job Worker Details</div><div class="sec-sub">Who is performing the job work and how items are shipped</div></div></div>
+      <div class="sec-body">
+        <div class="g3" style="margin-bottom:18px;">
+          <div class="fl"><label>Job Worker Name <span class="req">*</span></label>
+            <select class="inp" id="workerName" onchange="onWorkerSelect()">
+              <option value="">— Select Job Worker —</option>
+              <option>Sunrise Embroidery Works</option><option>Sri Lakshmi Textiles</option>
+              <option>Ravi Job Workers</option><option>Kumar Fabrications</option><option>Raj Finishing House</option>
+            </select></div>
+          <div class="fl"><label>Job Worker Location <span class="req">*</span></label><input type="text" class="inp" id="workerLoc" placeholder="e.g. Tirupur, Tamil Nadu"></div>
+          <div class="fl"><label>Company Location (Ship From) <span class="req">*</span></label>
+            <select class="inp" id="companyLocation"><option value="">— Select Location —</option><option>Chennai Factory</option><option>Coimbatore Warehouse</option><option>Tirupur Store</option></select></div>
+        </div>
+        <div class="g4">
+          <div class="fl"><label>Job Work No</label><input type="text" class="inp" placeholder="JW-2026-006" style="font-family:monospace;"><div class="inp-note">Leave blank — auto-generated on save</div></div>
+          <div class="fl"><label>Ship Mode</label><select class="inp"><option value="">— Select Mode —</option><option>Road Transport</option><option>Courier</option><option>Own Vehicle</option><option>Train / Rail</option><option>Air Freight</option></select></div>
+          <div class="fl"><label>Creation Date <span class="req">*</span></label><input type="date" class="inp" value="2026-06-01"></div>
+          <div class="fl"><label>Delivery Date <span class="req">*</span></label><input type="date" class="inp"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="sec">
+      <div class="sec-hd"><div class="sec-num">2</div><div><div class="sec-title">Item Configuration</div><div class="sec-sub">Drives which table columns are shown below</div></div></div>
+      <div class="sec-body">
+        <div class="g2">
+          <div>
+            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;">Item Type <span style="color:#dc2626;">*</span></div>
+            <div class="rg" id="itemTypeGrp">
+              <label class="ro on" onclick="selRo(this,'itemTypeGrp');onItemTypeChange('Product')"><input type="radio" name="itemType" value="Product" checked> Product</label>
+              <label class="ro" onclick="selRo(this,'itemTypeGrp');onItemTypeChange('Sample')"><input type="radio" name="itemType" value="Sample"> Sample</label>
+              <label class="ro" onclick="selRo(this,'itemTypeGrp');onItemTypeChange('Fabric')"><input type="radio" name="itemType" value="Fabric"> Fabric</label>
+              <label class="ro" onclick="selRo(this,'itemTypeGrp');onItemTypeChange('Raw Materials')"><input type="radio" name="itemType" value="Raw Materials"> Raw Materials</label>
+              <label class="ro" onclick="selRo(this,'itemTypeGrp');onItemTypeChange('Finished Product')"><input type="radio" name="itemType" value="Finished Product"> Finished Product</label>
+            </div>
+            <div id="type-hint" style="font-size:11.5px;color:var(--text-3);margin-top:8px;line-height:1.5;display:none;"></div>
+          </div>
+          <div>
+            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;">Receive in Other Form?</div>
+            <div class="rg" id="recFormGrp">
+              <label class="ro on" onclick="selRo(this,'recFormGrp');onRecFormChange('No')"><input type="radio" name="recForm" value="No" checked> No — same form</label>
+              <label class="ro" onclick="selRo(this,'recFormGrp');onRecFormChange('Yes')"><input type="radio" name="recForm" value="Yes"> Yes — converted form</label>
+            </div>
+            <div id="recv-col-hint" style="display:none;font-size:11.5px;color:var(--brand-700);font-weight:600;margin-top:8px;">
+              <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">check_circle</span>
+              "Recv Item Type" and "Received Item" columns are now shown in the table. Each row can set its own type.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="sec">
+      <div class="sec-hd"><div class="sec-num">3</div><div><div class="sec-title">Transport &amp; Remarks</div><div class="sec-sub">Logistics details for the outward challan</div></div></div>
+      <div class="sec-body">
+        <div class="g4">
+          <div class="fl"><label>Transport Name</label><input type="text" class="inp" placeholder="e.g. VRL Logistics"></div>
+          <div class="fl"><label>Contact Person</label><input type="text" class="inp" placeholder="Driver / agent name"></div>
+          <div class="fl"><label>Vehicle No</label><input type="text" class="inp" placeholder="TN 39 AB 1234" style="text-transform:uppercase;"></div>
+          <div class="fl"><label>Remarks</label><input type="text" class="inp" placeholder="Instructions or notes…"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Item Table -->
+    <div class="sec">
+      <div class="sec-hd" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="sec-num">4</div>
+          <div><div class="sec-title">Item Details</div><div class="sec-sub" id="tblNote">Add each item being sent for job work</div></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="openColModal()" style="display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 12px;border:1.5px solid var(--border);border-radius:7px;background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span class="material-symbols-outlined" style="font-size:15px;">tune</span> Columns
+          </button>
+          <button onclick="addRow()" style="display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 14px;border:none;border-radius:7px;background:var(--brand-600);font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='var(--brand-700)'" onmouseout="this.style.background='var(--brand-600)'">
+            <span class="material-symbols-outlined" style="font-size:15px;">add</span> Add Row
+          </button>
+        </div>
+      </div>
+
+      <div class="ib blue" style="margin:12px 20px 0;">
+        <span class="material-symbols-outlined">info</span>
+        <span id="tblBannerText">
+          <strong style="color:var(--brand-800);">Blue</strong> = mandatory.
+          <strong style="color:#7c3aed;">Purple</strong> = Size Wise Qty group.
+          Selecting an item filters Work Order / Production Order options for that row.
+        </span>
+      </div>
+
+      <div class="tbl-scroll">
+        <table class="itbl" id="itemTbl">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:36px;text-align:center;">#</th>
+              <th rowspan="2" class="mand" style="min-width:155px;">Item Name <span style="color:#dc2626;">*</span></th>
+              <th rowspan="2" class="mand col-wo" id="th-wo" style="min-width:130px;">Work Order No <span style="color:#dc2626;">*</span></th>
+              <th rowspan="2" id="th-po" style="min-width:145px;">Prod. Order No</th>
+              <th rowspan="2" class="col-opt opt-buyer" style="min-width:100px;">Buyer PO No</th>
+              <th rowspan="2" class="mand" style="min-width:140px;">Process <span style="color:#dc2626;">*</span></th>
+              <th rowspan="2" class="col-opt opt-recv-type" style="min-width:115px;display:none;">Recv Item Type</th>
+              <th rowspan="2" class="col-opt opt-recv" style="min-width:145px;display:none;">Received Item</th>
+              <th colspan="5" class="sz-grp" id="th-sz-grp">Size Wise Qty</th>
+              <th rowspan="2" class="col-opt opt-total" style="min-width:78px;text-align:right;">Total Qty</th>
+              <th rowspan="2" class="col-avail" id="th-avail" style="min-width:90px;text-align:right;display:none;">Avail. Qty</th>
+              <th rowspan="2" class="col-opt opt-rtype" style="min-width:100px;display:none;">Rate Type</th>
+              <th rowspan="2" class="col-opt opt-rate" style="min-width:76px;text-align:right;display:none;">Rate (₹)</th>
+              <th rowspan="2" class="col-opt opt-gst" style="min-width:56px;text-align:right;display:none;">GST %</th>
+              <th rowspan="2" class="col-opt opt-gstamt" style="min-width:88px;text-align:right;display:none;">GST Amt (₹)</th>
+              <th rowspan="2" class="col-opt opt-gval" style="min-width:96px;text-align:right;display:none;">Goods Value (₹)</th>
+              <th rowspan="2" style="width:36px;"></th>
+            </tr>
+            <tr class="sz-row" id="tr-sz-row">
+              <th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th>
+            </tr>
+          </thead>
+          <tbody id="itemBody"></tbody>
+          <tfoot><tr id="ftRow"></tr></tfoot>
+        </table>
+      </div>
+
+      <div style="padding:10px 20px;border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;">
+        <span id="rowCount" style="font-size:12px;color:var(--text-3);">0 rows</span>
+        <button onclick="addRow()" style="display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 16px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;font-size:12.5px;color:var(--text-3);cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.borderColor='var(--brand-400)';this.style.color='var(--brand-700)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-3)'">
+          <span class="material-symbols-outlined" style="font-size:15px;">add_circle_outline</span> Add another row
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<div class="act-bar">
+  <button onclick="window.location.href='job-work-list.html'" style="height:36px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Cancel</button>
+  <button onclick="saveDraft()" style="height:36px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;">
+    <span class="material-symbols-outlined" style="font-size:16px;">save</span> Save as Draft
+  </button>
+  <button onclick="saveAndIssue()" class="btn btn-primary" style="height:36px;padding:0 20px;display:inline-flex;align-items:center;gap:6px;">
+    <span class="material-symbols-outlined" style="font-size:16px;">send</span> Save &amp; Issue Challan
+  </button>
+</div>
+
+<!-- Configure Columns Modal -->
+<div class="modal-overlay" id="colModal" onclick="if(event.target===this)closeColModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title"><div class="modal-title-icon"><span class="material-symbols-outlined" style="font-size:16px;">tune</span></div>Configure Table Columns</div>
+      <button class="modal-close" onclick="closeColModal()"><span class="material-symbols-outlined" style="font-size:16px;">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">Columns marked auto-controlled adjust automatically based on Item Type and Receive Form. Optional columns can be toggled.</p>
+      <div class="modal-sect">Auto-controlled by Item Type</div>
+      <div class="col-chk-row"><input type="checkbox" checked disabled><label class="col-chk-label">Work Order No</label><span class="mand-tag">Product / Sample only</span></div>
+      <div class="col-chk-row"><input type="checkbox" checked disabled><label class="col-chk-label">Production Order No</label><span class="mand-tag">Fabric / RM = filtered by item</span></div>
+      <div class="col-chk-row"><input type="checkbox" checked disabled><label class="col-chk-label">Size Wise Qty (S/M/L/XL/XXL)</label><span class="mand-tag">Hidden for Fabric / RM</span></div>
+      <div class="col-chk-row"><input type="checkbox" checked disabled><label class="col-chk-label">Available Qty</label><span class="mand-tag">Fabric / RM (stock) + Finished Product (inventory)</span></div>
+      <div class="modal-sect">Auto-controlled by Receive Form</div>
+      <div class="col-chk-row"><input type="checkbox" checked disabled><label class="col-chk-label">Recv Item Type &amp; Received Item</label><span class="mand-tag">Shown when "Converted form"</span></div>
+      <div class="modal-sect">Optional — toggle on / off</div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-buyer" checked onchange="toggleTblCol('opt-buyer',this.checked)"><label class="col-chk-label" for="ck-buyer">Buyer PO No</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-total" checked onchange="toggleTblCol('opt-total',this.checked)"><label class="col-chk-label" for="ck-total">Total Qty</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-rtype" onchange="toggleTblCol('opt-rtype',this.checked)"><label class="col-chk-label" for="ck-rtype">Rate Type</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-rate" onchange="toggleTblCol('opt-rate',this.checked)"><label class="col-chk-label" for="ck-rate">Rate (₹)</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-gst" onchange="toggleTblCol('opt-gst',this.checked)"><label class="col-chk-label" for="ck-gst">GST %</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-gstamt" onchange="toggleTblCol('opt-gstamt',this.checked)"><label class="col-chk-label" for="ck-gstamt">GST Amount</label></div>
+      <div class="col-chk-row"><input type="checkbox" id="ck-gval" onchange="toggleTblCol('opt-gval',this.checked)"><label class="col-chk-label" for="ck-gval">Goods Value</label></div>
+    </div>
+    <div class="modal-footer"><button onclick="closeColModal()" style="height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Close</button></div>
+  </div>
+</div>
+
+<script>
+/* ══ Item lists ══ */
+const ITEMS = {
+  'Product':          ['Oxford Shirt (White)','Oxford Shirt (Blue)','Oxford Shirt (Navy)','Chinos (Khaki)','Formal Shirt (Black)','Cotton Tee (White)'],
+  'Sample':           ['Sample – Oxford Shirt (White)','Sample – Blouse (Floral)','Sample – Polo Tee (Black)'],
+  'Fabric':           ['Cotton Twill (White)','Denim (Blue)','Georgette (Red)','Viscose Crepe (Ivory)','Polyester (Black)'],
+  'Raw Materials':    ['Button 18L (White)','Zipper 30cm (Black)','Interlining Roll','Thread Coats 120','Woven Label'],
+  'Finished Product': ['Finished Shirt – Oxford (White)','Finished Shirt – Oxford (Navy)','Finished Chinos (Khaki)']
+};
+
+/* ══ Item → related Work Orders (Product / Sample / Finished) ══ */
+const ITEM_WO_MAP = {
+  'Oxford Shirt (White)':           ['WO-2026-001','WO-2026-002'],
+  'Oxford Shirt (Blue)':            ['WO-2026-001'],
+  'Oxford Shirt (Navy)':            ['WO-2026-004'],
+  'Chinos (Khaki)':                 ['WO-2026-003'],
+  'Formal Shirt (Black)':           ['WO-2026-005'],
+  'Cotton Tee (White)':             ['WO-2026-002'],
+  'Sample – Oxford Shirt (White)':  ['WO-2026-001'],
+  'Sample – Blouse (Floral)':       ['WO-2026-003'],
+  'Sample – Polo Tee (Black)':      ['WO-2026-005'],
+  'Finished Shirt – Oxford (White)':['WO-2026-001'],
+  'Finished Shirt – Oxford (Navy)': ['WO-2026-004'],
+  'Finished Chinos (Khaki)':        ['WO-2026-003']
+};
+const WO_PO = {'WO-2026-001':'PO-2026-001','WO-2026-002':'PO-2026-002','WO-2026-003':'PO-2026-003','WO-2026-004':'PO-2026-004','WO-2026-005':'PO-2026-005'};
+
+/* ══ Work Order size quantities (pending to be sent) ══ */
+const WO_SIZES = {
+  'WO-2026-001': {S:700,  M:1200, L:1100, XL:800, XXL:600},
+  'WO-2026-002': {S:400,  M:600,  L:400,  XL:200, XXL:0  },
+  'WO-2026-003': {S:200,  M:300,  L:250,  XL:150, XXL:100},
+  'WO-2026-004': {S:150,  M:280,  L:220,  XL:130, XXL:80 },
+  'WO-2026-005': {S:800,  M:1200, L:1000, XL:600, XXL:400}
+};
+
+/* ══ Finished goods inventory at each company location ══ */
+const FG_INVENTORY = {
+  'Finished Shirt – Oxford (White)': [
+    {loc:'Chennai Factory',      S:50,  M:80,  L:65,  XL:40, XXL:20, total:255},
+    {loc:'Coimbatore Warehouse', S:30,  M:45,  L:38,  XL:22, XXL:10, total:145}
+  ],
+  'Finished Shirt – Oxford (Navy)': [
+    {loc:'Chennai Factory',      S:40,  M:70,  L:55,  XL:35, XXL:15, total:215},
+    {loc:'Coimbatore Warehouse', S:20,  M:35,  L:28,  XL:18, XXL:8,  total:109}
+  ],
+  'Finished Chinos (Khaki)': [
+    {loc:'Chennai Factory',      S:60,  M:100, L:80,  XL:50, XXL:25, total:315},
+    {loc:'Coimbatore Warehouse', S:25,  M:40,  L:32,  XL:20, XXL:10, total:127}
+  ]
+};
+
+/* ══ Item → related Production Orders (Fabric / RM) ══ */
+const ITEM_PO_MAP = {
+  'Cotton Twill (White)':  [{po:'PO-2026-001',style:"Men's Oxford Shirt"},{po:'PO-2026-003',style:"Women's Blouse"}],
+  'Denim (Blue)':          [{po:'PO-2026-002',style:'Slim Chinos'}],
+  'Georgette (Red)':       [{po:'PO-2026-004',style:'Evening Blouse'}],
+  'Viscose Crepe (Ivory)': [{po:'PO-2026-002',style:'Slim Chinos'},{po:'PO-2026-005',style:'Formal Shirt'}],
+  'Polyester (Black)':     [{po:'PO-2026-003',style:"Women's Blouse"}],
+  'Button 18L (White)':    [{po:'PO-2026-001',style:"Men's Oxford Shirt"},{po:'PO-2026-002',style:'Slim Chinos'}],
+  'Zipper 30cm (Black)':   [{po:'PO-2026-002',style:'Slim Chinos'},{po:'PO-2026-003',style:"Women's Blouse"}],
+  'Interlining Roll':      [{po:'PO-2026-001',style:"Men's Oxford Shirt"}],
+  'Thread Coats 120':      [{po:'PO-2026-001',style:"Men's Oxford Shirt"},{po:'PO-2026-002',style:'Slim Chinos'},{po:'PO-2026-003',style:"Women's Blouse"}],
+  'Woven Label':           [{po:'PO-2026-001',style:"Men's Oxford Shirt"},{po:'PO-2026-004',style:'Evening Blouse'}]
+};
+
+/* ══ Available qty per item + PO ══ */
+const AVAIL = {
+  'Cotton Twill (White)|PO-2026-001':  {qty:500,  unit:'Mtrs'},
+  'Cotton Twill (White)|PO-2026-003':  {qty:300,  unit:'Mtrs'},
+  'Denim (Blue)|PO-2026-002':          {qty:800,  unit:'Mtrs'},
+  'Georgette (Red)|PO-2026-004':       {qty:600,  unit:'Mtrs'},
+  'Viscose Crepe (Ivory)|PO-2026-002': {qty:400,  unit:'Mtrs'},
+  'Viscose Crepe (Ivory)|PO-2026-005': {qty:250,  unit:'Mtrs'},
+  'Polyester (Black)|PO-2026-003':     {qty:700,  unit:'Mtrs'},
+  'Button 18L (White)|PO-2026-001':    {qty:5000, unit:'Pcs'},
+  'Button 18L (White)|PO-2026-002':    {qty:3000, unit:'Pcs'},
+  'Zipper 30cm (Black)|PO-2026-002':   {qty:1200, unit:'Pcs'},
+  'Zipper 30cm (Black)|PO-2026-003':   {qty:800,  unit:'Pcs'},
+  'Interlining Roll|PO-2026-001':      {qty:150,  unit:'Mtrs'},
+  'Thread Coats 120|PO-2026-001':      {qty:200,  unit:'Cones'},
+  'Thread Coats 120|PO-2026-002':      {qty:150,  unit:'Cones'},
+  'Thread Coats 120|PO-2026-003':      {qty:180,  unit:'Cones'},
+  'Woven Label|PO-2026-001':           {qty:10000,unit:'Pcs'},
+  'Woven Label|PO-2026-004':           {qty:8000, unit:'Pcs'}
+};
+
+/* ══ Valid receive item types per sent item type ══ */
+const RECV_TYPE_MAP = {
+  'Product':          ['Product'],
+  'Sample':           ['Sample','Product'],
+  'Fabric':           ['Sample','Raw Materials','Product'],
+  'Raw Materials':    ['Sample','Fabric','Product'],
+  'Finished Product': ['Sample','Product']
+};
+
+const PROCS  = ['Embroidery','Button Attachment','Washing','Finishing','Quality Check','Packing','Screen Print','Bartack'];
+const RTYPES = ['Per Piece','Per Dozen','Per KG','Lumpsum'];
+
+let rowIdx      = 0;
+let currentType = 'Product';
+let recvOther   = false;
+
+function isFab(t)      { return t === 'Fabric' || t === 'Raw Materials'; }
+function isFG(t)       { return t === 'Finished Product'; }
+function needsWO(t)    { return t === 'Product' || t === 'Sample'; }   // FG has no WO
+function showsAvail(t) { return isFab(t) || isFG(t); }                 // FG shows inventory avail
+function itemsFor(t)   { return ITEMS[t] || ITEMS['Product']; }
+
+/* ── Total available qty for an item across all its POs (default display) ── */
+function defaultAvail(item) {
+  const list = ITEM_PO_MAP[item];
+  if (!list || !list.length) return null;
+  let total = 0, unit = '';
+  list.forEach(p => {
+    const a = AVAIL[`${item}|${p.po}`];
+    if (a) { total += a.qty; unit = a.unit; }
+  });
+  return total > 0 ? { qty: total, unit, count: list.length } : null;
+}
+
+/* ══ Item Type change ══ */
+function onItemTypeChange(type) {
+  const wasFab = isFab(currentType);
+  currentType  = type;
+  const nowFab = isFab(type);
+  const showWO = needsWO(type);
+
+  // Clear rows when switching between size-based ↔ qty-based
+  if (wasFab !== nowFab && document.querySelectorAll('#itemBody tr').length > 0) {
+    document.getElementById('itemBody').innerHTML = '';
+    syncCount();
+  }
+
+  // WO column
+  document.getElementById('th-wo').style.display = showWO ? '' : 'none';
+  document.querySelectorAll('td.col-wo').forEach(td => td.style.display = showWO ? '' : 'none');
+
+  // PO column always shown (different behavior per type)
+  document.getElementById('th-po').style.display = '';
+
+  // Size group header + sub-row + body cells
+  document.getElementById('th-sz-grp').style.display = nowFab ? 'none' : '';
+  document.getElementById('tr-sz-row').style.display = nowFab ? 'none' : '';
+  document.querySelectorAll('td.sz-td').forEach(td => td.style.display = nowFab ? 'none' : '');
+
+  // Available qty column — visible for Fabric/RM and Finished Product
+  const nowShowAvail = showsAvail(type);
+  document.getElementById('th-avail').style.display = nowShowAvail ? '' : 'none';
+  document.querySelectorAll('td.col-avail').forEach(td => td.style.display = nowShowAvail ? '' : 'none');
+
+  // Type hint
+  const hint = document.getElementById('type-hint');
+  if (nowFab) {
+    hint.style.display = 'block';
+    hint.innerHTML = `<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;color:#94a3b8;">info</span>
+      <strong>${type}</strong>: No size columns. Select item to see total available stock; select Production Order to see PO-specific qty.`;
+  } else if (isFG(type)) {
+    hint.style.display = 'block';
+    hint.innerHTML = `<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;color:#94a3b8;">inventory_2</span>
+      <strong>Finished Product</strong>: Available Qty shows finished goods inventory at the selected company location. No Work Order required.`;
+  } else {
+    hint.style.display = 'none';
+  }
+
+  document.getElementById('tblNote').textContent = nowFab
+    ? 'Enter total quantity — select item then Production Order to see available stock'
+    : isFG(type)
+      ? 'Select item to see available finished goods inventory at company location'
+      : 'Select item first — Work Order dropdown filters to related WOs; selecting WO pre-fills size quantities';
+
+  // Update item selects in existing rows
+  document.querySelectorAll('.item-sel').forEach(sel => {
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Select Item —</option>' +
+      itemsFor(type).map(i => `<option${i===cur?' selected':''}>${i}</option>`).join('');
+  });
+
+  // Update recv-type selects in existing rows
+  if (recvOther) updateAllRecvTypeSelects();
+
+  buildFtRow();
+}
+
+/* ══ Receive Form change ══ */
+function onRecFormChange(val) {
+  recvOther = val === 'Yes';
+  ['opt-recv-type','opt-recv'].forEach(cls =>
+    document.querySelectorAll('.'+cls).forEach(el => el.style.display = recvOther ? '' : 'none')
+  );
+  document.getElementById('recv-col-hint').style.display = recvOther ? 'block' : 'none';
+  buildFtRow();
+}
+
+/* ── Update recv-type selects in all existing rows when item type changes ── */
+function updateAllRecvTypeSelects() {
+  const valid = RECV_TYPE_MAP[currentType] || ['Product'];
+  document.querySelectorAll('.recv-type-sel').forEach(sel => {
+    const cur = sel.value;
+    const keep = valid.includes(cur) ? cur : valid[0];
+    sel.innerHTML = valid.map(t => `<option value="${t}"${t===keep?' selected':''}>${t}</option>`).join('');
+    // Update recv-item-sel for this row
+    const row = sel.closest('tr');
+    const recvSel = row?.querySelector('.recv-item-sel');
+    if (recvSel) {
+      recvSel.innerHTML = '<option value="">— Select received item —</option>' +
+        itemsFor(keep).map(i => `<option>${i}</option>`).join('');
+    }
+  });
+}
+
+/* ══ Add row ══ */
+function addRow() {
+  rowIdx++;
+  const id     = rowIdx;
+  const fab    = isFab(currentType);
+  const fg     = isFG(currentType);
+  const showWO = needsWO(currentType);   // only Product / Sample
+  const showAv = showsAvail(currentType);// Fabric/RM + Finished Product
+  const ckEl   = id => document.getElementById(id)?.checked !== false;
+
+  /* item select — onchange differs per type */
+  const itemChangeFn = fab ? `onFabItemChange(${id})` : fg ? `onFGItemChange(${id})` : `onProductItemChange(${id})`;
+  const itemOpts = '<option value="">— Select Item —</option>' +
+    itemsFor(currentType).map(i => `<option>${i}</option>`).join('');
+
+  /* Work Order cell: shown only for Product/Sample */
+  const woCell = `<td class="col-wo" style="${showWO?'':'display:none;'}">
+    <select class="ci wo-sel" id="wo-${id}" style="min-width:120px;" onchange="onWoChange(${id})">
+      <option value="">— Select WO —</option>
+    </select>
+  </td>`;
+
+  /* Production Order cell:
+     Fabric/RM → filtered dropdown
+     Finished Product → not applicable (hidden)
+     Product/Sample → auto-fill from WO */
+  const poCell = fab
+    ? `<td><select class="ci po-sel" id="po-${id}" style="min-width:140px;" onchange="onFabPoSelect(${id})">
+        <option value="">— select item first —</option>
+      </select></td>`
+    : fg
+      ? `<td style="color:#94a3b8;font-size:11.5px;padding:7px 10px;">—</td>`
+      : `<td><input class="ci" id="po-${id}" type="text" placeholder="Auto from WO" readonly
+          style="background:#f8fafc;color:var(--text-3);max-width:130px;"></td>`;
+
+  /* Size cells — hidden for Fabric/RM, shown for everything else */
+  const szCells = ['S','M','L','XL','XXL'].map(s =>
+    `<td class="sz-td"${fab?' style="display:none;"':''}>
+      <input class="ci ci-n sz-input" type="number" min="0" value="0"
+        oninput="computeProduct(${id})" title="${s}" style="max-width:56px;">
+    </td>`).join('');
+
+  /* Total Qty: editable input for Fabric/RM; computed display for all others */
+  const totalCell = fab
+    ? `<td class="col-opt opt-total" style="${ckEl('ck-total')?'':'display:none;'}">
+        <input class="ci ci-n" type="number" min="0" value="" id="tot-${id}"
+          oninput="computeFab(${id})" placeholder="Qty" style="max-width:76px;">
+      </td>`
+    : `<td class="col-opt opt-total td-num" id="tot-${id}" style="${ckEl('ck-total')?'':'display:none;'}">0</td>`;
+
+  /* Available Qty: visible for Fabric/RM (PO-based) and Finished Product (inventory) */
+  const availCell = `<td class="col-avail" id="avail-${id}"
+    style="${showAv?'text-align:right;padding:7px 10px;':'display:none;'}">
+    <span class="av-nil">—</span>
+  </td>`;
+
+  /* Recv type + recv item — per row */
+  const validRecvTypes = RECV_TYPE_MAP[currentType] || ['Product'];
+  const firstRecvType  = validRecvTypes[0];
+  const recvTypeCell = `<td class="col-opt opt-recv-type" style="${recvOther?'':'display:none;'}">
+    <select class="ci recv-type-sel" style="min-width:110px;" onchange="onRowRecvTypeChange(${id})">
+      ${validRecvTypes.map((t,i) => `<option value="${t}"${i===0?' selected':''}>${t}</option>`).join('')}
+    </select>
+  </td>`;
+  const recvItemCell = `<td class="col-opt opt-recv" style="${recvOther?'':'display:none;'}">
+    <select class="ci recv-item-sel" style="min-width:140px;">
+      <option value="">— Select received item —</option>
+      ${recvOther ? itemsFor(firstRecvType).map(i=>`<option>${i}</option>`).join('') : ''}
+    </select>
+  </td>`;
+
+  const colSt    = cls => ckEl(cls) ? '' : 'display:none;';
+  const computeFn = fab ? `computeFab(${id})` : `computeProduct(${id})`;
+
+  const tbody = document.getElementById('itemBody');
+  const tr    = document.createElement('tr');
+  tr.id = `row-${id}`;
+  tr.innerHTML = `
+    <td style="text-align:center;color:var(--text-3);font-size:11px;font-weight:600;">${id}</td>
+    <td><select class="ci item-sel" style="min-width:148px;" onchange="${itemChangeFn}">${itemOpts}</select></td>
+    ${woCell}
+    ${poCell}
+    <td class="col-opt opt-buyer" style="${colSt('ck-buyer')}"><input class="ci" type="text" placeholder="Buyer PO" style="max-width:95px;"></td>
+    <td><select class="ci" style="min-width:135px;">${PROCS.map(p=>`<option>${p}</option>`).join('')}</select></td>
+    ${recvTypeCell}
+    ${recvItemCell}
+    ${szCells}
+    ${totalCell}
+    ${availCell}
+    <td class="col-opt opt-rtype" style="${colSt('ck-rtype')}"><select class="ci" style="min-width:90px;">${RTYPES.map(r=>`<option>${r}</option>`).join('')}</select></td>
+    <td class="col-opt opt-rate" style="${colSt('ck-rate')}"><input class="ci ci-n" type="number" min="0" step="0.01" value="0" id="rate-${id}" oninput="${computeFn}" style="max-width:68px;"></td>
+    <td class="col-opt opt-gst" style="${colSt('ck-gst')}"><input class="ci ci-n" type="number" min="0" max="28" value="5" id="gst-${id}" oninput="${computeFn}" style="max-width:52px;"></td>
+    <td class="col-opt opt-gstamt td-num" id="gstamt-${id}" style="${colSt('ck-gstamt')}">0.00</td>
+    <td class="col-opt opt-gval td-num" id="gval-${id}" style="${colSt('ck-gval')}">0.00</td>
+    <td><button class="del-btn" onclick="delRow(${id})"><span class="material-symbols-outlined">delete</span></button></td>`;
+  tbody.appendChild(tr);
+  syncCount();
+}
+
+/* ══ Per-row: Recv Item Type changed → update Received Item dropdown ══ */
+function onRowRecvTypeChange(id) {
+  const row     = document.getElementById(`row-${id}`);
+  const type    = row?.querySelector('.recv-type-sel')?.value;
+  const recvSel = row?.querySelector('.recv-item-sel');
+  if (!recvSel || !type) return;
+  recvSel.innerHTML = '<option value="">— Select received item —</option>' +
+    itemsFor(type).map(i => `<option>${i}</option>`).join('');
+}
+
+/* ══ Product / Sample / Finished: item selected → filter Work Orders ══ */
+function onProductItemChange(id) {
+  const item  = document.querySelector(`#row-${id} .item-sel`)?.value;
+  const woSel = document.getElementById(`wo-${id}`);
+  if (!woSel) return;
+
+  const relWOs = (item && ITEM_WO_MAP[item]) ? ITEM_WO_MAP[item] : [];
+  if (relWOs.length) {
+    woSel.innerHTML = '<option value="">— Select Work Order —</option>' +
+      relWOs.map(w => `<option>${w}</option>`).join('');
+  } else {
+    woSel.innerHTML = '<option value="">— Select Work Order —</option>';
+  }
+  // Clear PO when item changes
+  const poEl = document.getElementById(`po-${id}`);
+  if (poEl) poEl.value = '';
+  computeProduct(id);
+}
+
+/* ══ WO selected (Product/Sample) → auto-fill PO + pre-populate sizes ══ */
+function onWoChange(id) {
+  const wo   = document.getElementById(`wo-${id}`)?.value;
+  const poEl = document.getElementById(`po-${id}`);
+  if (poEl) poEl.value = WO_PO[wo] || '';
+
+  // Pre-populate size qty inputs from WO data
+  if (wo && WO_SIZES[wo]) {
+    const szKeys = ['S','M','L','XL','XXL'];
+    const row    = document.getElementById(`row-${id}`);
+    const szInps = row?.querySelectorAll('.sz-input');
+    szInps?.forEach((inp, i) => { inp.value = WO_SIZES[wo][szKeys[i]] ?? 0; });
+  }
+  computeProduct(id);
+}
+
+/* ══ Finished Product: item selected → show available inventory at company location ══ */
+function onFGItemChange(id) {
+  const item    = document.querySelector(`#row-${id} .item-sel`)?.value;
+  const avEl    = document.getElementById(`avail-${id}`);
+  if (!avEl) return;
+
+  if (!item) { avEl.innerHTML = '<span class="av-nil">—</span>'; return; }
+
+  const inv     = FG_INVENTORY[item];
+  const compLoc = document.getElementById('companyLocation')?.value;
+
+  if (!inv) { avEl.innerHTML = '<span class="av-nil">not in inventory</span>'; return; }
+
+  if (compLoc) {
+    // Show for selected company location
+    const locRow = inv.find(r => r.loc === compLoc);
+    if (locRow) {
+      avEl.innerHTML = `<span class="av-total">${locRow.total}</span>
+        <span class="av-unit">pcs at ${compLoc.split(' ')[0]}</span>
+        <span class="av-unit" style="font-size:9.5px;color:#94a3b8;">
+          S:${locRow.S} M:${locRow.M} L:${locRow.L} XL:${locRow.XL} XXL:${locRow.XXL}
+        </span>`;
+    } else {
+      avEl.innerHTML = `<span class="av-nil">0 pcs at ${compLoc.split(' ')[0]}</span>`;
+    }
+  } else {
+    // No location selected — show grand total across all locations
+    const total = inv.reduce((s, r) => s + r.total, 0);
+    const locs  = inv.map(r => `${r.loc.split(' ')[0]}: ${r.total}`).join(' | ');
+    avEl.innerHTML = `<span class="av-total">${total}</span>
+      <span class="av-unit">pcs total (select location above for breakdown)</span>
+      <span class="av-unit" style="font-size:9.5px;color:#94a3b8;">${locs}</span>`;
+  }
+
+  computeProduct(id);
+}
+
+/* ══ Fabric/RM: item selected → populate PO dropdown + show default available qty ══ */
+function onFabItemChange(id) {
+  const item  = document.querySelector(`#row-${id} .item-sel`)?.value;
+  const poSel = document.getElementById(`po-${id}`);
+  const avEl  = document.getElementById(`avail-${id}`);
+
+  // Populate PO dropdown
+  if (poSel) {
+    const list = (item && ITEM_PO_MAP[item]) ? ITEM_PO_MAP[item] : [];
+    poSel.innerHTML = list.length
+      ? '<option value="">— Select Production Order (optional) —</option>' +
+          list.map(p => `<option value="${p.po}">${p.po} — ${p.style}</option>`).join('')
+      : '<option value="">— No PO linked to this item —</option>';
+  }
+
+  // Show total available across all POs (default, before PO is chosen)
+  if (avEl) {
+    const def = item ? defaultAvail(item) : null;
+    if (def) {
+      avEl.innerHTML = `<span class="av-total">${def.qty.toLocaleString()}</span>
+        <span class="av-unit">${def.unit} total (${def.count} PO${def.count>1?'s':''})</span>`;
+    } else {
+      avEl.innerHTML = '<span class="av-nil">—</span>';
+    }
+  }
+  computeFab(id);
+}
+
+/* ══ Fabric/RM: PO selected → show PO-specific available qty ══ */
+function onFabPoSelect(id) {
+  const item  = document.querySelector(`#row-${id} .item-sel`)?.value;
+  const po    = document.getElementById(`po-${id}`)?.value;
+  const avEl  = document.getElementById(`avail-${id}`);
+  if (!avEl) return;
+
+  if (!po) {
+    // No PO chosen — show default (sum across all POs)
+    const def = item ? defaultAvail(item) : null;
+    if (def) {
+      avEl.innerHTML = `<span class="av-total">${def.qty.toLocaleString()}</span>
+        <span class="av-unit">${def.unit} total (${def.count} PO${def.count>1?'s':''})</span>`;
+    } else {
+      avEl.innerHTML = '<span class="av-nil">—</span>';
+    }
+    // remove warning from total qty input
+    document.getElementById(`tot-${id}`)?.classList.remove('warn');
+    return;
+  }
+
+  const key = `${item}|${po}`;
+  if (AVAIL[key]) {
+    const {qty, unit} = AVAIL[key];
+    const entered = parseFloat(document.getElementById(`tot-${id}`)?.value) || 0;
+    const over    = entered > 0 && entered > qty;
+    avEl.innerHTML = `<span class="${over?'av-warn':'av-po'}">${qty.toLocaleString()}</span>
+      <span class="av-unit">${unit} (this PO)${over?' ⚠ entered exceeds avail':''}</span>`;
+    document.getElementById(`tot-${id}`)?.classList.toggle('warn', over);
+  } else {
+    avEl.innerHTML = '<span class="av-nil">—</span>';
+  }
+}
+
+/* ══ Compute — Product/Sample (size-based) ══ */
+function computeProduct(id) {
+  const row = document.getElementById(`row-${id}`);
+  if (!row) return;
+  let tot = 0;
+  row.querySelectorAll('.sz-input').forEach(i => tot += parseInt(i.value)||0);
+  const totEl = document.getElementById(`tot-${id}`);
+  if (totEl && totEl.tagName !== 'INPUT') totEl.textContent = tot;
+  _gstVal(id, tot);
+  calcTotals();
+}
+
+/* ══ Compute — Fabric/RM (qty input) ══ */
+function computeFab(id) {
+  const tot = parseFloat(document.getElementById(`tot-${id}`)?.value) || 0;
+  onFabPoSelect(id); // re-validate available qty warning
+  _gstVal(id, tot);
+  calcTotals();
+}
+
+function _gstVal(id, tot) {
+  const rate     = parseFloat(document.getElementById(`rate-${id}`)?.value) || 0;
+  const gstP     = parseFloat(document.getElementById(`gst-${id}`)?.value)  || 0;
+  const taxable  = tot * rate;            // base value before tax
+  const ga       = taxable * gstP / 100;  // GST amount
+  const gv       = taxable + ga;          // Goods Value = taxable + GST
+  const gvEl = document.getElementById(`gval-${id}`);
+  const gaEl = document.getElementById(`gstamt-${id}`);
+  if (gvEl) gvEl.textContent = gv.toFixed(2);
+  if (gaEl) gaEl.textContent = ga.toFixed(2);
+}
+
+function calcTotals() {
+  let tot=0, gst=0, val=0;
+  document.querySelectorAll('[id^="tot-"]').forEach(e =>
+    tot += parseFloat(e.tagName==='INPUT' ? e.value : e.textContent) || 0);
+  document.querySelectorAll('[id^="gstamt-"]').forEach(e => gst += parseFloat(e.textContent)||0);
+  document.querySelectorAll('[id^="gval-"]').forEach(e   => val += parseFloat(e.textContent)||0);
+  const fs=document.getElementById('ftSizes'), ft=document.getElementById('ftTotal'),
+        fg=document.getElementById('ftGst'),   fv=document.getElementById('ftVal');
+  if(fs) fs.textContent=tot; if(ft) ft.textContent=tot;
+  if(fg) fg.textContent='₹'+gst.toFixed(2); if(fv) fv.textContent='₹'+val.toFixed(2);
+}
+
+function delRow(id) {
+  document.getElementById(`row-${id}`)?.remove();
+  document.querySelectorAll('#itemBody tr').forEach((tr,i)=>tr.cells[0].textContent=i+1);
+  calcTotals(); syncCount();
+}
+
+function syncCount() {
+  const n = document.querySelectorAll('#itemBody tr').length;
+  document.getElementById('rowCount').textContent = n + (n===1?' row':' rows');
+}
+
+function toggleTblCol(cls, show) {
+  document.querySelectorAll('.'+cls).forEach(el => el.style.display = show?'':'none');
+  buildFtRow(); calcTotals();
+}
+
+/* ══ Build footer row ══ */
+function buildFtRow() {
+  const fab    = isFab(currentType);
+  const showAv = showsAvail(currentType);
+  const ck     = id => document.getElementById(id)?.checked !== false;
+  const ft     = document.getElementById('ftRow');
+  ft.innerHTML = `
+    <td style="padding:9px 10px;color:var(--text-3);font-size:11.5px;" colspan="2">Totals</td>
+    <td class="col-wo" style="${needsWO(currentType)?'':'display:none;'}"></td>
+    <td></td>
+    <td class="col-opt opt-buyer" style="${ck('ck-buyer')?'':'display:none;'}"></td>
+    <td></td>
+    <td class="col-opt opt-recv-type" style="${recvOther?'':'display:none;'}"></td>
+    <td class="col-opt opt-recv" style="${recvOther?'':'display:none;'}"></td>
+    ${fab
+      ? '<td colspan="5" style="display:none;"></td>'
+      : `<td colspan="5" style="padding:9px 8px;text-align:right;font-weight:700;" id="ftSizes">0</td>`}
+    <td class="col-opt opt-total" style="${ck('ck-total')?'padding:9px;text-align:right;':'display:none;'}" id="ftTotal">0</td>
+    <td class="col-avail" style="${showAv?'padding:9px;':'display:none;'}"></td>
+    <td class="col-opt opt-rtype" style="${ck('ck-rtype')?'':'display:none;'}"></td>
+    <td class="col-opt opt-rate"  style="${ck('ck-rate')?'':'display:none;'}"></td>
+    <td class="col-opt opt-gst"   style="${ck('ck-gst')?'':'display:none;'}"></td>
+    <td class="col-opt opt-gstamt" style="${ck('ck-gstamt')?'padding:9px;text-align:right;color:#dc2626;':'display:none;'}" id="ftGst">₹0.00</td>
+    <td class="col-opt opt-gval"   style="${ck('ck-gval')?'padding:9px;text-align:right;font-weight:700;':'display:none;'}" id="ftVal">₹0.00</td>
+    <td></td>`;
+}
+
+function selRo(el, grpId) {
+  document.querySelectorAll(`#${grpId} .ro`).forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function onWorkerSelect() {
+  const locs = {'Sunrise Embroidery Works':'Chennai, TN','Sri Lakshmi Textiles':'Tirupur, TN','Ravi Job Workers':'Erode, TN','Kumar Fabrications':'Coimbatore, TN','Raj Finishing House':'Madurai, TN'};
+  document.getElementById('workerLoc').value = locs[document.getElementById('workerName').value] || '';
+}
+
+function openColModal()  { document.getElementById('colModal').classList.add('open'); }
+function closeColModal() { document.getElementById('colModal').classList.remove('open'); }
+
+function saveDraft()    { alert('Saved as Draft — JW-2026-006'); window.location.href='job-work-list.html'; }
+function saveAndIssue() {
+  if (!document.getElementById('workerName').value) { alert('Please select a Job Worker.'); return; }
+  if (!document.querySelectorAll('#itemBody tr').length) { alert('Please add at least one item.'); return; }
+  alert('Job Work JW-2026-006 issued! Send Challan PDF is ready.');
+  window.location.href = 'job-work-list.html';
+}
+
+function toggleGroup(el) {
+  const g = el.closest('.nav-group');
+  g.classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ── Init ── */
+buildFtRow();
+addRow();
+</script>
+</body>
+</html>

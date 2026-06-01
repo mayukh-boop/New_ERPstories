@@ -98,6 +98,7 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 | NE-CST-01 to NE-CST-04 | Garment Costing Sheet | `costing-list.html`, `costing-create.html`, `costing-edit.html`, `costing-view.html` | `costing_header`, `costing_fabric_lines`, `costing_cm_lines`, `costing_packing_lines`, `costing_overhead_lines` |
 | NE-WO-01 to NE-WO-04 | Work Order (Production sub-module) | `work-order-list.html`, `work-order-create.html`, `work-order-edit.html`, `work-order-view.html` | `work_orders`, `work_order_size_lines`, `work_order_bom_lines`, `work_order_processes` |
 | NE-PP-01 to NE-PP-04 | Production Process (Inhouse & Outward DC) | `production-process-list.html`, `production-process-create.html`, `production-process-edit.html`, `production-process-view.html` | `production_processes`, `production_process_lines`, `production_process_sizes`, `production_process_receives`, `production_process_receive_sizes` |
+| NE-JW-01 to NE-JW-04 | Job Work (Production sub-module) | `job-work-list.html`, `job-work-create.html`, `job-work-edit.html`, `job-work-view.html` | `job_work_header`, `job_work_lines`, `job_work_receives`, `job_work_receive_lines` |
 
 ---
 
@@ -131,7 +132,11 @@ Documented in [user-stories-grn-qc-approval.md](user-stories-grn-qc-approval.md)
 ├── production-process-list.html        # Production Process list — IHP/ODC series tabs, bulk receive modal, configurable columns
 ├── production-process-create.html      # Create Production Process — Inhouse/Outward toggle, reprocess mode, barcode scan, size auto-populate
 ├── production-process-edit.html        # Edit Production Process — multi-receive entries with dates, damage/rejected per size, short close
-└── production-process-view.html        # View Production Process (read-only) — receipt timeline, size-wise summary, send/receive PDFs
+├── production-process-view.html        # View Production Process (read-only) — receipt timeline, size-wise summary, send/receive PDFs
+├── job-work-list.html                  # Job Work list — stat cards, row coloring (red=overdue, green=completed), configurable columns, send/receive PDF actions
+├── job-work-create.html                # Create Job Work — job worker details, item type, receive form toggle, transport, configurable item table with size-wise qty
+├── job-work-edit.html                  # Edit Job Work — locked challan fields, date-wise receive entries, add receive form with size-wise qty, short close
+└── job-work-view.html                  # View Job Work (read-only) — info grids, item table, receive history timeline, cumulative summary, audit trail
 ```
 
 
