@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Work Payment — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── JW status pills ── */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-draft      {background:#f3f4f6;color:#4b5563;}
+.sp-pending    {background:#fffbeb;color:#92400e;}
+.sp-partial    {background:#eff6ff;color:#1e40af;}
+.sp-completed  {background:#f0fdf4;color:#166534;}
+.sp-shortclosed{background:#f3f4f6;color:#6b7280;}
+
+/* ── Payment status pills ── */
+.pp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.pp-unpaid    {background:#fef3c7;color:#92400e;}
+.pp-partial   {background:#e0f2fe;color:#0369a1;}
+.pp-paid      {background:#dcfce7;color:#15803d;}
+.pp-na        {background:#f3f4f6;color:#9ca3af;}
+
+/* ── Stat grid ── */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:all .18s;}
+.stat-card:hover{box-shadow:0 4px 12px rgba(37,99,235,.1);transform:translateY(-1px);}
+.stat-card.active{border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.stat-num{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11.5px;color:var(--text-3);font-weight:500;}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:500;}
+
+/* ── Toolbar ── */
+.list-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:280px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-3);}
+.search-input{height:34px;padding:0 10px 0 32px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%;outline:none;font-family:inherit;background:#fff;}
+.search-input:focus{border-color:var(--brand-500);}
+.filter-sel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.filter-sel:focus{border-color:var(--brand-500);}
+
+/* ── Table ── */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.jw-table{width:100%;border-collapse:collapse;font-size:13px;}
+.jw-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 14px;border-bottom:2px solid var(--border2);background:#f8fafc;white-space:nowrap;}
+.jw-table td{padding:11px 14px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;}
+.jw-table tr:last-child td{border-bottom:none;}
+.jw-table tbody tr:hover td{background:var(--brand-50);}
+.jw-table tbody tr.row-paid td{background:#f0fdf4;}
+.jw-table tbody tr.row-paid:hover td{background:#dcfce7;}
+.amt-col{text-align:right;font-variant-numeric:tabular-nums;}
+
+/* ── Row actions ── */
+.row-actions{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;}
+.icon-action{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;text-decoration:none;}
+.icon-action.pay:hover{border-color:#86efac;color:#15803d;background:#f0fdf4;}
+.icon-action.edit:hover{border-color:#fde68a;color:#92400e;background:#fffbeb;}
+.icon-action.view:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action.pdf:hover{border-color:#fde68a;color:#92400e;background:#fffbeb;}
+.icon-action.disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+.pay-btn{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px;border:1.5px solid #86efac;border-radius:6px;background:#f0fdf4;font-size:11.5px;font-weight:600;color:#15803d;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;white-space:nowrap;}
+.pay-btn:hover{background:#dcfce7;border-color:#4ade80;}
+.pay-btn .material-symbols-outlined{font-size:14px;}
+
+/* ── Amount progress bar ── */
+.amt-bar-wrap{display:flex;align-items:center;gap:8px;}
+.amt-bar-bg{flex:1;background:#f1f5f9;border-radius:10px;height:5px;min-width:60px;}
+.amt-bar-fill{height:5px;border-radius:10px;background:var(--brand-500);}
+.amt-bar-fill.green{background:#16a34a;}
+
+/* ── Toast ── */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── Pagination ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border2);background:#f8fafc;font-size:12.5px;color:var(--text-3);}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;color:var(--text-2);display:flex;align-items:center;justify-content:center;}
+.pag-btn.active{background:var(--brand-600);color:#fff;border-color:var(--brand-600);}
+
+/* ── Configure Columns Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:440px;max-width:94vw;overflow:hidden;transform:translateY(12px);transition:transform .2s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.modal-title-icon{width:30px;height:30px;border-radius:8px;background:var(--brand-50);display:flex;align-items:center;justify-content:center;color:var(--brand-600);}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:all .15s;}
+.modal-close:hover{background:var(--border2);color:var(--text-1);}
+.modal-body{padding:16px 22px 0;max-height:460px;overflow-y:auto;}
+.modal-hint{font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.5;}
+.col-section-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border2);}
+.col-chk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);}
+.col-chk-row:last-child{border-bottom:none;}
+.col-chk-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand-600);cursor:pointer;flex-shrink:0;}
+.col-chk-label{font-size:13px;font-weight:500;color:var(--text-1);cursor:pointer;user-select:none;flex:1;}
+.col-chk-label.dim{color:var(--text-3);}
+.mand-tag{font-size:10px;color:#94a3b8;background:#f1f5f9;padding:2px 7px;border-radius:10px;white-space:nowrap;}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 18px;border-top:1px solid var(--border);margin-top:4px;}
+.btn-reset{height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-reset:hover{border-color:var(--brand-400);color:var(--brand-700);background:var(--brand-50);}
+.btn-apply{height:34px;padding:0 20px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-apply:hover{background:var(--brand-700);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span>
+        <span class="nav-parent-label">Buyer Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="#">Buyer PO List</a>
+        <a class="nav-child" href="#">Create Buyer PO</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span>
+        <span class="nav-parent-label">Purchase Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="purchase-order-list.html">PO List</a>
+        <a class="nav-child" href="purchase-order.html">Create PO</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">inventory_2</span></span>
+        <span class="nav-parent-label">GRN &amp; Receipts</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="po-receipts.html">PO Receipts (GRN)</a>
+        <a class="nav-child" href="grn-approval.html">GRN Approvals</a>
+        <a class="nav-child" href="grn-qc.html">QC Inspection</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span>
+        <span class="nav-parent-label">Work Orders</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="work-order-list.html">Work Order List</a>
+        <a class="nav-child" href="work-order-create.html">Create Work Order</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">factory</span></span>
+        <span class="nav-parent-label">Production Process</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="production-process-list.html">Process List</a>
+        <a class="nav-child" href="production-process-create.html">Create Process</a>
+      </div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">swap_horiz</span></span>
+        <span class="nav-parent-label">Job Work</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="job-work-list.html">Job Work List</a>
+        <a class="nav-child" href="job-work-create.html">New Job Work</a>
+        <a class="nav-child active" href="job-work-payment-list.html">Job Work Payment</a>
+      </div>
+    </div>
+
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)">
+        <span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span>
+        <span class="nav-parent-label">Master Data</span>
+        <span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span>
+      </div>
+      <div class="nav-children">
+        <a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a>
+        <a class="nav-child" href="masters-color.html">Colours</a>
+        <a class="nav-child" href="masters-size.html">Sizes</a>
+        <a class="nav-child" href="masters-uom.html">UOM</a>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Production / Job Work Payment</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- Page heading -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">Job Work Payment</div>
+        <div class="ph-sub">Record and track payments against job work orders</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <button onclick="openColModal()" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+          Columns
+        </button>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card active" id="sc-All" onclick="filterByStat('All',this)">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Total Job Works</div>
+        <div class="stat-sub" style="color:var(--text-3);">All payment statuses</div>
+      </div>
+      <div class="stat-card" id="sc-Unpaid" onclick="filterByStat('Unpaid',this)">
+        <div class="stat-num" style="color:#92400e;">3</div>
+        <div class="stat-label">Unpaid</div>
+        <div class="stat-sub" style="color:#92400e;">No payment recorded</div>
+      </div>
+      <div class="stat-card" id="sc-Partial" onclick="filterByStat('Partially Paid',this)">
+        <div class="stat-num" style="color:#0369a1;">1</div>
+        <div class="stat-label">Partially Paid</div>
+        <div class="stat-sub" style="color:#0369a1;">Balance pending</div>
+      </div>
+      <div class="stat-card" id="sc-Paid" onclick="filterByStat('Paid',this)">
+        <div class="stat-num" style="color:#15803d;">1</div>
+        <div class="stat-label">Fully Paid</div>
+        <div class="stat-sub" style="color:#15803d;">Payment complete</div>
+      </div>
+      <div class="stat-card" style="cursor:default;">
+        <div class="stat-num" style="color:var(--brand-700);">₹1.59L</div>
+        <div class="stat-label">Total Payable</div>
+        <div class="stat-sub" style="color:var(--text-3);">Across all JWs</div>
+      </div>
+    </div>
+
+    <!-- Filter toolbar -->
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+        <input class="search-input" id="searchInput" placeholder="JW No, worker name…" oninput="applyFilter()">
+      </div>
+      <select class="filter-sel" id="filterPayStatus" onchange="applyFilter()">
+        <option value="">All Payment Statuses</option>
+        <option>Unpaid</option>
+        <option>Partially Paid</option>
+        <option>Paid</option>
+        <option>N/A</option>
+      </select>
+      <select class="filter-sel" id="filterJwStatus" onchange="applyFilter()">
+        <option value="">All JW Statuses</option>
+        <option>Draft</option>
+        <option>Pending</option>
+        <option>Partial Received</option>
+        <option>Completed</option>
+        <option>Short Closed</option>
+      </select>
+      <div style="flex:1;"></div>
+      <button onclick="openColModal()" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        Columns
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" style="overflow-x:auto;">
+      <table class="jw-table" id="mainTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:var(--text-3);">
+        <span class="material-symbols-outlined" style="font-size:48px;color:#cbd5e1;display:block;margin-bottom:14px;">payments</span>
+        <h3 style="font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px;">No Records Found</h3>
+        <p style="font-size:13px;">Try adjusting your filters.</p>
+      </div>
+      <div class="pagination" id="paginationFooter">
+        <span id="paginationInfo">Showing 5 of 5 records</span>
+        <div class="pag-btns">
+          <button class="pag-btn" disabled>&laquo;</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn" disabled>&raquo;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════ Configure Columns Modal ════ -->
+<div class="modal-overlay" id="colModal" onclick="handleColOverlayClick(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="colModalTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="colModalTitle">
+        <div class="modal-title-icon">
+          <span class="material-symbols-outlined" style="font-size:16px;">view_column</span>
+        </div>
+        Configure Columns
+      </div>
+      <button class="modal-close" onclick="closeColModal()" aria-label="Close">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">
+        Choose which columns appear in the table. <strong>#</strong> and <strong>Actions</strong> are always visible.
+        Your selection is saved automatically and restored on your next visit.
+      </p>
+      <div id="colChkContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-reset" onclick="resetColVisibility()">Reset to Default</button>
+      <button class="btn-apply" onclick="applyColVisibility()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
+const PAYMENT_DATA = [
+  {
+    jw_no:'JW-2026-001', wo_no:'WO-2026-001', cre_date:'2026-03-01', del_date:'2026-04-15',
+    worker:'Sunrise Embroidery Works', jw_status:'Completed',
+    payable:94500, paid:94500, pay_status:'Paid',
+    invoice_no:'INV-2026-031', pay_date:'2026-04-20'
+  },
+  {
+    jw_no:'JW-2026-002', wo_no:'WO-2026-002', cre_date:'2026-03-05', del_date:'2026-04-30',
+    worker:'Sri Lakshmi Textiles', jw_status:'Partial Received',
+    payable:37170, paid:18000, pay_status:'Partially Paid',
+    invoice_no:'INV-2026-038', pay_date:'2026-04-25'
+  },
+  {
+    jw_no:'JW-2026-003', wo_no:'WO-2026-003', cre_date:'2026-03-10', del_date:'2026-07-20',
+    worker:'Ravi Job Workers', jw_status:'Pending',
+    payable:0, paid:0, pay_status:'N/A',
+    invoice_no:null, pay_date:null
+  },
+  {
+    jw_no:'JW-2026-004', wo_no:'WO-2026-004', cre_date:'2026-04-15', del_date:'2026-06-30',
+    worker:'Sri Lakshmi Textiles', jw_status:'Partial Received',
+    payable:27405, paid:0, pay_status:'Unpaid',
+    invoice_no:null, pay_date:null
+  },
+  {
+    jw_no:'JW-2026-005', wo_no:'WO-2026-005', cre_date:'2026-05-01', del_date:'2026-07-15',
+    worker:'Kumar Fabrications', jw_status:'Draft',
+    payable:0, paid:0, pay_status:'N/A',
+    invoice_no:null, pay_date:null
+  }
+];
+
+/* ══════════════════════════════════════════════════════════
+   COLUMN DEFINITIONS
+   Each entry describes one data column. The # (index) and
+   Actions columns are always rendered separately and are
+   never part of this list.
+
+   Fields:
+     key       – matches property names in PAYMENT_DATA (or
+                 a virtual key like 'balance' computed at
+                 render time)
+     label     – human-readable header text
+     mandatory – if true the checkbox is disabled and the
+                 column can never be hidden
+     defaultOn – whether the column is visible when the user
+                 has no saved preference (or after Reset)
+     align     – 'right' for amount columns, 'left' otherwise
+     group     – used to visually group related columns in
+                 the modal (Order Info / Payment Info)
+══════════════════════════════════════════════════════════ */
+const COL_DEFS = [
+  { key:'jw_no',      label:'Job Work No',        mandatory:true,  defaultOn:true,  align:'left',  group:'order'   },
+  { key:'wo_no',      label:'Work Order No',       mandatory:false, defaultOn:true,  align:'left',  group:'order'   },
+  { key:'worker',     label:'Job Worker',          mandatory:false, defaultOn:true,  align:'left',  group:'order'   },
+  { key:'cre_date',   label:'JW Date',             mandatory:false, defaultOn:true,  align:'left',  group:'order'   },
+  { key:'del_date',   label:'Delivery Date',       mandatory:false, defaultOn:true,  align:'left',  group:'order'   },
+  { key:'jw_status',  label:'JW Status',           mandatory:false, defaultOn:true,  align:'left',  group:'order'   },
+  { key:'invoice_no', label:'Invoice No',          mandatory:false, defaultOn:false, align:'left',  group:'payment' },
+  { key:'pay_date',   label:'Last Payment Date',   mandatory:false, defaultOn:false, align:'left',  group:'payment' },
+  { key:'payable',    label:'Payable (₹)',         mandatory:false, defaultOn:true,  align:'right', group:'payment' },
+  { key:'paid',       label:'Paid (₹)',            mandatory:false, defaultOn:true,  align:'right', group:'payment' },
+  { key:'balance',    label:'Balance (₹)',         mandatory:false, defaultOn:true,  align:'right', group:'payment' },
+  { key:'pay_status', label:'Payment Status',      mandatory:true,  defaultOn:true,  align:'left',  group:'payment' },
+];
+
+/* ── colVisible: start from defaults, then restore any saved user preference ── */
+const STORAGE_KEY = 'jwp-col-config';
+const colVisible = {};
+COL_DEFS.forEach(c => { colVisible[c.key] = c.defaultOn; });
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  /* Only apply saved values for non-mandatory columns */
+  COL_DEFS.filter(c => !c.mandatory).forEach(c => {
+    if (typeof saved[c.key] === 'boolean') colVisible[c.key] = saved[c.key];
+  });
+} catch(e) { /* corrupted storage — ignore, defaults stand */ }
+
+let activeStatFilter = 'All';
+
+/* ══════════════════════════════════════════════════════════
+   FORMATTERS
+══════════════════════════════════════════════════════════ */
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${mo[+m-1]} ${y}`;
+}
+
+function fmtAmt(n) {
+  if (n === null || n === undefined) return '—';
+  return '₹' + n.toLocaleString('en-IN');
+}
+
+function jwStatusPill(status) {
+  const cls = {
+    'Draft':'sp-draft', 'Pending':'sp-pending', 'Partial Received':'sp-partial',
+    'Completed':'sp-completed', 'Short Closed':'sp-shortclosed'
+  };
+  return `<span class="sp ${cls[status]||'sp-draft'}">${status}</span>`;
+}
+
+function payStatusPill(s) {
+  if (s === 'Paid')           return '<span class="pp pp-paid">Paid</span>';
+  if (s === 'Partially Paid') return '<span class="pp pp-partial">Partially Paid</span>';
+  if (s === 'Unpaid')         return '<span class="pp pp-unpaid">Unpaid</span>';
+  return '<span class="pp pp-na">N/A</span>';
+}
+
+function amtBar(payable, paid) {
+  if (!payable) return '<span style="font-size:11.5px;color:#94a3b8;">—</span>';
+  const pct = Math.min(100, Math.round(paid / payable * 100));
+  const barCls = pct >= 100 ? 'green' : '';
+  return `<div class="amt-bar-wrap">
+    <div class="amt-bar-bg"><div class="amt-bar-fill ${barCls}" style="width:${pct}%"></div></div>
+    <span style="font-size:11px;color:var(--text-3);white-space:nowrap;">${pct}%</span>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABLE HEADER — rebuilt whenever colVisible changes.
+   # and Actions are hardcoded at each end; everything in
+   between is driven by COL_DEFS in order.
+══════════════════════════════════════════════════════════ */
+function buildHeader() {
+  let h = '<tr><th style="width:36px;">#</th>';
+  COL_DEFS.forEach(c => {
+    const alignStyle = c.align === 'right' ? 'text-align:right;' : '';
+    const visStyle   = colVisible[c.key] ? '' : 'display:none;';
+    h += `<th data-col="${c.key}" style="${alignStyle}${visStyle}">${c.label.toUpperCase()}</th>`;
+  });
+  h += '<th style="width:140px;">ACTIONS</th></tr>';
+  document.getElementById('tableHead').innerHTML = h;
+}
+
+/* ══════════════════════════════════════════════════════════
+   COLUMN VISIBILITY — applied after tbody is written.
+   Walks COL_DEFS and shows/hides every matching th + td.
+══════════════════════════════════════════════════════════ */
+function applyColumnVisibility() {
+  COL_DEFS.forEach(c => {
+    const display = colVisible[c.key] ? '' : 'none';
+    const th = document.querySelector(`th[data-col="${c.key}"]`);
+    if (th) th.style.display = display;
+    document.querySelectorAll(`td[data-col="${c.key}"]`).forEach(td => {
+      td.style.display = display;
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   FILTER + RENDER
+   1. Rebuild header (reflects current colVisible)
+   2. Filter data
+   3. Render rows — every data cell has data-col attribute
+      so applyColumnVisibility() can target it
+   4. Apply column visibility to the freshly rendered rows
+══════════════════════════════════════════════════════════ */
+function applyFilter() {
+  buildHeader();
+
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const fPay = document.getElementById('filterPayStatus').value;
+  const fJw  = document.getElementById('filterJwStatus').value;
+
+  const rows = PAYMENT_DATA.filter(o => {
+    if (activeStatFilter !== 'All' && o.pay_status !== activeStatFilter) return false;
+    if (fPay && o.pay_status !== fPay) return false;
+    if (fJw  && o.jw_status !== fJw)  return false;
+    if (q) {
+      const hay = [o.jw_no, o.wo_no, o.worker, o.invoice_no||''].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const tbody   = document.getElementById('tableBody');
+  const empty   = document.getElementById('emptyState');
+  const pagFoot = document.getElementById('paginationFooter');
+  const pagInfo = document.getElementById('paginationInfo');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    pagFoot.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  pagFoot.style.display = 'flex';
+  pagInfo.textContent = `Showing ${rows.length} of ${PAYMENT_DATA.length} records`;
+
+  tbody.innerHTML = rows.map((o, i) => {
+    const isPaid = o.pay_status === 'Paid';
+    const isNA   = o.pay_status === 'N/A';
+    const rowCls = isPaid ? 'row-paid' : '';
+    const bal    = o.payable - o.paid;
+
+    /* Pay action button — hidden once fully paid or N/A */
+    const payAction = (!isPaid && !isNA)
+      ? `<a href="job-work-payment-edit.html" class="pay-btn" title="Record Payment">
+           <span class="material-symbols-outlined">payments</span> Pay
+         </a>`
+      : `<span class="icon-action disabled" title="${isPaid ? 'Fully paid' : 'No items received yet'}">
+           <span class="material-symbols-outlined" style="font-size:15px;">${isPaid ? 'check_circle' : 'block'}</span>
+         </span>`;
+
+    /* Build one <td> per COL_DEF entry.
+       Each cell always written to the DOM; visibility toggled by
+       applyColumnVisibility() so DOM and colVisible stay in sync
+       without re-rendering rows on every toggle. */
+    const cells = {
+      jw_no:
+        `<a href="job-work-payment-edit.html" style="font-weight:700;color:var(--brand-600);text-decoration:none;font-family:monospace;font-size:13px;">${o.jw_no}</a>`,
+      wo_no:
+        `<a href="work-order-view.html" style="font-weight:600;font-size:12.5px;color:var(--brand-700);text-decoration:none;">${o.wo_no}</a>`,
+      worker:
+        `<span style="font-size:12.5px;">${o.worker}</span>`,
+      cre_date:
+        `<span style="font-size:12px;">${fmtDate(o.cre_date)}</span>`,
+      del_date:
+        `<span style="font-size:12px;">${fmtDate(o.del_date)}</span>`,
+      jw_status:
+        jwStatusPill(o.jw_status),
+      invoice_no:
+        o.invoice_no
+          ? `<span style="font-size:12px;font-family:monospace;color:var(--brand-700);">${o.invoice_no}</span>`
+          : '<span style="color:#94a3b8;font-size:12px;">—</span>',
+      pay_date:
+        `<span style="font-size:12px;">${fmtDate(o.pay_date)}</span>`,
+      payable:
+        o.payable
+          ? `<span style="font-size:12.5px;font-weight:600;">${fmtAmt(o.payable)}</span>`
+          : '<span style="color:#94a3b8;">—</span>',
+      paid:
+        o.paid
+          ? `<span style="font-size:12.5px;font-weight:600;color:#15803d;">${fmtAmt(o.paid)}</span>`
+          : '<span style="color:#94a3b8;">—</span>',
+      balance:
+        o.payable
+          ? `<div style="font-weight:600;color:${bal > 0 ? '#92400e' : '#15803d'};margin-bottom:3px;">${fmtAmt(bal)}</div>${amtBar(o.payable, o.paid)}`
+          : '<span style="color:#94a3b8;">—</span>',
+      pay_status:
+        payStatusPill(o.pay_status),
+    };
+
+    const dataTds = COL_DEFS.map(c => {
+      const alignStyle = c.align === 'right' ? 'text-align:right;vertical-align:middle;' : 'vertical-align:middle;';
+      return `<td data-col="${c.key}" style="${alignStyle}">${cells[c.key]}</td>`;
+    }).join('');
+
+    return `<tr class="${rowCls}">
+      <td style="color:var(--text-3);font-size:11px;vertical-align:middle;">${i + 1}</td>
+      ${dataTds}
+      <td style="vertical-align:middle;">
+        <div class="row-actions">
+          ${payAction}
+          <a href="job-work-view.html" class="icon-action view" title="View Job Work">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
+          </a>
+          <button class="icon-action pdf" title="Download Challan PDF" onclick="downloadChallan('${o.jw_no}')">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  /* Apply visibility to the rows we just rendered */
+  applyColumnVisibility();
+}
+
+/* ══════════════════════════════════════════════════════════
+   STAT CARD FILTER
+══════════════════════════════════════════════════════════ */
+function filterByStat(key, el) {
+  activeStatFilter = key;
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilter();
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONFIGURE COLUMNS MODAL
+══════════════════════════════════════════════════════════ */
+function openColModal() {
+  renderColCheckboxes();
+  document.getElementById('colModal').classList.add('open');
+}
+
+function closeColModal() {
+  document.getElementById('colModal').classList.remove('open');
+}
+
+function handleColOverlayClick(e) {
+  if (e.target === document.getElementById('colModal')) closeColModal();
+}
+
+/* Render checkboxes into the modal body, grouped by Order Info / Payment Info.
+   Mandatory columns are shown as checked + disabled so users can see them but
+   cannot toggle them off. */
+function renderColCheckboxes() {
+  const container = document.getElementById('colChkContainer');
+  const groups = [
+    { id:'order',   label:'Order Information' },
+    { id:'payment', label:'Payment Information' },
+  ];
+  container.innerHTML = groups.map(g => {
+    const cols = COL_DEFS.filter(c => c.group === g.id);
+    const rows = cols.map(c => `
+      <div class="col-chk-row">
+        <input type="checkbox" id="col-chk-${c.key}"
+          ${colVisible[c.key] ? 'checked' : ''}
+          ${c.mandatory ? 'disabled' : ''}>
+        <label class="col-chk-label${c.mandatory ? ' dim' : ''}" for="col-chk-${c.key}">
+          ${c.label}
+        </label>
+        ${c.mandatory
+          ? '<span class="mand-tag">Required</span>'
+          : (!c.defaultOn ? '<span class="mand-tag" style="background:#f0fdf4;color:#15803d;">Off by default</span>' : '')}
+      </div>`).join('');
+    return `<div class="col-section-lbl">${g.label}</div>${rows}`;
+  }).join('');
+}
+
+/* Read every non-mandatory checkbox, update colVisible, persist to localStorage,
+   then refresh column visibility without a full re-render. */
+function applyColVisibility() {
+  COL_DEFS.filter(c => !c.mandatory).forEach(c => {
+    const el = document.getElementById(`col-chk-${c.key}`);
+    if (el) colVisible[c.key] = el.checked;
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(colVisible)); } catch(e) {}
+  buildHeader();
+  applyColumnVisibility();
+  closeColModal();
+  toast('Column visibility updated.', 'success');
+}
+
+/* Restore colVisible to defaultOn for every column, clear localStorage, re-render. */
+function resetColVisibility() {
+  COL_DEFS.forEach(c => { colVisible[c.key] = c.defaultOn; });
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  /* Also tick/untick the checkboxes so they reflect the reset */
+  COL_DEFS.forEach(c => {
+    const el = document.getElementById(`col-chk-${c.key}`);
+    if (el && !el.disabled) el.checked = c.defaultOn;
+  });
+  toast('Columns reset to default.', 'info');
+}
+
+/* ══════════════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════════════ */
+function downloadChallan(jwNo) {
+  toast(`Downloading challan for ${jwNo}…`, 'info');
+}
+
+function toast(msg, type = 'info') {
+  const area = document.getElementById('toastArea');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;">
+    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+  </svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function toggleGroup(el) {
+  el.closest('.nav-group').classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ── Bootstrap ── */
+applyFilter();
+</script>
+</body>
+</html>

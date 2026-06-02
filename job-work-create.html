@@ -6,6 +6,7 @@
 <title>New Job Work — C-Edge ERP</title>
 <link rel="stylesheet" href="design-system.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
@@ -141,7 +142,7 @@
     </div>
     <div class="nav-group open">
       <div class="nav-parent active-group open" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">swap_horiz</span></span><span class="nav-parent-label">Job Work</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
-      <div class="nav-children"><a class="nav-child" href="job-work-list.html">Job Work List</a><a class="nav-child active" href="job-work-create.html">New Job Work</a></div>
+      <div class="nav-children"><a class="nav-child" href="job-work-list.html">Job Work List</a><a class="nav-child active" href="job-work-create.html">New Job Work</a><a class="nav-child" href="job-work-payment-list.html">Job Work Payment</a></div>
     </div>
     <div class="nav-section">Masters</div>
     <div class="nav-group">
@@ -168,9 +169,6 @@
         <div class="ph-title">New Job Work</div>
         <div class="ph-sub">Issue items to a job worker for processing</div>
       </div>
-      <button onclick="openColModal()" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
-        <span class="material-symbols-outlined" style="font-size:16px;">tune</span> Configure Table Columns
-      </button>
     </div>
 
     <!-- Section 1 -->
@@ -179,11 +177,16 @@
       <div class="sec-body">
         <div class="g3" style="margin-bottom:18px;">
           <div class="fl"><label>Job Worker Name <span class="req">*</span></label>
-            <select class="inp" id="workerName" onchange="onWorkerSelect()">
-              <option value="">— Select Job Worker —</option>
-              <option>Sunrise Embroidery Works</option><option>Sri Lakshmi Textiles</option>
-              <option>Ravi Job Workers</option><option>Kumar Fabrications</option><option>Raj Finishing House</option>
-            </select></div>
+            <div style="display:flex;gap:6px;align-items:flex-end;">
+              <select class="inp" id="workerName" onchange="onWorkerSelect()" style="flex:1;">
+                <option value="">— Select Job Worker —</option>
+                <option>Sunrise Embroidery Works</option><option>Sri Lakshmi Textiles</option>
+                <option>Ravi Job Workers</option><option>Kumar Fabrications</option><option>Raj Finishing House</option>
+              </select>
+              <button onclick="openWorkerModal()" title="Create New Job Worker" style="height:36px;width:36px;flex-shrink:0;border:1.5px solid var(--brand-300);border-radius:0 0 4px 4px;background:var(--brand-50);color:var(--brand-700);cursor:pointer;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.background='var(--brand-100)'" onmouseout="this.style.background='var(--brand-50)'">
+                <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+              </button>
+            </div></div>
           <div class="fl"><label>Job Worker Location <span class="req">*</span></label><input type="text" class="inp" id="workerLoc" placeholder="e.g. Tirupur, Tamil Nadu"></div>
           <div class="fl"><label>Company Location (Ship From) <span class="req">*</span></label>
             <select class="inp" id="companyLocation"><option value="">— Select Location —</option><option>Chennai Factory</option><option>Coimbatore Warehouse</option><option>Tirupur Store</option></select></div>
@@ -345,7 +348,89 @@
       <div class="col-chk-row"><input type="checkbox" id="ck-gstamt" onchange="toggleTblCol('opt-gstamt',this.checked)"><label class="col-chk-label" for="ck-gstamt">GST Amount</label></div>
       <div class="col-chk-row"><input type="checkbox" id="ck-gval" onchange="toggleTblCol('opt-gval',this.checked)"><label class="col-chk-label" for="ck-gval">Goods Value</label></div>
     </div>
-    <div class="modal-footer"><button onclick="closeColModal()" style="height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Close</button></div>
+    <div class="modal-footer">
+      <span style="font-size:11.5px;color:var(--text-3);" id="colSavedMsg"></span>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeColModal()" style="height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Close</button>
+        <button onclick="saveColConfig()" style="height:34px;padding:0 18px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='var(--brand-700)'" onmouseout="this.style.background='var(--brand-600)'">
+          <span class="material-symbols-outlined" style="font-size:15px;">save</span> Save Configuration
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ Create Job Worker Modal ════ -->
+<div class="modal-overlay" id="workerModal" onclick="if(event.target===this)closeWorkerModal()">
+  <div class="modal-box" style="width:560px;" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon"><span class="material-symbols-outlined" style="font-size:16px;">factory</span></div>
+        Create New Job Worker
+      </div>
+      <button class="modal-close" onclick="closeWorkerModal()"><span class="material-symbols-outlined" style="font-size:16px;">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px;">
+        <div class="fl" style="grid-column:1/-1;">
+          <label>Business / Company Name <span class="req">*</span></label>
+          <input type="text" class="inp" id="wm-name" placeholder="e.g. Raj Embroidery Works">
+        </div>
+        <div class="fl"><label>Contact Person <span class="req">*</span></label><input type="text" class="inp" id="wm-contact" placeholder="Full name"></div>
+        <div class="fl"><label>Phone No <span class="req">*</span></label><input type="text" class="inp" id="wm-phone" placeholder="+91 98765 43210"></div>
+        <div class="fl"><label>Email</label><input type="email" class="inp" id="wm-email" placeholder="email@example.com"></div>
+        <div class="fl"><label>GSTIN</label><input type="text" class="inp" id="wm-gst" placeholder="29ABCDE1234F1Z5" style="text-transform:uppercase;font-family:monospace;"></div>
+        <div class="fl" style="grid-column:1/-1;"><label>Address Line <span class="req">*</span></label><input type="text" class="inp" id="wm-addr" placeholder="Street, area, locality"></div>
+        <div class="fl"><label>City <span class="req">*</span></label><input type="text" class="inp" id="wm-city" placeholder="e.g. Tirupur"></div>
+        <div class="fl"><label>State <span class="req">*</span></label>
+          <select class="inp" id="wm-state"><option value="">— Select State —</option>
+            <option>Tamil Nadu</option><option>Karnataka</option><option>Andhra Pradesh</option>
+            <option>Telangana</option><option>Maharashtra</option><option>Gujarat</option>
+            <option>Rajasthan</option><option>Delhi</option><option>West Bengal</option>
+          </select>
+        </div>
+        <div class="fl"><label>Pincode</label><input type="text" class="inp" id="wm-pin" placeholder="641001" maxlength="6"></div>
+        <div class="fl"><label>Specialization</label>
+          <select class="inp" id="wm-spec"><option value="">— Select —</option>
+            <option>Embroidery</option><option>Washing &amp; Dyeing</option><option>Printing</option>
+            <option>Finishing</option><option>Stitching</option><option>Cutting</option>
+            <option>Packing</option><option>Multi-process</option>
+          </select>
+        </div>
+        <div class="fl" style="grid-column:1/-1;"><label>Notes</label><input type="text" class="inp" id="wm-notes" placeholder="Any additional info…"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeWorkerModal()" style="height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Cancel</button>
+      <button onclick="saveWorker()" style="height:34px;padding:0 20px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='var(--brand-700)'" onmouseout="this.style.background='var(--brand-600)'">
+        <span class="material-symbols-outlined" style="font-size:15px;">save</span> Save Job Worker
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ Post-Save Success Modal ════ -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box" style="width:500px;" onclick="event.stopPropagation()">
+    <div style="padding:28px 28px 20px;text-align:center;border-bottom:1px solid var(--border);">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <span class="material-symbols-outlined" style="font-size:28px;color:#16a34a;">check_circle</span>
+      </div>
+      <div style="font-size:17px;font-weight:700;color:var(--text-1);margin-bottom:6px;">Job Work Created Successfully</div>
+      <div style="font-size:14px;font-weight:600;color:var(--brand-600);font-family:monospace;" id="successJwNo">JW-2026-006</div>
+    </div>
+    <div style="padding:20px 24px;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;">Attached Work Order Documents</div>
+      <div id="successWoList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button onclick="downloadSendChallan()" style="height:38px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span class="material-symbols-outlined" style="font-size:16px;">upload_file</span> Send Challan PDF
+        </button>
+        <a href="job-work-list.html" style="height:38px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:16px;">list</span> Back to List
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -643,7 +728,7 @@ function addRow() {
     ${woCell}
     ${poCell}
     <td class="col-opt opt-buyer" style="${colSt('ck-buyer')}"><input class="ci" type="text" placeholder="Buyer PO" style="max-width:95px;"></td>
-    <td><select class="ci" style="min-width:135px;">${PROCS.map(p=>`<option>${p}</option>`).join('')}</select></td>
+    <td><select class="ci process-sel" style="min-width:135px;" onchange="checkDuplicate(${id})">${PROCS.map(p=>`<option>${p}</option>`).join('')}</select></td>
     ${recvTypeCell}
     ${recvItemCell}
     ${szCells}
@@ -686,6 +771,7 @@ function onProductItemChange(id) {
   const poEl = document.getElementById(`po-${id}`);
   if (poEl) poEl.value = '';
   computeProduct(id);
+  checkDuplicate(id);
 }
 
 /* ══ WO selected (Product/Sample) → auto-fill PO + pre-populate sizes ══ */
@@ -739,6 +825,7 @@ function onFGItemChange(id) {
   }
 
   computeProduct(id);
+  checkDuplicate(id);
 }
 
 /* ══ Fabric/RM: item selected → populate PO dropdown + show default available qty ══ */
@@ -767,6 +854,7 @@ function onFabItemChange(id) {
     }
   }
   computeFab(id);
+  checkDuplicate(id);
 }
 
 /* ══ Fabric/RM: PO selected → show PO-specific available qty ══ */
@@ -851,6 +939,7 @@ function delRow(id) {
   document.getElementById(`row-${id}`)?.remove();
   document.querySelectorAll('#itemBody tr').forEach((tr,i)=>tr.cells[0].textContent=i+1);
   calcTotals(); syncCount();
+  checkAllDuplicates(false); // re-evaluate after deletion (no toast)
 }
 
 function syncCount() {
@@ -903,12 +992,159 @@ function onWorkerSelect() {
 function openColModal()  { document.getElementById('colModal').classList.add('open'); }
 function closeColModal() { document.getElementById('colModal').classList.remove('open'); }
 
+/* ── Save column config to localStorage ── */
+function saveColConfig() {
+  const cfg = {};
+  ['ck-buyer','ck-total','ck-rtype','ck-rate','ck-gst','ck-gstamt','ck-gval'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) cfg[id] = el.checked;
+  });
+  localStorage.setItem('jw-col-config', JSON.stringify(cfg));
+  const msg = document.getElementById('colSavedMsg');
+  msg.textContent = '✓ Saved';
+  msg.style.color = '#16a34a';
+  setTimeout(() => { msg.textContent = ''; }, 2500);
+}
+
+/* ── Load column config from localStorage on page start ── */
+function loadColConfig() {
+  const saved = localStorage.getItem('jw-col-config');
+  if (!saved) return;
+  try {
+    const cfg = JSON.parse(saved);
+    Object.entries(cfg).forEach(([id, checked]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.checked = checked;
+        // extract class from id: ck-buyer → opt-buyer
+        const cls = 'opt-' + id.replace('ck-','');
+        toggleTblCol(cls, checked);
+      }
+    });
+  } catch(e) {}
+}
+
+/* ── Job Worker quick-create modal ── */
+function openWorkerModal() { document.getElementById('workerModal').classList.add('open'); }
+function closeWorkerModal() { document.getElementById('workerModal').classList.remove('open'); }
+
+function saveWorker() {
+  const name = document.getElementById('wm-name').value.trim();
+  const contact = document.getElementById('wm-contact').value.trim();
+  const phone = document.getElementById('wm-phone').value.trim();
+  const city  = document.getElementById('wm-city').value.trim();
+  const state = document.getElementById('wm-state').value;
+  if (!name || !contact || !phone || !city || !state) {
+    alert('Please fill in all required fields (Name, Contact, Phone, City, State).'); return;
+  }
+  // Add to dropdown and auto-select
+  const sel = document.getElementById('workerName');
+  const opt = new Option(name, name);
+  sel.add(opt);
+  sel.value = name;
+  document.getElementById('workerLoc').value = city + ', ' + state;
+  closeWorkerModal();
+  // Reset modal fields
+  ['wm-name','wm-contact','wm-phone','wm-email','wm-gst','wm-addr','wm-city','wm-pin','wm-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('wm-state').value = '';
+  document.getElementById('wm-spec').value  = '';
+}
+
+/* ── Collect WOs from current table rows ── */
+function collectWOs() {
+  const wos = new Set();
+  document.querySelectorAll('#itemBody .wo-sel').forEach(sel => {
+    if (sel.value) wos.add(sel.value);
+  });
+  return [...wos];
+}
+
+/* ── Download send challan for newly created JW ── */
+function downloadSendChallan() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), m=14;
+    doc.setFillColor(37,99,235); doc.rect(0,0,W,18,'F');
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('C-EDGE ERP  |  Garment Suite', m, 11); doc.text('DELIVERY CHALLAN', W-m, 11,{align:'right'});
+    let y=28;
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text(document.getElementById('successJwNo').textContent, m, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(71,85,105);
+    doc.text('Job Worker: '+(document.getElementById('workerName').value||'—'), m, y+6);
+    doc.text('Location: '+(document.getElementById('workerLoc').value||'—'), m, y+12);
+    const wos = collectWOs();
+    doc.text('Work Orders: '+(wos.join(', ')||'—'), m, y+18);
+    doc.setDrawColor(226,232,240); doc.line(m,y+24,W-m,y+24); y+=30;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('ITEMS SENT', m, y); y+=5;
+    doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+    document.querySelectorAll('#itemBody tr').forEach(tr => {
+      const cells = tr.querySelectorAll('select,input[type=number]');
+      const itemSel = tr.querySelector('.item-sel'); const item = itemSel?.value||'—';
+      const totEl = tr.querySelector('[id^="tot-"]'); const total = totEl ? (totEl.tagName==='INPUT'?totEl.value:totEl.textContent) : '0';
+      doc.text(`• ${item}  —  ${total} pcs`, m+4, y); y+=6;
+    });
+    const pH=doc.internal.pageSize.getHeight();
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.rect(0,pH-10,W,10,'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+    doc.text('C-Edge ERP — Generated: '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), m, pH-4);
+    const jwNo = document.getElementById('successJwNo').textContent;
+    doc.save(`${jwNo}-send-challan.pdf`);
+  } catch(e){ console.error(e); alert('PDF generation failed.'); }
+}
+
 function saveDraft()    { alert('Saved as Draft — JW-2026-006'); window.location.href='job-work-list.html'; }
+
 function saveAndIssue() {
   if (!document.getElementById('workerName').value) { alert('Please select a Job Worker.'); return; }
   if (!document.querySelectorAll('#itemBody tr').length) { alert('Please add at least one item.'); return; }
-  alert('Job Work JW-2026-006 issued! Send Challan PDF is ready.');
-  window.location.href = 'job-work-list.html';
+
+  // Collect selected WOs for the success modal
+  const wos = collectWOs();
+  const listEl = document.getElementById('successWoList');
+  listEl.innerHTML = wos.length
+    ? wos.map(wo => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#2563eb;">assignment</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a;font-family:monospace;">${wo}</span>
+          </div>
+          <button onclick="downloadWoPDF('${wo}')" style="height:28px;padding:0 12px;border:1.5px solid #e2e8f0;border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:#334155;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;" onmouseover="this.style.borderColor='#93c5fd'" onmouseout="this.style.borderColor='#e2e8f0'">
+            <span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> WO PDF
+          </button>
+        </div>`).join('')
+    : '<div style="font-size:13px;color:#94a3b8;">No work orders selected.</div>';
+
+  document.getElementById('successModal').classList.add('open');
+}
+
+function downloadWoPDF(woNo) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), m=14;
+    doc.setFillColor(37,99,235); doc.rect(0,0,W,18,'F');
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('C-EDGE ERP  |  Garment Suite', m, 11); doc.text('WORK ORDER DOCUMENT', W-m, 11,{align:'right'});
+    let y=28;
+    doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42); doc.text(woNo, m, y); y+=8;
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    doc.text('Attached to Job Work: '+document.getElementById('successJwNo').textContent, m, y); y+=6;
+    doc.text('Issued by: '+(document.getElementById('workerName').value||'—'), m, y); y+=10;
+    doc.setDrawColor(226,232,240); doc.line(m,y,W-m,y); y+=6;
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+    doc.text('This document is an attachment reference for Job Work challan. For full work order details,', m, y); y+=5;
+    doc.text('refer to the Work Order module in C-Edge ERP.', m, y);
+    const pH=doc.internal.pageSize.getHeight();
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.rect(0,pH-10,W,10,'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+    doc.text('Generated: '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), m, pH-4);
+    doc.save(`${woNo}-details.pdf`);
+  } catch(e){ console.error(e); alert('PDF failed.'); }
 }
 
 function toggleGroup(el) {
@@ -918,9 +1154,68 @@ function toggleGroup(el) {
   el.classList.toggle('active-group');
 }
 
+/* ══ Duplicate combination validation ══
+   Checks: same Item Name + Work Order/PO + Process in the same DC.
+   All rows that share an identical combination are highlighted red.
+   A toast fires once when the triggering row is part of a new duplicate group.
+══════════════════════════════════════════════════════════════════════════ */
+function checkDuplicate(id) {
+  checkAllDuplicates(true, id);
+}
+
+function checkAllDuplicates(showToast, triggerId) {
+  const rows = [...document.querySelectorAll('#itemBody tr')];
+  const map  = {};   // key → array of <tr> elements
+
+  rows.forEach(tr => {
+    const item = tr.querySelector('.item-sel')?.value    || '';
+    const wo   = tr.querySelector('.wo-sel')?.value      || tr.querySelector('.po-sel')?.value || '';
+    const proc = tr.querySelector('.process-sel')?.value || '';
+    if (!item) return;                           // skip empty item rows
+    const key = `${item}||${wo}||${proc}`;
+    if (!map[key]) map[key] = [];
+    map[key].push(tr);
+  });
+
+  // Clear all existing duplicate marks
+  rows.forEach(tr => {
+    tr.style.background = '';
+    tr.style.outline    = '';
+    tr.removeAttribute('data-dup');
+  });
+
+  let toasted = false;
+  Object.entries(map).forEach(([key, group]) => {
+    if (group.length < 2) return;               // unique → nothing to mark
+
+    group.forEach(tr => {
+      tr.style.background = '#fff5f5';
+      tr.style.outline    = '1.5px solid #fca5a5';
+      tr.style.outlineOffset = '-1px';
+      tr.setAttribute('data-dup', '1');
+    });
+
+    // Show ONE toast only when the row that triggered the check is in this group
+    if (showToast && !toasted) {
+      const triggerInGroup = triggerId != null &&
+        group.some(tr => tr.id === `row-${triggerId}`);
+      if (triggerInGroup) {
+        const [item, wo, proc] = key.split('||');
+        const parts = [item, wo, proc].filter(Boolean);
+        toast(
+          `Duplicate: "${parts.join(' · ')}" — this Style / Work Order / Process combination already exists in this DC.`,
+          'error'
+        );
+        toasted = true;
+      }
+    }
+  });
+}
+
 /* ── Init ── */
 buildFtRow();
 addRow();
+loadColConfig();
 </script>
 </body>
 </html>

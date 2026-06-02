@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Work Payment — JW-2026-004 — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* ── Section cards ── */
+.sec{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.sec-hd{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border2);background:#f8fafc;}
+.sec-num{width:26px;height:26px;border-radius:50%;background:var(--brand-600);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-num.green{background:#16a34a;}
+.sec-num.amber{background:#d97706;}
+.sec-title{font-size:14px;font-weight:600;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-body{padding:20px;}
+
+/* ── Info grid (read-only display) ── */
+.ig{display:grid;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.ig-3{grid-template-columns:repeat(3,1fr);}
+.ig-4{grid-template-columns:repeat(4,1fr);}
+.ig-cell{padding:12px 16px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.ig-3 .ig-cell:nth-child(3n){border-right:none;}
+.ig-4 .ig-cell:nth-child(4n){border-right:none;}
+.ig-3 .ig-cell:nth-last-child(-n+3){border-bottom:none;}
+.ig-4 .ig-cell:nth-last-child(-n+4){border-bottom:none;}
+.ig-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:5px;}
+.ig-val{font-size:13px;font-weight:600;color:var(--text-1);line-height:1.4;}
+.ig-val.mono{font-family:monospace;font-size:14px;color:var(--brand-700);}
+.ig-val.dim{color:var(--text-3);font-weight:400;}
+.ig-val a{color:var(--brand-600);text-decoration:none;}
+
+/* ── Form fields ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+.fl{display:flex;flex-direction:column;}
+.fl label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:6px;}
+.fl .req{color:#dc2626;}
+.inp{width:100%;height:36px;padding:0 10px;border:0;border-bottom:2px solid var(--border);background:#f8fafc;border-radius:4px 4px 0 0;font-size:13px;color:var(--text-1);box-sizing:border-box;font-family:inherit;outline:none;transition:border-color .15s,background .15s;}
+.inp:focus{border-bottom-color:var(--brand-500);background:var(--brand-50);}
+.inp[readonly]{background:#f1f5f9;color:var(--text-2);cursor:default;}
+.inp.auto{background:#f0fdf4;color:#166534;font-weight:600;border-bottom-color:#86efac;}
+.inp-note{font-size:10.5px;color:#94a3b8;margin-top:4px;}
+
+/* ── Status pill ── */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:600;}
+.sp-partial{background:#eff6ff;color:var(--brand-800);}
+.sp-unpaid{background:#fef3c7;color:#92400e;}
+.pp-unpaid{background:#fef3c7;color:#92400e;}
+.pp-partial{background:#e0f2fe;color:#0369a1;}
+.pp-paid{background:#dcfce7;color:#15803d;}
+
+/* ── Item table ── */
+.tbl-scroll{overflow-x:auto;}
+.itbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:780px;}
+.itbl th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);white-space:nowrap;}
+.itbl th.right{text-align:right;}
+.itbl th.center{text-align:center;}
+.itbl td{padding:10px 12px;border-bottom:1px solid var(--border2);color:var(--text-1);}
+.itbl tfoot td{background:#f8fafc;font-weight:600;border-top:2px solid var(--border2);}
+.itbl tfoot td.brand{background:#eff6ff;font-weight:700;color:var(--brand-800);}
+.td-num{text-align:right;font-variant-numeric:tabular-nums;}
+.td-ctr{text-align:center;}
+.td-sent{color:var(--text-2);}
+.td-rcvd{color:#15803d;font-weight:700;}
+.td-bal{color:#92400e;font-weight:600;}
+.td-amt{color:var(--text-1);font-weight:700;}
+
+/* ── Amount summary band ── */
+.amt-band{display:flex;justify-content:flex-end;gap:0;margin-top:0;}
+.amt-band-inner{border:1px solid var(--border);border-radius:8px;overflow:hidden;min-width:360px;}
+.amt-row{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border2);font-size:13px;}
+.amt-row:last-child{border-bottom:none;}
+.amt-row.total{background:var(--brand-600);color:#fff;}
+.amt-row.total .amt-label,.amt-row.total .amt-val{color:#fff;font-weight:700;}
+.amt-label{color:var(--text-3);font-size:12.5px;}
+.amt-val{font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* ── Credit note card ── */
+.cn-card{border:1.5px dashed #f59e0b;border-radius:10px;background:#fffbeb;padding:16px 20px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.cn-info{display:flex;align-items:flex-start;gap:10px;}
+.cn-icon{width:36px;height:36px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cn-title{font-size:13.5px;font-weight:700;color:#92400e;margin-bottom:3px;}
+.cn-detail{font-size:12px;color:#b45309;line-height:1.5;}
+.cn-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 16px;border:1.5px solid #f59e0b;border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:#92400e;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.cn-btn:hover{background:#fef3c7;border-color:#d97706;}
+.cn-btn .material-symbols-outlined{font-size:16px;}
+
+/* ── Payment history card ── */
+.pay-hist{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.pay-hist-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f8fafc;border-bottom:1px solid var(--border2);}
+.pay-hist-title{font-size:13px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px;}
+.pay-entry{display:flex;align-items:center;gap:0;padding:12px 16px;border-bottom:1px solid var(--border2);flex-wrap:wrap;}
+.pay-entry:last-child{border-bottom:none;}
+.pay-entry-dot{width:30px;height:30px;border-radius:50%;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px;}
+.pay-entry-dot .material-symbols-outlined{font-size:15px;}
+.pay-entry-info{flex:1;min-width:200px;}
+.pay-entry-title{font-size:13px;font-weight:600;color:var(--text-1);}
+.pay-entry-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;}
+.pay-entry-amt{font-size:15px;font-weight:800;color:#15803d;text-align:right;}
+.pay-entry-ref{font-size:11px;color:var(--text-3);text-align:right;margin-top:2px;}
+
+/* ── Divider with label ── */
+.sec-divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.sec-divider::before,.sec-divider::after{content:'';flex:1;border-top:1px solid var(--border2);}
+.sec-divider-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;white-space:nowrap;}
+
+/* ── File upload ── */
+.file-drop{border:1.5px dashed var(--border);border-radius:8px;padding:16px;background:#f8fafc;text-align:center;cursor:pointer;transition:all .15s;}
+.file-drop:hover{border-color:var(--brand-300);background:var(--brand-50);}
+.file-drop input{display:none;}
+.file-drop-icon{width:36px;height:36px;border-radius:8px;background:#fff;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+
+/* ── Info banners ── */
+.ib{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;font-size:12.5px;line-height:1.5;}
+.ib.blue{background:var(--brand-50);border:1px solid var(--brand-200);color:var(--brand-800);}
+.ib.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+.ib .material-symbols-outlined{font-size:17px;margin-top:1px;flex-shrink:0;}
+
+/* ── Action bar ── */
+.act-bar{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--border);padding:12px 24px;display:flex;gap:10px;justify-content:flex-end;z-index:200;box-shadow:0 -4px 16px rgba(0,0,0,.06);}
+
+/* ── Toast ── */
+.toast-area{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{background:#16a34a;} .toast.error{background:#dc2626;} .toast.info{background:var(--brand-600);}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── Credit Note Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:560px;max-width:94vw;max-height:90vh;overflow-y:auto;transform:translateY(12px);transition:transform .2s;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:10;}
+.modal-title{font-size:15px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:10px;}
+.modal-title-icon{width:32px;height:32px;border-radius:8px;background:#fffbeb;display:flex;align-items:center;justify-content:center;color:#92400e;}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-3);}
+.modal-body{padding:20px 22px;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--border);}
+
+/* ── PDF print styles ── */
+@media print {
+  .sidebar,.topbar,.act-bar,.print-hide{display:none!important;}
+  .main{margin:0!important;}
+  .page{padding:16px!important;}
+  .sec{box-shadow:none!important;break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">C</div>
+    <div><div class="brand-name">C-Edge ERP</div><div class="brand-sub">Garment Suite</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Sales</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span></span><span class="nav-parent-label">Buyer Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="#">Buyer PO List</a></div>
+    </div>
+    <div class="nav-section">Procurement</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">local_shipping</span></span><span class="nav-parent-label">Purchase Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="purchase-order-list.html">PO List</a><a class="nav-child" href="purchase-order.html">Create PO</a></div>
+    </div>
+    <div class="nav-section">Production</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">assignment</span></span><span class="nav-parent-label">Work Orders</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="work-order-list.html">Work Order List</a><a class="nav-child" href="work-order-create.html">Create Work Order</a></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">factory</span></span><span class="nav-parent-label">Production Process</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="production-process-list.html">Process List</a><a class="nav-child" href="production-process-create.html">Create Process</a></div>
+    </div>
+    <div class="nav-group open">
+      <div class="nav-parent active-group open" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">swap_horiz</span></span><span class="nav-parent-label">Job Work</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children">
+        <a class="nav-child" href="job-work-list.html">Job Work List</a>
+        <a class="nav-child" href="job-work-create.html">New Job Work</a>
+        <a class="nav-child active" href="job-work-payment-list.html">Job Work Payment</a>
+      </div>
+    </div>
+    <div class="nav-section">Masters</div>
+    <div class="nav-group">
+      <div class="nav-parent" onclick="toggleGroup(this)"><span class="nav-parent-icon"><span class="material-symbols-outlined" style="font-size:17px;">database</span></span><span class="nav-parent-label">Master Data</span><span class="material-symbols-outlined nav-chevron" style="font-size:16px;">chevron_right</span></div>
+      <div class="nav-children"><a class="nav-child" href="masters-vendor.html">Vendors / Buyers</a><a class="nav-child" href="masters-color.html">Colours</a><a class="nav-child" href="masters-size.html">Sizes</a></div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div class="sf-info"><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-module">Production / <a href="job-work-payment-list.html" style="color:var(--brand-600);text-decoration:none;">Job Work Payment</a> / JW-2026-004</span>
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" onclick="downloadPaymentPDF()" title="Download PDF">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page" style="padding-bottom:80px;" id="mainContent">
+
+    <!-- Page heading -->
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title" style="display:flex;align-items:center;gap:10px;">
+          Job Work Payment
+          <span style="font-family:monospace;font-size:16px;color:var(--brand-600);font-weight:700;">JW-2026-004</span>
+          <span class="sp sp-partial">Partial Received</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;">Unpaid</span>
+        </div>
+        <div class="ph-sub">Sri Lakshmi Textiles &nbsp;·&nbsp; Oxford Shirt (Navy Blue) &nbsp;·&nbsp; WO-2026-004</div>
+      </div>
+      <div style="display:flex;gap:8px;" class="print-hide">
+        <button onclick="downloadPaymentPDF()" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> Payment PDF
+        </button>
+        <a href="job-work-view.html" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;text-decoration:none;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span class="material-symbols-outlined" style="font-size:16px;">visibility</span> View JW
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 1: Job Worker Details (read-only) ═══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-num">1</div>
+        <div>
+          <div class="sec-title">Job Worker Details</div>
+          <div class="sec-sub">Order and worker information — locked after issuance</div>
+        </div>
+        <div style="margin-left:auto;" class="print-hide">
+          <a href="job-work-edit.html" style="display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:var(--text-2);text-decoration:none;" onmouseover="this.style.borderColor='var(--brand-400)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span class="material-symbols-outlined" style="font-size:14px;">edit</span> Edit JW
+          </a>
+        </div>
+      </div>
+      <div class="sec-body">
+        <div class="ig ig-4" style="margin-bottom:14px;">
+          <div class="ig-cell">
+            <div class="ig-lbl">Job Work No</div>
+            <div class="ig-val mono">JW-2026-004</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Work Order No</div>
+            <div class="ig-val"><a href="work-order-view.html">WO-2026-004</a></div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">JW Date</div>
+            <div class="ig-val">15 Apr 2026</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Delivery Date</div>
+            <div class="ig-val">30 Jun 2026</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Job Worker</div>
+            <div class="ig-val" style="font-weight:700;">Sri Lakshmi Textiles</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Location</div>
+            <div class="ig-val dim">Tirupur, Tamil Nadu</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Process</div>
+            <div class="ig-val">Embroidery, Button Attachment</div>
+          </div>
+          <div class="ig-cell">
+            <div class="ig-lbl">Item Type</div>
+            <div class="ig-val">Product</div>
+          </div>
+        </div>
+        <!-- Progress summary -->
+        <div style="display:flex;align-items:center;gap:12px;background:#f8fafc;border:1px solid var(--border2);border-radius:8px;padding:12px 16px;">
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span style="color:var(--text-3);">Received vs Sent</span>
+              <span style="font-weight:700;color:var(--brand-700);">580 / 1000 pcs &nbsp;(58%)</span>
+            </div>
+            <div style="background:#e2e8f0;border-radius:20px;height:8px;">
+              <div style="width:58%;height:8px;border-radius:20px;background:var(--brand-500);"></div>
+            </div>
+          </div>
+          <div style="text-align:center;padding:0 16px;border-left:1px solid var(--border2);">
+            <div style="font-size:22px;font-weight:800;color:#92400e;">420</div>
+            <div style="font-size:11px;color:var(--text-3);">pcs pending</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 4: Item Details — Send / Receive Summary ═══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-num">4</div>
+        <div>
+          <div class="sec-title">Item Details &amp; Amount Calculation</div>
+          <div class="sec-sub">Amount calculated on received quantity only</div>
+        </div>
+      </div>
+      <div class="tbl-scroll" style="padding:0;">
+        <table class="itbl">
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th style="min-width:180px;">Item Name</th>
+              <th style="min-width:130px;">Work Order No</th>
+              <th style="min-width:160px;">Process</th>
+              <th class="center" style="min-width:90px;">Total Sent<br><span style="font-size:9.5px;color:#94a3b8;font-weight:500;text-transform:none;">Qty (pcs)</span></th>
+              <th class="center" style="min-width:90px;">Total Received<br><span style="font-size:9.5px;color:#94a3b8;font-weight:500;text-transform:none;">Qty (pcs)</span></th>
+              <th class="center" style="min-width:80px;">Balance Qty<br><span style="font-size:9.5px;color:#94a3b8;font-weight:500;text-transform:none;">(pcs)</span></th>
+              <th class="right" style="min-width:80px;">Rate<br><span style="font-size:9.5px;color:#94a3b8;font-weight:500;text-transform:none;">(₹/pc)</span></th>
+              <th class="right" style="min-width:110px;">Amount<br><span style="font-size:9.5px;color:#94a3b8;font-weight:500;text-transform:none;">(on received qty)</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text-3);font-size:11px;">1</td>
+              <td style="font-weight:600;">Oxford Shirt (Navy Blue)</td>
+              <td><a href="work-order-view.html" style="color:var(--brand-600);text-decoration:none;font-weight:600;">WO-2026-004</a></td>
+              <td style="font-size:12px;color:var(--text-2);">Embroidery, Button Attachment</td>
+              <td class="td-ctr td-sent">1,000</td>
+              <td class="td-ctr td-rcvd">580</td>
+              <td class="td-ctr td-bal">420</td>
+              <td class="td-num">₹45.00</td>
+              <td class="td-num td-amt">₹26,100.00</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="padding:9px 12px;color:var(--text-3);font-size:11.5px;">Totals</td>
+              <td class="td-ctr" style="padding:9px 12px;font-weight:700;">1,000</td>
+              <td class="td-ctr" style="padding:9px 12px;font-weight:700;color:#15803d;">580</td>
+              <td class="td-ctr" style="padding:9px 12px;font-weight:700;color:#92400e;">420</td>
+              <td></td>
+              <td class="td-num" style="padding:9px 12px;font-weight:700;">₹26,100.00</td>
+            </tr>
+            <tr>
+              <td colspan="8" style="padding:9px 12px;color:var(--text-3);font-size:12px;text-align:right;">GST @ 5%</td>
+              <td class="td-num" style="padding:9px 12px;color:#dc2626;">₹1,305.00</td>
+            </tr>
+            <tr class="brand">
+              <td colspan="8" style="padding:10px 12px;font-size:13px;text-align:right;color:var(--brand-800);">Total Payable Amount</td>
+              <td class="td-num" style="padding:10px 12px;font-size:14px;color:var(--brand-800);">₹27,405.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Credit Note Option -->
+      <div style="padding:16px 20px;">
+        <div class="cn-card">
+          <div class="cn-info">
+            <div class="cn-icon">
+              <span class="material-symbols-outlined" style="font-size:20px;color:#92400e;">receipt_long</span>
+            </div>
+            <div>
+              <div class="cn-title">Credit Note Option — 420 pcs Balance Quantity</div>
+              <div class="cn-detail">
+                Balance qty not yet received: <strong>420 pcs × ₹45.00 = ₹18,900.00</strong> &nbsp;+&nbsp; GST 5% ₹945.00 = <strong>₹19,845.00</strong><br>
+                Create a credit note to adjust this amount from future invoices or to claim a refund.
+              </div>
+            </div>
+          </div>
+          <div id="cnCardActions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+            <button class="cn-btn" id="btnCreateCN" onclick="openCreditNoteModal()">
+              <span class="material-symbols-outlined">add_circle</span>
+              Create Credit Note
+            </button>
+            <button class="cn-btn" id="btnDownloadCN" onclick="downloadCreditNotePDF()" style="display:none;border-color:#15803d;color:#15803d;background:#f0fdf4;">
+              <span class="material-symbols-outlined">download</span>
+              Download Credit Note PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAYMENT DETAILS SECTION ═══ -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-num amber">₹</div>
+        <div>
+          <div class="sec-title">Payment Details</div>
+          <div class="sec-sub">Record invoice and payment information</div>
+        </div>
+      </div>
+      <div class="sec-body">
+
+        <!-- Previous payment history (sample for JW-2026-002 pattern; blank for JW-2026-004) -->
+        <!-- For JW-2026-004 there are no previous payments — showing empty state hint -->
+        <div class="ib blue" style="margin-bottom:20px;">
+          <span class="material-symbols-outlined">info</span>
+          <span>No payments recorded yet for <strong>JW-2026-004</strong>. Total payable amount is <strong>₹27,405.00</strong> (calculated on 580 pcs received × ₹45/pc + 5% GST).</span>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="sec-divider"><span class="sec-divider-lbl">Invoice Details</span></div>
+        <div class="g3" style="margin-bottom:20px;">
+          <div class="fl">
+            <label>Invoice No <span class="req">*</span></label>
+            <input type="text" class="inp" id="invoiceNo" placeholder="e.g. INV-2026-045" style="font-family:monospace;" oninput="validateForm()">
+          </div>
+          <div class="fl">
+            <label>Invoice Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="invoiceDate" onchange="validateForm()">
+          </div>
+          <div class="fl">
+            <label>Invoice Amount (₹)</label>
+            <input type="text" class="inp" id="invoiceAmt" placeholder="As per job worker's invoice" oninput="validateForm()">
+            <div class="inp-note">Enter the amount shown in the worker's invoice</div>
+          </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="sec-divider"><span class="sec-divider-lbl">Payment Entry</span></div>
+        <div class="g4" style="margin-bottom:20px;">
+          <div class="fl">
+            <label>Payment Date <span class="req">*</span></label>
+            <input type="date" class="inp" id="paymentDate" onchange="calcBalance()">
+          </div>
+          <div class="fl">
+            <label>Payment Reference No</label>
+            <input type="text" class="inp" id="paymentRef" placeholder="UTR / Cheque No / Ref">
+          </div>
+          <div class="fl">
+            <label>Payment Mode <span class="req">*</span></label>
+            <select class="inp" id="paymentMode" onchange="validateForm()">
+              <option value="">— Select Mode —</option>
+              <option>Bank Transfer (NEFT)</option>
+              <option>Bank Transfer (RTGS)</option>
+              <option>Bank Transfer (IMPS)</option>
+              <option>UPI</option>
+              <option>Cheque</option>
+              <option>Cash</option>
+              <option>Demand Draft</option>
+            </select>
+          </div>
+          <div class="fl">
+            <label>Bank / Account Details</label>
+            <input type="text" class="inp" id="bankDetails" placeholder="Bank name / A/c last 4 digits">
+          </div>
+        </div>
+
+        <!-- Amount Calculation -->
+        <div class="sec-divider"><span class="sec-divider-lbl">Amount Breakdown</span></div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px;">
+          <!-- Left: Amount inputs -->
+          <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:14px;">
+            <div class="fl">
+              <label>Payable Amount (₹)</label>
+              <input type="text" class="inp auto" id="payableAmt" value="27,405.00" readonly>
+              <div class="inp-note">Auto-calculated: 580 pcs × ₹45 + 5% GST</div>
+            </div>
+            <div class="fl">
+              <label>Amount Being Paid (₹) <span class="req">*</span></label>
+              <input type="number" class="inp" id="amountPaid" placeholder="0.00" min="0" step="0.01" oninput="calcBalance()" style="font-size:16px;font-weight:700;">
+            </div>
+            <div class="fl">
+              <label>Balance Amount (₹)</label>
+              <input type="text" class="inp" id="balanceAmt" value="27,405.00" readonly>
+              <div class="inp-note">Remaining payable after this payment</div>
+            </div>
+          </div>
+          <!-- Right: Summary card -->
+          <div style="flex:0 0 300px;">
+            <div class="amt-band-inner">
+              <div class="amt-row">
+                <span class="amt-label">Base Amount (580 pcs × ₹45)</span>
+                <span class="amt-val">₹26,100.00</span>
+              </div>
+              <div class="amt-row">
+                <span class="amt-label">GST @ 5%</span>
+                <span class="amt-val" style="color:#dc2626;">₹1,305.00</span>
+              </div>
+              <div class="amt-row" style="background:#f8fafc;">
+                <span class="amt-label" style="font-weight:600;color:var(--text-1);">Total Payable</span>
+                <span class="amt-val" style="color:var(--brand-700);">₹27,405.00</span>
+              </div>
+              <div class="amt-row">
+                <span class="amt-label">Amount Being Paid</span>
+                <span class="amt-val" style="color:#15803d;" id="summaryPaid">₹0.00</span>
+              </div>
+              <div class="amt-row total" id="summaryBalanceRow">
+                <span class="amt-label">Balance</span>
+                <span class="amt-val" id="summaryBalance">₹27,405.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="fl" style="margin-bottom:20px;">
+          <label>Remarks / Notes</label>
+          <input type="text" class="inp" id="paymentRemarks" placeholder="Any additional payment notes…">
+        </div>
+
+        <!-- Document Attachment -->
+        <div class="sec-divider"><span class="sec-divider-lbl">Document Attachment</span></div>
+        <div style="margin-top:4px;">
+          <label class="file-drop" for="fileUpload" onclick="document.getElementById('fileUpload').click()">
+            <div class="file-drop-icon">
+              <span class="material-symbols-outlined" style="font-size:20px;color:var(--text-3);">attach_file</span>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:4px;">Attach Invoice / Payment Proof</div>
+            <div style="font-size:12px;color:var(--text-3);">Click to browse — PDF, JPG, PNG up to 10 MB</div>
+            <input type="file" id="fileUpload" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;" onchange="handleFileSelect(event)">
+          </label>
+          <div id="fileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════ Action Bar ════ -->
+<div class="act-bar print-hide">
+  <button onclick="window.location.href='job-work-payment-list.html'" style="height:36px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">
+    Cancel
+  </button>
+  <button onclick="savePayment()" id="btnSave" style="height:36px;padding:0 20px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='var(--brand-700)'" onmouseout="this.style.background='var(--brand-600)'">
+    <span class="material-symbols-outlined" style="font-size:16px;">save</span> Save Payment
+  </button>
+  <button onclick="markFullyPaid()" id="btnFullyPaid" style="height:36px;padding:0 20px;border:none;border-radius:8px;background:#16a34a;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+    <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Mark as Fully Paid
+  </button>
+</div>
+
+<!-- ════ Credit Note Modal ════ -->
+<div class="modal-overlay" id="cnModal" onclick="if(event.target===this)closeCreditNoteModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon"><span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span></div>
+        Create Credit Note
+      </div>
+      <button class="modal-close" onclick="closeCreditNoteModal()"><span class="material-symbols-outlined" style="font-size:16px;">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="ib" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;margin-bottom:20px;">
+        <span class="material-symbols-outlined">info</span>
+        <span>Credit note is issued to Sri Lakshmi Textiles for the <strong>420 pcs (42%)</strong> balance quantity not received against JW-2026-004.</span>
+      </div>
+
+      <!-- Credit Note Summary -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px;">
+        <div style="background:#f8fafc;padding:10px 16px;border-bottom:1px solid var(--border2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);">Credit Note Summary</div>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;">
+            <span style="color:var(--text-2);">Balance Quantity</span>
+            <span style="font-weight:700;">420 pcs</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;">
+            <span style="color:var(--text-2);">Rate per piece</span>
+            <span style="font-weight:700;">₹45.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;">
+            <span style="color:var(--text-2);">Base Amount (420 × ₹45)</span>
+            <span style="font-weight:700;">₹18,900.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px dashed var(--border2);padding-top:8px;">
+            <span style="color:var(--text-2);">GST @ 5%</span>
+            <span style="font-weight:700;color:#dc2626;">₹945.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;background:#fffbeb;margin:0 -4px;padding:8px 12px;border-radius:6px;">
+            <span style="color:#92400e;">Total Credit Note Value</span>
+            <span style="color:#92400e;">₹19,845.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credit Note Form -->
+      <div class="g2" style="margin-bottom:16px;">
+        <div class="fl">
+          <label>Credit Note No <span class="req">*</span></label>
+          <input type="text" class="inp" id="cnNo" placeholder="CN-2026-001" style="font-family:monospace;" value="CN-2026-001">
+          <div class="inp-note">Auto-generated — edit if needed</div>
+        </div>
+        <div class="fl">
+          <label>Credit Note Date <span class="req">*</span></label>
+          <input type="date" class="inp" id="cnDate" value="2026-06-02">
+        </div>
+      </div>
+      <div class="fl" style="margin-bottom:16px;">
+        <label>Reason for Credit Note</label>
+        <input type="text" class="inp" id="cnReason" value="Balance qty of 420 pcs not received against JW-2026-004 — Embroidery, Button Attachment">
+      </div>
+      <div class="fl">
+        <label>Adjust Against</label>
+        <select class="inp" id="cnAdjust">
+          <option>Future Invoice Deduction</option>
+          <option>Refund</option>
+          <option>Advance Adjustment</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeCreditNoteModal()" style="height:34px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Cancel</button>
+      <button onclick="saveCreditNote(false)" style="height:34px;padding:0 18px;border:1.5px solid #d97706;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#92400e;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='#fffbeb'" onmouseout="this.style.background='#fff'">
+        <span class="material-symbols-outlined" style="font-size:15px;">receipt_long</span> Generate Only
+      </button>
+      <button onclick="saveCreditNote(true)" style="height:34px;padding:0 20px;border:none;border-radius:8px;background:#d97706;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+        <span class="material-symbols-outlined" style="font-size:15px;">download</span> Generate &amp; Download PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ Fully Paid Success Modal ════ -->
+<div class="modal-overlay" id="paidModal">
+  <div class="modal-box" style="width:480px;" onclick="event.stopPropagation()">
+    <div style="padding:32px 28px 20px;text-align:center;border-bottom:1px solid var(--border);">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <span class="material-symbols-outlined" style="font-size:30px;color:#16a34a;">check_circle</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:6px;">Payment Complete!</div>
+      <div style="font-size:13.5px;color:var(--text-3);line-height:1.5;">JW-2026-004 has been fully paid. <br>Payment history has been updated.</div>
+    </div>
+    <div style="padding:20px 28px;display:flex;gap:10px;justify-content:center;">
+      <a href="job-work-payment-list.html" style="height:38px;padding:0 20px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">list</span> Back to Payment List
+      </a>
+      <button onclick="downloadPaymentPDF();document.getElementById('paidModal').classList.remove('open')" style="height:38px;padding:0 20px;border:none;border-radius:8px;background:var(--brand-600);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='var(--brand-700)'" onmouseout="this.style.background='var(--brand-600)'">
+        <span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> Download Payment PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+/* ══ Balance calculation ══ */
+function calcBalance() {
+  const payable = 27405;
+  const paid    = parseFloat(document.getElementById('amountPaid').value) || 0;
+  const balance = payable - paid;
+
+  document.getElementById('balanceAmt').value = balance.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('summaryPaid').textContent = '₹' + paid.toLocaleString('en-IN', {minimumFractionDigits:2});
+
+  const balRow   = document.getElementById('summaryBalanceRow');
+  const balEl    = document.getElementById('summaryBalance');
+  balEl.textContent = '₹' + Math.max(0,balance).toLocaleString('en-IN', {minimumFractionDigits:2});
+
+  if (balance <= 0) {
+    balRow.style.background = '#16a34a';
+    balEl.textContent = 'Fully Paid ✓';
+  } else {
+    balRow.style.background = 'var(--brand-600)';
+  }
+  validateForm();
+}
+
+function validateForm() {
+  const ok = document.getElementById('invoiceNo').value.trim() &&
+             document.getElementById('invoiceDate').value &&
+             document.getElementById('paymentDate').value &&
+             document.getElementById('paymentMode').value &&
+             (parseFloat(document.getElementById('amountPaid').value) || 0) > 0;
+  document.getElementById('btnSave').style.opacity = ok ? '1' : '0.6';
+  document.getElementById('btnFullyPaid').style.opacity = ok ? '1' : '0.6';
+}
+
+function savePayment() {
+  const amt = parseFloat(document.getElementById('amountPaid').value) || 0;
+  if (!document.getElementById('invoiceNo').value.trim()) { toast('Please enter Invoice No.','error'); return; }
+  if (!document.getElementById('invoiceDate').value)      { toast('Please enter Invoice Date.','error'); return; }
+  if (!document.getElementById('paymentDate').value)      { toast('Please enter Payment Date.','error'); return; }
+  if (!document.getElementById('paymentMode').value)      { toast('Please select Payment Mode.','error'); return; }
+  if (amt <= 0)                                            { toast('Please enter Amount Being Paid.','error'); return; }
+
+  toast(`Payment of ₹${amt.toLocaleString('en-IN')} saved for JW-2026-004.`, 'success');
+}
+
+function markFullyPaid() {
+  const amt = parseFloat(document.getElementById('amountPaid').value) || 0;
+  if (!document.getElementById('invoiceNo').value.trim()) { toast('Please enter Invoice No.','error'); return; }
+  if (amt <= 0)                                            { toast('Please enter Amount Being Paid.','error'); return; }
+  document.getElementById('paidModal').classList.add('open');
+}
+
+/* ══ File upload ══ */
+function handleFileSelect(event) {
+  const files  = Array.from(event.target.files);
+  const list   = document.getElementById('fileList');
+  files.forEach(f => {
+    const el = document.createElement('div');
+    el.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:7px;';
+    el.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-600);">attach_file</span>
+      <div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">${f.name}</div><div style="font-size:11px;color:var(--text-3);">${(f.size/1024).toFixed(0)} KB</div></div>
+      <button onclick="this.closest('div').remove()" style="width:24px;height:24px;border:none;background:none;color:#94a3b8;cursor:pointer;font-size:16px;">&times;</button>`;
+    list.appendChild(el);
+  });
+}
+
+/* ══ Credit Note Modal ══ */
+function openCreditNoteModal()  { document.getElementById('cnModal').classList.add('open'); }
+function closeCreditNoteModal() { document.getElementById('cnModal').classList.remove('open'); }
+
+function saveCreditNote(download) {
+  closeCreditNoteModal();
+  const cnNo = document.getElementById('cnNo').value || 'CN-2026-001';
+  // Reveal the download button in the card
+  document.getElementById('btnCreateCN').innerHTML =
+    '<span class="material-symbols-outlined">check_circle</span> Credit Note Generated';
+  document.getElementById('btnCreateCN').style.cssText +=
+    ';border-color:#86efac;color:#15803d;background:#f0fdf4;cursor:default;pointer-events:none;';
+  document.getElementById('btnDownloadCN').style.display = 'inline-flex';
+  toast(`Credit Note ${cnNo} generated for ₹19,845.00 (420 pcs balance).`, 'success');
+  if (download) downloadCreditNotePDF();
+}
+
+function downloadCreditNotePDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p', unit:'mm', format:'a4'});
+    const W = doc.internal.pageSize.getWidth();
+    const pH = doc.internal.pageSize.getHeight();
+    const m = 14;
+
+    const cnNo     = document.getElementById('cnNo')?.value     || 'CN-2026-001';
+    const cnDate   = document.getElementById('cnDate')?.value   || '2026-06-02';
+    const cnReason = document.getElementById('cnReason')?.value || 'Balance qty not received';
+    const cnAdjust = document.getElementById('cnAdjust')?.value || 'Future Invoice Deduction';
+
+    function fmtD(iso) {
+      if (!iso) return '—';
+      const [y,mo,d] = iso.split('-');
+      const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${d} ${mn[+mo-1]} ${y}`;
+    }
+
+    /* ── Header band — amber for credit note ── */
+    doc.setFillColor(217, 119, 6);
+    doc.rect(0, 0, W, 20, 'F');
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('C-EDGE ERP  |  Garment Suite', m, 12);
+    doc.text('CREDIT NOTE', W-m, 12, {align:'right'});
+
+    /* ── Sub-header metadata ── */
+    let y = 28;
+    const hPairs = [
+      ['Credit Note No', cnNo],
+      ['Credit Note Date', fmtD(cnDate)],
+      ['Ref: Job Work No', 'JW-2026-004'],
+      ['Ref: Work Order', 'WO-2026-004']
+    ];
+    const cw4 = (W - m*2) / 4;
+    hPairs.forEach(([lbl,val],i) => {
+      const x = m + i*cw4;
+      doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+      doc.text(lbl.toUpperCase(), x, y);
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+      doc.text(val, x, y+5);
+    });
+    y += 14;
+    doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m, y, W-m, y);
+    y += 7;
+
+    /* ── Parties ── */
+    const half = (W - m*2) / 2;
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('CREDIT NOTE ISSUED BY', m, y);
+    doc.text('ISSUED TO (JOB WORKER)', m + half + 6, y);
+    y += 5;
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text('C-Edge Garments Ltd.', m, y);
+    doc.text('Sri Lakshmi Textiles', m + half + 6, y);
+    y += 5; doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    doc.text('Chennai Factory', m, y);
+    doc.text('Tirupur, Tamil Nadu', m + half + 6, y);
+    y += 8; doc.setDrawColor(226,232,240); doc.line(m, y, W-m, y); y += 7;
+
+    /* ── Reason banner ── */
+    doc.setFillColor(255, 251, 235); doc.setDrawColor(253, 230, 138); doc.setLineWidth(0.3);
+    doc.rect(m, y-2, W-m*2, 10, 'FD');
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(146,64,14);
+    doc.text('REASON:', m+4, y+4);
+    doc.setFont('helvetica','normal');
+    const reasonLines = doc.splitTextToSize(cnReason, W - m*2 - 30);
+    doc.text(reasonLines[0], m+26, y+4);
+    y += 14;
+
+    /* ── Section title ── */
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('CREDIT NOTE DETAILS', m, y); y += 5;
+
+    /* ── Item table ── */
+    const cols = {item:m+2, wo:m+62, process:m+104, balQty:W-m-80, rate:W-m-48, base:W-m-22, total:W-m-2};
+    const hdrs = ['ITEM NAME','WORK ORDER','PROCESS','BAL QTY','RATE (₹)','BASE AMT (₹)','TOTAL (₹)'];
+    const xs   = [cols.item, cols.wo, cols.process, cols.balQty, cols.rate, cols.base, cols.total];
+    const aligns = ['left','left','left','right','right','right','right'];
+
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
+    doc.rect(m, y-3, W-m*2, 7, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(71,85,105);
+    hdrs.forEach((h,i) => doc.text(h, xs[i], y, {align: aligns[i]}));
+    y += 6;
+
+    /* Data row */
+    doc.setFillColor(255,255,255); doc.rect(m, y-3, W-m*2, 9, 'F');
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+    doc.text('Oxford Shirt (Navy Blue)', cols.item, y+2);
+    doc.text('WO-2026-004', cols.wo, y+2);
+    doc.text('Embroidery, Btn Att.', cols.process, y+2);
+    doc.setFont('helvetica','bold');
+    doc.text('420', cols.balQty, y+2, {align:'right'});
+    doc.text('45.00', cols.rate, y+2, {align:'right'});
+    doc.text('18,900.00', cols.base, y+2, {align:'right'});
+    doc.text('18,900.00', cols.total, y+2, {align:'right'});
+    y += 10;
+    doc.setDrawColor(241,245,249); doc.line(m, y-1, W-m, y-1);
+
+    /* Totals */
+    doc.setFillColor(255,251,235); doc.rect(m, y-3, W-m*2, 8, 'F');
+    doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    doc.text('Sub-total', cols.item, y+2);
+    doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text('420 pcs', cols.balQty, y+2, {align:'right'});
+    doc.text('18,900.00', cols.total, y+2, {align:'right'});
+    y += 12;
+
+    /* ── Amount summary ── */
+    doc.setDrawColor(226,232,240); doc.line(m, y, W-m, y); y += 6;
+
+    const amtRows = [
+      ['Base Amount (420 pcs × ₹45.00)', '₹18,900.00', [15,23,42]],
+      ['GST @ 5%',                        '₹945.00',    [220,38,38]],
+    ];
+    amtRows.forEach(([lbl,val,rgb]) => {
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+      doc.text(lbl, m+4, y);
+      doc.setFont('helvetica','bold'); doc.setTextColor(...rgb);
+      doc.text(val, W-m-2, y, {align:'right'});
+      y += 7;
+    });
+
+    /* Total box */
+    doc.setFillColor(217,119,6); doc.setDrawColor(217,119,6); doc.rect(m, y-2, W-m*2, 12, 'F');
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('TOTAL CREDIT NOTE VALUE', m+4, y+6);
+    doc.text('₹19,845.00', W-m-2, y+6, {align:'right'});
+    y += 16;
+
+    /* ── Adjustment method ── */
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('ADJUSTMENT METHOD', m, y); y += 5;
+    doc.setFontSize(9.5); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text(cnAdjust, m+2, y); y += 10;
+
+    /* ── Notes ── */
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.setLineWidth(0.3);
+    doc.rect(m, y-2, W-m*2, 14, 'FD');
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('NOTES', m+4, y+3);
+    doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    const noteLines = doc.splitTextToSize(
+      'This credit note is raised against JW-2026-004 for 420 pcs balance quantity not received. ' +
+      'The credit amount of ₹19,845.00 (incl. GST) will be adjusted per the method stated above.',
+      W - m*2 - 12
+    );
+    noteLines.slice(0,2).forEach((ln,i) => doc.text(ln, m+4, y+8+i*5));
+    y += 18;
+
+    /* ── Signatures ── */
+    const sY = pH - 40;
+    doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m, sY, W-m, sY);
+    const scw = (W - m*2) / 3;
+    ['PREPARED BY','AUTHORIZED SIGNATORY','ACKNOWLEDGED BY (JOB WORKER)'].forEach((lbl,i) => {
+      const x = m + i*scw;
+      doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+      doc.text(lbl, x, sY+5);
+      doc.setDrawColor(180,190,200); doc.setLineWidth(0.2);
+      doc.line(x, sY+22, x+scw-6, sY+22);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(71,85,105);
+      doc.text('Name & Signature', x, sY+27);
+    });
+
+    /* ── Footer band ── */
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240);
+    doc.rect(0, pH-10, W, 10, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+    doc.text('C-Edge ERP — Garment Suite  |  Computer-generated credit note', m, pH-4);
+    doc.text('Generated: ' + new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), W-m, pH-4, {align:'right'});
+
+    doc.save(`${cnNo}-credit-note.pdf`);
+    toast(`Downloaded: ${cnNo}-credit-note.pdf`, 'success');
+  } catch(e) {
+    console.error(e);
+    toast('Credit note PDF generation failed.', 'error');
+  }
+}
+
+/* ══ Toast ══ */
+function toast(msg, type='info') {
+  const area = document.getElementById('toastArea');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;flex-shrink:0;"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>${msg}`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function toggleGroup(el) {
+  el.closest('.nav-group').classList.toggle('open');
+  el.classList.toggle('open');
+  el.classList.toggle('active-group');
+}
+
+/* ══════════════════════════════════════════
+   PDF GENERATION — Order + Payment Details
+══════════════════════════════════════════ */
+function downloadPaymentPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p', unit:'mm', format:'a4'});
+    const W = doc.internal.pageSize.getWidth();
+    const m = 14;
+
+    /* ── Header band ── */
+    doc.setFillColor(37,99,235);
+    doc.rect(0, 0, W, 20, 'F');
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('C-EDGE ERP  |  Garment Suite', m, 12);
+    doc.text('JOB WORK PAYMENT', W-m, 12, {align:'right'});
+
+    /* ── Sub-header: JW metadata ── */
+    let y = 28;
+    const hPairs = [['Job Work No','JW-2026-004'],['Work Order No','WO-2026-004'],['JW Date','15 Apr 2026'],['Delivery Date','30 Jun 2026']];
+    const cw = (W - m*2) / 4;
+    hPairs.forEach(([lbl,val],i) => {
+      const x = m + i*cw;
+      doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text(lbl.toUpperCase(), x, y);
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42); doc.text(val, x, y+5);
+    });
+    y += 14;
+    doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m, y, W-m, y);
+    y += 7;
+
+    /* ── Parties ── */
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('JOB WORKER', m, y);
+    doc.text('COMPANY', m + (W-m*2)/2 + 6, y);
+    y += 5;
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+    doc.text('Sri Lakshmi Textiles', m, y);
+    doc.text('C-Edge Garments Ltd.', m + (W-m*2)/2 + 6, y);
+    y += 5; doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    doc.text('Tirupur, Tamil Nadu', m, y);
+    doc.text('Chennai Factory', m + (W-m*2)/2 + 6, y);
+    y += 8; doc.setDrawColor(226,232,240); doc.line(m, y, W-m, y); y += 7;
+
+    /* ── Section title: Order Details ── */
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('ORDER DETAILS', m, y); y += 5;
+
+    /* ── Items table ── */
+    const tCols = [m+2, m+52, m+102, m+140, m+165, m+190, W-m];
+    const hdr   = ['ITEM NAME','WORK ORDER','PROCESS','SENT QTY','RECV QTY','BALANCE','AMOUNT'];
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
+    doc.rect(m, y-3, W-m*2, 7, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(71,85,105);
+    hdr.forEach((h,i) => {
+      const align = i >= 3 ? 'right' : 'left';
+      doc.text(h, i < 3 ? tCols[i] : tCols[i+1]-2, y, {align});
+    });
+    y += 6;
+
+    /* Item row */
+    doc.setFillColor(255,255,255); doc.rect(m, y-3, W-m*2, 8, 'F');
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+    doc.text('Oxford Shirt (Navy Blue)', tCols[0], y+2);
+    doc.text('WO-2026-004', tCols[1], y+2);
+    doc.text('Embroidery, Btn Att.', tCols[2], y+2);
+    doc.text('1,000', tCols[4]-2, y+2, {align:'right'});
+    doc.text('580', tCols[5]-2, y+2, {align:'right'});
+    doc.text('420', tCols[6]-2, y+2, {align:'right'});
+    // amount after next col...
+    y += 9;
+
+    /* Totals row */
+    doc.setFillColor(239,246,255); doc.rect(m, y-3, W-m*2, 8, 'F');
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(37,99,235);
+    doc.text('Sub-total', tCols[0], y+2);
+    doc.text('1,000', tCols[4]-2, y+2, {align:'right'});
+    doc.text('580', tCols[5]-2, y+2, {align:'right'});
+    doc.text('420', tCols[6]-2, y+2, {align:'right'});
+    y += 12;
+
+    /* ── Amount summary ── */
+    doc.setDrawColor(226,232,240); doc.line(m, y, W-m, y); y += 6;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('AMOUNT SUMMARY', m, y); y += 5;
+
+    const amtRows = [
+      ['Base Amount (580 pcs × ₹45.00)', '₹26,100.00', [15,23,42]],
+      ['GST @ 5%', '₹1,305.00', [220,38,38]],
+      ['Total Payable', '₹27,405.00', [37,99,235]],
+    ];
+    amtRows.forEach(([lbl, val, rgb]) => {
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+      doc.text(lbl, m+4, y);
+      doc.setFont('helvetica','bold'); doc.setTextColor(...rgb);
+      doc.text(val, W-m-2, y, {align:'right'});
+      y += 6;
+    });
+
+    /* ── Credit Note note ── */
+    y += 3;
+    doc.setFillColor(255,251,235); doc.setDrawColor(253,230,138); doc.setLineWidth(0.4);
+    doc.rect(m, y-2, W-m*2, 10, 'FD');
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(146,64,14);
+    doc.text('Balance Qty: 420 pcs — Credit Note Value: ₹19,845.00  (₹18,900 + 5% GST)', m+4, y+4);
+    y += 14;
+
+    /* ── Payment Details ── */
+    doc.setDrawColor(226,232,240); doc.line(m, y, W-m, y); y += 6;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    doc.text('PAYMENT DETAILS', m, y); y += 5;
+
+    const invNo   = document.getElementById('invoiceNo').value    || 'Pending';
+    const invDate = document.getElementById('invoiceDate').value  || '—';
+    const payDate = document.getElementById('paymentDate').value  || '—';
+    const payMode = document.getElementById('paymentMode').value  || '—';
+    const payRef  = document.getElementById('paymentRef').value   || '—';
+    const amtPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const balance = 27405 - amtPaid;
+
+    const payInfoRows = [
+      ['Invoice No', invNo,  'Payment Date', payDate],
+      ['Invoice Date', invDate, 'Payment Mode', payMode],
+      ['Payment Ref No', payRef, 'Amount Paid', amtPaid ? '₹'+amtPaid.toLocaleString('en-IN') : 'Pending'],
+    ];
+    const hw = (W - m*2) / 2;
+    payInfoRows.forEach(row => {
+      doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+      doc.text(row[0].toUpperCase(), m+2, y);
+      doc.text(row[2].toUpperCase(), m+hw+2, y);
+      y += 4;
+      doc.setFontSize(9.5); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+      doc.text(String(row[1]), m+2, y);
+      doc.text(String(row[3]), m+hw+2, y);
+      y += 7;
+    });
+
+    /* Payment summary box */
+    doc.setFillColor(239,246,255); doc.setDrawColor(37,99,235); doc.setLineWidth(0.4);
+    doc.rect(m, y-2, W-m*2, 18, 'FD');
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(37,99,235);
+    doc.text(`Amount Paid: ₹${amtPaid.toLocaleString('en-IN',{minimumFractionDigits:2})}`, m+4, y+5);
+    doc.text(`Balance: ₹${Math.max(0,balance).toLocaleString('en-IN',{minimumFractionDigits:2})}`, W-m-4, y+5, {align:'right'});
+    doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+    const payStatus = balance <= 0 ? 'PAYMENT STATUS: FULLY PAID' : `PAYMENT STATUS: BALANCE PENDING ₹${Math.max(0,balance).toLocaleString('en-IN')}`;
+    doc.text(payStatus, m+4, y+12);
+    y += 22;
+
+    /* ── Signatures ── */
+    const pH = doc.internal.pageSize.getHeight();
+    const sY = pH - 40;
+    doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m, sY, W-m, sY);
+    const scw = (W-m*2)/3;
+    ['PREPARED BY','AUTHORIZED SIGNATORY','ACKNOWLEDGED BY (JOB WORKER)'].forEach((lbl,i) => {
+      const x = m + i*scw;
+      doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text(lbl, x, sY+5);
+      doc.setDrawColor(180,190,200); doc.setLineWidth(0.2); doc.line(x, sY+22, x+scw-6, sY+22);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(71,85,105); doc.text('Name & Signature', x, sY+27);
+    });
+    doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.rect(0, pH-10, W, 10, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+    doc.text('C-Edge ERP — Garment Suite  |  Computer-generated document', m, pH-4);
+    doc.text('Generated: '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), W-m, pH-4, {align:'right'});
+
+    doc.save('JW-2026-004-payment.pdf');
+    toast('Downloaded: JW-2026-004-payment.pdf', 'success');
+  } catch(e) {
+    console.error(e);
+    toast('PDF generation failed.', 'error');
+  }
+}
+
+/* initialise */
+validateForm();
+</script>
+</body>
+</html>

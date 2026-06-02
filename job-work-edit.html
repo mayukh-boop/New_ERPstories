@@ -172,6 +172,7 @@
       <div class="nav-children">
         <a class="nav-child active" href="job-work-list.html">Job Work List</a>
         <a class="nav-child" href="job-work-create.html">New Job Work</a>
+        <a class="nav-child" href="job-work-payment-list.html">Job Work Payment</a>
       </div>
     </div>
     <div class="nav-section">Masters</div>
@@ -391,7 +392,7 @@
               <td class="td-num">1,000</td>
               <td class="td-num">₹45.00</td>
               <td class="td-num" style="color:#dc2626;">₹2,250.00</td>
-              <td class="td-num">₹45,000.00</td>
+              <td class="td-num">₹47,250.00</td>
             </tr>
           </tbody>
           <tfoot>
@@ -400,7 +401,7 @@
               <td class="td-num" style="padding:9px 12px;">1,000 pcs</td>
               <td></td>
               <td class="td-num" style="padding:9px 12px;color:#dc2626;">₹2,250.00</td>
-              <td class="td-num" style="padding:9px 12px;">₹45,000.00</td>
+              <td class="td-num" style="padding:9px 12px;">₹47,250.00</td>
             </tr>
           </tfoot>
         </table>
@@ -493,10 +494,14 @@
           <div style="font-size:14px;font-weight:700;color:var(--brand-700);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
             <span class="material-symbols-outlined">add_circle</span> New Receive Entry
           </div>
-          <div class="g3" style="margin-bottom:16px;">
+          <div class="g4" style="margin-bottom:16px;">
             <div class="fl">
               <label>Receive Date <span class="req">*</span></label>
               <input type="date" class="inp" value="2026-06-01" style="border-color:var(--brand-300);">
+            </div>
+            <div class="fl">
+              <label>Reference No</label>
+              <input type="text" class="inp" placeholder="e.g. DC/2026/001" style="border-color:var(--brand-300);">
             </div>
             <div class="fl">
               <label>Received By <span class="req">*</span></label>
@@ -539,12 +544,59 @@
 <!-- Action Bar -->
 <div class="act-bar">
   <button onclick="window.location.href='job-work-list.html'" style="height:36px;padding:0 16px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;">Cancel</button>
-  <button onclick="shortClose()" style="height:36px;padding:0 16px;border:1.5px solid #f59e0b;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#92400e;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;">
-    <span class="material-symbols-outlined" style="font-size:15px;">cancel</span> Short Close
+  <button onclick="openScModal()" style="height:36px;padding:0 16px;border:1.5px solid #f59e0b;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#92400e;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;">
+    <span class="material-symbols-outlined" style="font-size:15px;">cancel</span> Short Close DC
   </button>
   <button onclick="saveEdit()" class="btn btn-primary" style="height:36px;padding:0 20px;display:inline-flex;align-items:center;gap:6px;">
     <span class="material-symbols-outlined" style="font-size:15px;">save</span> Save Changes
   </button>
+</div>
+
+<!-- Short Close DC Modal -->
+<div style="position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;" id="scModal">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:480px;max-width:94vw;overflow:hidden;transform:translateY(12px);transition:transform .2s;" id="scBox">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid #e2e8f0;">
+      <div style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0f172a;">
+        <div style="width:32px;height:32px;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
+          <span class="material-symbols-outlined" style="font-size:18px;color:#d97706;">cancel</span>
+        </div>
+        Short Close DC — JW-2026-004
+      </div>
+      <button onclick="closeScModal()" style="width:30px;height:30px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <div style="padding:20px 22px;">
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#92400e;line-height:1.6;">
+        <strong>580 pcs received</strong> out of <strong>1,000 pcs sent</strong>.<br>
+        The pending <strong>420 pcs</strong> (S:50 · M:70 · L:50 · XL:150 · XXL:100) will be written off and the DC will be closed.
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;">Reason for Closing <span style="color:#dc2626;">*</span></label>
+        <select id="scReason" style="width:100%;height:36px;padding:0 10px;border:0;border-bottom:2px solid #e2e8f0;background:#f8fafc;border-radius:4px 4px 0 0;font-size:13px;color:#1e293b;box-sizing:border-box;font-family:inherit;outline:none;">
+          <option value="">— Select a reason —</option>
+          <option>Quality Issues with Received Goods</option>
+          <option>Job Worker Unable to Complete Balance</option>
+          <option>Production Plan Changed</option>
+          <option>Style / Order Discontinued</option>
+          <option>Customer Order Cancelled</option>
+          <option>Goods Lost / Damaged in Transit</option>
+          <option>Mutually Agreed Short Receipt</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;">Remarks <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="scRemarks" placeholder="Provide details for the audit trail…" style="width:100%;height:36px;padding:0 10px;border:0;border-bottom:2px solid #e2e8f0;background:#f8fafc;border-radius:4px 4px 0 0;font-size:13px;color:#1e293b;box-sizing:border-box;font-family:inherit;outline:none;">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid #e2e8f0;">
+      <button onclick="closeScModal()" style="height:34px;padding:0 16px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#334155;cursor:pointer;font-family:inherit;">Cancel</button>
+      <button onclick="confirmShortClose()" style="height:34px;padding:0 18px;border:none;border-radius:8px;background:#d97706;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+        <span class="material-symbols-outlined" style="font-size:15px;">cancel</span> Confirm Short Close
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="toast-area" id="toastArea"></div>
@@ -569,11 +621,26 @@ function saveRecEntry() {
   hideAddRec();
 }
 
-function shortClose() {
-  if (confirm('Short Close JW-2026-004?\n\n580 pcs received out of 1,000 pcs sent.\nThe pending 420 pcs will be written off.\n\nThis action cannot be undone.')) {
-    toast('JW-2026-004 marked as Short Closed.','success');
-    setTimeout(() => window.location.href='job-work-list.html', 1500);
-  }
+function openScModal() {
+  const m = document.getElementById('scModal');
+  const b = document.getElementById('scBox');
+  m.style.opacity='1'; m.style.pointerEvents='all';
+  b.style.transform='translateY(0)';
+}
+function closeScModal() {
+  const m = document.getElementById('scModal');
+  const b = document.getElementById('scBox');
+  m.style.opacity='0'; m.style.pointerEvents='none';
+  b.style.transform='translateY(12px)';
+}
+function confirmShortClose() {
+  const reason  = document.getElementById('scReason').value;
+  const remarks = document.getElementById('scRemarks').value.trim();
+  if (!reason)  { alert('Please select a reason for closing.'); return; }
+  if (!remarks) { alert('Please provide remarks for the audit trail.'); return; }
+  closeScModal();
+  toast(`JW-2026-004 Short Closed — ${reason}`, 'success');
+  setTimeout(() => window.location.href = 'job-work-list.html', 1800);
 }
 
 function saveEdit() {

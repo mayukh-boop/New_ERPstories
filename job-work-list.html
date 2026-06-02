@@ -6,6 +6,7 @@
 <title>Job Work — C-Edge ERP</title>
 <link rel="stylesheet" href="design-system.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
@@ -217,6 +218,7 @@
       <div class="nav-children">
         <a class="nav-child active" href="job-work-list.html">Job Work List</a>
         <a class="nav-child" href="job-work-create.html">New Job Work</a>
+        <a class="nav-child" href="job-work-payment-list.html">Job Work Payment</a>
       </div>
     </div>
 
@@ -389,6 +391,54 @@
 <script>
 const TODAY = new Date('2026-06-01');
 
+/* ── Extended detail per JW (sizes, transport) for challan PDF ── */
+const JW_DETAIL = {
+  'JW-2026-001': {
+    workerLoc:'Chennai, Tamil Nadu', companyLoc:'Chennai Factory', shipMode:'Own Vehicle',
+    transport:'Own Vehicle', person:'Vinod Kumar', vehicle:'TN 22 AK 4567',
+    process:'Embroidery', remarks:'Match approved sample — Ref: Sample-W-2026-003',
+    lines:[
+      {item:'Oxford Shirt (White)', wo:'WO-2026-001', sizes:{S:200,M:300,L:250,XL:150,XXL:100}, total:1000, rate:50, gst:5},
+      {item:'Oxford Shirt (Blue)',  wo:'WO-2026-001', sizes:{S:150,M:250,L:200,XL:130,XXL:70},  total:800,  rate:50, gst:5}
+    ],
+    receives:[
+      {date:'05 Apr 2026', by:'Priya R',  items:[{item:'Oxford Shirt (White)',sizes:{S:200,M:300,L:250,XL:150,XXL:100},total:1000},{item:'Oxford Shirt (Blue)',sizes:{S:100,M:0,L:0,XL:0,XXL:0},total:100}]},
+      {date:'12 Apr 2026', by:'Priya R',  items:[{item:'Oxford Shirt (Blue)',sizes:{S:50,M:250,L:200,XL:130,XXL:70},total:700}]}
+    ]
+  },
+  'JW-2026-002': {
+    workerLoc:'Tirupur, Tamil Nadu', companyLoc:'Chennai Factory', shipMode:'Road Transport',
+    transport:'VRL Logistics', person:'Ramesh Kumar', vehicle:'TN 37 AB 5678',
+    process:'Washing, Finishing', remarks:'',
+    lines:[{item:'Chinos (Khaki)', wo:'WO-2026-002', sizes:{S:300,M:450,L:400,XL:350,XXL:300}, total:1800, rate:40, gst:5}],
+    receives:[{date:'20 Apr 2026', by:'Arjun K', items:[{item:'Chinos (Khaki)',sizes:{S:150,M:220,L:200,XL:170,XXL:145},total:885}]}]
+  },
+  'JW-2026-003': {
+    workerLoc:'Erode, Tamil Nadu', companyLoc:'Chennai Factory', shipMode:'Courier',
+    transport:'Blue Dart', person:'—', vehicle:'—',
+    process:'Button Attachment, Quality Check', remarks:'Return with inspection report',
+    lines:[{item:'Formal Shirt (Black)', wo:'WO-2026-003', sizes:{S:200,M:300,L:250,XL:150,XXL:100}, total:1000, rate:35, gst:5}],
+    receives:[]
+  },
+  'JW-2026-004': {
+    workerLoc:'Tirupur, Tamil Nadu', companyLoc:'Chennai Factory', shipMode:'Road Transport',
+    transport:'VRL Logistics', person:'Ramesh Kumar', vehicle:'TN 37 AB 5678',
+    process:'Embroidery, Button Attachment', remarks:'Handle with care — embroidery items',
+    lines:[{item:'Oxford Shirt (Navy Blue)', wo:'WO-2026-004', sizes:{S:200,M:300,L:250,XL:150,XXL:100}, total:1000, rate:45, gst:5}],
+    receives:[
+      {date:'25 Apr 2026', by:'Arjun K', items:[{item:'Oxford Shirt (Navy Blue)',sizes:{S:100,M:150,L:125,XL:0,XXL:0},total:375}]},
+      {date:'15 May 2026', by:'Arjun K', items:[{item:'Oxford Shirt (Navy Blue)',sizes:{S:50,M:80,L:75,XL:0,XXL:0},total:205}]}
+    ]
+  },
+  'JW-2026-005': {
+    workerLoc:'Coimbatore, Tamil Nadu', companyLoc:'Coimbatore Warehouse', shipMode:'Own Vehicle',
+    transport:'Own Vehicle', person:'Suresh P', vehicle:'TN 44 BK 2233',
+    process:'Screen Print', remarks:'Use Pantone 100C for print colour',
+    lines:[{item:'Cotton Tee (White)', wo:'WO-2026-005', sizes:{S:100,M:150,L:120,XL:100,XXL:80}, total:550, rate:30, gst:5}],
+    receives:[]
+  }
+};
+
 const JW_DATA = [
   { jw_no:'JW-2026-001', cre_date:'2026-03-01', del_date:'2026-04-15', items:'Oxford Shirt (White / Blue)',  wo_no:'WO-2026-001', prod_no:'PO-2026-001', worker:'Sunrise Embroidery Works',  item_type:'Product', status:'Completed',         qty:1800 },
   { jw_no:'JW-2026-002', cre_date:'2026-03-05', del_date:'2026-04-30', items:'Chinos (Khaki)',               wo_no:'WO-2026-002', prod_no:'PO-2026-002', worker:'Sri Lakshmi Textiles',      item_type:'Product', status:'Partial Received',   qty:1800 },
@@ -514,10 +564,10 @@ function applyFilter() {
           <a href="job-work-view.html" class="icon-action view" title="View">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10z" clip-rule="evenodd"/></svg>
           </a>
-          <button class="icon-action pdf" title="Send Challan PDF" onclick="toast('Generating Send Challan for ${o.jw_no}…','info')">
+          <button class="icon-action pdf" title="Send Challan PDF" onclick="sendChallanPDF('${o.jw_no}')">
             <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </button>
-          <button class="icon-action pdf-rcv${recvDisabled}" title="Receive Challan PDF" onclick="toast('Generating Receive Challan for ${o.jw_no}…','info')">
+          <button class="icon-action pdf-rcv${recvDisabled}" title="Receive Challan PDF" onclick="recvChallanPDF('${o.jw_no}')">
             <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </button>
         </div>
@@ -594,6 +644,157 @@ function resetColVisibility() {
 }
 
 applyFilter();
+
+/* ══════════════════════════════════════════
+   PDF HELPERS
+══════════════════════════════════════════ */
+function _pdfHeader(doc, title, jwNo, creDate, delDate) {
+  const W = doc.internal.pageSize.getWidth(), m = 14;
+  doc.setFillColor(37,99,235); doc.rect(0,0,W,18,'F');
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+  doc.text('C-EDGE ERP  |  Garment Suite', m, 11);
+  doc.text(title, W-m, 11, {align:'right'});
+  let y = 26;
+  const pairs = [['Job Work No', jwNo], ['Issue Date', fmtDate(creDate)], ['Delivery Date', fmtDate(delDate)]];
+  const cw = (W-m*2) / 3;
+  pairs.forEach(([lbl,val],i) => {
+    const x = m + i*cw;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text(lbl.toUpperCase(), x, y);
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42); doc.text(val, x, y+5);
+  });
+  y += 13; doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m,y,W-m,y);
+  return y+6;
+}
+
+function _pdfParties(doc, y, workerName, workerLoc, companyLoc) {
+  const W = doc.internal.pageSize.getWidth(), m = 14, half = (W-m*2)/2;
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+  doc.text('TO  (JOB WORKER)', m, y); doc.text('FROM  (COMPANY)', m+half+6, y);
+  y += 5;
+  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(15,23,42);
+  doc.text(workerName, m, y); doc.text(companyLoc, m+half+6, y);
+  y += 5; doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+  doc.text(workerLoc, m, y);
+  y += 8; doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m,y,W-m,y);
+  return y+6;
+}
+
+function _pdfLinesTable(doc, y, lines) {
+  const W = doc.internal.pageSize.getWidth(), m = 14;
+  const SZ = ['S','M','L','XL','XXL'];
+  const xItem=m+2, xWO=m+55, xProc=m+92, xSz=m+128, szW=10, xTot=W-m-18;
+  doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
+  doc.rect(m, y-4, W-m*2, 7, 'FD');
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(71,85,105);
+  doc.text('ITEM NAME (COLOUR)', xItem, y);
+  doc.text('WORK ORDER', xWO, y);
+  doc.text('PROCESS', xProc, y);
+  SZ.forEach((s,i) => doc.text(s, xSz+i*szW, y, {align:'center'}));
+  doc.text('TOTAL', xTot, y, {align:'right'});
+  y += 5;
+  let grand = 0;
+  lines.forEach((line,li) => {
+    doc.setFillColor(li%2===0 ? 255 : 249, li%2===0 ? 255 : 250, li%2===0 ? 255 : 251);
+    doc.rect(m, y-3, W-m*2, 8, 'F');
+    doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+    doc.text((line.item||'').substring(0,30), xItem, y+2);
+    doc.text(line.wo||'—', xWO, y+2);
+    doc.text((line.process||'—').substring(0,18), xProc, y+2);
+    SZ.forEach((s,i) => doc.text(String((line.sizes&&line.sizes[s])||'—'), xSz+i*szW, y+2, {align:'center'}));
+    doc.setFont('helvetica','bold');
+    doc.text(String(line.total||0), xTot, y+2, {align:'right'});
+    grand += line.total||0;
+    y += 8;
+    doc.setDrawColor(241,245,249); doc.line(m, y-1, W-m, y-1);
+  });
+  doc.setFillColor(239,246,255); doc.rect(m, y-3, W-m*2, 8, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(37,99,235);
+  doc.text('Total Quantity', xItem, y+2);
+  doc.text(grand.toLocaleString()+' pcs', xTot, y+2, {align:'right'});
+  return y+12;
+}
+
+function _pdfTransport(doc, y, transport, person, vehicle, remarks) {
+  const W = doc.internal.pageSize.getWidth(), m = 14;
+  doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m,y,W-m,y); y+=6;
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text('TRANSPORT DETAILS', m, y); y+=5;
+  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+  doc.text('Transport: '+(transport||'—'), m, y); doc.text('Vehicle No: '+(vehicle||'—'), m+70, y); y+=5;
+  doc.text('Contact Person: '+(person||'—'), m, y);
+  if (remarks) { y+=5; doc.setTextColor(71,85,105); doc.text('Remarks: '+remarks, m, y); }
+  return y+8;
+}
+
+function _pdfSignatures(doc) {
+  const W = doc.internal.pageSize.getWidth(), m = 14, pH = doc.internal.pageSize.getHeight();
+  const sY = pH-40;
+  doc.setDrawColor(226,232,240); doc.setLineWidth(0.3); doc.line(m,sY,W-m,sY);
+  const cw = (W-m*2)/3;
+  ['PREPARED BY','AUTHORIZED SIGNATORY','RECEIVED BY (JOB WORKER)'].forEach((lbl,i) => {
+    const x = m+i*cw;
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text(lbl, x, sY+5);
+    doc.setDrawColor(180,190,200); doc.setLineWidth(0.2); doc.line(x, sY+22, x+cw-6, sY+22);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(71,85,105); doc.text('Name & Signature', x, sY+26);
+  });
+  doc.setFillColor(248,250,252); doc.setDrawColor(226,232,240); doc.rect(0,pH-10,W,10,'FD');
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+  doc.text('C-Edge ERP — Garment Suite  |  Computer-generated document', m, pH-4);
+  doc.text('Generated: '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), W-m, pH-4, {align:'right'});
+}
+
+/* ══ Send Challan ══ */
+function sendChallanPDF(jwNo) {
+  const o = JW_DATA.find(r => r.jw_no === jwNo);
+  const d = JW_DETAIL[jwNo];
+  if (!o || !d) { toast('No data for '+jwNo,'error'); return; }
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    let y = _pdfHeader(doc,'DELIVERY CHALLAN',jwNo,o.cre_date,o.del_date);
+    y = _pdfParties(doc,y,o.worker,d.workerLoc,d.companyLoc);
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    const m=14; doc.text('ITEMS SENT FOR JOB WORK', m, y); y+=5;
+    y = _pdfLinesTable(doc, y, d.lines.map(l=>({...l,process:d.process})));
+    y = _pdfTransport(doc,y,d.transport,d.person,d.vehicle,d.remarks);
+    _pdfSignatures(doc);
+    doc.save(`${jwNo}-send-challan.pdf`);
+    toast(`Downloaded: ${jwNo}-send-challan.pdf`,'success');
+  } catch(e){ console.error(e); toast('PDF generation failed.','error'); }
+}
+
+/* ══ Receive Challan ══ */
+function recvChallanPDF(jwNo) {
+  const o = JW_DATA.find(r => r.jw_no === jwNo);
+  const d = JW_DETAIL[jwNo];
+  if (!o || !d)                              { toast('No data for '+jwNo,'error'); return; }
+  if (!d.receives || !d.receives.length)     { toast('No receive entries for '+jwNo,'error'); return; }
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), m=14;
+    let y = _pdfHeader(doc,'GOODS RECEIPT CHALLAN',jwNo,o.cre_date,o.del_date);
+    y = _pdfParties(doc,y,o.worker,d.workerLoc,d.companyLoc);
+    d.receives.forEach((rcv,ri) => {
+      doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+      doc.text(`RECEIVE ENTRY #${ri+1}  —  ${rcv.date}  |  Received By: ${rcv.by}`, m, y); y+=5;
+      y = _pdfLinesTable(doc, y, rcv.items.map(i=>({...i,wo:o.wo_no,process:d.process})));
+      if (ri < d.receives.length-1) { doc.setDrawColor(226,232,240); doc.line(m,y,W-m,y); y+=6; }
+    });
+    const totalSent = d.lines.reduce((s,l)=>s+l.total,0);
+    const totalRcvd = d.receives.reduce((s,r)=>s+r.items.reduce((ss,i)=>ss+i.total,0),0);
+    const pend = totalSent-totalRcvd;
+    doc.setDrawColor(226,232,240); doc.line(m,y,W-m,y); y+=6;
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139); doc.text('SUMMARY', m, y); y+=5;
+    [['Total Sent',totalSent,'#0f172a'],['Total Received',totalRcvd,'#166534'],['Pending',pend,pend>0?'#92400e':'#166534']].forEach(([lbl,val,clr]) => {
+      const [r,g,b] = clr.match(/\w\w/g).map(x=>parseInt(x,16));
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42); doc.text(lbl+':', m+4, y);
+      doc.setFont('helvetica','bold'); doc.setTextColor(r,g,b); doc.text(val.toLocaleString()+' pcs', m+46, y); y+=6;
+    });
+    _pdfSignatures(doc);
+    doc.save(`${jwNo}-receive-challan.pdf`);
+    toast(`Downloaded: ${jwNo}-receive-challan.pdf`,'success');
+  } catch(e){ console.error(e); toast('PDF generation failed.','error'); }
+}
 </script>
 </body>
 </html>
