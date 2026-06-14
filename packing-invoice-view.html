@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Packing PKG-2026-002 — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* Sections */
+.sec{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.sec-hd{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border2);background:#f8fafc;}
+.sec-num{width:26px;height:26px;border-radius:50%;background:var(--brand-600);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-size:14px;font-weight:600;color:var(--text-1);}
+.sec-sub{font-size:11.5px;color:var(--text-3);margin-top:1px;}
+.sec-body{padding:20px;}
+
+/* Info grid for read-only display */
+.ig{display:grid;gap:14px;}
+.ig2{grid-template-columns:repeat(2,1fr);}
+.ig3{grid-template-columns:repeat(3,1fr);}
+.ig4{grid-template-columns:repeat(4,1fr);}
+.if{display:flex;flex-direction:column;gap:4px;}
+.if-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);}
+.if-val{font-size:13px;font-weight:500;color:var(--text-1);padding:7px 10px;background:#f8fafc;border-radius:6px;border:1px solid var(--border2);}
+
+/* Status badge */
+.sb{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:99px;font-size:12px;font-weight:700;}
+.sb-submitted{background:#fefce8;color:#92400e;border:1.5px solid #fde68a;}
+.sb-shipped{background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;}
+
+/* Tab bar */
+.tab-bar{display:flex;border-bottom:2px solid var(--border);gap:0;}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;color:var(--text-3);display:flex;align-items:center;gap:7px;transition:all .15s;}
+.tab:hover{color:var(--text-2);}
+.tab.active{color:var(--brand-600);border-bottom-color:var(--brand-600);}
+.tab-pane{display:none;} .tab-pane.active{display:block;}
+
+/* Packing view table */
+.ptbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:960px;}
+.ptbl thead th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);white-space:nowrap;}
+.ptbl thead th.r{text-align:right;}
+.ptbl td{padding:9px 12px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.ptbl tbody tr:hover td{background:var(--brand-50);}
+.ptbl tfoot td{background:#f0f7ff;font-weight:700;border-top:2px solid var(--brand-100);}
+.ptbl tfoot td.r{text-align:right;}
+.tbl-scroll{overflow-x:auto;}
+
+/* Carton badge */
+.ctn-badge{display:inline-flex;align-items:center;background:#f3f4f6;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11.5px;font-weight:700;color:var(--text-2);white-space:nowrap;}
+
+/* Summary bar */
+.sum-bar{display:flex;gap:24px;padding:14px 20px;background:#f0f7ff;border-top:2px solid var(--brand-100);}
+.sum-item{display:flex;flex-direction:column;align-items:center;}
+.sum-val{font-size:20px;font-weight:800;color:var(--brand-700);}
+.sum-lbl{font-size:10.5px;color:var(--text-3);font-weight:500;margin-top:2px;}
+
+/* Invoice view table */
+.inv-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.inv-tbl th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:2px solid var(--border2);}
+.inv-tbl td{padding:10px 12px;border-bottom:1px solid var(--border2);}
+.inv-tbl tfoot td{background:#f0f7ff;font-weight:700;border-top:2px solid var(--brand-100);}
+.inv-tbl .r{text-align:right;}
+
+/* Audit trail */
+.audit-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border2);}
+.audit-item:last-child{border-bottom:none;}
+.audit-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.audit-dot.create{background:#dbeafe;color:#1d4ed8;}
+.audit-dot.edit{background:#fef3c7;color:#d97706;}
+.audit-dot.submit{background:#dcfce7;color:#16a34a;}
+.audit-dot.ship{background:#f3e8ff;color:#7c3aed;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="material-symbols-outlined" style="color:var(--brand-600);font-size:22px;">inventory_2</span>
+    <div><div class="brand-name">C-Edge</div><div class="brand-sub">ERP Platform</div></div>
+  </div>
+  <nav class="sidebar-nav" style="flex:1;overflow-y:auto;padding:8px 0;">
+    <div class="nav-section">MASTERS</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">category</span>
+        <span class="nav-parent-label">Masters</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="#" class="nav-child">Color Master</a>
+        <a href="#" class="nav-child">Size Master</a>
+        <a href="#" class="nav-child">Process Master</a>
+        <a href="#" class="nav-child">Fabric Master</a>
+        <a href="#" class="nav-child">UOM Master</a>
+      </div>
+    </div>
+    <div class="nav-section">PURCHASE</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">shopping_cart</span>
+        <span class="nav-parent-label">Purchase</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="#" class="nav-child">Buyer Order</a>
+        <a href="#" class="nav-child">Purchase Order</a>
+        <a href="#" class="nav-child">GRN Receipt</a>
+      </div>
+    </div>
+    <div class="nav-section">PRODUCTION</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">factory</span>
+        <span class="nav-parent-label">Production</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="work-order-list.html" class="nav-child">Work Order</a>
+        <a href="production-process-list.html" class="nav-child">Production Process</a>
+        <a href="job-work-list.html" class="nav-child">Job Work</a>
+        <a href="job-work-payment-list.html" class="nav-child">Job Work Payment</a>
+      </div>
+    </div>
+    <div class="nav-section">SALES &amp; EXPORT</div>
+    <div class="nav-parent active-group">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon" style="color:var(--brand-600)!important;">package_2</span>
+        <span class="nav-parent-label">Packing &amp; Invoice</span>
+        <span class="material-symbols-outlined nav-chevron">expand_less</span>
+      </div>
+      <div class="nav-children show">
+        <a href="packing-invoice-list.html" class="nav-child active">Packing List</a>
+        <a href="packing-invoice-create.html" class="nav-child">New Packing</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+    <span class="material-symbols-outlined" style="color:#94a3b8;font-size:18px;margin-left:auto;cursor:pointer;">logout</span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="toggle-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <nav class="breadcrumb">
+      <a href="packing-invoice-list.html" style="color:var(--text-3);text-decoration:none;">Packing &amp; Invoice</a>
+      <span class="material-symbols-outlined" style="font-size:14px;color:#cbd5e1;">chevron_right</span>
+      <span class="bc-current">PKG-2026-002 (View)</span>
+    </nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="downloadPackingPDF()" style="display:flex;align-items:center;gap:5px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">package_2</span> Packing List PDF
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="downloadInvoicePDF()" style="display:flex;align-items:center;gap:5px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">receipt_long</span> Invoice PDF
+      </button>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--brand-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">HS</div>
+    </div>
+  </header>
+
+  <main class="page" style="padding:24px;">
+
+    <!-- Page header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <h1 style="font-size:20px;font-weight:800;color:var(--text-1);">PKG-2026-002</h1>
+          <span class="sb sb-submitted"><span class="material-symbols-outlined" style="font-size:14px;">send</span> Submitted</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-3);">ABC Fashion Ltd &mdash; BPO-2026-002 &mdash; Submitted 08 Jun 2026 by Hemalatha S</p>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#991b1b;display:flex;align-items:center;gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:15px;">lock</span>
+          Read-Only — Submitted &amp; Shipped
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Header Details -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-num">1</div>
+        <div><div class="sec-title">Header Information</div><div class="sec-sub">Invoice and shipping details</div></div>
+        <span style="margin-left:auto;background:var(--brand-50);color:var(--brand-700);border:1.5px solid var(--brand-200);border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;">With Buyer PO</span>
+      </div>
+      <div class="sec-body">
+        <div class="ig ig4" style="margin-bottom:16px;">
+          <div class="if"><div class="if-lbl">Customer Name</div><div class="if-val">ABC Fashion Ltd</div></div>
+          <div class="if"><div class="if-lbl">Destination</div><div class="if-val">New York, USA</div></div>
+          <div class="if"><div class="if-lbl">Customer Ref No</div><div class="if-val">ABC-PO-2026-0088</div></div>
+          <div class="if"><div class="if-lbl">Terms of Delivery</div><div class="if-val">FOB Chennai</div></div>
+        </div>
+        <div class="ig ig4">
+          <div class="if"><div class="if-lbl">Packing Date</div><div class="if-val">08 Jun 2026</div></div>
+          <div class="if"><div class="if-lbl">Invoice No</div><div class="if-val" style="color:var(--brand-700);font-weight:700;">INV-2026-002</div></div>
+          <div class="if"><div class="if-lbl">Invoice Date</div><div class="if-val">08 Jun 2026</div></div>
+          <div class="if"><div class="if-lbl">Buyer PO</div><div class="if-val">BPO-2026-002</div></div>
+        </div>
+        <div class="ig ig3" style="margin-top:14px;">
+          <div class="if"><div class="if-lbl">Port of Loading</div><div class="if-val">Chennai Sea Port</div></div>
+          <div class="if"><div class="if-lbl">Port of Discharge</div><div class="if-val">New York, USA</div></div>
+          <div class="if"><div class="if-lbl">Vessel / Flight No</div><div class="if-val">MAERSK SEALAND V.0456W</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Packing Lines + Invoice (Tabs) -->
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-num">2</div>
+        <div><div class="sec-title">Packing Lines &amp; Invoice</div><div class="sec-sub">36 cartons &bull; 3 styles &bull; FOB Chennai</div></div>
+      </div>
+
+      <div class="tab-bar" style="margin:0 20px;border-bottom:2px solid var(--border2);">
+        <div class="tab active" onclick="switchTab('packing',this)">
+          <span class="material-symbols-outlined" style="font-size:17px;">package_2</span> Packing List
+        </div>
+        <div class="tab" onclick="switchTab('invoice',this)">
+          <span class="material-symbols-outlined" style="font-size:17px;">receipt_long</span> Invoice
+        </div>
+        <div class="tab" onclick="switchTab('audit',this)">
+          <span class="material-symbols-outlined" style="font-size:17px;">history</span> Audit Trail
+        </div>
+      </div>
+
+      <!-- PACKING TAB -->
+      <div class="tab-pane active" id="pane-packing" style="padding:20px;">
+        <div class="tbl-scroll">
+          <table class="ptbl">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Carton No</th>
+                <th>Buyer PO No</th>
+                <th>Style No</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th class="r">Boxes</th>
+                <th class="r">G.Wt/Ctn (kg)</th>
+                <th class="r">N.Wt/Ctn (kg)</th>
+                <th class="r">L×W×H (cm)</th>
+                <th class="r">Total G.Wt (kg)</th>
+                <th class="r">Total CBM (m³)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">1</td>
+                <td><span class="ctn-badge">1–5</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F03</td>
+                <td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;font-size:11.5px;">Olive Green</span></td>
+                <td style="font-weight:600;">28</td>
+                <td class="r" style="font-weight:600;">5</td>
+                <td class="r">2.8</td><td class="r">2.5</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">62×42×8</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">14.0</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.104</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">2</td>
+                <td><span class="ctn-badge">6–11</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F03</td>
+                <td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;font-size:11.5px;">Olive Green</span></td>
+                <td style="font-weight:600;">30</td>
+                <td class="r" style="font-weight:600;">6</td>
+                <td class="r">2.8</td><td class="r">2.5</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">62×42×8</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">16.8</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.125</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">3</td>
+                <td><span class="ctn-badge">12–16</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F03</td>
+                <td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;font-size:11.5px;">Olive Green</span></td>
+                <td style="font-weight:600;">32</td>
+                <td class="r" style="font-weight:600;">5</td>
+                <td class="r">2.9</td><td class="r">2.6</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">62×42×8</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">14.5</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.104</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">4</td>
+                <td><span class="ctn-badge">17–20</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F04</td>
+                <td><span style="background:#f8fafc;color:#374151;padding:2px 8px;border-radius:6px;font-size:11.5px;">White</span></td>
+                <td style="font-weight:600;">S</td>
+                <td class="r" style="font-weight:600;">4</td>
+                <td class="r">3.2</td><td class="r">2.9</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">60×40×40</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">12.8</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.384</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">5</td>
+                <td><span class="ctn-badge">21–26</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F04</td>
+                <td><span style="background:#f8fafc;color:#374151;padding:2px 8px;border-radius:6px;font-size:11.5px;">White</span></td>
+                <td style="font-weight:600;">M</td>
+                <td class="r" style="font-weight:600;">6</td>
+                <td class="r">3.2</td><td class="r">2.9</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">60×40×40</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">19.2</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.576</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-3);font-size:11px;">6</td>
+                <td><span class="ctn-badge">27–36</span></td>
+                <td style="font-size:12px;color:var(--text-2);">BPO-2026-002</td>
+                <td style="font-weight:700;">CVS-2026-F04</td>
+                <td><span style="background:#f8fafc;color:#374151;padding:2px 8px;border-radius:6px;font-size:11.5px;">White</span></td>
+                <td style="font-weight:600;">L</td>
+                <td class="r" style="font-weight:600;">10</td>
+                <td class="r">3.3</td><td class="r">3.0</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">60×40×40</td>
+                <td class="r" style="font-weight:600;color:var(--brand-700);">33.0</td>
+                <td class="r" style="font-size:11.5px;color:var(--text-3);">0.960</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6" style="padding:10px 12px;font-size:12px;">TOTALS</td>
+                <td class="r">36</td>
+                <td colspan="3"></td>
+                <td class="r">110.3 kg</td>
+                <td class="r">2.253 m³</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="sum-bar">
+          <div class="sum-item"><div class="sum-val">36</div><div class="sum-lbl">Total Cartons</div></div>
+          <div style="width:1px;background:var(--brand-200);align-self:stretch;"></div>
+          <div class="sum-item"><div class="sum-val">110.3</div><div class="sum-lbl">Gross Weight (kg)</div></div>
+          <div style="width:1px;background:var(--brand-200);align-self:stretch;"></div>
+          <div class="sum-item"><div class="sum-val">99.4</div><div class="sum-lbl">Net Weight (kg)</div></div>
+          <div style="width:1px;background:var(--brand-200);align-self:stretch;"></div>
+          <div class="sum-item"><div class="sum-val">2.253</div><div class="sum-lbl">Total CBM (m³)</div></div>
+          <div style="width:1px;background:var(--brand-200);align-self:stretch;"></div>
+          <div class="sum-item"><div class="sum-val">2</div><div class="sum-lbl">Styles</div></div>
+          <div style="width:1px;background:var(--brand-200);align-self:stretch;"></div>
+          <div class="sum-item"><div class="sum-val">6</div><div class="sum-lbl">Packing Rows</div></div>
+        </div>
+      </div>
+
+      <!-- INVOICE TAB -->
+      <div class="tab-pane" id="pane-invoice" style="padding:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Exporter</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-1);">Codeverse Garments Pvt Ltd</div>
+            <div style="font-size:12.5px;color:var(--text-2);margin-top:4px;">42, Industrial Estate, Ambattur, Chennai – 600 058</div>
+            <div style="font-size:12.5px;color:var(--text-2);margin-top:4px;">GSTIN: 33XXXXX1234Z1 &nbsp;|&nbsp; IEC: XXXXX1234</div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Invoice Details</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:12.5px;">
+              <span style="color:var(--text-3);font-weight:600;">Invoice No:</span><span style="font-weight:700;color:var(--brand-700);">INV-2026-002</span>
+              <span style="color:var(--text-3);font-weight:600;">Date:</span><span>08 Jun 2026</span>
+              <span style="color:var(--text-3);font-weight:600;">Consignee:</span><span>ABC Fashion Ltd</span>
+              <span style="color:var(--text-3);font-weight:600;">Destination:</span><span>New York, USA</span>
+              <span style="color:var(--text-3);font-weight:600;">Terms:</span><span>FOB Chennai</span>
+              <span style="color:var(--text-3);font-weight:600;">Currency:</span><span>USD</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:#f8fafc;padding:10px 14px;font-size:12px;font-weight:700;color:var(--text-2);border-bottom:1px solid var(--border2);">Commercial Invoice — Style Wise Summary</div>
+          <div style="overflow-x:auto;">
+            <table class="inv-tbl">
+              <thead>
+                <tr>
+                  <th>Style No</th><th>Description</th><th>Color</th><th>Size Breakup</th>
+                  <th class="r">Total Qty</th><th class="r">Unit Price (USD)</th><th class="r">Amount (USD)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:700;">CVS-2026-F03</td>
+                  <td style="color:var(--text-2);">Cargo Shorts</td>
+                  <td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;font-size:11.5px;">Olive Green</span></td>
+                  <td style="font-size:11.5px;color:var(--text-3);">28: 50 &nbsp; 30: 60 &nbsp; 32: 50</td>
+                  <td class="r" style="font-weight:600;">160 pcs</td>
+                  <td class="r" style="font-weight:500;">USD 7.50</td>
+                  <td class="r" style="font-weight:700;color:var(--brand-700);">USD 1,200.00</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:700;">CVS-2026-F04</td>
+                  <td style="color:var(--text-2);">Hooded Sweatshirt</td>
+                  <td><span style="background:#f8fafc;color:#374151;padding:2px 8px;border-radius:6px;font-size:11.5px;">White</span></td>
+                  <td style="font-size:11.5px;color:var(--text-3);">S: 40 &nbsp; M: 60 &nbsp; L: 100</td>
+                  <td class="r" style="font-weight:600;">200 pcs</td>
+                  <td class="r" style="font-weight:500;">USD 9.00</td>
+                  <td class="r" style="font-weight:700;color:var(--brand-700);">USD 1,800.00</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" style="padding:10px 12px;font-size:12px;">Sub-total</td>
+                  <td class="r">360 pcs</td><td></td><td class="r">USD 3,000.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border2);background:#f8fafc;">
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:200px;font-size:12.5px;">
+              <div style="display:flex;justify-content:space-between;gap:24px;"><span style="color:var(--text-3);">Sub-total</span><span>USD 3,000.00</span></div>
+              <div style="display:flex;justify-content:space-between;gap:24px;"><span style="color:var(--text-3);">Freight</span><span>USD 280.00</span></div>
+              <div style="display:flex;justify-content:space-between;gap:24px;"><span style="color:var(--text-3);">Insurance</span><span>USD 45.00</span></div>
+              <div style="display:flex;justify-content:space-between;gap:24px;font-weight:800;font-size:14px;padding-top:8px;border-top:2px solid var(--brand-200);">
+                <span style="color:var(--brand-700);">Grand Total</span>
+                <span style="color:var(--brand-700);">USD 3,325.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+          <button class="btn btn-primary" onclick="downloadInvoicePDF()" style="display:flex;align-items:center;gap:7px;">
+            <span class="material-symbols-outlined" style="font-size:17px;">download</span> Download Invoice PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- AUDIT TAB -->
+      <div class="tab-pane" id="pane-audit" style="padding:20px;">
+        <div style="max-width:600px;">
+          <div class="audit-item">
+            <div class="audit-dot create"><span class="material-symbols-outlined" style="font-size:15px;">add_circle</span></div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-1);">Packing Created (Draft)</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">06 Jun 2026, 10:32 AM &bull; Hemalatha S</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:4px;">BPO-2026-002 selected. 2 styles, 6 packing rows auto-prepopulated.</div>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-dot edit"><span class="material-symbols-outlined" style="font-size:15px;">edit</span></div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-1);">Packing Updated</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">07 Jun 2026, 03:15 PM &bull; Hemalatha S</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:4px;">Vessel name updated. Gross weight adjusted for rows 4–6.</div>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-dot submit"><span class="material-symbols-outlined" style="font-size:15px;">check_circle</span></div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-1);">Packing Submitted</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">08 Jun 2026, 09:44 AM &bull; Hemalatha S</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:4px;">36 cartons, 360 pcs, USD 3,325.00. Packing List PDF generated.</div>
+            </div>
+          </div>
+          <div class="audit-item">
+            <div class="audit-dot ship"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-1);">Marked as Shipped</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">09 Jun 2026, 11:00 AM &bull; Hemalatha S</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:4px;">Bill of Lading: MAERSK-BL-2026-00412. ETA: 25 Jun 2026.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- sec -->
+
+    <!-- Back button -->
+    <div style="display:flex;justify-content:flex-start;margin-top:8px;">
+      <a href="packing-invoice-list.html" class="btn btn-ghost" style="display:flex;align-items:center;gap:6px;text-decoration:none;">
+        <span class="material-symbols-outlined" style="font-size:17px;">arrow_back</span> Back to Packing List
+      </a>
+    </div>
+
+  </main>
+</div><!-- main -->
+
+<script>
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+}
+
+function downloadPackingPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  doc.setFillColor(37,99,235); doc.rect(0,0,297,22,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('PACKING LIST',14,10);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('Codeverse Garments Pvt Ltd — 42, Industrial Estate, Chennai – 600 058',14,17);
+  doc.text('PKG-2026-002',220,10); doc.text('Date: 08 Jun 2026',220,16);
+  doc.setTextColor(0,0,0);
+  const headers=['Ctn No','BPO','Style','Color','Size','Boxes','G.Wt/Ctn','N.Wt/Ctn','L×W×H','Total G.Wt','CBM'];
+  const xs=[14,30,58,90,125,145,162,178,194,225,250];
+  doc.setFillColor(248,250,252); doc.rect(14,28,270,7,'F');
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+  headers.forEach((h,i)=>doc.text(h,xs[i],33));
+  doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
+  const rows=[
+    ['1–5','BPO-002','CVS-F03','Olive','28','5','2.8','2.5','62×42×8','14.0','0.104'],
+    ['6–11','BPO-002','CVS-F03','Olive','30','6','2.8','2.5','62×42×8','16.8','0.125'],
+    ['12–16','BPO-002','CVS-F03','Olive','32','5','2.9','2.6','62×42×8','14.5','0.104'],
+    ['17–20','BPO-002','CVS-F04','White','S','4','3.2','2.9','60×40×40','12.8','0.384'],
+    ['21–26','BPO-002','CVS-F04','White','M','6','3.2','2.9','60×40×40','19.2','0.576'],
+    ['27–36','BPO-002','CVS-F04','White','L','10','3.3','3.0','60×40×40','33.0','0.960'],
+  ];
+  rows.forEach((row,ri)=>{
+    const y=39+ri*7;
+    if(ri%2===1){doc.setFillColor(249,250,251);doc.rect(14,y-4,270,7,'F');}
+    row.forEach((cell,ci)=>doc.text(String(cell),xs[ci],y));
+  });
+  doc.setFillColor(239,246,255);doc.rect(14,39+rows.length*7,270,7,'F');
+  doc.setFont('helvetica','bold');
+  doc.text('TOTALS: 36 cartons   110.3 kg gross   2.253 m³ CBM',14,39+rows.length*7+4);
+  doc.setFontSize(7);doc.setTextColor(148,163,184);doc.setFont('helvetica','normal');
+  doc.text('Generated by C-Edge ERP — Codeverse Technology Solutions',14,200);
+  doc.save('PKG-2026-002_PackingList.pdf');
+}
+
+function downloadInvoicePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm',format:'a4'});
+  doc.setFillColor(37,99,235);doc.rect(0,0,210,24,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text('COMMERCIAL INVOICE',14,12);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text('Codeverse Garments Pvt Ltd — Chennai, India',14,19);
+  doc.text('INV-2026-002',160,12);doc.text('Date: 08 Jun 2026',160,18);
+  doc.setTextColor(0,0,0);doc.setFontSize(8.5);
+  doc.setFont('helvetica','bold');doc.text('Consignee:',14,32);doc.setFont('helvetica','normal');doc.text('ABC Fashion Ltd, New York, USA',35,32);
+  doc.setFont('helvetica','bold');doc.text('Terms:',110,32);doc.setFont('helvetica','normal');doc.text('FOB Chennai | USD',125,32);
+  doc.setDrawColor(226,232,240);doc.line(14,38,196,38);
+  const ih=['Style','Description','Color','Size Breakup','Qty','Unit Price','Amount'];
+  const ix=[14,32,74,100,140,158,178];
+  doc.setFillColor(248,250,252);doc.rect(14,40,182,7,'F');
+  doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(100,116,139);
+  ih.forEach((h,i)=>doc.text(h,ix[i],45));
+  doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);
+  doc.text('CVS-2026-F03',14,52);doc.text('Cargo Shorts',32,52);doc.text('Olive Green',74,52);doc.text('28:50 30:60 32:50',100,52);doc.text('160 pcs',140,52);doc.text('$7.50',158,52);doc.text('$1,200.00',178,52);
+  doc.text('CVS-2026-F04',14,59);doc.text('Hooded Sweatshirt',32,59);doc.text('White',74,59);doc.text('S:40 M:60 L:100',100,59);doc.text('200 pcs',140,59);doc.text('$9.00',158,59);doc.text('$1,800.00',178,59);
+  doc.setDrawColor(226,232,240);doc.line(14,64,196,64);
+  doc.setFont('helvetica','bold');
+  doc.text('Sub-total: $3,000.00',14,71);doc.text('Freight: $280.00',80,71);doc.text('Insurance: $45.00',130,71);
+  doc.setFontSize(10);doc.text('Grand Total: USD 3,325.00',14,81);
+  doc.setFontSize(7.5);doc.setTextColor(148,163,184);doc.setFont('helvetica','normal');
+  doc.text('Generated by C-Edge ERP',14,285);
+  doc.save('PKG-2026-002_Invoice.pdf');
+}
+
+function toggleNav(el){
+  const p=el.closest('.nav-parent');
+  const c=p.querySelector('.nav-children');
+  const ch=el.querySelector('.nav-chevron');
+  const open=c.classList.contains('show');
+  document.querySelectorAll('.nav-children.show').forEach(x=>{x.classList.remove('show');x.closest('.nav-parent').querySelector('.nav-chevron').textContent='expand_more';});
+  if(!open){c.classList.add('show');ch.textContent='expand_less';}
+}
+
+document.querySelectorAll('.nav-parent.active-group .nav-children').forEach(c=>c.classList.add('show'));
+</script>
+</body>
+</html>

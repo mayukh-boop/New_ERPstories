@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packing & Invoice — C-Edge ERP</title>
+<link rel="stylesheet" href="design-system.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --sidebar-bg:#ffffff; --sidebar-hover:rgba(37,99,235,0.07); --sidebar-active:rgba(37,99,235,0.12);
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe; --brand-300:#93c5fd;
+  --brand-400:#60a5fa; --brand-500:#3b82f6; --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af;
+  --bg:#f0f2f7; --border:#e2e8f0; --border2:#f1f5f9;
+  --text-1:#0f172a; --text-2:#334155; --text-3:#64748b;
+}
+.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--border)!important;}
+.brand-name{color:#0f172a!important;font-weight:800!important;}
+.brand-sub{color:#94a3b8!important;}
+.sidebar-brand{border-bottom:1px solid var(--border)!important;}
+.nav-section{color:#94a3b8!important;font-size:10px!important;font-weight:700!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:16px 18px 4px!important;}
+.nav-parent-label{color:#334155!important;font-weight:500!important;}
+.nav-parent-icon{color:#94a3b8!important;}
+.nav-parent:hover .nav-parent-label{color:var(--brand-600)!important;}
+.nav-parent.active-group .nav-parent-label{color:var(--brand-600)!important;font-weight:600!important;}
+.nav-child{color:#64748b!important;font-size:12.5px!important;padding:7px 14px 7px 42px!important;border-radius:6px!important;margin:1px 8px!important;display:block!important;}
+.nav-child:hover{background:var(--sidebar-hover)!important;color:var(--brand-700)!important;}
+.nav-child.active{background:var(--sidebar-active)!important;color:var(--brand-700)!important;font-weight:600!important;}
+.nav-chevron{color:#cbd5e1!important;}
+.sidebar-footer{border-top:1px solid var(--border)!important;}
+.sf-name{color:#0f172a!important;} .sf-role{color:#94a3b8!important;} .sf-avatar{background:var(--brand-600)!important;}
+.topbar{border-bottom:1px solid #e2e8f0!important;box-shadow:0 1px 4px rgba(37,99,235,0.06)!important;}
+
+/* Status pills */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sp-draft     {background:#f3f4f6;color:#4b5563;}
+.sp-submitted {background:#fefce8;color:#92400e;}
+.sp-partial   {background:#eff6ff;color:#1e40af;}
+.sp-shipped   {background:#f0fdf4;color:#166534;}
+.sp-cancelled {background:#fef2f2;color:#991b1b;}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:all .18s;}
+.stat-card:hover{box-shadow:0 4px 12px rgba(37,99,235,.1);transform:translateY(-1px);}
+.stat-card.active{border-color:var(--brand-500);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.stat-num{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11.5px;color:var(--text-3);font-weight:500;}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:500;}
+
+/* Toolbar */
+.list-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:280px;}
+.search-wrap .material-symbols-outlined{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-3);}
+.search-input{height:34px;padding:0 10px 0 32px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%;outline:none;font-family:inherit;background:#fff;}
+.search-input:focus{border-color:var(--brand-500);}
+.filter-sel{height:34px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20'%3E%3Cpath fill='%239ca3af' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.filter-sel:focus{border-color:var(--brand-500);}
+.date-input{height:34px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;outline:none;font-family:inherit;background:#fff;}
+.date-input:focus{border-color:var(--brand-500);}
+
+/* Table */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.table-inner{overflow-x:auto;}
+.pkg-table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:auto;min-width:960px;}
+.pkg-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);padding:10px 14px;border-bottom:2px solid var(--border2);background:#f8fafc;white-space:nowrap;vertical-align:middle;}
+.pkg-table td{padding:10px 14px;border-bottom:1px solid var(--border2);color:var(--text-1);vertical-align:middle;font-size:12.5px;}
+.pkg-table tr:last-child td{border-bottom:none;}
+.pkg-table tbody tr:hover td{background:var(--brand-50);}
+.pkg-table .tc{text-align:center;}
+.pkg-table .tn{text-align:right;font-variant-numeric:tabular-nums;}
+.pkg-table .td-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;}
+
+/* BPO vs Direct row distinction */
+.pkg-table tbody tr.row-bpo > td:first-child{border-left:3px solid var(--brand-500);}
+.pkg-table tbody tr.row-direct > td:first-child{border-left:3px solid #f59e0b;}
+.tag-bpo{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle;white-space:nowrap;}
+.tag-direct{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;background:#fffbeb;color:#92400e;border:1px solid #fcd34d;border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle;white-space:nowrap;}
+.bpo-cell{font-size:12.5px;color:var(--text-1);}
+.direct-cell{font-size:12px;color:#92400e;font-style:italic;}
+
+/* Row actions */
+.row-actions{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;}
+.icon-action{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .15s;flex-shrink:0;text-decoration:none;}
+.icon-action:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50);}
+.icon-action .material-symbols-outlined{font-size:15px;}
+.icon-action.pdf-pkg:hover{border-color:#8b5cf6;color:#7c3aed;background:#f5f3ff;}
+.icon-action.pdf-inv:hover{border-color:#059669;color:#047857;background:#ecfdf5;}
+.icon-action.ship:hover{border-color:#059669;color:#047857;background:#ecfdf5;}
+
+/* Style chips */
+.style-chip{display:inline-block;background:var(--brand-50);color:var(--brand-700);border:1px solid var(--brand-200);border-radius:6px;font-size:11.5px;font-weight:600;padding:2px 8px;white-space:nowrap;}
+.style-more{display:inline-block;background:#f3f4f6;color:#6b7280;border-radius:6px;font-size:11px;padding:2px 7px;margin-left:4px;}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border2);font-size:12.5px;color:var(--text-3);}
+.page-btns{display:flex;gap:4px;}
+.page-btn{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--text-2);transition:all .15s;}
+.page-btn:hover,.page-btn.active{border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-50);}
+.page-btn.active{font-weight:700;}
+
+/* Empty state */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-3);}
+.empty-state .material-symbols-outlined{font-size:48px;color:#d1d5db;margin-bottom:12px;display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="material-symbols-outlined" style="color:var(--brand-600);font-size:22px;">inventory_2</span>
+    <div><div class="brand-name">C-Edge</div><div class="brand-sub">ERP Platform</div></div>
+  </div>
+  <nav class="sidebar-nav" style="flex:1;overflow-y:auto;padding:8px 0;">
+    <div class="nav-section">MASTERS</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">category</span>
+        <span class="nav-parent-label">Masters</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="#" class="nav-child">Color Master</a>
+        <a href="#" class="nav-child">Size Master</a>
+        <a href="#" class="nav-child">Process Master</a>
+        <a href="masters-fabric.html" class="nav-child">Fabric Master</a>
+        <a href="#" class="nav-child">UOM Master</a>
+      </div>
+    </div>
+
+    <div class="nav-section">PURCHASE</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">shopping_cart</span>
+        <span class="nav-parent-label">Purchase</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="#" class="nav-child">Buyer Order</a>
+        <a href="purchase-order-list.html" class="nav-child">Purchase Order</a>
+        <a href="po-receipts.html" class="nav-child">GRN Receipt</a>
+      </div>
+    </div>
+
+    <div class="nav-section">PRODUCTION</div>
+    <div class="nav-parent">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon">factory</span>
+        <span class="nav-parent-label">Production</span>
+        <span class="material-symbols-outlined nav-chevron">expand_more</span>
+      </div>
+      <div class="nav-children">
+        <a href="work-order-list.html" class="nav-child">Work Order</a>
+        <a href="production-process-list.html" class="nav-child">Production Process</a>
+        <a href="job-work-list.html" class="nav-child">Job Work</a>
+        <a href="job-work-payment-list.html" class="nav-child">Job Work Payment</a>
+      </div>
+    </div>
+
+    <div class="nav-section">SALES &amp; EXPORT</div>
+    <div class="nav-parent active-group">
+      <div class="nav-parent-row" onclick="toggleNav(this)">
+        <span class="material-symbols-outlined nav-parent-icon" style="color:var(--brand-600)!important;">package_2</span>
+        <span class="nav-parent-label">Packing &amp; Invoice</span>
+        <span class="material-symbols-outlined nav-chevron">expand_less</span>
+      </div>
+      <div class="nav-children show">
+        <a href="packing-invoice-list.html" class="nav-child active">Packing List</a>
+        <a href="packing-invoice-create.html" class="nav-child">New Packing</a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-avatar">HS</div>
+    <div><div class="sf-name">Hemalatha S</div><div class="sf-role">Admin</div></div>
+    <span class="material-symbols-outlined" style="color:#94a3b8;font-size:18px;margin-left:auto;cursor:pointer;">logout</span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="toggle-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <nav class="breadcrumb">
+      <span>Sales &amp; Export</span>
+      <span class="material-symbols-outlined" style="font-size:14px;color:#cbd5e1;">chevron_right</span>
+      <span class="bc-current">Packing &amp; Invoice</span>
+    </nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+      <button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:16px;">notifications</span></button>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--brand-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">HS</div>
+    </div>
+  </header>
+
+  <main class="page" style="padding:24px;">
+
+    <!-- Page header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:2px;">Packing &amp; Invoice</h1>
+        <p style="font-size:13px;color:var(--text-3);">Manage export packing lists and commercial invoices</p>
+      </div>
+      <a href="packing-invoice-create.html" class="btn btn-primary" style="display:flex;align-items:center;gap:6px;text-decoration:none;">
+        <span class="material-symbols-outlined" style="font-size:17px;">add</span>
+        New Packing &amp; Invoice
+      </a>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card active" onclick="filterByStatus('all', this)">
+        <div class="stat-num">12</div>
+        <div class="stat-label">Total Packings</div>
+        <div class="stat-sub" style="color:var(--text-3);">All time</div>
+      </div>
+      <div class="stat-card" onclick="filterByStatus('draft', this)">
+        <div class="stat-num" style="color:#4b5563;">3</div>
+        <div class="stat-label">Draft</div>
+        <div class="stat-sub" style="color:#4b5563;">Not submitted</div>
+      </div>
+      <div class="stat-card" onclick="filterByStatus('submitted', this)">
+        <div class="stat-num" style="color:#92400e;">5</div>
+        <div class="stat-label">Submitted</div>
+        <div class="stat-sub" style="color:#92400e;">Pending shipment</div>
+      </div>
+      <div class="stat-card" onclick="filterByStatus('partial', this)">
+        <div class="stat-num" style="color:#1e40af;">2</div>
+        <div class="stat-label">Partially Shipped</div>
+        <div class="stat-sub" style="color:#1e40af;">In transit</div>
+      </div>
+      <div class="stat-card" onclick="filterByStatus('shipped', this)">
+        <div class="stat-num" style="color:#166534;">2</div>
+        <div class="stat-label">Shipped / Closed</div>
+        <div class="stat-sub" style="color:#166534;">Completed</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input class="search-input" type="text" placeholder="Search packing ID, invoice, buyer PO…" oninput="filterTable()">
+      </div>
+      <select class="filter-sel" onchange="filterTable()" id="statusFilter">
+        <option value="">All Status</option>
+        <option value="DRAFT">Draft</option>
+        <option value="SUBMITTED">Submitted</option>
+        <option value="PARTIAL">Partially Shipped</option>
+        <option value="SHIPPED">Shipped</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+      <select class="filter-sel" onchange="filterTable()" id="typeFilter">
+        <option value="">All Types</option>
+        <option value="bpo">With Buyer PO</option>
+        <option value="direct">Direct Packing</option>
+      </select>
+      <select class="filter-sel" onchange="filterTable()">
+        <option value="">All Customers</option>
+        <option>XYZ Retail Corp</option>
+        <option>ABC Fashion Ltd</option>
+        <option>Global Wear Inc</option>
+      </select>
+      <input class="date-input" type="date" title="From Date">
+      <input class="date-input" type="date" title="To Date">
+      <button class="btn btn-ghost btn-sm" style="display:flex;align-items:center;gap:4px;">
+        <span class="material-symbols-outlined" style="font-size:15px;">download</span> Export
+      </button>
+      <button class="btn btn-ghost btn-sm" style="display:flex;align-items:center;gap:4px;" onclick="openColModal()">
+        <span class="material-symbols-outlined" style="font-size:15px;">view_column</span> Columns
+      </button>
+    </div>
+
+    <!-- Type legend -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:12px;color:var(--text-3);">
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:3px;height:16px;background:var(--brand-500);border-radius:2px;"></span><span class="tag-bpo" style="margin-left:0;">BPO</span> Packing against Buyer Purchase Order</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:3px;height:16px;background:#f59e0b;border-radius:2px;"></span><span class="tag-direct" style="margin-left:0;">Direct</span> Direct packing without Buyer PO</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-inner">
+      <table class="pkg-table" id="pkgTable">
+        <thead>
+          <tr>
+            <th style="min-width:150px;">Packing List ID</th>
+            <th style="min-width:115px;">Invoice No</th>
+            <th style="min-width:130px;">Buyer PO No</th>
+            <th style="min-width:170px;">Style No (Color)</th>
+            <th style="min-width:135px;">Customer</th>
+            <th style="min-width:105px;">Packing Date</th>
+            <th class="tc" style="width:95px;">Total Cartons</th>
+            <th style="width:120px;">Status</th>
+            <th class="tc" style="min-width:150px;white-space:nowrap;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pkgBody">
+
+          <!-- Row 1 — DRAFT, With BPO -->
+          <tr class="row-bpo" data-type="bpo" data-status="DRAFT" data-search="pkg-2026-001 inv-2026-001 bpo-2026-001 cvs-2026-f01 xyz retail">
+            <td>
+              <a href="packing-invoice-edit.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-001</a>
+              <span class="tag-bpo">BPO</span>
+            </td>
+            <td>INV-2026-001</td>
+            <td class="bpo-cell">BPO-2026-001</td>
+            <td>
+              <span class="style-chip">CVS-2026-F01 (Navy)</span>
+              <span class="style-more">+1</span>
+            </td>
+            <td>XYZ Retail Corp</td>
+            <td>10 Jun 2026</td>
+            <td class="tc" style="font-weight:700;">24</td>
+            <td><span class="sp sp-draft">Draft</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-edit.html" class="icon-action" title="Edit"><span class="material-symbols-outlined">edit</span></a>
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-001','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action pdf-inv" title="Invoice PDF" onclick="downloadPDF('PKG-2026-001','invoice')"><span class="material-symbols-outlined">receipt_long</span></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 2 — SUBMITTED, With BPO -->
+          <tr class="row-bpo" data-type="bpo" data-status="SUBMITTED" data-search="pkg-2026-002 inv-2026-002 bpo-2026-002 cvs-2026-f02 abc fashion">
+            <td>
+              <a href="packing-invoice-edit.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-002</a>
+              <span class="tag-bpo">BPO</span>
+            </td>
+            <td>INV-2026-002</td>
+            <td class="bpo-cell">BPO-2026-002</td>
+            <td>
+              <span class="style-chip">CVS-2026-F02 (Black)</span>
+              <span class="style-more">+2</span>
+            </td>
+            <td>ABC Fashion Ltd</td>
+            <td>08 Jun 2026</td>
+            <td class="tc" style="font-weight:700;">36</td>
+            <td><span class="sp sp-submitted">Submitted</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-edit.html" class="icon-action" title="Edit"><span class="material-symbols-outlined">edit</span></a>
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-002','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action pdf-inv" title="Invoice PDF" onclick="downloadPDF('PKG-2026-002','invoice')"><span class="material-symbols-outlined">receipt_long</span></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 3 — SUBMITTED, Direct Packing (no BPO) -->
+          <tr class="row-direct" data-type="direct" data-status="SUBMITTED" data-search="pkg-2026-003 inv-2026-003 cvs-2026-f03 global wear direct">
+            <td>
+              <a href="packing-invoice-edit.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-003</a>
+              <span class="tag-direct">Direct</span>
+            </td>
+            <td>INV-2026-003</td>
+            <td class="direct-cell">— Direct Packing —</td>
+            <td>
+              <span class="style-chip">CVS-2026-F03 (Red)</span>
+            </td>
+            <td>Global Wear Inc</td>
+            <td>05 Jun 2026</td>
+            <td class="tc" style="font-weight:700;">18</td>
+            <td><span class="sp sp-submitted">Submitted</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-edit.html" class="icon-action" title="Edit"><span class="material-symbols-outlined">edit</span></a>
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-003','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action pdf-inv" title="Invoice PDF" onclick="downloadPDF('PKG-2026-003','invoice')"><span class="material-symbols-outlined">receipt_long</span></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 4 — PARTIAL, With BPO -->
+          <tr class="row-bpo" data-type="bpo" data-status="PARTIAL" data-search="pkg-2026-004 inv-2026-004 bpo-2026-001 cvs-2026-f04 xyz retail">
+            <td>
+              <a href="packing-invoice-view.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-004</a>
+              <span class="tag-bpo">BPO</span>
+            </td>
+            <td>INV-2026-004</td>
+            <td class="bpo-cell">BPO-2026-001</td>
+            <td>
+              <span class="style-chip">CVS-2026-F04 (White)</span>
+              <span class="style-more">+3</span>
+            </td>
+            <td>XYZ Retail Corp</td>
+            <td>02 Jun 2026</td>
+            <td class="tc" style="font-weight:700;">48</td>
+            <td><span class="sp sp-partial">Partially Shipped</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-004','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action pdf-inv" title="Invoice PDF" onclick="downloadPDF('PKG-2026-004','invoice')"><span class="material-symbols-outlined">receipt_long</span></button>
+                <button class="icon-action ship" title="Mark as Shipped" onclick="showToast('Open packing to mark as shipped')"><span class="material-symbols-outlined">local_shipping</span></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 5 — SHIPPED, With BPO -->
+          <tr class="row-bpo" data-type="bpo" data-status="SHIPPED" data-search="pkg-2026-005 inv-2026-005 bpo-2026-002 cvs-2026-f01 abc fashion">
+            <td>
+              <a href="packing-invoice-view.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-005</a>
+              <span class="tag-bpo">BPO</span>
+            </td>
+            <td>INV-2026-005</td>
+            <td class="bpo-cell">BPO-2026-002</td>
+            <td>
+              <span class="style-chip">CVS-2026-F01 (Navy)</span>
+            </td>
+            <td>ABC Fashion Ltd</td>
+            <td>28 May 2026</td>
+            <td class="tc" style="font-weight:700;">30</td>
+            <td><span class="sp sp-shipped">Shipped</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-005','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action pdf-inv" title="Invoice PDF" onclick="downloadPDF('PKG-2026-005','invoice')"><span class="material-symbols-outlined">receipt_long</span></button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 6 — DRAFT, Direct Packing (no BPO) -->
+          <tr class="row-direct" data-type="direct" data-status="DRAFT" data-search="pkg-2026-006 no invoice cvs-2026-f05 xyz retail direct">
+            <td>
+              <a href="packing-invoice-edit.html" style="color:var(--brand-600);font-weight:600;text-decoration:none;">PKG-2026-006</a>
+              <span class="tag-direct">Direct</span>
+            </td>
+            <td style="color:var(--text-3);font-style:italic;">— (No Invoice)</td>
+            <td class="direct-cell">— Direct Packing —</td>
+            <td>
+              <span class="style-chip">CVS-2026-F05 (Grey)</span>
+              <span class="style-more">+1</span>
+            </td>
+            <td>XYZ Retail Corp</td>
+            <td>11 Jun 2026</td>
+            <td class="tc" style="font-weight:700;">12</td>
+            <td><span class="sp sp-draft">Draft</span></td>
+            <td class="tc">
+              <div class="row-actions">
+                <a href="packing-invoice-edit.html" class="icon-action" title="Edit"><span class="material-symbols-outlined">edit</span></a>
+                <a href="packing-invoice-view.html" class="icon-action" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <button class="icon-action pdf-pkg" title="Packing List PDF" onclick="downloadPDF('PKG-2026-006','packing')"><span class="material-symbols-outlined">package_2</span></button>
+                <button class="icon-action" title="Invoice not generated" style="opacity:.35;cursor:not-allowed;"><span class="material-symbols-outlined">receipt_long</span></button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div><!-- table-inner -->
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <span>Showing 6 of 12 records</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <select class="filter-sel" style="height:28px;font-size:12px;">
+            <option>10 / page</option><option>25 / page</option><option>50 / page</option>
+          </select>
+          <div class="page-btns">
+            <div class="page-btn"><span class="material-symbols-outlined" style="font-size:13px;">chevron_left</span></div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn"><span class="material-symbols-outlined" style="font-size:13px;">chevron_right</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Column Config Modal -->
+<div class="modal-overlay" id="colModal" style="display:none;" onclick="if(event.target===this)closeColModal()">
+  <div class="modal-box" style="width:360px;">
+    <div class="modal-header">
+      <span class="modal-title"><span class="material-symbols-outlined" style="font-size:18px;color:var(--brand-600);">view_column</span> Configure Columns</span>
+      <button style="background:none;border:none;cursor:pointer;" onclick="closeColModal()"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+    </div>
+    <div style="padding:16px 20px;">
+      <p style="font-size:12.5px;color:var(--text-3);margin-bottom:14px;">Toggle columns to show or hide in the table.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Packing List ID</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Invoice No</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Buyer PO No</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Style No (Color)</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Customer</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Packing Date</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> Total Cartons</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox"> Total Gross Wt</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox"> Total CBM</label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeColModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="closeColModal()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openColModal(){document.getElementById('colModal').style.display='flex';}
+function closeColModal(){document.getElementById('colModal').style.display='none';}
+function toggleNav(el){
+  const parent=el.closest('.nav-parent');
+  const children=parent.querySelector('.nav-children');
+  const chevron=el.querySelector('.nav-chevron');
+  const isOpen=children.classList.contains('show');
+  document.querySelectorAll('.nav-children.show').forEach(c=>{
+    c.classList.remove('show');
+    c.closest('.nav-parent').querySelector('.nav-chevron').textContent='expand_more';
+  });
+  if(!isOpen){children.classList.add('show');chevron.textContent='expand_less';}
+}
+
+function filterByStatus(status, card){
+  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  const sel=document.getElementById('statusFilter');
+  sel.value = status==='all'?'':status.toUpperCase();
+  filterTable();
+}
+
+function filterTable(){
+  const rows=document.querySelectorAll('#pkgBody tr');
+  const q=document.querySelector('.search-input').value.toLowerCase();
+  const s=document.getElementById('statusFilter').value;
+  const t=document.getElementById('typeFilter').value;
+  rows.forEach(r=>{
+    const search=r.dataset.search||'';
+    const st=r.dataset.status||'';
+    const tp=r.dataset.type||'';
+    const matchQ=!q||search.includes(q);
+    const matchS=!s||st===s;
+    const matchT=!t||tp===t;
+    r.style.display=(matchQ&&matchS&&matchT)?'':'none';
+  });
+}
+
+function showToast(msg){
+  let t=document.getElementById('listToast');
+  if(!t){t=document.createElement('div');t.id='listToast';t.style.cssText='position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .25s;';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,2500);
+}
+
+function downloadPDF(id, type) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const title = type === 'packing' ? 'PACKING LIST' : 'COMMERCIAL INVOICE';
+  const company = 'Codeverse Garments Pvt Ltd';
+  const addr = '42, Industrial Estate, Chennai - 600 058, India';
+
+  doc.setFillColor(37, 99, 235);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.text(title, 14, 14);
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text(company, 14, 21);
+  doc.text(addr, 14, 26);
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.text('Packing ID:', 14, 38); doc.setFont('helvetica', 'normal'); doc.text(id, 40, 38);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Invoice No:', 14, 44); doc.setFont('helvetica', 'normal'); doc.text('INV-2026-001', 40, 44);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Date:', 14, 50); doc.setFont('helvetica', 'normal'); doc.text('10 Jun 2026', 40, 50);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Customer:', 110, 38); doc.setFont('helvetica', 'normal'); doc.text('XYZ Retail Corp', 132, 38);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Destination:', 110, 44); doc.setFont('helvetica', 'normal'); doc.text('London, UK', 132, 44);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Terms:', 110, 50); doc.setFont('helvetica', 'normal'); doc.text('FOB Chennai', 132, 50);
+
+  doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.4);
+  doc.line(14, 56, 196, 56);
+
+  if (type === 'packing') {
+    const headers = ['Carton', 'Buyer PO', 'Style No', 'Color', 'Size', 'Qty', 'G.Wt(kg)', 'N.Wt(kg)', 'Dims(cm)'];
+    const rows = [
+      ['1–5','BPO-001','CVS-F01','Navy','S','50 pcs','2.5','2.2','60×40×40'],
+      ['6–10','BPO-001','CVS-F01','Navy','M','50 pcs','2.5','2.2','60×40×40'],
+      ['11–14','BPO-001','CVS-F01','Navy','L','40 pcs','2.4','2.1','60×40×40'],
+      ['15–18','BPO-001','CVS-F01','Navy','XL','40 pcs','2.4','2.1','60×40×40'],
+      ['19–24','BPO-001','CVS-F02','Black','S/M','60 pcs','2.6','2.3','60×40×40'],
+    ];
+    const xPos=[14,32,55,82,104,116,131,143,158];
+    doc.setFillColor(248,250,252); doc.rect(14,60,182,6,'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    headers.forEach((h,i)=>doc.text(h,xPos[i],64.5));
+    doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
+    rows.forEach((row,ri)=>{
+      const y=72+ri*8;
+      if(ri%2===1){doc.setFillColor(249,250,251);doc.rect(14,y-4,182,8,'F');}
+      row.forEach((cell,ci)=>doc.text(cell,xPos[ci],y));
+    });
+    doc.setDrawColor(226,232,240);doc.line(14,114,196,114);
+    doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Total Cartons: 24    Total Gross: 60.0 kg    Total Net: 54.0 kg    Total CBM: 2.304 m³',14,120);
+  } else {
+    const headers = ['Style No','Description','S','M','L','XL','Total Qty','Unit Price','Amount'];
+    const rows = [
+      ['CVS-F01','Round Neck Tee','50','50','40','40','180 pcs','$4.50','$810.00'],
+      ['CVS-F02','Polo Shirt','30','30','—','—','60 pcs','$6.00','$360.00'],
+    ];
+    const xPos=[14,34,82,92,102,112,122,142,162];
+    doc.setFillColor(248,250,252); doc.rect(14,60,182,6,'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(100,116,139);
+    headers.forEach((h,i)=>doc.text(h,xPos[i],64.5));
+    doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
+    rows.forEach((row,ri)=>{
+      const y=72+ri*8;
+      if(ri%2===1){doc.setFillColor(249,250,251);doc.rect(14,y-4,182,8,'F');}
+      row.forEach((cell,ci)=>doc.text(cell,xPos[ci],y));
+    });
+    doc.setDrawColor(226,232,240);doc.line(14,94,196,94);
+    doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Subtotal: $1,170.00    Freight: $150.00    Insurance: $25.00',14,101);
+    doc.setFontSize(10);doc.text('Grand Total: USD 1,345.00',14,110);
+  }
+
+  doc.setFontSize(7.5); doc.setTextColor(148,163,184); doc.setFont('helvetica','normal');
+  doc.text('Generated by C-Edge ERP — Codeverse Technology Solutions', 14, 285);
+  doc.text('Page 1 of 1', 170, 285);
+  doc.save(`${id}_${type}.pdf`);
+}
+
+// Init sidebar state
+document.querySelectorAll('.nav-parent.active-group .nav-children').forEach(c=>c.classList.add('show'));
+</script>
+</body>
+</html>
